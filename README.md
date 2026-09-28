@@ -19,3 +19,10 @@ Navigation : boutons, ou flèches ← → du clavier.
 
 La scène fait 1600×900 et s'adapte à la fenêtre.
 Chaque écran règle la largeur du panneau photo via `--pw` ; la photo s'anime d'un écran à l'autre.
+
+## Voix off
+
+- Un MP3 par écran dans `assets/audio/ecran-XX.mp3`, lié via `data-audio="ecran-XX"` sur la `<section>`.
+- Sous-titres dans `assets/audio/sous-titres.js` : `[début, fin, texte]` en secondes.
+- La voix démarre seule à l'arrivée sur l'écran. Si le navigateur bloque le son (premier écran), le bouton lecture clignote avec « Écouter la voix off ».
+- Sous-titres et coupure du son se règlent dans le dock en bas ; les choix sont mémorisés.

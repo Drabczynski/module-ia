@@ -86,6 +86,7 @@
     slide.classList.add("is-active");
 
     applyPhoto(slide);
+    loadVoice(slide);
     currentEl.textContent = pad(index + 1);
     progressEl.style.setProperty("--p", ((index + 1) / TOTAL_SCREENS * 100) + "%");
     backBtn.hidden = index === 0;
@@ -104,7 +105,7 @@
     var nextBtn = e.target.closest("[data-next]");
     if (nextBtn) {
       if (go(index + 1) === false) {
-        nextBtn.classList.remove("is-denied");
+        nextBtn.classList.remove("is-denied", "is-ready");
         void nextBtn.offsetWidth;
         nextBtn.classList.add("is-denied");
       }
@@ -215,6 +216,116 @@
     var n = parseInt(location.hash.slice(1), 10);
     if (!isNaN(n)) go(Math.max(0, Math.min(slides.length - 1, n - 1)));
   });
+
+  /* ---------- Voix off & sous-titres ---------- */
+
+  var audio = document.getElementById("voice");
+  var dock = stage.querySelector(".dock");
+  var capEl = stage.querySelector(".captions span");
+  var ccBtn = stage.querySelector("[data-cc]");
+  var muteBtn = stage.querySelector("[data-mute]");
+  var CAPTIONS = window.COURSE_CAPTIONS || {};
+  var cues = [], cueIdx = -1, startTimer, raf;
+
+  function setCC(on) {
+    state.cc = on;
+    stage.classList.toggle("has-cc", on);
+    ccBtn.setAttribute("aria-pressed", on);
+    ccBtn.setAttribute("aria-label", on ? "Masquer les sous-titres" : "Afficher les sous-titres");
+  }
+  function setMute(on) {
+    state.muted = on;
+    audio.muted = on;
+    muteBtn.setAttribute("aria-pressed", on);
+    muteBtn.setAttribute("aria-label", on ? "Remettre le son" : "Couper le son");
+  }
+
+  function setProgress(t) { dock.style.setProperty("--t", t); }
+
+  function showCue(i) {
+    if (i === cueIdx) return;
+    cueIdx = i;
+    if (i < 0) { capEl.classList.remove("is-on"); return; }
+    capEl.textContent = cues[i][2];
+    capEl.classList.add("is-on");
+  }
+
+  function syncCaptions() {
+    var t = audio.currentTime, i = -1;
+    for (var k = 0; k < cues.length; k++) if (cues[k][0] <= t) i = k;
+    // un sous-titre reste affiché jusqu'au suivant ; le dernier s'efface peu après sa fin
+    if (i === cues.length - 1 && t > cues[i][1] + 0.6) i = -1;
+    showCue(i);
+  }
+
+  function tick() {
+    if (audio.duration) setProgress(audio.currentTime / audio.duration);
+    syncCaptions();
+    raf = requestAnimationFrame(tick);
+  }
+
+  function play() {
+    if (!audio.getAttribute("src")) return;
+    var p = audio.play();
+    // lecture automatique refusée par le navigateur : on invite à cliquer
+    if (p && p.catch) p.catch(function () { dock.classList.add("is-waiting"); });
+  }
+
+  function loadVoice(slide) {
+    clearTimeout(startTimer);
+    audio.pause();
+    dock.classList.remove("is-playing", "is-waiting");
+    slide.querySelectorAll(".cta").forEach(function (c) { c.classList.remove("is-ready"); });
+    setProgress(0);
+
+    var id = slide.getAttribute("data-audio");
+    cues = (id && CAPTIONS[id]) || [];
+    cueIdx = -2;
+    showCue(-1);
+
+    if (!id) { audio.removeAttribute("src"); audio.load(); return; }
+    audio.src = "assets/audio/" + id + ".mp3";
+    // laisse l'écran s'installer avant que la voix ne démarre
+    startTimer = setTimeout(play, 700);
+  }
+
+  audio.addEventListener("play", function () {
+    dock.classList.add("is-playing");
+    dock.classList.remove("is-waiting");
+    cancelAnimationFrame(raf);
+    tick();
+  });
+  audio.addEventListener("pause", function () {
+    dock.classList.remove("is-playing");
+    cancelAnimationFrame(raf);
+  });
+  audio.addEventListener("ended", function () {
+    setProgress(1);
+    showCue(-1);
+    var cta = slides[index] && slides[index].querySelector(".cta");
+    if (cta) cta.classList.add("is-ready");
+  });
+
+  stage.querySelector("[data-audio-toggle]").addEventListener("click", function () {
+    clearTimeout(startTimer);
+    audio.paused ? play() : audio.pause();
+  });
+  stage.querySelector("[data-audio-replay]").addEventListener("click", function () {
+    clearTimeout(startTimer);
+    audio.currentTime = 0;
+    play();
+  });
+  ccBtn.addEventListener("click", function () {
+    setCC(!state.cc);
+    Tracking.save(state);
+  });
+  muteBtn.addEventListener("click", function () {
+    setMute(!state.muted);
+    Tracking.save(state);
+  });
+
+  setCC(!!state.cc);
+  setMute(!!state.muted);
 
   /* ---------- Démarrage ---------- */
 
