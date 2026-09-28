@@ -26,3 +26,14 @@ Chaque écran règle la largeur du panneau photo via `--pw` ; la photo s'anime d
 - Sous-titres dans `assets/audio/sous-titres.js` : `[début, fin, texte]` en secondes.
 - La voix démarre seule à l'arrivée sur l'écran. Si le navigateur bloque le son (premier écran), le bouton lecture clignote avec « Écouter la voix off ».
 - Sous-titres et coupure du son se règlent dans le dock en bas ; les choix sont mémorisés.
+
+## Conformité au storyboard
+
+- Retours pédagogiques exacts du storyboard (QCM, bilan et écrans de contenu).
+- Écran 3.08 : validation sur 4 critères (Réussi / À reprendre), 3 soumissions maximum, « Voir la correction ».
+- Menu (bouton en haut à droite) : écrans par séquence, écrans vus accessibles, « Mes repères » avec la fiche.
+- Suivi : mode réel ou simulation (écran 3.02), manipulation déclarée, résultat déposé et simulation enregistrés séparément.
+  `CourseTracking.snapshot()` renvoie l'état complet pour le futur adaptateur SCORM.
+- La réponse ChatGPT de l'écran 3.13 vient de `window.COURSE_CONTEXT.chatgptFirstResponse` (plateforme) ;
+  à défaut, la réponse illustrative relue du storyboard est affichée avec la mention « exemple ».
+- Sous 820 px de large, la scène devient une page où les colonnes s'empilent.

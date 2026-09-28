@@ -37,9 +37,25 @@
 
   /* ---------- Mise à l'échelle de la scène ---------- */
 
+  // sous 820 px de large, la scène 16:9 devient une page où les colonnes s'empilent
+  var FLOW_MAX = 820;
+  var fitEls = stage.querySelectorAll("[data-fit]");
+
   function fit() {
-    var s = Math.min(window.innerWidth / STAGE_W, window.innerHeight / STAGE_H);
-    stage.style.setProperty("--scale", s);
+    var flow = window.innerWidth < FLOW_MAX;
+    document.documentElement.classList.toggle("is-flow", flow);
+    if (!flow) {
+      stage.style.setProperty("--scale", Math.min(window.innerWidth / STAGE_W, window.innerHeight / STAGE_H));
+      fitEls.forEach(function (el) { el.style.zoom = ""; el.style.removeProperty("--fw"); });
+      return;
+    }
+    // les maquettes d'interface gardent leurs proportions, réduites à la largeur disponible
+    var avail = window.innerWidth - 32;
+    fitEls.forEach(function (el) {
+      var w = +el.dataset.fit;
+      el.style.setProperty("--fw", w + "px");
+      el.style.zoom = Math.min(1, avail / w);
+    });
   }
   window.addEventListener("resize", fit);
   fit();
@@ -58,6 +74,7 @@
     });
     stage.toggleAttribute("data-fade", slide.hasAttribute("data-fade"));
     stage.toggleAttribute("data-back-on-photo", slide.hasAttribute("data-back-on-photo"));
+    stage.toggleAttribute("data-nophoto", slide.getAttribute("data-photo") === "none");
     var which = slide.getAttribute("data-photo");
     for (var i = 0; i < photos.length; i++) {
       photos[i].classList.toggle("is-on", photos[i].getAttribute("data-photo") === which);
@@ -101,6 +118,7 @@
     Tracking.save(state);
     if (history.replaceState) history.replaceState(null, "", "#" + (index + 1));
 
+    if (document.documentElement.classList.contains("is-flow")) window.scrollTo(0, 0);
     var focusTarget = slide.querySelector(".h1");
     if (focusTarget) { focusTarget.setAttribute("tabindex", "-1"); focusTarget.focus({ preventScroll: true }); }
     return true;
@@ -119,7 +137,8 @@
   });
 
   document.addEventListener("keydown", function (e) {
-    if (e.target.closest && e.target.closest("input, textarea, [contenteditable]")) return;
+    if (e.target.closest && e.target.closest("input, textarea, select, [contenteditable]")) return;
+    if (!stage.querySelector("[data-menu]").hidden) return;
     if (e.key === "ArrowRight" || e.key === "PageDown") go(index + 1);
     if (e.key === "ArrowLeft" || e.key === "PageUp") go(index - 1);
     if (e.key === "Escape") closeTips(slides[index]);
@@ -158,6 +177,7 @@
       explored.querySelector(".label").textContent = n === spots.length ? "Tous les repères vus" : n + " / " + spots.length + " repères";
       explored.querySelector(".bar span").style.setProperty("--e", (n / spots.length * 100) + "%");
       explored.classList.toggle("is-done", n === spots.length);
+      if (n === spots.length) showNote(app.closest(".content").querySelector("[data-spots-fb]"));
     }
 
     function show(id) {
@@ -267,6 +287,7 @@
     copyText(readable(src)).then(function () {
       label.textContent = "Copié";
       btn.classList.add("is-done");
+      if (btn.hasAttribute("data-copy-fb")) showNote(btn.closest(".slide").querySelector("[data-copy-note]"));
     }, function () {
       label.textContent = "Sélectionnez le texte";
     });
@@ -274,9 +295,10 @@
     btn._t = setTimeout(function () { label.textContent = initial; btn.classList.remove("is-done"); }, 2000);
   });
 
-  /* ---------- Écran 5 : associer besoins et fonctions ---------- */
+  /* ---------- Écran 5 : associer étiquettes et catégories ---------- */
 
-  var PAIR_COLORS = ["#1f5cf0", "#e2560d", "#7c4dff", "#0f9aa8"];
+  // une couleur par catégorie : toutes les étiquettes rangées dans une catégorie prennent sa couleur
+  var CAT_COLORS = ["#1f5cf0", "#e2560d", "#7c4dff", "#0f9aa8"];
 
   Array.prototype.forEach.call(stage.querySelectorAll("[data-match]"), function (box) {
     var slide = box.closest(".slide");
@@ -285,26 +307,31 @@
     var cta = slide.querySelector("[data-check='match']");
     var ctaLabel = cta.querySelector(".cta-label");
     var cards = Array.prototype.slice.call(box.querySelectorAll(".m-card"));
-    var pairs = [];          // [{ need, fn, color }]
+    var needs = cards.filter(function (c) { return c.dataset.side === "need"; });
+    var fns = cards.filter(function (c) { return c.dataset.side === "fn"; });
+    var links = [];          // [{ need, fn, state, drawn }] — une catégorie accepte plusieurs étiquettes
     var selected = null;
     var saved = state.match || (state.match = { attempts: 0, done: false });
 
-    function pairOf(card) {
-      for (var i = 0; i < pairs.length; i++) if (pairs[i].need === card || pairs[i].fn === card) return pairs[i];
+    fns.forEach(function (f, i) {
+      f.dataset.color = CAT_COLORS[i % CAT_COLORS.length];
+      var n = document.createElement("span");
+      n.className = "m-count";
+      n.setAttribute("aria-hidden", "true");
+      f.appendChild(n);
+    });
+
+    function linkOf(need) {
+      for (var i = 0; i < links.length; i++) if (links[i].need === need) return links[i];
       return null;
     }
-    function freeColor() {
-      for (var i = 0; i < PAIR_COLORS.length; i++) {
-        if (!pairs.some(function (p) { return p.color === PAIR_COLORS[i]; })) return PAIR_COLORS[i];
-      }
-      return PAIR_COLORS[0];
-    }
+    function linksTo(fn) { return links.filter(function (l) { return l.fn === fn; }); }
 
     function draw() {
       svg.innerHTML = "";
-      pairs.forEach(function (p) {
+      links.forEach(function (l) {
         // les positions sont lues en unités de la scène (indépendantes du zoom)
-        var a = p.need, b = p.fn;
+        var a = l.need, b = l.fn;
         var x1 = a.offsetParent.offsetLeft + a.offsetLeft + a.offsetWidth - 20;
         var y1 = a.offsetParent.offsetTop + a.offsetTop + a.offsetHeight / 2;
         var x2 = b.offsetParent.offsetLeft + b.offsetLeft + 20;
@@ -312,25 +339,34 @@
         var dx = (x2 - x1) * 0.55;
         var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
         path.setAttribute("d", "M" + x1 + " " + y1 + " C" + (x1 + dx) + " " + y1 + " " + (x2 - dx) + " " + y2 + " " + x2 + " " + y2);
-        var c = p.state === "good" ? "#1a9a5a" : p.state === "bad" ? "#d93636" : p.color;
-        path.setAttribute("stroke", c);
+        path.setAttribute("stroke", l.state === "good" ? "#1a9a5a" : l.state === "bad" ? "#d93636" : l.fn.dataset.color);
         svg.appendChild(path);
-        var len = path.getTotalLength();
-        path.style.setProperty("--len", len);
-        if (p.drawn) { path.style.animation = "none"; path.style.strokeDashoffset = 0; }
-        p.drawn = true;
+        path.style.setProperty("--len", path.getTotalLength());
+        if (l.drawn) { path.style.animation = "none"; path.style.strokeDashoffset = 0; }
+        l.drawn = true;
       });
     }
 
     function paint() {
+      needs.forEach(function (c) {
+        var l = linkOf(c);
+        c.classList.toggle("is-paired", !!l);
+        c.classList.toggle("is-good", !!l && l.state === "good");
+        c.classList.toggle("is-bad", !!l && l.state === "bad");
+        c.classList.toggle("is-locked", !!l && l.state === "good");
+        c.style.setProperty("--c", l && !l.state ? l.fn.dataset.color : "");
+      });
+      fns.forEach(function (c) {
+        var ls = linksTo(c);
+        c.classList.toggle("is-paired", ls.length > 0);
+        c.classList.toggle("is-good", ls.length > 0 && ls.every(function (l) { return l.state === "good"; }));
+        c.classList.toggle("is-bad", ls.some(function (l) { return l.state === "bad"; }));
+        c.style.setProperty("--c", ls.length && !ls[0].state ? c.dataset.color : "");
+        var n = c.querySelector(".m-count");
+        if (n) n.textContent = ls.length > 1 ? ls.length : "";
+      });
       cards.forEach(function (c) {
-        var p = pairOf(c);
-        c.classList.toggle("is-paired", !!p);
         c.classList.toggle("is-selected", c === selected);
-        c.classList.toggle("is-good", !!p && p.state === "good");
-        c.classList.toggle("is-bad", !!p && p.state === "bad");
-        c.classList.toggle("is-locked", !!p && p.state === "good");
-        c.style.setProperty("--c", p && !p.state ? p.color : "");
         c.setAttribute("aria-pressed", c === selected);
       });
       draw();
@@ -342,26 +378,88 @@
       help.classList.toggle("is-bad", tone === "bad");
     }
 
+    function progressHelp() {
+      var left = needs.length - links.length;
+      setHelp(left ? (selected ? (selected.dataset.side === "need" ? "Choisissez maintenant sa catégorie." : "Choisissez maintenant une étiquette.")
+                               : "Encore " + left + " étiquette" + (left > 1 ? "s" : "") + " à placer.")
+                   : "Toutes les étiquettes sont placées. Cliquez sur Valider.");
+    }
+
+    function assign(need, fn) {
+      var l = linkOf(need);
+      if (l) links.splice(links.indexOf(l), 1);
+      links.push({ need: need, fn: fn });
+      selected = null;
+      progressHelp();
+      paint();
+    }
+
+    function onCard(card) {
+      if (saved.done || card.classList.contains("is-locked")) return;
+      var side = card.dataset.side;
+      if (selected && selected !== card && selected.dataset.side !== side) {
+        assign(side === "need" ? card : selected, side === "fn" ? card : selected);
+        return;
+      }
+      if (side === "need" && !selected && linkOf(card)) {       // re-choisir une étiquette déjà placée
+        links.splice(links.indexOf(linkOf(card)), 1);
+      }
+      selected = selected === card ? null : card;
+      progressHelp();
+      paint();
+    }
+
+    var suppressClick = false;
     box.addEventListener("click", function (e) {
       var card = e.target.closest(".m-card");
-      if (!card || saved.done) return;
-      var existing = pairOf(card);
-      if (existing) {                           // re-cliquer défait l'association
-        pairs.splice(pairs.indexOf(existing), 1);
-        selected = card;
-      } else if (!selected || selected === card) {
-        selected = selected === card ? null : card;
-      } else if (selected.dataset.side === card.dataset.side) {
-        selected = card;
-      } else {
-        var need = card.dataset.side === "need" ? card : selected;
-        var fn = card.dataset.side === "fn" ? card : selected;
-        pairs.push({ need: need, fn: fn, color: freeColor() });
-        selected = null;
+      if (!card) return;
+      if (suppressClick) { suppressClick = false; return; }
+      onCard(card);
+    });
+
+    /* glisser-déposer : une étiquette se dépose sur une catégorie */
+    var drag = null;
+    box.addEventListener("pointerdown", function (e) {
+      var card = e.target.closest('.m-card[data-side="need"]');
+      if (!card || saved.done || card.classList.contains("is-locked") || e.button !== 0) return;
+      drag = { card: card, x: e.clientX, y: e.clientY, ghost: null, over: null };
+    });
+    window.addEventListener("pointermove", function (e) {
+      if (!drag) return;
+      if (!drag.ghost) {
+        if (Math.abs(e.clientX - drag.x) + Math.abs(e.clientY - drag.y) < 8) return;
+        var r = drag.card.getBoundingClientRect();
+        var g = drag.card.cloneNode(true);
+        g.classList.add("m-ghost");
+        g.style.width = drag.card.offsetWidth + "px";
+        g.style.height = drag.card.offsetHeight + "px";
+        g.style.setProperty("--gs", r.width / drag.card.offsetWidth);
+        document.body.appendChild(g);
+        drag.ghost = g;
+        drag.dx = e.clientX - r.left;
+        drag.dy = e.clientY - r.top;
+        drag.card.classList.add("is-dragging");
       }
-      var left = cards.length / 2 - pairs.length;
-      setHelp(left ? (selected ? "Choisissez maintenant l’élément correspondant dans l’autre colonne." : "Encore " + left + " association" + (left > 1 ? "s" : "") + " à faire.") : "Tout est associé. Cliquez sur Valider.");
-      paint();
+      drag.ghost.style.left = (e.clientX - drag.dx) + "px";
+      drag.ghost.style.top = (e.clientY - drag.dy) + "px";
+      var el = document.elementFromPoint(e.clientX, e.clientY);
+      var over = el && el.closest && el.closest('.m-card[data-side="fn"]');
+      if (over !== drag.over) {
+        if (drag.over) drag.over.classList.remove("is-drop");
+        if (over) over.classList.add("is-drop");
+        drag.over = over;
+      }
+    });
+    window.addEventListener("pointerup", function () {
+      if (!drag) return;
+      if (drag.ghost) {
+        drag.ghost.remove();
+        drag.card.classList.remove("is-dragging");
+        if (drag.over) { drag.over.classList.remove("is-drop"); assign(drag.card, drag.over); }
+        suppressClick = true;
+        setTimeout(function () { suppressClick = false; }, 0);
+      }
+      drag = null;
     });
 
     function succeed() {
@@ -372,43 +470,147 @@
       // différé : le clic de validation ne doit pas aussi faire avancer
       setTimeout(function () { cta.setAttribute("data-next", ""); }, 0);
       cta.removeAttribute("data-check");
-      setHelp("Bravo, les quatre associations sont justes.", "good");
+      setHelp("Bravo, les quatre associations sont exactes.", "good");
     }
 
     cta.addEventListener("click", function () {
       if (saved.done) return;                  // la navigation est gérée par [data-next]
-      if (pairs.length < cards.length / 2) {
-        setHelp("Associez les quatre besoins avant de valider.", "bad");
+      if (links.length < needs.length) {
+        setHelp("Placez les quatre étiquettes avant de valider.", "bad");
         cta.classList.remove("is-denied"); void cta.offsetWidth; cta.classList.add("is-denied");
         return;
       }
       saved.attempts++;
       var wrong = 0;
-      pairs.forEach(function (p) {
-        p.state = p.need.dataset.key === p.fn.dataset.key ? "good" : "bad";
-        p.drawn = false;
-        if (p.state === "bad") wrong++;
+      links.forEach(function (l) {
+        l.state = l.need.dataset.key === l.fn.dataset.key ? "good" : "bad";
+        l.drawn = false;
+        if (l.state === "bad") wrong++;
       });
-      // le score retenu est celui du premier essai (1 point par bonne association)
-      if (saved.firstScore == null) saved.firstScore = pairs.length - wrong;
+      // le score retenu est celui du premier essai (1 point par association exacte)
+      if (saved.firstScore == null) saved.firstScore = links.length - wrong;
+      selected = null;
       paint();
       Tracking.save(state);
       if (!wrong) { succeed(); return; }
       setHelp(wrong + " association" + (wrong > 1 ? "s" : "") + " à revoir. Les bonnes réponses restent en place.", "bad");
       setTimeout(function () {
-        pairs = pairs.filter(function (p) { return p.state === "good"; });
+        links = links.filter(function (l) { return l.state === "good"; });
         paint();
       }, 1400);
     });
 
     // exercice déjà réussi lors d'une visite précédente : on affiche la solution
     if (saved.done) {
-      var byKey = {};
-      cards.forEach(function (c) { (byKey[c.dataset.key] = byKey[c.dataset.key] || {})[c.dataset.side] = c; });
-      Object.keys(byKey).forEach(function (k, i) { pairs.push({ need: byKey[k].need, fn: byKey[k].fn, color: PAIR_COLORS[i], state: "good" }); });
+      needs.forEach(function (n) {
+        var f = fns.filter(function (x) { return x.dataset.key === n.dataset.key; })[0];
+        links.push({ need: n, fn: f, state: "good" });
+      });
       succeed();
     }
-    box._redraw = function () { pairs.forEach(function (p) { p.drawn = false; }); paint(); };
+    box._redraw = function () { links.forEach(function (l) { l.drawn = false; }); paint(); };
+  });
+
+  /* ---------- Retours pédagogiques des écrans de contenu ---------- */
+
+  function showNote(el) { if (el) el.classList.add("is-on"); }
+  stage.querySelectorAll(".fb-note[data-always]").forEach(showNote);
+
+  /* ---------- Écran 2 : accès réel ou simulation (enregistrés séparément) ---------- */
+
+  state.practice = state.practice || { declared: false, deposited: false, simulated: false };
+
+  stage.querySelectorAll("[data-mode]").forEach(function (btn) {
+    btn.setAttribute("aria-pressed", state.mode === btn.dataset.mode);
+    btn.addEventListener("click", function () {
+      state.mode = btn.dataset.mode;
+      if (state.mode === "reel") state.practice.declared = true;
+      if (state.mode === "simulation") state.practice.simulated = true;
+      stage.querySelectorAll("[data-mode]").forEach(function (b) { b.setAttribute("aria-pressed", b === btn); });
+      Tracking.save(state);
+    });
+  });
+
+  /* ---------- Écran 3 : cliquer sur les noms, puis sur les échéances ---------- */
+
+  stage.querySelectorAll("[data-tokens]").forEach(function (p) {
+    var slide = p.closest(".slide");
+    var done = state.tok03 || (state.tok03 = {});
+    var FILL = {
+      nora: { a1: "Préparer l’affiche", r1: "Nora" },
+      sami: { a2: "Vérifier le stock", r2: "Sami" },
+      d5: { e1: "5 novembre" },
+      d6: { e2: "6 novembre" }
+    };
+    function cell(id) { return slide.querySelector('[data-cell="' + id + '"]'); }
+    function paint(animate) {
+      Object.keys(FILL).forEach(function (k) {
+        var t = p.querySelector('[data-tok="' + k + '"]');
+        t.classList.toggle("is-done", !!done[k]);
+        if (done[k]) Object.keys(FILL[k]).forEach(function (c) {
+          var el = cell(c);
+          if (!el.classList.contains("is-filled")) {
+            el.textContent = FILL[k][c];
+            el.classList.add("is-filled");
+            if (animate) { el.classList.add("is-pop"); }
+          }
+        });
+      });
+      var namesDone = done.nora && done.sami;
+      ["d5", "d6"].forEach(function (k) {
+        var t = p.querySelector('[data-tok="' + k + '"]');
+        t.disabled = !namesDone || !!done[k];
+        t.classList.toggle("is-next", namesDone && !done[k]);
+      });
+      ["nora", "sami"].forEach(function (k) { p.querySelector('[data-tok="' + k + '"]').disabled = !!done[k]; });
+      if (namesDone && done.d5 && done.d6) {
+        cell("a3").textContent = "Confirmer le lieu";
+        cell("r3").innerHTML = '<span class="unk">à confirmer</span>';
+        cell("e3").innerHTML = '<span class="unk">à confirmer</span>';
+        ["a3", "r3", "e3"].forEach(function (c) { cell(c).classList.add("is-filled"); });
+        slide.querySelector("[data-tok-hint]").hidden = true;
+        showNote(slide.querySelector("[data-tok-fb]"));
+      }
+    }
+    p.addEventListener("click", function (e) {
+      var t = e.target.closest(".tok");
+      if (!t || t.disabled) return;
+      done[t.dataset.tok] = true;
+      Tracking.save(state);
+      paint(true);
+    });
+    paint(false);
+  });
+
+  /* ---------- Écran 7 : révéler le prompt, puis la réponse ---------- */
+
+  stage.querySelectorAll(".s-result").forEach(function (slide) {
+    var level = state.reveal07 || 0;
+    var fbTimer;
+    function paint(animate) {
+      ["prompt", "answer"].forEach(function (k, i) {
+        var panel = slide.querySelector('[data-reveal-panel="' + k + '"]');
+        var on = level > i;
+        panel.classList.toggle("is-veiled", !on);
+        panel.classList.toggle("is-revealed", on);
+        if (on && !animate) panel.classList.add("no-stream");
+      });
+      slide.querySelector('[data-reveal="answer"]').disabled = level < 1;
+      if (level >= 2) {
+        clearTimeout(fbTimer);
+        fbTimer = setTimeout(function () { showNote(slide.querySelector("[data-reveal-fb]")); }, animate ? 1800 : 0);
+      }
+    }
+    slide.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-reveal]");
+      if (!b || b.disabled) return;
+      level = Math.max(level, b.dataset.reveal === "prompt" ? 1 : 2);
+      state.reveal07 = level;
+      Tracking.save(state);
+      paint(true);
+      if (b.dataset.reveal === "prompt") slide.querySelector('[data-reveal="answer"]').focus();
+    });
+    paint(false);
   });
 
   /* ---------- Écran 7 : relier chaque ligne à sa note ---------- */
@@ -424,14 +626,44 @@
     slide.addEventListener("mouseleave", function () { lit(null); });
   });
 
-  /* ---------- Écran 8 : tableau à compléter (collage intelligent) ---------- */
+  /* ---------- Écran 8 : tableau à compléter, validé sur 4 critères ---------- */
+
+  var MAX_SUBMISSIONS = 3;
+  var CRIT_LABELS = ["Actions conformes", "Responsables exacts", "Échéances exactes", "Inconnues signalées"];
+  var STATUS_LABEL = { ok: "Respecté", part: "Partiel", ko: "À reprendre" };
+
+  // contrôle déterministe du tableau déposé, fondé sur la source de l'exercice
+  function checkTable(rows) {
+    var lines = rows.map(function (r) { return { a: (r[0] || "").toLowerCase(), r: (r[1] || "").toLowerCase(), e: (r[2] || "").toLowerCase() }; })
+      .filter(function (l) { return l.a || l.r || l.e; });
+    var find = function (re) { return lines.filter(function (l) { return re.test(l.a); })[0]; };
+    var aff = find(/affiche/), sto = find(/stock/), lieu = find(/lieu/);
+    var np = /non pr[ée]cis[ée]e?/;
+    var level = function (n, of) { return n === of ? "ok" : n > 0 ? "part" : "ko"; };
+
+    var c1 = [aff, sto, lieu].filter(Boolean).length;
+    var c2 = (aff && /nora/.test(aff.r) ? 1 : 0) + (sto && /sami/.test(sto.r) ? 1 : 0);
+    var c3 = (aff && /\b5\b/.test(aff.e) ? 1 : 0) + (sto && /\b6\b/.test(sto.e) ? 1 : 0);
+    var c4 = lieu ? (np.test(lieu.r) ? 1 : 0) + (np.test(lieu.e) ? 1 : 0) : 0;
+    // un nom ou une date inventés pour le lieu ne peuvent pas être « signalés »
+    if (lieu && (/nora|sami/.test(lieu.r) || /\d/.test(lieu.e))) c4 = Math.min(c4, 1);
+    return [level(c1, 3), level(c2, 2), level(c3, 2), level(c4, 2)];
+  }
 
   Array.prototype.forEach.call(stage.querySelectorAll("[data-edit-table]"), function (grid) {
-    var ROWS = 4, COLS = 3;
+    var ROWS = 3, COLS = 3;
+    var slide = grid.closest(".slide");
     var status = grid.closest(".box").querySelector(".fill-state");
+    var checks = slide.querySelector("[data-checks]");
+    var hintHTML = checks.innerHTML;
+    var cta = slide.querySelector("[data-check='table']");
+    var ctaLabel = cta.querySelector(".cta-label");
+    var corr = slide.querySelector("[data-correction]");
     var data = state.table || (state.table = []);
+    var build = state.build || (state.build = { subs: [], correctionSeen: false });
     var cells = [];
     var PH = ["Action", "Responsable", "Échéance"];
+    var dirty = false;         // modifié depuis la dernière validation
 
     for (var r = 0; r < ROWS; r++) {
       data[r] = data[r] || ["", "", ""];
@@ -448,12 +680,64 @@
         cells.push(ta);
       }
     }
+    data.length = ROWS;
+
+    function filledRows() { return data.filter(function (row) { return row.some(function (v) { return v && v.trim(); }); }).length; }
+
+    function canContinue() { return (build.subs.length && !dirty) || build.correctionSeen || build.subs.length >= MAX_SUBMISSIONS; }
 
     function refresh() {
-      var rows = data.filter(function (row) { return row.some(function (v) { return v.trim(); }); }).length;
+      var rows = filledRows();
       status.textContent = rows ? rows + " ligne" + (rows > 1 ? "s" : "") + " remplie" + (rows > 1 ? "s" : "") : "";
       status.classList.toggle("is-done", rows >= 3);
+      var cont = canContinue() && !(dirty && build.subs.length < MAX_SUBMISSIONS);
+      ctaLabel.textContent = cont ? "Continuer" : "Valider";
+      cta.classList.toggle("is-success", cont && build.subs.length > 0 && build.subs[build.subs.length - 1].every(function (s) { return s === "ok"; }));
     }
+
+    function renderChecks() {
+      var last = build.subs[build.subs.length - 1];
+      if (!last) { checks.innerHTML = hintHTML; return; }
+      var ok = last.every(function (s) { return s === "ok"; });
+      var left = MAX_SUBMISSIONS - build.subs.length;
+      checks.innerHTML =
+        '<ul class="crit">' + last.map(function (st, i) {
+          return '<li><span class="cs cs--' + st + '">' + STATUS_LABEL[st] + "</span>" + CRIT_LABELS[i] + "</li>";
+        }).join("") + "</ul>" +
+        '<p class="check-msg ' + (ok ? "is-good" : "is-bad") + '"><b>' + (ok ? "Réussi" : "À reprendre") + " :</b> " +
+        (ok ? "Les critères sont respectés. Contrôlez encore les faits avant utilisation."
+            : "Comparez avec la source. Corrigez le point indiqué, puis essayez de nouveau.") +
+        ' <span class="subs">Soumission ' + build.subs.length + " sur " + MAX_SUBMISSIONS + (ok || !left ? "" : "") + "</span></p>";
+    }
+
+    function validate() {
+      if (!filledRows()) {
+        checks.innerHTML = '<p class="check-msg is-bad">Collez ou saisissez votre tableau, puis validez. Vous pouvez aussi consulter la correction.</p>';
+        cta.classList.remove("is-denied"); void cta.offsetWidth; cta.classList.add("is-denied");
+        return;
+      }
+      build.subs.push(checkTable(data));
+      state.practice.deposited = true;
+      dirty = false;
+      Tracking.save(state);
+      renderChecks();
+      refresh();
+    }
+
+    cta.addEventListener("click", function () {
+      if (canContinue() && !(dirty && build.subs.length < MAX_SUBMISSIONS)) { go(index + 1); return; }
+      validate();
+    });
+
+    slide.querySelector("[data-show-correction]").addEventListener("click", function () {
+      build.correctionSeen = true;
+      Tracking.save(state);
+      corr.hidden = false;
+      refresh();
+    });
+    corr.addEventListener("click", function (e) {
+      if (e.target === corr || e.target.closest("[data-correction-close]")) corr.hidden = true;
+    });
 
     function parse(text) {
       var rows = text.replace(/\r/g, "").split("\n").map(function (l) { return l.trim(); }).filter(Boolean);
@@ -476,6 +760,12 @@
       return out;
     }
 
+    function changed() {
+      if (build.subs.length) dirty = true;
+      Tracking.save(state);
+      refresh();
+    }
+
     grid.addEventListener("paste", function (e) {
       var cell = e.target.closest(".e-cell");
       var text = (e.clipboardData || window.clipboardData).getData("text");
@@ -496,17 +786,16 @@
           target.classList.add("is-filled-anim");
         });
       });
-      Tracking.save(state);
-      refresh();
+      changed();
     });
 
     grid.addEventListener("input", function (e) {
       var cell = e.target;
       data[+cell.dataset.r][+cell.dataset.c] = cell.value;
-      Tracking.save(state);
-      refresh();
+      changed();
     });
 
+    renderChecks();
     refresh();
   });
 
@@ -591,6 +880,7 @@
     var timer;
     function show(which) {
       fix.classList.toggle("is-before", which === "before");
+      if (which === "after") showNote(slide.querySelector("[data-fix-fb]"));
       fix.querySelectorAll("[data-ba]").forEach(function (b) { b.setAttribute("aria-selected", b.dataset.ba === which); });
     }
     fix.addEventListener("click", function (e) {
@@ -622,16 +912,31 @@
         tile.classList.remove("is-loading");
         tile.classList.add("is-done");
         label.textContent = "Fichier joint · Retirer";
+        state.practice.attachDemo = true;
+        Tracking.save(state);
+        showNote(tile.closest(".slide").querySelector("[data-copy-note]"));
       }, 1150);
     });
   });
 
-  /* ---------- Écrans 13 et 16 : réponses collées par l'apprenant ---------- */
+  /* ---------- Écrans 13 et 16 : réponses comparées ---------- */
 
   state.answers = state.answers || {};
   var WORD_LIMIT = 60;
+  // réponse illustrative relue (storyboard), utilisée si la plateforme ne transmet pas la réponse conservée au module 2
+  var GPT_REFERENCE = "L’accueil sera fermé le 12 octobre de 14 h à 16 h. Vous pouvez laisser un message pendant cette fermeture. Merci de votre compréhension.";
 
   function countWords(t) { return (t.match(/\S+/g) || []).length; }
+
+  function conservedGpt() {
+    var ctx = window.COURSE_CONTEXT || {};
+    if (ctx.chatgptFirstResponse) return { text: ctx.chatgptFirstResponse, source: "module2" };
+    try {
+      var m2 = localStorage.getItem("module2-chatgpt-premiere-reponse");
+      if (m2) return { text: m2, source: "module2" };
+    } catch (e) { /* stockage indisponible */ }
+    return { text: GPT_REFERENCE, source: "reference" };
+  }
 
   function syncAnswer(key) {
     var text = (state.answers[key] || "").trim();
@@ -641,12 +946,21 @@
       wc.classList.toggle("is-ok", n > 0 && n <= WORD_LIMIT);
       wc.classList.toggle("is-over", n > WORD_LIMIT);
     });
-    // l'écran 16 affiche la réponse collée à l'écran 13 (sinon, le squelette)
+    // l'écran 16 garde les deux réponses visibles (sinon, le squelette)
     stage.querySelectorAll('[data-answer-view="' + key + '"]').forEach(function (v) {
       if (!v._skeleton) v._skeleton = v.innerHTML;
       if (text) v.textContent = text; else v.innerHTML = v._skeleton;
     });
   }
+
+  var gpt = conservedGpt();
+  state.answers.gpt = gpt.text;
+  state.answers.gptSource = gpt.source;
+  stage.querySelectorAll("[data-gpt-view]").forEach(function (v) { v.textContent = gpt.text; });
+  stage.querySelectorAll("[data-gpt-source]").forEach(function (t) {
+    t.textContent = gpt.source === "reference" ? "exemple" : "module 2";
+  });
+  syncAnswer("gpt");
 
   stage.querySelectorAll("[data-answer-field]").forEach(function (field) {
     var key = field.dataset.answerField;
@@ -659,13 +973,17 @@
     syncAnswer(key);
   });
 
-  /* ---------- Écran 14 : grille de lecture ---------- */
+  /* ---------- Écran 14 : grille de lecture, sans score ---------- */
 
   var CRITERIA = ["Date et horaires", "Messagerie", "Absence d’ajout", "Longueur demandée"];
+  var RUBRIC_OPTIONS = [["", "Choisir…"], ["conforme", "Conforme"], ["corriger", "À corriger"], ["impossible", "Impossible à vérifier"]];
 
   stage.querySelectorAll("[data-rubric]").forEach(function (grid) {
-    var sum = grid.parentNode.querySelector(".rubric-sum");
+    var slide = grid.closest(".slide");
     var data = state.rubric || (state.rubric = { gpt: [], claude: [] });
+    ["gpt", "claude"].forEach(function (t) {
+      data[t] = (data[t] || []).map(function (v) { return /^(conforme|corriger|impossible)$/.test(v) ? v : null; });
+    });
 
     CRITERIA.forEach(function (label, r) {
       var k = document.createElement("div");
@@ -675,86 +993,75 @@
       ["gpt", "claude"].forEach(function (tool) {
         var cell = document.createElement("div");
         cell.className = "rb-c";
-        cell.innerHTML =
-          '<button type="button" class="rb-btn" data-v="yes" aria-pressed="false"><svg><use href="#i-check"/></svg>Respecté</button>' +
-          '<button type="button" class="rb-btn" data-v="no" aria-pressed="false"><svg><use href="#i-x"/></svg>Non</button>';
-        cell.dataset.tool = tool;
-        cell.dataset.r = r;
-        cell.setAttribute("role", "group");
-        cell.setAttribute("aria-label", label + ", " + (tool === "gpt" ? "ChatGPT" : "Claude"));
+        var sel = document.createElement("select");
+        sel.className = "rb-sel";
+        sel.dataset.tool = tool;
+        sel.dataset.r = r;
+        sel.setAttribute("aria-label", label + ", " + (tool === "gpt" ? "ChatGPT" : "Claude"));
+        RUBRIC_OPTIONS.forEach(function (o) {
+          var opt = document.createElement("option");
+          opt.value = o[0];
+          opt.textContent = o[1];
+          if (!o[0]) opt.disabled = true;
+          sel.appendChild(opt);
+        });
+        sel.value = data[tool][r] || "";
+        sel.dataset.v = sel.value;
+        cell.appendChild(sel);
         grid.appendChild(cell);
       });
     });
 
-    function paint() {
-      grid.querySelectorAll(".rb-c").forEach(function (cell) {
-        var v = data[cell.dataset.tool][+cell.dataset.r];
-        cell.querySelectorAll(".rb-btn").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.v === v); });
-      });
-      var score = function (t) { return data[t].filter(function (v) { return v === "yes"; }).length; };
-      var filled = data.gpt.filter(Boolean).length + data.claude.filter(Boolean).length;
-      sum.innerHTML = filled
-        ? '<span class="chip">ChatGPT : <b>' + score("gpt") + " / 4</b></span><span class=\"chip\">Claude : <b>" + score("claude") + " / 4</b></span>"
-        : "Pour chaque critère, indiquez s’il est respecté.";
-    }
-
-    grid.addEventListener("click", function (e) {
-      var b = e.target.closest(".rb-btn");
-      if (!b) return;
-      var cell = b.parentNode;
-      var arr = data[cell.dataset.tool];
-      arr[+cell.dataset.r] = arr[+cell.dataset.r] === b.dataset.v ? null : b.dataset.v;
+    function anyFilled() { return data.gpt.some(Boolean) || data.claude.some(Boolean); }
+    grid.addEventListener("change", function (e) {
+      var sel = e.target.closest(".rb-sel");
+      if (!sel) return;
+      data[sel.dataset.tool][+sel.dataset.r] = sel.value;
+      sel.dataset.v = sel.value;
       Tracking.save(state);
-      paint();
+      showNote(slide.querySelector("[data-rubric-fb]"));
     });
-    paint();
+    if (anyFilled()) showNote(slide.querySelector("[data-rubric-fb]"));
   });
 
-  /* ---------- Écran 16 : préférence argumentée ---------- */
+  /* ---------- Écran 16 : préférence argumentée (continuer à la demande) ---------- */
 
   stage.querySelectorAll("[data-pick]").forEach(function (pick) {
     var slide = pick.closest(".slide");
     var why = slide.querySelector("[data-why]");
-    var hint = slide.querySelector(".why-hint");
-    var cta = slide.querySelector("[data-check='pref']");
+    var note = slide.querySelector("[data-why-fb]");
     var saved = state.pref || (state.pref = { choice: null, text: "" });
 
     function paint() {
       pick.querySelectorAll(".pick-card").forEach(function (c) { c.setAttribute("aria-checked", c.dataset.pickValue === saved.choice); });
     }
-    function setHint(t, tone) {
-      hint.textContent = t;
-      hint.classList.toggle("is-bad", tone === "bad");
-      hint.classList.toggle("is-good", tone === "good");
+    function store() {
+      saved.text = why.value;
+      Tracking.save(state);
+      if (why.value.trim().length >= 10) showNote(note);
     }
 
     pick.addEventListener("click", function (e) {
       var c = e.target.closest(".pick-card");
       if (!c) return;
-      saved.choice = c.dataset.pickValue;
+      saved.choice = saved.choice === c.dataset.pickValue ? null : c.dataset.pickValue;
       Tracking.save(state);
       paint();
-      if (!why.value.trim()) why.focus();
-      setHint("Complétez maintenant votre argument.", "");
+    });
+
+    slide.querySelectorAll("[data-example]").forEach(function (chip) {
+      chip.addEventListener("click", function () {
+        var base = why.value.trim() || "Pour cette tâche, je retiens cette réponse parce que";
+        var sep = /parce que$/.test(base) ? " " : (/[.!?]$/.test(base) ? " " : ", ");
+        why.value = base + sep + chip.dataset.example;
+        store();
+        why.focus();
+      });
     });
 
     why.value = saved.text;
-    why.addEventListener("input", function () {
-      saved.text = why.value;
-      Tracking.save(state);
-      if (why.value.trim().length >= 20) setHint(saved.choice ? "Parfait, vous pouvez continuer." : "Indiquez aussi la réponse que vous retenez.", saved.choice ? "good" : "");
-    });
-
-    cta.addEventListener("click", function () {
-      var problem = !saved.choice ? "Cliquez d’abord sur la réponse que vous retenez."
-        : why.value.trim().length < 20 ? "Développez un peu votre argument (une phrase suffit)." : "";
-      if (problem) {
-        setHint(problem, "bad");
-        cta.classList.remove("is-denied"); void cta.offsetWidth; cta.classList.add("is-denied");
-        return;
-      }
-      go(index + 1);
-    });
+    why.addEventListener("input", store);
+    if (why.value.trim().length >= 10) showNote(note);
     paint();
   });
 
@@ -783,11 +1090,11 @@
 
   function scoreItems() {
     var m = state.match || {};
-    var tbl = (state.table || []).some(function (r) { return (r || []).some(function (v) { return v && v.trim(); }); });
+    var tbl = !!(state.build && state.build.subs && state.build.subs.length);
     var claude = !!(state.answers && (state.answers.claude || "").trim());
     return [
       { slide: ".s-match", label: "Associer les commandes", max: 4, pts: m.firstScore || 0, done: m.firstScore != null,
-        hint: "1 point par bonne association au premier essai." },
+        hint: "1 point par association exacte au premier essai." },
       { slide: ".s-build", label: "Créer votre tableau", max: 3, pts: tableScore(), done: tbl,
         hint: "Lignes attendues : affiche (Nora, 5 novembre), stock (Sami, 6 novembre), lieu (non précisé)." },
       quizItem("q09", ".s-absent", "Traiter le responsable absent"),
@@ -798,15 +1105,22 @@
     ];
   }
 
+  // pratique réelle : manipulation déclarée (écran 2) et résultat déposé (écran 8), enregistrés séparément de la simulation
+  function practiceStatus() {
+    var p = state.practice || {};
+    return { declared: !!p.declared, deposited: !!p.deposited, simulated: !!p.simulated, real: !!p.deposited && state.mode === "reel" };
+  }
+
   function computeResult() {
     var items = scoreItems();
     var score = 0, max = 0;
     items.forEach(function (it) { score += it.pts; max += it.max; });
-    var manip = items[1].done || items[4].done;
-    state.result = { score: score, max: max, passed: score / max >= 0.7, manipulation: manip };
+    state.result = { score: score, max: max, passed: score / max >= 0.7, practice: practiceStatus() };
     Tracking.save(state);
     return { items: items, result: state.result };
   }
+
+  function fmtScore(n) { return String(n).replace(".", ","); }
 
   stage.querySelectorAll("[data-results]").forEach(function (slide) {
     var verdict = slide.querySelector(".verdict");
@@ -818,15 +1132,16 @@
     function render() {
       var out = computeResult(), r = out.result;
       verdict.classList.toggle("is-fail", !r.passed);
-      slide.querySelector("[data-verdict-title]").textContent = r.passed ? "Module validé" : "Pas encore validé";
+      slide.querySelector("[data-verdict-title]").textContent = r.passed ? "Module validé." : "À reprendre";
+      slide.querySelector("[data-verdict-msg]").textContent = r.passed
+        ? "Validation : 70 % minimum."
+        : "Reprenez les activités indiquées, puis tentez une nouvelle réponse.";
       slide.querySelector("[data-score-max]").textContent = r.max;
-      slide.querySelector("[data-score-text]").textContent = r.score + " / " + r.max;
-      slide.querySelector("[data-score-advice]").textContent = r.passed
-        ? "Consultez les points à reprendre."
-        : "Reprenez les points signalés.";
+      slide.querySelector("[data-score-text]").textContent = fmtScore(r.score) + " sur " + r.max;
       var side = slide.querySelector(".verdict-side");
-      side.classList.toggle("is-todo", !r.manipulation);
-      slide.querySelector("[data-manip]").textContent = r.manipulation ? "Manipulation réalisée" : "Manipulation à réaliser";
+      side.classList.toggle("is-todo", !r.practice.real);
+      slide.querySelector("[data-manip]").textContent = r.practice.real ? "Manipulation réalisée" : "Manipulation à réaliser";
+      slide.querySelector("[data-manip-msg]").textContent = r.practice.real ? "" : "Terminez la manipulation dans l’outil pour valider la prise en main.";
 
       // le score défile jusqu'à sa valeur
       cancelAnimationFrame(raf2);
@@ -834,7 +1149,7 @@
       (function step(t) {
         if (!t0) t0 = t;
         var k = Math.min(1, (t - t0 - 900) / 900);
-        count.textContent = Math.round(Math.max(0, k) * r.score);
+        count.textContent = fmtScore(Math.round(Math.max(0, k) * r.score * 2) / 2);
         if (k < 1) raf2 = requestAnimationFrame(step);
       })(performance.now());
 
@@ -845,11 +1160,12 @@
         li.className = st;
         li.innerHTML = '<span class="st"><svg><use href="' + (st === "is-ok" ? "#i-check" : st === "is-todo" ? "#i-plus" : "#i-x") + '"/></svg></span>' +
           "<span><b></b><small></small></span>" +
-          '<span class="pts">' + it.pts + " / " + it.max + "</span>" +
-          '<button type="button" class="go">Revoir</button>';
+          '<span class="pts">' + fmtScore(it.pts) + " / " + it.max + "</span>" +
+          (st === "is-ok" ? "<span></span>" : '<button type="button" class="go">Revoir</button>');
         li.querySelector("b").textContent = it.label;
         li.querySelector("small").textContent = !it.done ? "Activité non réalisée." : (it.hint || (it.pts ? "Bonne réponse." : "Réponse à revoir."));
-        li.querySelector(".go").dataset.slide = it.slide;
+        var g = li.querySelector(".go");
+        if (g) g.dataset.slide = it.slide;
         list.appendChild(li);
       });
     }
@@ -861,13 +1177,14 @@
       var g = e.target.closest(".go");
       if (g) {
         panel.hidden = true;
-        var target = stage.querySelector(".slide" + g.dataset.slide);
-        go(slides.indexOf(target));
+        go(slides.indexOf(stage.querySelector(".slide" + g.dataset.slide)));
       }
     });
   });
 
-  /* ---------- Écran 18 : fiche imprimable et fin du module ---------- */
+  /* ---------- Écran 18 : fiche dans « Mes repères » et fin du module ---------- */
+
+  var GESTURES = ["Fournir la source.", "Préciser le tableau attendu.", "Signaler ce qui manque.", "Comparer les résultats sur les mêmes critères."];
 
   function sheetHTML() {
     var r = state.result || computeResult().result;
@@ -888,32 +1205,41 @@
       'footer{margin-top:10mm;padding-top:4mm;border-top:1px solid #d9e1ee;display:flex;justify-content:space-between;font-size:10pt;color:#5b6785}' +
       '</style></head><body>' +
       '<div class="k">ChatGPT et Claude · Module 3</div><h1>Votre fiche à conserver</h1><div class="bar"></div>' +
-      '<h2>Mes premiers gestes dans Claude</h2><ol>' +
-      '<li>Fournir la source.</li><li>Préciser le tableau attendu.</li><li>Signaler ce qui manque.</li><li>Comparer les résultats sur les mêmes critères.</li></ol>' +
+      '<h2>Mes premiers gestes dans Claude</h2><ol>' + GESTURES.map(function (g) { return "<li>" + g + "</li>"; }).join("") + "</ol>" +
       '<div class="box p"><b>Prompt modèle</b>À partir des notes suivantes, crée un tableau Action, Responsable, Échéance. Utilise seulement les notes. Écris « non précisé » pour une donnée absente.</div>' +
       '<div class="box o"><b>Demander une correction</b>« Le responsable de la confirmation du lieu n’est pas indiqué. Remplace-le par non précisé. »</div>' +
       (arg ? '<div class="box p"><b>Mon argument</b>' + esc(arg) + "</div>" : "") +
-      "<footer><span>Résultat : " + r.score + " / " + r.max + (r.passed ? " · Module validé" : "") + "</span><span>" + date + "</span></footer>" +
+      "<footer><span>Résultat : " + fmtScore(r.score) + " sur " + r.max + (r.passed ? " · Module validé" : "") + "</span><span>" + date + "</span></footer>" +
       "</body></html>";
   }
 
+  function printSheet() {
+    // impression dans un cadre caché : l'apprenant choisit « Enregistrer en PDF »
+    var frame = document.createElement("iframe");
+    frame.setAttribute("aria-hidden", "true");
+    frame.style.cssText = "position:fixed;width:0;height:0;border:0;right:0;bottom:0";
+    document.body.appendChild(frame);
+    frame.srcdoc = sheetHTML();
+    frame.onload = function () {
+      var w = frame.contentWindow;
+      var ready = w.document.fonts ? w.document.fonts.ready : Promise.resolve();
+      ready.then(function () {
+        w.focus();
+        w.print();
+        setTimeout(function () { frame.remove(); }, 1000);
+      });
+    };
+  }
+
   stage.querySelectorAll("[data-save-sheet]").forEach(function (btn) {
+    var slide = btn.closest(".slide");
+    if (state.reperes && state.reperes.fiche) showNote(slide.querySelector("[data-sheet-fb]"));
     btn.addEventListener("click", function () {
-      // impression dans un cadre caché : l'apprenant choisit « Enregistrer en PDF »
-      var frame = document.createElement("iframe");
-      frame.setAttribute("aria-hidden", "true");
-      frame.style.cssText = "position:fixed;width:0;height:0;border:0;right:0;bottom:0";
-      document.body.appendChild(frame);
-      frame.srcdoc = sheetHTML();
-      frame.onload = function () {
-        var w = frame.contentWindow;
-        var ready = w.document.fonts ? w.document.fonts.ready : Promise.resolve();
-        ready.then(function () {
-          w.focus();
-          w.print();
-          setTimeout(function () { frame.remove(); }, 1000);
-        });
-      };
+      state.reperes = state.reperes || {};
+      state.reperes.fiche = new Date().toISOString();
+      Tracking.save(state);
+      showNote(slide.querySelector("[data-sheet-fb]"));
+      renderMenu();
     });
   });
 
@@ -921,14 +1247,120 @@
     var slide = btn.closest(".slide");
     var panel = slide.querySelector("[data-finish-panel]");
     btn.addEventListener("click", function () {
+      var r = computeResult().result;
+      // terminé ne veut pas dire validé : sous le seuil, le module reste « à reprendre »
       state.completed = true;
-      computeResult();
+      state.passed = r.passed;
+      Tracking.save(state);
+      slide.querySelector("[data-finish-msg]").textContent = r.passed
+        ? "Votre progression est enregistrée et le module est validé. Vous pouvez ouvrir le module 4."
+        : "Votre progression est enregistrée. Le module n’est pas encore validé : reprenez les activités indiquées depuis le menu.";
       panel.hidden = false;
     });
     panel.addEventListener("click", function (e) {
       if (e.target === panel || e.target.closest("[data-finish-close]")) panel.hidden = true;
     });
   });
+
+  /* ---------- Menu du module et « Mes repères » ---------- */
+
+  var SEQUENCES = [
+    { title: "Découvrir le second outil", time: "3 min", screens: [0, 1, 2] },
+    { title: "Repérer et saisir", time: "4 min", screens: [3, 4, 5] },
+    { title: "Produire et contrôler un tableau", time: "7 min", screens: [6, 7, 8, 9] },
+    { title: "Ajouter un contenu autorisé", time: "3 min", screens: [10, 11] },
+    { title: "Comparer les deux outils", time: "5 min", screens: [12, 13, 14, 15] },
+    { title: "Conserver les acquis", time: "3 min", screens: [16, 17] }
+  ];
+  var menu = stage.querySelector("[data-menu]");
+  var menuNav = menu.querySelector("[data-menu-nav]");
+  var reperesEl = menu.querySelector("[data-reperes]");
+
+  function screenCode(i) { return "3." + pad(i + 1); }
+
+  function renderMenu() {
+    var graded = {};
+    scoreItems().forEach(function (it) { graded[slides.indexOf(stage.querySelector(".slide" + it.slide))] = it; });
+    menuNav.innerHTML = "";
+    SEQUENCES.forEach(function (seq, n) {
+      var sec = document.createElement("section");
+      sec.className = "menu-seq";
+      sec.innerHTML = "<h4><span>Séquence " + (n + 1) + "</span></h4><ol></ol>";
+      sec.querySelector("h4").appendChild(document.createTextNode(seq.title));
+      var t = document.createElement("small");
+      t.textContent = seq.time;
+      sec.querySelector("h4").appendChild(t);
+      seq.screens.forEach(function (i) {
+        var li = document.createElement("li");
+        var btn = document.createElement("button");
+        var open = state.visited.indexOf(i) >= 0 || i === index;
+        btn.type = "button";
+        btn.className = "menu-item" + (i === index ? " is-current" : "");
+        btn.disabled = !open;
+        btn.dataset.goto = i;
+        var st = i === index ? "En cours" : open ? "Vu" : "";
+        var g = graded[i];
+        if (g && g.done) st = g.pts === g.max ? "Réussi" : "À reprendre";
+        btn.innerHTML = '<span class="mi-code"></span><span class="mi-title"></span><span class="mi-st"></span>' + (open ? "" : '<svg aria-hidden="true"><use href="#i-lock"/></svg>');
+        btn.querySelector(".mi-code").textContent = screenCode(i);
+        btn.querySelector(".mi-title").textContent = slides[i].getAttribute("aria-label");
+        var stEl = btn.querySelector(".mi-st");
+        stEl.textContent = st;
+        stEl.dataset.st = st;
+        li.appendChild(btn);
+        sec.querySelector("ol").appendChild(li);
+      });
+      menuNav.appendChild(sec);
+    });
+
+    var fiche = state.reperes && state.reperes.fiche;
+    if (fiche) {
+      var d = new Date(fiche).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+      reperesEl.innerHTML = '<div class="rep-card"><b>Mes premiers gestes dans Claude</b><small></small><ol></ol>' +
+        '<button type="button" class="btn-outline btn-sm" data-print-sheet>Imprimer ou enregistrer en PDF</button></div>';
+      reperesEl.querySelector("small").textContent = "Enregistrée le " + d;
+      GESTURES.forEach(function (g) { var li = document.createElement("li"); li.textContent = g; reperesEl.querySelector("ol").appendChild(li); });
+    } else {
+      reperesEl.innerHTML = '<p class="rep-empty">Votre fiche apparaîtra ici après l’avoir enregistrée à l’écran 3.18.</p>';
+    }
+  }
+
+  function openMenu() { renderMenu(); menu.hidden = false; menu.querySelector("[data-menu-close]").focus(); }
+  function closeMenu() { menu.hidden = true; }
+
+  document.addEventListener("click", function (e) {
+    if (e.target.closest("[data-menu-open]")) {
+      stage.querySelectorAll(".review, .finish").forEach(function (p) { p.hidden = true; });
+      openMenu();
+    }
+  });
+  menu.addEventListener("click", function (e) {
+    if (e.target === menu || e.target.closest("[data-menu-close]")) { closeMenu(); return; }
+    var item = e.target.closest("[data-goto]");
+    if (item && !item.disabled) { closeMenu(); go(+item.dataset.goto); return; }
+    if (e.target.closest("[data-print-sheet]")) printSheet();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && !menu.hidden) closeMenu();
+  });
+
+  /* ---------- Résumé pour le suivi (futur adaptateur SCORM) ---------- */
+
+  Tracking.snapshot = function () {
+    var out = computeResult();
+    return {
+      location: screenCode(state.location || 0),
+      visited: state.visited.map(screenCode),
+      mode: state.mode || null,                       // "reel" ou "simulation"
+      practice: out.result.practice,                  // déclarée, déposée, simulation, réelle
+      activities: out.items.map(function (it) { return { label: it.label, score: it.pts, max: it.max, done: it.done }; }),
+      attempts: { match: (state.match || {}).attempts || 0, table: ((state.build || {}).subs || []).length },
+      score: out.result.score,
+      max: out.result.max,
+      passed: out.result.passed,
+      completed: !!state.completed
+    };
+  };
 
   /* ---------- Voix off & sous-titres ---------- */
 

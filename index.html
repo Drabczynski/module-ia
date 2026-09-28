@@ -43,6 +43,9 @@
     <symbol id="i-layout" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M3.5 10h17M12 10v10.5M3.5 15h8.5M6.5 7h4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
     <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5 20.5 20.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
     <symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 4v16M7.5 20.5h9M5 7h14M12 4.5a1 1 0 1 0 0-.01M5 7l-3 7a3 3 0 0 0 6 0L5 7ZM19 7l-3 7a3 3 0 0 0 6 0l-3-7Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6M12 7.5v.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
   </defs>
 </svg>
 
@@ -58,6 +61,7 @@
   <div class="progress" aria-hidden="true"><span></span></div>
   <div class="brand">ChatGPT et Claude</div>
   <div class="module-label">Module 3 <i></i> Prendre en main Claude</div>
+  <button type="button" class="menu-btn" data-menu-open aria-haspopup="dialog"><svg aria-hidden="true"><use href="#i-menu"/></svg>Menu</button>
 
   <div class="slides">
 
@@ -77,7 +81,7 @@
 
         <p class="lead rv" style="--i:3">Durée indicative : 25 minutes.<br>Transformez des notes en actions faciles à suivre.</p>
 
-        <div class="demo" aria-hidden="true">
+        <div class="demo" aria-hidden="true" data-fit="763">
           <div class="note">
             <p>Point équipe du 3 novembre.</p>
             <p>Nora prépare l’affiche pour le 5 novembre.</p>
@@ -114,7 +118,7 @@
         <h2 class="h1 rv" style="--i:0">Ouvrir Claude</h2>
         <p class="lead rv" style="--i:1">Ouvrez Claude dans un autre onglet avec votre accès autorisé. Gardez la formation ouverte.</p>
 
-        <div class="browser rv" style="--i:3" aria-hidden="true">
+        <div class="browser rv" style="--i:3" aria-hidden="true" data-fit="830">
           <div class="tabs">
             <div class="dots"><i></i><i></i><i></i></div>
             <div class="tab tab--form">
@@ -144,6 +148,13 @@
             </div>
           </div>
         </div>
+
+        <div class="connect rv" style="--i:4" role="group" aria-label="Accès à Claude">
+          <a class="btn-outline btn-sm" href="https://claude.ai" target="_blank" rel="noopener"><svg><use href="#i-ext"/></svg>Ouvrir https://claude.ai</a>
+          <button type="button" class="btn-choice" data-mode="reel" aria-pressed="false"><svg><use href="#i-check"/></svg>Je suis connecté</button>
+          <button type="button" class="btn-choice" data-mode="simulation" aria-pressed="false"><svg><use href="#i-check"/></svg>Utiliser la simulation</button>
+        </div>
+        <p class="fb-note" data-always><svg aria-hidden="true"><use href="#i-info"/></svg><span>Les identifiants ne sont jamais demandés dans le module.</span></p>
       </div>
 
       <button class="cta rv" style="--i:5" data-next>
@@ -155,14 +166,14 @@
     <section class="slide s-task" data-audio="ecran-03" data-photo="portrait" style="--pw:507px;--ph:818px;--pr:28px;--pos:64% 0%" aria-label="La nouvelle tâche de Léa">
       <div class="content">
         <h2 class="h1 rv" style="--i:0">La nouvelle tâche de Léa</h2>
-        <p class="lead rv" style="--i:1">
-          Point équipe du 3 novembre. Nora prépare l’affiche pour le 5 novembre.
-          Sami vérifie le stock pour le 6 novembre. Le lieu de la prochaine rencontre
+        <p class="lead rv" style="--i:1" data-tokens>
+          Point équipe du 3 novembre. <button type="button" class="tok" data-tok="nora">Nora</button> prépare l’affiche pour le <button type="button" class="tok" data-tok="d5" disabled>5 novembre</button>.
+          <button type="button" class="tok" data-tok="sami">Sami</button> vérifie le stock pour le <button type="button" class="tok" data-tok="d6" disabled>6 novembre</button>. Le lieu de la prochaine rencontre
           <span class="mark">reste à confirmer.</span>
           <span class="ask">Léa veut savoir qui fait quoi et pour quand.</span>
         </p>
 
-        <div class="notebook" aria-hidden="true">
+        <div class="notebook" aria-hidden="true" data-fit="372">
           <div class="rings"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
           <div class="paper">
             <p>Point équipe du 3 novembre.</p>
@@ -176,10 +187,12 @@
           <div class="th" role="columnheader">Action</div>
           <div class="th" role="columnheader">Responsable</div>
           <div class="th" role="columnheader">Échéance</div>
-          <div class="td"></div><div class="td"></div><div class="td"></div>
-          <div class="td"></div><div class="td"></div><div class="td"></div>
-          <div class="td"></div><div class="td"></div><div class="td"></div>
+          <div class="td" data-cell="a1"></div><div class="td" data-cell="r1"></div><div class="td" data-cell="e1"></div>
+          <div class="td" data-cell="a2"></div><div class="td" data-cell="r2"></div><div class="td" data-cell="e2"></div>
+          <div class="td" data-cell="a3"></div><div class="td" data-cell="r3"></div><div class="td" data-cell="e3"></div>
         </div>
+        <p class="fb-hint" data-tok-hint>Cliquez sur les deux noms, puis sur les échéances.</p>
+        <p class="fb-note" data-tok-fb><svg aria-hidden="true"><use href="#i-info"/></svg><span>Le lieu reste à confirmer. Aucun responsable n’est désigné pour cette action.</span></p>
       </div>
 
       <button class="cta rv" style="--i:6" data-next>
@@ -193,7 +206,7 @@
         <h2 class="h1 rv" style="--i:0">Les repères dans Claude</h2>
         <p class="lead rv" style="--i:1">Retrouvez une nouvelle conversation, la zone de saisie, l’envoi et les échanges précédents.</p>
 
-        <div class="app rv" style="--i:3" data-hotspots>
+        <div class="app rv" style="--i:3" data-hotspots data-fit="905">
           <div class="app-head">
             Simulation pédagogique
             <span class="explored" aria-live="polite">
@@ -235,6 +248,7 @@
             <div class="nav"><small></small><button type="button" data-tip-next>Repère suivant</button></div>
           </div>
         </div>
+        <p class="fb-note" data-spots-fb><svg aria-hidden="true"><use href="#i-info"/></svg><span>Recherchez les mêmes fonctions dans votre compte.</span></p>
       </div>
 
       <button class="cta rv" style="--i:6" data-next>
@@ -272,7 +286,7 @@
             <button type="button" class="m-card" data-side="fn" data-key="input"><span class="m-dot"></span>Zone de saisie</button>
           </div>
         </div>
-        <p class="match-help" aria-live="polite">Cliquez sur un besoin, puis sur la fonction correspondante.</p>
+        <p class="match-help" aria-live="polite">Sélectionnez une étiquette, puis sa catégorie. Vous pouvez aussi la glisser, ou utiliser le clavier.</p>
       </div>
 
       <button class="cta rv" style="--i:6" type="button" data-check="match">
@@ -290,14 +304,20 @@
         <article class="card card--peach rv" style="--i:3">
           <header class="tag tag--orange"><span class="tag-ico"><svg><use href="#i-doc-w"/></svg></span>Notes</header>
           <p data-copy-src="notes">Point équipe du 3 novembre. Nora prépare l’affiche pour le 5 novembre. Sami vérifie le stock pour le 6 novembre. Le lieu de la prochaine rencontre reste à confirmer.</p>
-          <button type="button" class="copy" data-copy="notes"><svg><use href="#i-copy"/></svg><span>Copier</span></button>
+          <button type="button" class="copy" data-copy="notes" data-copy-fb><svg><use href="#i-copy"/></svg><span>Copier les notes</span></button>
         </article>
 
         <article class="card card--blue rv" style="--i:4">
           <header class="tag tag--orange"><span class="tag-ico"><svg><use href="#i-pen"/></svg></span>Consigne</header>
           <p data-copy-src="consigne">Crée un tableau Action, Responsable, Échéance. Utilise seulement les notes. Écris non précisé pour une donnée absente.</p>
-          <button type="button" class="copy" data-copy="consigne"><svg><use href="#i-copy"/></svg><span>Copier</span></button>
+          <button type="button" class="copy" data-copy="prompt-complet" data-copy-fb><svg><use href="#i-copy"/></svg><span>Copier le prompt complet</span></button>
         </article>
+        <div hidden data-copy-src="prompt-complet">
+          <p>Crée un tableau Action, Responsable, Échéance. Utilise seulement les notes. Écris non précisé pour une donnée absente.</p>
+          <p>Notes :</p>
+          <p>Point équipe du 3 novembre. Nora prépare l’affiche pour le 5 novembre. Sami vérifie le stock pour le 6 novembre. Le lieu de la prochaine rencontre reste à confirmer.</p>
+        </div>
+        <p class="fb-note" data-copy-note><svg aria-hidden="true"><use href="#i-info"/></svg><span>Le texte source doit accompagner votre demande. Claude ne peut pas le deviner.</span></p>
       </div>
 
       <button class="cta rv" style="--i:6" data-next>
@@ -310,8 +330,10 @@
       <div class="content content--full">
         <h2 class="h1 rv" style="--i:0">Voir la transformation</h2>
 
-        <article class="panel panel--peach rv" style="--i:1">
+        <article class="panel panel--peach rv is-veiled" style="--i:1" data-reveal-panel="prompt">
           <header class="tag tag--orange tag--lg"><span class="tag-ico"><svg><use href="#i-doc-w"/></svg></span>Prompt</header>
+          <button type="button" class="reveal-btn" data-reveal="prompt">Révéler le prompt</button>
+          <div class="veil">
           <p class="prompt">À partir des notes suivantes, crée un tableau Action, Responsable, Échéance. Utilise seulement les notes. Écris « non précisé » pour une donnée absente.</p>
           <p class="prompt prompt--notes">
             Notes :<br>
@@ -320,10 +342,13 @@
             <span class="ln" data-link="2">Sami vérifie le stock pour le 6 novembre.</span><br>
             <span class="ln" data-link="3">Le lieu de la prochaine rencontre reste à confirmer.</span>
           </p>
+          </div>
         </article>
 
-        <article class="panel panel--blue rv" style="--i:2">
+        <article class="panel panel--blue rv is-veiled" style="--i:2" data-reveal-panel="answer">
           <header class="tag tag--blue tag--lg"><span class="tag-ico"><svg><use href="#i-grid"/></svg></span>Réponse illustrative</header>
+          <button type="button" class="reveal-btn" data-reveal="answer" disabled>Révéler la réponse</button>
+          <div class="veil">
           <div class="result" role="table" aria-label="Tableau obtenu">
             <div class="r-row r-head" role="row"><div role="columnheader">Action</div><div role="columnheader">Responsable</div><div role="columnheader">Échéance</div></div>
             <div class="r-row" role="row" data-link="1" style="--r:0"><div role="cell">Préparer l’affiche</div><div role="cell">Nora</div><div role="cell">5 novembre</div></div>
@@ -331,7 +356,9 @@
             <div class="r-row" role="row" data-link="3" style="--r:2"><div role="cell">Confirmer le lieu de la prochaine rencontre</div><div role="cell"><span class="np">non précisé</span></div><div role="cell"><span class="np">non précisé</span></div></div>
           </div>
           <p class="result-hint">Survolez une ligne pour retrouver la note d’origine.</p>
+          </div>
         </article>
+        <p class="fb-note" data-reveal-fb><svg aria-hidden="true"><use href="#i-info"/></svg><span>Cette réponse est un exemple relu. Votre outil peut proposer une autre formulation. Vérifiez les mêmes critères.</span></p>
       </div>
 
       <button class="cta rv" style="--i:5" data-next>
@@ -364,16 +391,34 @@
         </article>
 
         <article class="box rv" style="--i:3">
-          <h3>Votre tableau <span class="fill-state" aria-live="polite"></span></h3>
+          <h3>Votre tableau <span class="fill-state" aria-live="polite"></span><button type="button" class="link-btn" data-show-correction>Voir la correction</button></h3>
           <div class="edit-table" data-edit-table>
             <div class="e-head">Action</div><div class="e-head">Responsable</div><div class="e-head">Échéance</div>
           </div>
-          <p class="edit-hint"><svg><use href="#i-spark-s"/></svg>Astuce : collez le tableau copié depuis Claude dans la première case, il se répartit tout seul.</p>
+          <div class="checks" data-checks aria-live="polite">
+            <p class="edit-hint"><svg><use href="#i-spark-s"/></svg>Astuce : collez le tableau copié depuis Claude dans la première case, il se répartit tout seul.</p>
+          </div>
         </article>
       </div>
 
-      <button class="cta rv" style="--i:5" data-next>
-        Continuer <svg aria-hidden="true"><use href="#i-arrow-r"/></svg>
+      <div class="review" data-correction hidden>
+        <div class="review-panel" role="dialog" aria-modal="true" aria-labelledby="corr-title">
+          <header>
+            <h3 id="corr-title">Correction</h3>
+            <button type="button" class="review-close" data-correction-close aria-label="Fermer"><svg><use href="#i-x"/></svg></button>
+          </header>
+          <div class="corr-table">
+            <div class="h">Action</div><div class="h">Responsable</div><div class="h">Échéance</div>
+            <div>Préparer l’affiche</div><div>Nora</div><div>5 novembre</div>
+            <div>Vérifier le stock</div><div>Sami</div><div>6 novembre</div>
+            <div>Confirmer le lieu</div><div>non précisé</div><div>non précisée</div>
+          </div>
+          <p class="corr-note">Un point par critère : actions conformes, responsables exacts, échéances exactes, inconnues signalées.</p>
+        </div>
+      </div>
+
+      <button class="cta rv" style="--i:5" type="button" data-check="table">
+        <span class="cta-label">Valider</span> <svg aria-hidden="true"><use href="#i-arrow-r"/></svg>
       </button>
     </section>
 
@@ -403,11 +448,11 @@
 
         <div class="quiz rv" style="--i:4" data-quiz="q09" data-answer="c" role="radiogroup" aria-label="Qui doit confirmer le lieu ?">
           <button type="button" class="q-opt" role="radio" aria-checked="false" data-value="a"
-            data-fb="Pas tout à fait. Les notes ne disent pas que Nora s’en charge : l’attribuer serait une invention."><span class="q-radio"></span><b>A.</b> Nora</button>
+            data-fb="Nora est chargée de l’affiche. Ne lui attribuez pas une autre tâche sans information."><span class="q-radio"></span><b>A.</b> Nora</button>
           <button type="button" class="q-opt" role="radio" aria-checked="false" data-value="b"
-            data-fb="Pas tout à fait. Rien dans les notes ne désigne Sami : l’attribuer serait une invention."><span class="q-radio"></span><b>B.</b> Sami</button>
+            data-fb="Sami vérifie le stock. La confirmation du lieu n’a pas de responsable indiqué."><span class="q-radio"></span><b>B.</b> Sami</button>
           <button type="button" class="q-opt" role="radio" aria-checked="false" data-value="c"
-            data-fb="Exact. Personne n’est désigné : le tableau indique « non précisé » plutôt que d’inventer un nom."><span class="q-radio"></span><b>C.</b> La source ne le précise pas</button>
+            data-fb="La bonne réponse reste « non précisé »."><span class="q-radio"></span><b>C.</b> La source ne le précise pas</button>
         </div>
         <p class="q-feedback" aria-live="polite"></p>
       </div>
@@ -443,6 +488,7 @@
             <div>non précisé</div>
           </div>
         </div>
+        <p class="fb-note" data-fix-fb><svg aria-hidden="true"><use href="#i-info"/></svg><span>Vérifiez aussi les cellules qui n’étaient pas concernées par la correction.</span></p>
       </div>
 
       <button class="cta rv" style="--i:5" data-next>
@@ -473,10 +519,11 @@
             <div class="paste-card">
               <h4>Notes de la réunion</h4>
               <p data-copy-src="notes-11">Point équipe du 3 novembre.<br>Nora prépare l’affiche pour le 5 novembre.<br>Sami vérifie le stock pour le 6 novembre.<br>Le lieu de la prochaine rencontre reste à confirmer.</p>
-              <button type="button" class="copy" data-copy="notes-11"><svg><use href="#i-copy"/></svg><span>Copier</span></button>
+              <button type="button" class="copy" data-copy="notes-11" data-copy-fb><svg><use href="#i-copy"/></svg><span>Copier le texte</span></button>
             </div>
           </div>
         </div>
+        <p class="fb-note" data-copy-note><svg aria-hidden="true"><use href="#i-info"/></svg><span>Le contenu à analyser doit être accessible dans la conversation.</span></p>
       </div>
 
       <button class="cta rv" style="--i:5" data-next>
@@ -504,11 +551,11 @@
 
         <div class="quiz rv" style="--i:3" data-quiz="q12" data-answer="a" role="radiogroup" aria-label="Que faites-vous ?">
           <button type="button" class="q-opt" role="radio" aria-checked="false" data-value="a"
-            data-fb="Exact. Avec une source lisible, Claude peut travailler correctement, et vous vérifiez toujours le résultat."><span class="q-radio"></span><b>A.</b> Je fournis une source lisible et je vérifie</button>
+            data-fb="Une meilleure source réduit l’incertitude. Le contrôle reste nécessaire."><span class="q-radio"></span><b>A.</b> Je fournis une source lisible et je vérifie</button>
           <button type="button" class="q-opt" role="radio" aria-checked="false" data-value="b"
-            data-fb="Non : demander d’inventer produit des informations fausses. Fournissez plutôt une source lisible, puis vérifiez."><span class="q-radio"></span><b>B.</b> Je lui demande d’inventer ce qui manque</button>
+            data-fb="Une donnée absente doit être signalée, pas inventée."><span class="q-radio"></span><b>B.</b> Je lui demande d’inventer ce qui manque</button>
           <button type="button" class="q-opt" role="radio" aria-checked="false" data-value="c"
-            data-fb="Non : une réponse, surtout tirée d’une source floue, peut contenir des erreurs. Fournissez une source lisible et vérifiez."><span class="q-radio"></span><b>C.</b> Je considère sa première réponse comme exacte</button>
+            data-fb="Une lecture incomplète peut produire une réponse erronée."><span class="q-radio"></span><b>C.</b> Je considère sa première réponse comme exacte</button>
         </div>
         <p class="q-feedback" aria-live="polite"></p>
       </div>
@@ -536,8 +583,8 @@
           <article class="duo-card duo-card--gpt">
             <h3>ChatGPT</h3>
             <div class="duo-sim">
-              <div class="duo-top"><span>Simulation pédagogique</span><span class="wc" data-wc="gpt">0 / 60 mots</span></div>
-              <textarea class="duo-input" data-answer-field="gpt" aria-label="Réponse de ChatGPT" placeholder="Collez ici la réponse obtenue avec ChatGPT…"></textarea>
+              <div class="duo-top"><span>Réponse conservée <em class="src-tag" data-gpt-source></em></span><span class="wc" data-wc="gpt">0 / 60 mots</span></div>
+              <div class="duo-view" data-gpt-view tabindex="0" aria-label="Première réponse ChatGPT conservée"></div>
             </div>
           </article>
           <article class="duo-card duo-card--claude">
@@ -548,6 +595,7 @@
             </div>
           </article>
         </div>
+        <p class="fb-note" data-always><svg aria-hidden="true"><use href="#i-info"/></svg><span>Ne comparez pas un premier brouillon avec une version déjà corrigée.</span></p>
       </div>
 
       <button class="cta rv" style="--i:5" data-next>
@@ -564,7 +612,7 @@
         <div class="rubric rv" style="--i:2" data-rubric>
           <div class="rb-h">Critère</div><div class="rb-h">ChatGPT</div><div class="rb-h">Claude</div>
         </div>
-        <p class="rubric-sum" aria-live="polite"></p>
+        <p class="fb-note" data-rubric-fb><svg aria-hidden="true"><use href="#i-info"/></svg><span>Un résultat peut être agréable à lire et oublier un horaire. Signalez les deux aspects séparément.</span></p>
       </div>
 
       <button class="cta rv" style="--i:5" data-next>
@@ -579,7 +627,7 @@
         <h2 class="h1 rv" style="--i:1">Choisir une conclusion</h2>
         <p class="lead rv" style="--i:2">Les deux réponses sont bonnes, mais l’une est plus courte. Quelle conclusion est justifiée&nbsp;?</p>
 
-        <div class="pair rv" style="--i:3" aria-hidden="true">
+        <div class="pair rv" style="--i:3" aria-hidden="true" data-fit="846">
           <div class="msg msg--long">
             <span class="msg-av"></span>
             <div class="msg-lines"><span class="sk" style="width:28%"></span><span class="sk"></span><span class="sk"></span><span class="sk" style="width:94%"></span><span class="sk" style="width:58%"></span><span class="sk" style="width:47%"></span></div>
@@ -592,11 +640,11 @@
 
         <div class="quiz rv" style="--i:4" data-quiz="q15" data-answer="b" role="radiogroup" aria-label="Quelle conclusion est justifiée ?">
           <button type="button" class="q-opt" role="radio" aria-checked="false" data-value="a"
-            data-fb="Non : une seule comparaison ne permet pas de dire qu’un outil est toujours meilleur."><span class="q-radio"></span><b>A.</b> Cet outil est toujours meilleur</button>
+            data-fb="Un seul essai ne permet pas ce classement général."><span class="q-radio"></span><b>A.</b> Cet outil est toujours meilleur</button>
           <button type="button" class="q-opt" role="radio" aria-checked="false" data-value="b"
-            data-fb="Exact. On juge une réponse pour une tâche précise, pas l’outil en général."><span class="q-radio"></span><b>B.</b> Cette réponse est plus adaptée à cette affiche</button>
+            data-fb="La conclusion est limitée à cette tâche et à ces critères."><span class="q-radio"></span><b>B.</b> Cette réponse est plus adaptée à cette affiche</button>
           <button type="button" class="q-opt" role="radio" aria-checked="false" data-value="c"
-            data-fb="Non : les deux réponses sont bonnes. L’autre outil sait rédiger, sa réponse est simplement moins adaptée ici."><span class="q-radio"></span><b>C.</b> L’autre outil ne sait pas rédiger</button>
+            data-fb="Une différence de longueur ne démontre pas une incapacité."><span class="q-radio"></span><b>C.</b> L’autre outil ne sait pas rédiger</button>
         </div>
         <p class="q-feedback" aria-live="polite"></p>
       </div>
@@ -625,12 +673,18 @@
 
         <div class="why rv" style="--i:3">
           <textarea class="why-input" data-why aria-label="Votre argument" placeholder="Pour cette tâche, je retiens cette réponse parce que…"></textarea>
-          <span class="why-hint" aria-live="polite">Cliquez sur la réponse que vous retenez, puis argumentez.</span>
         </div>
+        <div class="examples rv" style="--i:4">
+          <span>Exemples d’arguments :</span>
+          <button type="button" class="ex-chip" data-example="les horaires sont présents">horaires présents</button>
+          <button type="button" class="ex-chip" data-example="le message est plus court">message plus court</button>
+          <button type="button" class="ex-chip" data-example="aucune information n’a été ajoutée">aucune information ajoutée</button>
+        </div>
+        <p class="fb-note" data-why-fb><svg aria-hidden="true"><use href="#i-info"/></svg><span>Un argument précis vous aidera à choisir selon vos besoins futurs.</span></p>
       </div>
 
-      <button class="cta cta--sm rv" style="--i:5" type="button" data-check="pref">
-        <span class="cta-label">Continuer</span> <svg aria-hidden="true"><use href="#i-arrow-r"/></svg>
+      <button class="cta cta--sm rv" style="--i:5" data-next>
+        Continuer <svg aria-hidden="true"><use href="#i-arrow-r"/></svg>
       </button>
     </section>
 
@@ -639,22 +693,25 @@
       <div class="content">
         <div class="pill pill--plain rv" style="--i:0">Votre bilan</div>
         <h2 class="h1 rv" style="--i:1">Votre résultat</h2>
-        <p class="lead rv" style="--i:2">Votre résultat : <b data-score-text>0 / 11</b>.<br>Vos activités sont conservées. <span data-score-advice>Consultez les points à reprendre.</span></p>
+        <p class="lead rv" style="--i:2">Votre résultat : <b data-score-text>0 sur 11</b>.<br>Vos activités sont conservées. Consultez les points à reprendre.</p>
 
         <div class="verdict rv" style="--i:3">
           <div class="verdict-main">
             <span class="verdict-ico"><svg class="v-ok"><use href="#i-check"/></svg><svg class="v-ko"><use href="#i-replay"/></svg></span>
             <h3 data-verdict-title>Module validé</h3>
             <div class="verdict-score"><span data-score-count>0</span> / <span data-score-max>11</span></div>
-            <p>Le score dépend de vos réponses.<br>Validation : 70 % minimum.</p>
+            <p data-verdict-msg>Validation : 70 % minimum.</p>
           </div>
           <div class="verdict-side">
             <span class="side-ico"><svg><use href="#i-doc-w"/></svg></span>
-            <span data-manip>Manipulation réalisée</span>
+            <span><span data-manip>Manipulation réalisée</span><small data-manip-msg></small></span>
           </div>
         </div>
 
-        <button type="button" class="btn-outline btn-review rv" style="--i:4" data-review-open>Revoir mes réponses</button>
+        <div class="result-actions rv" style="--i:4">
+          <button type="button" class="btn-outline btn-review" data-review-open>Revoir mes réponses</button>
+          <button type="button" class="btn-soft btn-review" data-menu-open>Revenir au menu</button>
+        </div>
       </div>
 
       <div class="review" data-review hidden>
@@ -673,7 +730,7 @@
     </section>
 
     <!-- ================================================================ 18 -->
-    <section class="slide s-sheet" data-photo="portrait" style="--pw:643px;--ph:820px;--pr:28px;--pos:60% 0%" aria-label="Votre fiche à conserver">
+    <section class="slide s-sheet" data-photo="portrait" style="--pw:643px;--ph:820px;--pr:28px;--pos:60% 0%;--dock-x:470px" aria-label="Votre fiche à conserver">
       <div class="content">
         <h2 class="h1 rv" style="--i:0">Votre fiche à conserver</h2>
         <div class="rule" aria-hidden="true"></div>
@@ -685,9 +742,11 @@
           <li class="rv" style="--i:5"><span class="g-ico"><svg><use href="#i-search"/></svg></span>Signaler ce qui manque.</li>
           <li class="rv" style="--i:6"><span class="g-ico"><svg><use href="#i-scale"/></svg></span>Comparer les résultats sur les mêmes critères.</li>
         </ol>
+        <p class="fb-note" data-sheet-fb><svg aria-hidden="true"><use href="#i-info"/></svg><span>Fiche enregistrée dans Mes repères.</span></p>
       </div>
 
       <div class="end-actions rv" style="--i:7">
+        <button type="button" class="btn-soft" data-menu-open>Revenir au menu</button>
         <button type="button" class="btn-outline" data-save-sheet>Enregistrer ma fiche</button>
         <button type="button" class="cta cta--inline" data-finish>Passer au module 4 <svg aria-hidden="true"><use href="#i-arrow-r"/></svg></button>
       </div>
@@ -696,7 +755,7 @@
         <div class="finish-card">
           <span class="finish-ico"><svg><use href="#i-check"/></svg></span>
           <h3>Module 3 terminé</h3>
-          <p>Votre progression est enregistrée. Vous pouvez fermer cette fenêtre et ouvrir le module 4.</p>
+          <p data-finish-msg>Votre progression est enregistrée. Vous pouvez fermer cette fenêtre et ouvrir le module 4.</p>
           <button type="button" class="btn-outline" data-finish-close>Rester sur la fiche</button>
         </div>
       </div>
@@ -728,6 +787,25 @@
   </div>
   <audio id="voice" preload="auto"></audio>
   <div class="toast" role="status"></div>
+
+  <!-- Menu du module : écrans, progression, Mes repères, options -->
+  <div class="menu" data-menu hidden>
+    <div class="menu-panel" role="dialog" aria-modal="true" aria-labelledby="menu-title">
+      <header>
+        <div><span class="menu-k">Module 3</span><h3 id="menu-title">Prendre en main Claude</h3></div>
+        <button type="button" class="review-close" data-menu-close aria-label="Fermer le menu"><svg><use href="#i-x"/></svg></button>
+      </header>
+      <div class="menu-body">
+        <nav class="menu-nav" data-menu-nav aria-label="Écrans du module"></nav>
+        <aside class="menu-side">
+          <section class="reperes">
+            <h4>Mes repères</h4>
+            <div data-reperes></div>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </div>
 </main>
 
 <script src="assets/audio/sous-titres.js"></script>
