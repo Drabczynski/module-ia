@@ -37,3 +37,18 @@ Chaque écran règle la largeur du panneau photo via `--pw` ; la photo s'anime d
 - La réponse ChatGPT de l'écran 3.13 vient de `window.COURSE_CONTEXT.chatgptFirstResponse` (plateforme) ;
   à défaut, la réponse illustrative relue du storyboard est affichée avec la mention « exemple ».
 - Sous 820 px de large, la scène devient une page où les colonnes s'empilent.
+
+## Version immersive (prototype, écrans 3.04 à 3.10)
+
+`immersif/` : le coach guide l'apprenant à gauche, l'apprenant converse avec Claude à droite.
+
+- `api/chat.ts` : fonction Vercel qui appelle Claude (modèle `claude-opus-5`, réponses en continu).
+  La clé reste côté serveur. Variables d'environnement Vercel :
+  - `ANTHROPIC_API_KEY` (obligatoire pour le mode réel) ;
+  - `ALLOWED_ORIGINS` : domaines des LMS autorisés, séparés par des virgules
+    (la page servie par Vercel elle-même est toujours autorisée) ;
+  - facultatif : `UPSTASH_REDIS_REST_URL` et `UPSTASH_REDIS_REST_TOKEN` pour un compteur d'usage partagé,
+    `LIMIT_PER_LEARNER` (60 par jour par défaut) et `LIMIT_PER_IP` (300).
+- Sans clé, sans réseau ou en cas de panne, le module passe en **mode simulé** (réponses préparées pour l'exercice).
+- Dans un LMS, définir `window.IMMERSIF_API = "https://<projet>.vercel.app/api/chat"` avant `app.js`.
+- Vérification des types : `npm install && npm run typecheck`.

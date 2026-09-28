@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Module 3 · Version immersive</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M5 5h14a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 19 17H10l-4.5 3.5V17H5a1.5 1.5 0 0 1-1.5-1.5v-9A1.5 1.5 0 0 1 5 5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-side" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 4.5v15" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6M12 7.5v.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5 10 17 19 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-arrow-r" viewBox="0 0 24 24"><path d="M4 12h15M13 5.5 19.5 12 13 18.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-arrow-l" viewBox="0 0 24 24"><path d="M20 12H5M11 5.5 4.5 12 11 18.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-mark" viewBox="0 0 24 24"><path d="M12 3.5 14 10l6.5 2-6.5 2-2 6.5-2-6.5-6.5-2 6.5-2Z" fill="currentColor"/></symbol>
+  </defs>
+</svg>
+
+<div class="app" data-app>
+
+  <header class="topbar">
+    <div class="tb-left">
+      <span class="brand">ChatGPT et Claude</span>
+      <span class="tb-sep"></span>
+      <span class="tb-mod">Module 3 · Version immersive</span>
+    </div>
+    <div class="tb-right">
+      <span class="badge-sim">Simulation pédagogique</span>
+      <button type="button" class="conn" data-conn aria-live="polite">Connexion…</button>
+      <a class="tb-link" href="../index.html">Version diapositives</a>
+    </div>
+  </header>
+
+  <!-- Panneau du coach : étape, consigne, activité, retours -->
+  <aside class="coach" data-coach aria-label="Consignes de la formation">
+    <button type="button" class="coach-head" data-coach-toggle aria-expanded="true">
+      <img class="lea" src="../assets/img/lea-portrait.jpg" alt="">
+      <span class="coach-titles">
+        <span class="c-step" data-step-code>3.04</span>
+        <span class="c-title" data-step-title></span>
+      </span>
+      <svg class="c-chevron" aria-hidden="true"><use href="#i-chevron"/></svg>
+    </button>
+    <div class="c-progress" aria-hidden="true"><span data-progress></span></div>
+    <div class="coach-body" data-coach-body></div>
+    <footer class="coach-foot">
+      <button type="button" class="btn-ghost" data-prev><svg><use href="#i-arrow-l"/></svg>Retour</button>
+      <button type="button" class="btn-primary" data-next>Continuer<svg><use href="#i-arrow-r"/></svg></button>
+    </footer>
+  </aside>
+
+  <!-- Interface de conversation (inspirée des assistants IA, simulation pédagogique) -->
+  <section class="chat" aria-label="Interface de conversation, simulation pédagogique">
+    <nav class="chat-side" data-side aria-label="Conversations">
+      <button type="button" class="new-chat" data-fn="new"><svg><use href="#i-plus"/></svg>Nouvelle conversation</button>
+      <div class="recents-wrap" data-fn="history">
+        <h3>Récents</h3>
+        <ul class="recents" data-recents></ul>
+      </div>
+      <p class="side-note">Environnement de formation. Utilisez uniquement les dossiers fictifs.</p>
+    </nav>
+
+    <div class="chat-main">
+      <div class="chat-head">
+        <button type="button" class="side-toggle" data-side-toggle aria-label="Afficher les conversations"><svg><use href="#i-side"/></svg></button>
+        <span class="conv-title" data-conv-title>Nouvelle conversation</span>
+      </div>
+
+      <div class="messages" data-messages aria-live="polite"></div>
+
+      <form class="composer" data-fn="input" data-composer>
+        <textarea data-input rows="1" placeholder="Écrivez votre message ici…" aria-label="Votre message"></textarea>
+        <button type="submit" class="send" data-fn="send" aria-label="Envoyer"><svg><use href="#i-up"/></svg></button>
+      </form>
+      <p class="composer-note" data-composer-note></p>
+    </div>
+  </section>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
