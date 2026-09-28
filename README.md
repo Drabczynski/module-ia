@@ -52,3 +52,14 @@ Chaque écran règle la largeur du panneau photo via `--pw` ; la photo s'anime d
 - Sans clé, sans réseau ou en cas de panne, le module passe en **mode simulé** (réponses préparées pour l'exercice).
 - Dans un LMS, définir `window.IMMERSIF_API = "https://<projet>.vercel.app/api/chat"` avant `app.js`.
 - Vérification des types : `npm install && npm run typecheck`.
+
+## Découvrir Claude (`decouvrir/`)
+
+Module autonome de découverte : une journée fictive chez Lumen, six missions et un bilan.
+
+- Chaque mission suit la même logique : **Situation → Comprendre → Essayer → Retenir**, une action à la fois.
+- Activités : QCM, choix multiples, relier, remettre dans l'ordre, repérer une erreur, vrai/faux, décisions,
+  pratique réelle avec Claude (critères vérifiés automatiquement, analyse Tâche / Contexte / Format en direct).
+- L'espace Claude (à droite) n'est utilisable qu'aux étapes « Essayer ».
+- Points, badges et aide-mémoire final imprimable, avec la demande rédigée par l'apprenant.
+- Utilise la même fonction `api/chat.ts` (identifiant `decouvrir`) ; mode simulé automatique sans clé.

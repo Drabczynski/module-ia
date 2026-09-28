@@ -25,19 +25,6 @@
 
 <div class="app" data-app>
 
-  <header class="topbar">
-    <div class="tb-left">
-      <span class="brand">ChatGPT et Claude</span>
-      <span class="tb-sep"></span>
-      <span class="tb-mod">Module 3 · Version immersive</span>
-    </div>
-    <div class="tb-right">
-      <span class="badge-sim">Simulation pédagogique</span>
-      <button type="button" class="conn" data-conn aria-live="polite">Connexion…</button>
-      <a class="tb-link" href="../index.html">Version diapositives</a>
-    </div>
-  </header>
-
   <!-- Panneau du coach : étape, consigne, activité, retours -->
   <aside class="coach" data-coach aria-label="Consignes de la formation">
     <button type="button" class="coach-head" data-coach-toggle aria-expanded="true">
@@ -49,6 +36,10 @@
       <svg class="c-chevron" aria-hidden="true"><use href="#i-chevron"/></svg>
     </button>
     <div class="c-progress" aria-hidden="true"><span data-progress></span></div>
+    <div class="coach-meta">
+      <button type="button" class="conn" data-conn aria-live="polite">Connexion…</button>
+      <a class="tb-link" href="../index.html">Version diapositives</a>
+    </div>
     <div class="coach-body" data-coach-body></div>
     <footer class="coach-foot">
       <button type="button" class="btn-ghost" data-prev><svg><use href="#i-arrow-l"/></svg>Retour</button>
@@ -71,6 +62,7 @@
       <div class="chat-head">
         <button type="button" class="side-toggle" data-side-toggle aria-label="Afficher les conversations"><svg><use href="#i-side"/></svg></button>
         <span class="conv-title" data-conv-title>Nouvelle conversation</span>
+        <span class="env-pill">Simulation pédagogique</span>
       </div>
 
       <div class="messages" data-messages aria-live="polite"></div>

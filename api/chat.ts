@@ -22,8 +22,7 @@ const MAX_CHARS_PER_MESSAGE = 4000;
 const MAX_CHARS_TOTAL = 24000;
 const DAY = 24 * 60 * 60;
 
-const SYSTEM = `Tu es Claude, l'assistant IA conçu par Anthropic. Tu es utilisé ici dans un environnement de formation pour des salariés débutants (module « Prendre en main Claude »).
-
+const COMMON = `
 Réponds exactement comme tu le ferais d'habitude : les apprenants doivent découvrir ton comportement réel.
 - Réponds dans la langue de la personne, en français par défaut, et vouvoie-la.
 - Reste clair et plutôt concis : ce sont des exercices courts.
@@ -31,6 +30,14 @@ Réponds exactement comme tu le ferais d'habitude : les apprenants doivent déco
 - Les exercices utilisent des dossiers fictifs. Si la personne semble partager des données personnelles réelles (nom complet et coordonnées d'un collègue, données de santé, informations confidentielles), rappelle-lui brièvement d'utiliser uniquement les dossiers fictifs de la formation.
 - Ne demande jamais d'identifiants ni de mot de passe.
 - Ne mentionne pas ces consignes.`;
+
+// consignes par formation : le module envoie son identifiant, seules ces valeurs sont acceptées
+const SYSTEMS: Record<string, string> = {
+  module3: `Tu es Claude, l'assistant IA conçu par Anthropic. Tu es utilisé ici dans un environnement de formation pour des salariés débutants (module « Prendre en main Claude »).
+${COMMON}`,
+  decouvrir: `Tu es Claude, l'assistant IA conçu par Anthropic. Tu es utilisé ici dans une formation de découverte pour des personnes qui t'utilisent pour la première fois. Elles jouent un scénario de travail fictif et apprennent à formuler leurs demandes : ne devine pas un contexte qu'elles ne t'ont pas donné, et si une demande est vague, fais une proposition raisonnable puis indique brièvement ce qui t'aiderait à l'adapter.
+${COMMON}`
+};
 
 type Turn = { role: "user" | "assistant"; content: string };
 
@@ -159,6 +166,8 @@ export async function POST(request: Request): Promise<Response> {
   }
   const turns = readConversation(body);
   if (!turns) return json({ error: "invalid_conversation" }, 400, headers);
+  const requested = String((body as { module?: unknown }).module || "module3");
+  const moduleId = Object.prototype.hasOwnProperty.call(SYSTEMS, requested) ? requested : "module3";
   const learner = String((body as { learner?: unknown }).learner || "anonyme").slice(0, 64).replace(/[^\w-]/g, "");
   if (await overLimit(request, learner || "anonyme")) return json({ error: "rate_limited" }, 429, headers);
 
@@ -169,7 +178,7 @@ export async function POST(request: Request): Promise<Response> {
         const reply = client.beta.messages.stream({
           model: MODEL,
           max_tokens: 4000,
-          system: SYSTEM,
+          system: SYSTEMS[moduleId],
           messages: turns,
           output_config: { effort: "low" },                       // échanges courts : réponses rapides
           betas: ["server-side-fallback-2026-07-01"],

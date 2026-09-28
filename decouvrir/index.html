@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Découvrir Claude · Votre première journée</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 2.5 14.2 9.8 21.5 12l-7.3 2.2L12 21.5l-2.2-7.3L2.5 12l7.3-2.2Z" fill="currentColor"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5 10 17 19 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5.5" y="10.5" width="13" height="9.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 5.5 19.5 12 13 18.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-hash" viewBox="0 0 24 24"><path d="M9 4 7 20M17 4l-2 16M4.5 9h16M3.5 15h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6.5 3h8L19 7.5V21H6.5z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M14.5 3v4.5H19M9.5 12h6M9.5 15h6M9.5 18h4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-history" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5M12 8v4.5l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v5.5c0 4.3 3 8 7 9.5 4-1.5 7-5.2 7-9.5V6Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+
+<!-- ============================ Ouverture ============================ -->
+<section class="intro" data-intro aria-labelledby="intro-title">
+  <div class="intro-glow" aria-hidden="true"></div>
+  <div class="intro-grid" aria-hidden="true"></div>
+  <div class="intro-inner">
+    <div class="intro-badge"><span class="dot"></span>Formation interactive · Simulation pédagogique</div>
+    <h1 id="intro-title">Découvrir <span class="grad">Claude</span></h1>
+    <p class="intro-lead">Lundi, 9 h 02. C’est votre premier jour chez <b>Lumen</b>, un studio de design à Lyon. Inès, la directrice, vous a préparé six missions. Votre coéquipier pour la journée&nbsp;: Claude.</p>
+    <div class="intro-meta">
+      <span>20 minutes</span><span>6 missions</span><span>Conversation réelle avec Claude</span>
+    </div>
+    <div class="intro-goals">
+      <h2>À la fin de la journée, vous saurez&nbsp;:</h2>
+      <ol>
+        <li>mener une conversation avec Claude et la relancer&nbsp;;</li>
+        <li>formuler une demande complète&nbsp;: tâche, contexte, format&nbsp;;</li>
+        <li>améliorer une réponse sans tout recommencer&nbsp;;</li>
+        <li>faire travailler Claude sur un document, puis vérifier le résultat&nbsp;;</li>
+        <li>savoir ce que vous pouvez partager, ou non.</li>
+      </ol>
+    </div>
+    <div class="intro-level" role="radiogroup" aria-label="Votre expérience des assistants IA">
+      <span>Avez-vous déjà utilisé un assistant IA&nbsp;?</span>
+      <div class="lvl-choices">
+        <button type="button" role="radio" aria-checked="false" data-level="jamais">Jamais</button>
+        <button type="button" role="radio" aria-checked="true" data-level="parfois">Quelques fois</button>
+        <button type="button" role="radio" aria-checked="false" data-level="souvent">Souvent</button>
+      </div>
+    </div>
+    <button type="button" class="btn-hero" data-start>Commencer la journée <svg><use href="#i-arrow"/></svg></button>
+    <p class="intro-note">Scénario et entreprise fictifs. N’utilisez aucune donnée réelle.</p>
+  </div>
+  <div class="intro-preview" aria-hidden="true">
+    <div class="pv-card pv-1"><span class="av av-ines">IM</span><div><b>Inès Morel</b><p>Bienvenue chez Lumen ! On commence doucement…</p></div></div>
+    <div class="pv-card pv-2"><span class="av av-claude"><svg><use href="#i-spark"/></svg></span><div><b>Claude</b><p>Bonjour ! Je peux vous aider à rédiger, résumer, analyser…</p></div></div>
+    <div class="pv-card pv-3"><span class="check"><svg><use href="#i-check"/></svg></span><div><b>Mission accomplie</b><p>Le pouvoir du contexte</p></div></div>
+  </div>
+</section>
+
+<!-- ============================ Application ============================ -->
+<div class="shell" data-shell hidden>
+
+  <!-- progression -->
+  <aside class="rail" aria-label="Missions">
+    <div class="rail-head">
+      <span class="logo"><svg><use href="#i-spark"/></svg></span>
+      <div><b>Découvrir Claude</b><small>Votre première journée</small></div>
+    </div>
+    <nav class="chapters" data-chapters></nav>
+    <div class="rail-foot">
+      <div class="rail-progress">
+        <div class="rp-top"><span>Progression</span><b data-progress-label>0 / 6</b></div>
+        <div class="rp-bar"><span data-progress-bar></span></div>
+        <div class="xp"><span>Points</span><b data-xp>0</b></div>
+      </div>
+      <button type="button" class="mode" data-mode>Connexion…</button>
+    </div>
+  </aside>
+
+  <!-- onglets sur mobile -->
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" data-tab="story" aria-selected="true">Mission <span class="tab-dot" data-tab-dot hidden></span></button>
+    <button type="button" role="tab" data-tab="claude" aria-selected="false">Claude</button>
+  </div>
+
+  <!-- fil de l'histoire -->
+  <section class="story" data-panel="story" aria-label="Fil de discussion avec Inès">
+    <header class="panel-head">
+      <div class="ph-title"><svg><use href="#i-hash"/></svg><b>premier-jour</b></div>
+      <div class="ph-people"><span class="av av-ines sm">IM</span><span class="av av-you sm">V</span><span class="ph-sub">Inès vous accompagne</span></div>
+    </header>
+    <div class="thread" data-thread aria-live="polite"></div>
+  </section>
+
+  <!-- espace de travail Claude -->
+  <section class="work" data-panel="claude" aria-label="Espace de travail avec Claude">
+    <header class="panel-head work-head">
+      <div class="ph-title"><span class="av av-claude sm"><svg><use href="#i-spark"/></svg></span><b>Claude</b><span class="chip-env">Environnement de formation</span></div>
+      <div class="work-actions">
+        <div class="hist">
+          <button type="button" class="icon-btn" data-hist-toggle aria-expanded="false" aria-label="Conversations précédentes"><svg><use href="#i-history"/></svg><span>Historique</span></button>
+          <div class="hist-pop" data-hist hidden></div>
+        </div>
+        <button type="button" class="icon-btn" data-new><svg><use href="#i-plus"/></svg><span>Nouvelle conversation</span></button>
+      </div>
+    </header>
+    <div class="work-banner" data-banner hidden></div>
+    <div class="messages" data-messages aria-live="polite"></div>
+    <form class="composer" data-composer>
+      <textarea data-input rows="1" placeholder="Écrivez à Claude…" aria-label="Votre message à Claude"></textarea>
+      <div class="composer-foot">
+        <span class="kbd-hint"><kbd>Entrée</kbd> envoyer · <kbd>Maj</kbd>+<kbd>Entrée</kbd> nouvelle ligne</span>
+        <button type="submit" class="send" aria-label="Envoyer"><svg><use href="#i-up"/></svg></button>
+      </div>
+    </form>
+    <p class="work-note" data-work-note></p>
+  </section>
+</div>
+
+<div class="toast" data-toast role="status" aria-live="polite"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
