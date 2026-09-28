@@ -1,13 +1,13 @@
 /* ==========================================================================
    Découvrir Claude — une journée chez Lumen (scénario fictif)
-   Une action à la fois : le fil de gauche propose une seule étape active ;
-   l'espace Claude ne s'ouvre qu'aux étapes « Essayer ».
+   Une étape à la fois : le guide n'affiche qu'un écran ; l'espace Claude
+   ne s'ouvre qu'aux étapes « À faire dans Claude ».
    ========================================================================== */
 (function () {
   "use strict";
 
   var API = window.CLAUDE_API || (/^https?:$/.test(location.protocol) ? "/api/chat" : null);
-  var STORE = "decouvrir-claude";
+  var STORE = "decouvrir-claude-v2";
   var FIRST_BYTE_TIMEOUT = 20000;
 
   var $ = function (s, r) { return (r || document).querySelector(s); };
@@ -34,12 +34,12 @@
     "- La date de lancement en boutique reste à confirmer.";
 
   var TAKEAWAYS = [
-    "Parlez à Claude en phrases, comme à un collègue. Dans une même conversation, il garde le fil : relancez pour préciser.",
-    "Une bonne demande contient une tâche, du contexte et un format : les informations qu’un collègue vous demanderait.",
-    "Pour améliorer une réponse, dites précisément ce qui ne va pas et ce que vous voulez à la place. Même sujet : même conversation.",
-    "Claude ne voit que ce que vous lui donnez : collez la source, puis précisez le résultat attendu. Nouveau sujet : nouvelle conversation.",
-    "Claude peut se tromper ou combler un vide. Vérifiez chiffres, noms et dates dans la source, et demandez-lui de citer le passage.",
-    "Jamais de mot de passe. Pour les données personnelles ou confidentielles, suivez la politique de votre entreprise ; dans le doute, anonymisez."
+    "Parlez à Claude en phrases. Dans une conversation, il garde le fil.",
+    "Une bonne demande : tâche + contexte + format.",
+    "Pour améliorer, dites ce qui ne va pas et ce que vous voulez.",
+    "Claude ne voit que ce que vous lui donnez : collez la source.",
+    "Vérifiez chiffres, noms et dates dans la source.",
+    "Jamais de mot de passe. Données sensibles : suivez la politique de l’entreprise."
   ];
 
   /* analyse d'une demande : tâche, contexte, format (indicatif) */
@@ -51,48 +51,48 @@
     return { T: t, C: facts >= 2 ? 2 : facts, F: f };
   }
 
-  /* ---------- Les missions : chaque étape = une seule action ---------- */
-  // ph : S = situation, C = comprendre, E = essayer, R = retenir
+  /* ---------- Les missions ---------- */
+  // Chaque étape = une seule action. Les messages d'Inès consécutifs
+  // forment un seul écran, suivis éventuellement du document ou de la consigne.
 
   var CH = [
     {
-      label: "Mission 1", title: "Faire connaissance", goal: "Mener une conversation avec Claude et la relancer.",
+      label: "Mission 1", title: "Faire connaissance",
       steps: [
-        { t: "ines", ph: "S", text: "Bonjour et bienvenue chez Lumen ! Je suis Inès, je dirige le studio. Ici, tout le monde travaille avec Claude, un assistant IA." },
-        { t: "ines", ph: "S", text: "Avant de vous confier un vrai dossier, voyons ce que vous en savez déjà." },
-        { t: "multi", ph: "C", pts: 10, q: "Selon vous, que peut faire Claude ? Cochez toutes les bonnes réponses.",
+        { t: "ines", text: "Bienvenue chez Lumen ! Je suis Inès, je dirige le studio. Ici, tout le monde travaille avec Claude, un assistant IA." },
+        { t: "ines", text: "Commençons par voir ce que vous en savez." },
+        { t: "multi", pts: 10, q: "Que peut faire Claude ?",
           opts: [
-            ["Rédiger un e-mail ou un message", true, "Oui : c’est l’un de ses usages les plus courants."],
-            ["Résumer un long document que vous lui donnez", true, "Oui, à condition de lui transmettre le document."],
-            ["Lire vos e-mails sans que vous les lui donniez", false, "Non : il ne voit que ce que vous lui transmettez dans la conversation."],
-            ["Proposer des idées et reformuler un texte", true, "Oui : il est très utile pour trouver des pistes."],
-            ["Garantir que ses réponses sont toujours exactes", false, "Non : il peut se tromper. Vous verrez comment vérifier à la mission 5."]
+            ["Rédiger un e-mail ou un message", true, "C’est l’un de ses usages les plus courants."],
+            ["Résumer un document que vous lui donnez", true, "Oui, si vous lui donnez le document."],
+            ["Lire vos e-mails sans que vous les lui donniez", false, "Il ne voit que ce que vous lui transmettez."],
+            ["Proposer des idées, reformuler un texte", true, "Très utile pour trouver des pistes."],
+            ["Garantir des réponses toujours exactes", false, "Il peut se tromper : vous verrez comment vérifier."]
           ] },
-        { t: "note", ph: "C", title: "Remarque", html: "Claude est un <b>assistant conversationnel</b> : il répond à ce que vous écrivez. Parlez-lui <b>comme à un collègue</b>, en phrases complètes. Pas besoin de mots-clés ni de formules magiques." },
-        { t: "practice", ph: "E", pts: 20, title: "Présentez-vous à Claude",
-          task: "Présentez-vous (vous êtes chargé·e de projet dans un studio de design) et demandez-lui comment il peut vous aider. Puis relancez-le sur un point de sa réponse.",
-          criteria: [["first", "Envoyer un premier message et lire la réponse"], ["follow", "Le relancer dans la même conversation"]],
+        { t: "note", title: "Remarque", html: "Claude répond à ce que vous écrivez. Parlez-lui <b>comme à un collègue</b>, en phrases simples." },
+        { t: "practice", pts: 20, title: "Présentez-vous à Claude",
+          task: "Dites qui vous êtes et demandez-lui comment il peut vous aider. Puis posez une question sur sa réponse.",
+          criteria: [["first", "Envoyer un premier message"], ["follow", "Poser une question de suivi"]],
           hints: [
             { text: "Bonjour ! Je suis chargé·e de projet dans un studio de design. Comment peux-tu m’aider au quotidien ?" },
             { text: "Peux-tu me donner un exemple concret pour le premier point ?" }
           ] },
-        { t: "qcm", ph: "C", pts: 10, q: "Vous l’avez relancé sans tout réexpliquer. Pourquoi est-ce que ça marche ?",
+        { t: "qcm", pts: 10, q: "Vous n’avez rien réexpliqué. Pourquoi Claude a-t-il compris ?",
           opts: [
-            ["Il tient compte de toute la conversation en cours", true, "Exact : dans une même conversation, il garde le fil de vos échanges."],
-            ["Il se souvient de toutes vos conversations passées", false, "Pas par défaut : une nouvelle conversation repart de zéro. Redonnez le contexte utile."],
-            ["Il devine ce que vous voulez", false, "Non : il s’appuie uniquement sur ce que vous avez écrit."]
+            ["Il tient compte de toute la conversation en cours", true, "Exact : dans une conversation, il garde le fil."],
+            ["Il se souvient de toutes vos conversations passées", false, "Pas par défaut : une nouvelle conversation repart de zéro."],
+            ["Il devine ce que vous voulez", false, "Non : il s’appuie sur ce que vous avez écrit."]
           ] },
-        { t: "keep", ph: "R", i: 0 }
+        { t: "keep", i: 0 }
       ]
     },
     {
-      label: "Mission 2", title: "La recette d’une bonne demande", goal: "Formuler une demande complète : tâche, contexte, format.",
+      label: "Mission 2", title: "La recette d’une bonne demande",
       steps: [
-        { t: "ines", ph: "S", text: "Premier vrai dossier ! Hugo, notre nouveau stagiaire, arrive lundi. Pouvez-vous préparer un message de bienvenue à poster sur le canal de l’équipe ?" },
-        { t: "ines", ph: "S", text: "Avant de vous lancer, regardez la différence entre ces deux demandes." },
-        { t: "compare", ph: "C" },
-        { t: "link", ph: "C", pts: 10, q: "Reliez chaque morceau de la bonne demande à son rôle.",
-          sub: "Cliquez sur un morceau, puis sur son rôle.",
+        { t: "ines", text: "Hugo, notre stagiaire, arrive lundi. Il faut un message de bienvenue pour l’équipe." },
+        { t: "ines", text: "Regardez d’abord ces deux demandes." },
+        { t: "compare" },
+        { t: "link", pts: 10, q: "Reliez chaque morceau à son rôle.", sub: "Cliquez un morceau, puis son rôle.",
           items: [
             ["Rédige un message de bienvenue", "T"],
             ["pour Hugo, stagiaire designer graphique", "C"],
@@ -100,122 +100,136 @@
             ["Ton chaleureux, tutoiement", "F"],
             ["5 lignes maximum, pour Slack", "F"]
           ] },
-        { t: "note", ph: "C", title: "La recette", html: "<b><span class=\"tok-t\">Tâche</span> + <span class=\"tok-c\">Contexte</span> + <span class=\"tok-f\">Format</span></b>. Ce ne sont pas des formules magiques : ce sont les informations qu’un collègue vous demanderait avant de s’y mettre." },
-        { t: "practice", ph: "E", pts: 20, analysis: true, title: "Écrivez votre propre demande",
-          task: "Demandez à Claude le message de bienvenue pour Hugo, avec vos mots. Votre demande doit contenir une tâche, du contexte et un format.",
-          facts: ["Hugo", "stagiaire designer graphique", "6 mois", "arrive lundi 14 avril", "studio de 12 personnes", "message pour Slack"],
-          criteria: [["T", "Une tâche : ce que Claude doit faire"], ["C", "Du contexte : au moins deux informations sur la situation"], ["F", "Un format : longueur, ton ou support"]],
+        { t: "note", title: "La recette", html: "<span class=\"tok-t\">Tâche</span> + <span class=\"tok-c\">Contexte</span> + <span class=\"tok-f\">Format</span> : les informations qu’un collègue vous demanderait." },
+        { t: "practice", pts: 20, analysis: true, title: "Écrivez votre demande",
+          task: "Demandez à Claude le message pour Hugo, avec vos mots.",
+          facts: ["Hugo", "stagiaire designer graphique", "6 mois", "arrive lundi", "studio de 12 personnes", "pour Slack"],
+          criteria: [["T", "Tâche : ce que Claude doit faire"], ["C", "Contexte : au moins deux informations"], ["F", "Format : longueur, ton ou support"]],
           hints: [
-            { text: "Rappel : Tâche = le verbe (rédige, résume…). Contexte = pour qui, quelle situation. Format = longueur, ton, support.", plain: true },
+            { text: "Tâche = le verbe (rédige, résume…). Contexte = pour qui, quelle situation. Format = longueur, ton, support.", plain: true },
             { after: 2, text: "Rédige un message de bienvenue pour Hugo, stagiaire designer graphique qui rejoint notre studio lundi pour six mois. Ton chaleureux, tutoiement, 5 lignes maximum, pour Slack." }
           ] },
-        { t: "qcm", ph: "C", pts: 10, q: "Comparez avec la demande vague. Qu’est-ce qui a surtout changé dans la réponse ?",
+        { t: "qcm", pts: 10, q: "Par rapport à la demande vague, qu’est-ce qui change ?",
           opts: [
-            ["Elle est adaptée à Hugo et presque prête à poster", true, "Oui : plus vous donnez d’informations utiles, moins vous avez à retoucher."],
-            ["Elle est simplement plus longue", false, "Pas forcément : c’est la précision qui change, pas la longueur."],
-            ["Rien, Claude répond toujours la même chose", false, "Au contraire : la réponse dépend directement de votre demande."]
+            ["La réponse est adaptée à Hugo, presque prête", true, "Oui : plus d’informations utiles, moins de retouches."],
+            ["La réponse est simplement plus longue", false, "C’est la précision qui change, pas la longueur."],
+            ["Rien, Claude répond toujours pareil", false, "Au contraire : la réponse dépend de votre demande."]
           ] },
-        { t: "keep", ph: "R", i: 1 }
+        { t: "keep", i: 1 }
       ]
     },
     {
-      label: "Mission 3", title: "Améliorer sans recommencer", goal: "Améliorer une réponse avec une relance précise.",
+      label: "Mission 3", title: "Améliorer sans recommencer",
       steps: [
-        { t: "ines", ph: "S", text: "Joli travail ! Deux choses : c’est un peu long pour Slack, et il manque le déjeuner d’équipe de vendredi." },
-        { t: "qcm", ph: "C", pts: 10, q: "Quelle relance donnera le meilleur résultat ?",
+        { t: "ines", text: "C’est un peu long pour Slack, et il manque le déjeuner de vendredi." },
+        { t: "qcm", pts: 10, q: "Quelle relance choisir ?",
           opts: [
             ["« Bof, refais. »", false, "Claude ne sait pas ce qui ne va pas : il changera au hasard."],
-            ["Ouvrir une nouvelle conversation et tout réécrire", false, "Vous perdriez le contexte déjà donné. Ce n’est utile que pour un nouveau sujet."],
-            ["« Raccourcis à 3 lignes et ajoute qu’on déjeune tous ensemble vendredi. »", true, "Oui : vous dites ce qui ne va pas et ce que vous voulez à la place."]
+            ["Ouvrir une nouvelle conversation et tout réécrire", false, "Vous perdriez le contexte déjà donné."],
+            ["« Raccourcis à 3 lignes et ajoute qu’on déjeune ensemble vendredi. »", true, "Oui : ce qui ne va pas, et ce que vous voulez."]
           ] },
-        { t: "practice", ph: "E", pts: 20, title: "Demandez les deux ajustements",
-          task: "Dans la conversation du message de bienvenue, demandez à Claude de raccourcir le message et d’ajouter le déjeuner de vendredi.",
-          criteria: [["same", "Rester dans la même conversation"], ["short", "Demander un message plus court"], ["lunch", "Ajouter le déjeuner de vendredi"]],
+        { t: "practice", pts: 20, title: "Demandez les ajustements",
+          task: "Dans la même conversation, demandez un message plus court, avec le déjeuner de vendredi.",
+          criteria: [["same", "Rester dans la même conversation"], ["short", "Demander plus court"], ["lunch", "Ajouter le déjeuner de vendredi"]],
           hints: [{ text: "Raccourcis-le à 3 lignes et ajoute qu’on déjeune tous ensemble vendredi midi." }] },
-        { t: "tf", ph: "C", pts: 5, q: "Vrai ou faux ?", choices: ["Vrai", "Faux"],
+        { t: "tf", pts: 5, q: "Vrai ou faux ?", choices: ["Vrai", "Faux"],
           items: [
-            ["Pour un nouveau sujet, mieux vaut ouvrir une nouvelle conversation.", "Vrai", "Vrai : cela évite de mélanger les contextes."],
-            ["Si la réponse ne convient pas, il faut tout réécrire soi-même.", "Faux", "Faux : une relance précise suffit souvent."],
-            ["On peut demander plusieurs versions pour choisir la meilleure.", "Vrai", "Vrai : par exemple « Propose trois versions, du plus sobre au plus enjoué »."]
+            ["Nouveau sujet : nouvelle conversation.", "Vrai", "Cela évite de mélanger les contextes."],
+            ["Si la réponse ne convient pas, il faut tout réécrire soi-même.", "Faux", "Une relance précise suffit souvent."],
+            ["On peut demander plusieurs versions pour choisir.", "Vrai", "Par exemple : « Propose trois versions »."]
           ] },
-        { t: "keep", ph: "R", i: 2 }
+        { t: "keep", i: 2 }
       ]
     },
     {
-      label: "Mission 4", title: "Travailler sur un document", goal: "Faire travailler Claude sur une source fournie.",
+      label: "Mission 4", title: "Travailler sur un document",
       steps: [
-        { t: "ines", ph: "S", text: "Je sors d’une réunion avec un client, Maison Aubrac. Voici mon compte rendu. Il me faut la liste des actions : qui fait quoi, et pour quand." },
-        { t: "doc", ph: "S" },
-        { t: "order", ph: "C", pts: 10, q: "Dans quel ordre procéder ?", sub: "Cliquez sur les étapes dans le bon ordre.",
-          items: ["Ouvrir une nouvelle conversation", "Coller le compte rendu", "Demander les actions dans un tableau", "Relire le tableau avec le compte rendu sous les yeux"] },
-        { t: "practice", ph: "E", pts: 20, doc: true, title: "Obtenez la liste des actions",
-          task: "Ouvrez une nouvelle conversation, donnez le compte rendu à Claude, et demandez-lui les actions dans un tableau (qui, quoi, quand).",
-          criteria: [["new", "Ouvrir une nouvelle conversation"], ["doc", "Donner le compte rendu à Claude"], ["fmt", "Demander un tableau des actions"]],
-          hints: [{ text: "Voici le compte rendu d’une réunion. Liste les actions dans un tableau : action, responsable, échéance." }] },
-        { t: "note", ph: "C", title: "Remarque", html: "Claude <b>ne voit que ce que vous lui donnez</b>. Sans le compte rendu dans la conversation, il ne pourrait pas deviner ce qui s’est dit en réunion : il risquerait d’inventer." },
-        { t: "keep", ph: "R", i: 3 }
+        { t: "ines", text: "Voici le compte rendu d’une réunion client. Il me faut les actions : qui, quoi, quand." },
+        { t: "doc" },
+        { t: "order", pts: 10, q: "Dans quel ordre procéder ?", sub: "Cliquez les étapes dans l’ordre.",
+          items: ["Ouvrir une nouvelle conversation", "Coller le compte rendu", "Demander les actions dans un tableau", "Relire le tableau avec la source"] },
+        { t: "practice", pts: 20, doc: true, title: "Obtenez les actions",
+          task: "Ouvrez une nouvelle conversation, collez le compte rendu, puis demandez un tableau des actions.",
+          criteria: [["new", "Ouvrir une nouvelle conversation"], ["doc", "Coller le compte rendu"], ["fmt", "Demander un tableau"]],
+          hints: [{ text: "Liste les actions de ce compte rendu dans un tableau : action, responsable, échéance." }] },
+        { t: "note", title: "Remarque", html: "Claude <b>ne voit que ce que vous lui donnez</b>. Sans le compte rendu, il ne peut pas deviner : il risquerait d’inventer." },
+        { t: "keep", i: 3 }
       ]
     },
     {
-      label: "Mission 5", title: "Vérifier, toujours", goal: "Vérifier une réponse à partir de la source.",
+      label: "Mission 5", title: "Vérifier, toujours",
       steps: [
-        { t: "ines", ph: "S", text: "Le client me demande deux choses : le budget validé, et la date à laquelle Paul doit nous envoyer les anciens emballages. Posez la question à Claude." },
-        { t: "practice", ph: "E", pts: 20, title: "Posez les deux questions",
-          task: "Dans la conversation du compte rendu, demandez à Claude le budget validé et la date d’envoi des anciens emballages.",
-          criteria: [["budget", "Demander le budget validé"], ["emb", "Demander la date d’envoi des anciens emballages"]],
+        { t: "ines", text: "Le client demande le budget validé et la date d’envoi des anciens emballages. Demandez à Claude." },
+        { t: "practice", pts: 20, title: "Posez les deux questions",
+          task: "Dans la conversation du compte rendu, demandez le budget validé et la date d’envoi des anciens emballages.",
+          criteria: [["budget", "Demander le budget validé"], ["emb", "Demander la date d’envoi des emballages"]],
           hints: [{ text: "Quel budget le client a-t-il validé ? Et quand Paul doit-il envoyer les anciens emballages ?" }] },
-        { t: "multi", ph: "C", pts: 10, q: "Relisez le compte rendu (mission 4). Qu’y trouve-t-on vraiment ?",
+        { t: "multi", pts: 10, peek: true, q: "Qu’y a-t-il vraiment dans le compte rendu ?",
           opts: [
-            ["Un budget validé", false, "Non : le compte rendu ne parle d’aucun budget."],
-            ["Une date pour l’envoi des anciens emballages", false, "Non : l’action de Paul n’a pas de date."],
-            ["La date de présentation des logos", true, "Oui : le 22 avril."]
+            ["Un budget validé", false, "Aucun budget n’y figure."],
+            ["Une date d’envoi des anciens emballages", false, "L’action de Paul n’a pas de date."],
+            ["La date de présentation des logos", true, "Le 22 avril."]
           ] },
-        { t: "qcm", ph: "C", reflect: true, q: "Et Claude, qu’a-t-il répondu ?",
+        { t: "qcm", reflect: true, q: "Et Claude, qu’a-t-il répondu ?",
           opts: [
-            ["Il a signalé que ces informations n’y figurent pas", null, "Très bien : c’est le comportement attendu. Gardez tout de même le réflexe de vérifier."],
-            ["Il a donné un montant ou une date", null, "C’est exactement le piège : une réponse assurée n’est pas une preuve. Revenez toujours à la source."],
-            ["Je ne suis pas sûr·e", null, "Dans le doute, relisez sa réponse à côté du compte rendu. C’est le bon réflexe."]
+            ["Que ces informations n’y figurent pas", null, "C’est le comportement attendu. Gardez le réflexe de vérifier."],
+            ["Un montant ou une date", null, "C’est le piège : une réponse assurée n’est pas une preuve."],
+            ["Je ne suis pas sûr·e", null, "Relisez sa réponse à côté du compte rendu."]
           ] },
-        { t: "spot", ph: "C", pts: 10, q: "Voici la réponse d’un assistant moins prudent. Cliquez sur les 2 informations inventées.",
-          parts: ["Le budget validé est de ", { hot: "15 000 €", bad: true }, ". Paul doit envoyer les anciens emballages avant le ", { hot: "15 avril", bad: true }, ". Les pistes de logo seront présentées le ", { hot: "22 avril", bad: false }, "."] },
-        { t: "practice", ph: "E", pts: 20, title: "Faites citer la source",
-          task: "Demandez à Claude de citer le passage du compte rendu qui justifie l’une de ses réponses.",
-          criteria: [["cite", "Demander à Claude de citer le passage exact"]],
+        { t: "spot", pts: 10, q: "Un autre assistant a répondu ceci. Cliquez les 2 informations inventées.",
+          parts: ["Le budget validé est de ", { hot: "15 000 €", bad: true }, ". Paul doit envoyer les anciens emballages avant le ", { hot: "15 avril", bad: true }, ". Les logos seront présentés le ", { hot: "22 avril", bad: false }, "."] },
+        { t: "practice", pts: 20, title: "Faites citer la source",
+          task: "Demandez à Claude de citer le passage du compte rendu qui justifie une de ses réponses.",
+          criteria: [["cite", "Demander le passage exact"]],
           hints: [{ text: "Cite le passage exact du compte rendu qui indique la date de présentation des logos." }] },
-        { t: "keep", ph: "R", i: 4 }
+        { t: "keep", i: 4 }
       ]
     },
     {
-      label: "Mission 6", title: "Les bons réflexes", goal: "Savoir ce que l’on peut partager avec Claude.",
+      label: "Mission 6", title: "Les bons réflexes",
       steps: [
-        { t: "ines", ph: "S", text: "Dernier point, et pas le moindre : ce que vous pouvez confier à Claude. Pour chaque situation, que faites-vous ?" },
-        { t: "tf", ph: "C", pts: 5, q: "Puis-je le faire ?", choices: ["Oui", "Selon la politique de l’entreprise", "Jamais"],
+        { t: "ines", text: "Dernier point : que pouvez-vous confier à Claude ?" },
+        { t: "tf", pts: 5, q: "Pour chaque situation, que faites-vous ?", choices: ["Oui", "Selon la politique", "Jamais"],
           items: [
-            ["Coller le compte rendu fictif de cette formation.", "Oui", "Oui : ce sont des données fictives, prévues pour l’exercice."],
-            ["Coller la liste réelle des clients, avec e-mails et téléphones, pour la trier.", "Selon la politique de l’entreprise", "Des données personnelles : seulement avec un outil et un usage autorisés par votre entreprise. Dans le doute, anonymisez."],
-            ["Donner mon mot de passe pour qu’il se connecte à ma messagerie.", "Jamais", "Jamais : aucun mot de passe ni identifiant dans une conversation."],
-            ["Lui demander de reformuler un texte que j’ai écrit.", "Oui", "Oui : c’est un usage simple et sans risque."]
+            ["Coller le compte rendu fictif de cette formation.", "Oui", "Données fictives, prévues pour l’exercice."],
+            ["Coller la liste réelle des clients, avec e-mails et téléphones.", "Selon la politique", "Données personnelles : seulement si votre entreprise l’autorise."],
+            ["Donner mon mot de passe pour qu’il lise ma messagerie.", "Jamais", "Aucun mot de passe dans une conversation."],
+            ["Faire reformuler un texte que j’ai écrit.", "Oui", "Usage simple et sans risque."]
           ] },
-        { t: "note", ph: "C", title: "Dans le doute", html: "Retirez les noms et les informations sensibles avant de coller un texte, ou demandez à votre responsable. <b>Aucun mot de passe, jamais.</b>" },
-        { t: "keep", ph: "R", i: 5 }
+        { t: "note", title: "Dans le doute", html: "Retirez les noms et les informations sensibles, ou demandez à votre responsable. <b>Aucun mot de passe, jamais.</b>" },
+        { t: "keep", i: 5 }
       ]
     },
     {
-      label: "Bilan", title: "Votre aide-mémoire", goal: "Repartir avec vos réflexes.",
+      label: "Bilan", title: "Votre aide-mémoire",
       steps: [
-        { t: "ines", ph: "S", text: "Bravo, quelle première journée ! Voici votre aide-mémoire. Gardez-le sous la main." },
-        { t: "final", ph: "R" }
+        { t: "ines", text: "Bravo, première journée réussie ! Voici votre aide-mémoire." },
+        { t: "final" }
       ]
     }
   ];
   var MISSIONS = CH.length - 1;
+
+  /* écrans : les messages d'Inès consécutifs se regroupent, avec le document,
+     la consigne ou le bilan qui les suit */
+  var JOIN = { ines: 1, doc: 1, practice: 1, final: 1 };
+  var SCREENS = CH.map(function (c) {
+    var out = [];
+    c.steps.forEach(function (s, i) {
+      var last = out[out.length - 1];
+      var onlyInes = last && last.every(function (k) { return c.steps[k].t === "ines"; });
+      if (onlyInes && JOIN[s.t]) last.push(i); else out.push([i]);
+    });
+    return out;
+  });
+  function mainIdx(c, n) { var sc = SCREENS[c][n]; return sc[sc.length - 1]; }
 
   /* ---------- État ---------- */
 
   function load() { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch (e) { return {}; } }
   var S = load();
   S.ch = S.ch || 0;
-  S.pos = S.pos || {};
+  S.pos = S.pos || {};        // écran atteint dans chaque mission
   S.st = S.st || {};
   S.done = S.done || [];
   S.xp = S.xp || 0;
@@ -229,15 +243,18 @@
   function st(c, i) { return S.st[key(c, i)] || (S.st[key(c, i)] = {}); }
 
   var mode = "sim", busy = false;
+  var view = { c: S.ch, n: pos(S.ch) };     // écran affiché (on peut revenir en arrière)
 
   /* ---------- Éléments ---------- */
 
-  var thread = $("[data-thread]"), chaptersEl = $("[data-chapters]"), messagesEl = $("[data-messages]");
-  var input = $("[data-input]"), composer = $("[data-composer]"), sendBtn = $(".send"), banner = $("[data-banner]");
+  var bodyEl = $("[data-g-body]"), messagesEl = $("[data-messages]");
+  var input = $("[data-input]"), composer = $("[data-composer]"), sendBtn = $(".send");
   var work = $(".work"), shell = $("[data-shell]"), toastEl = $("[data-toast]");
+  var nextBtn = $("[data-next]"), backBtn = $("[data-back]");
 
   function h(html) { var d = document.createElement("div"); d.innerHTML = html.trim(); return d.firstChild; }
   function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function txt(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; e.textContent = text; return e; }
   function shuffle(arr, seed) {
     var a = arr.slice(), s = seed;
     for (var i = a.length - 1; i > 0; i--) { s = (s * 9301 + 49297) % 233280; var j = Math.floor(s / 233280 * (i + 1)); var tmp = a[i]; a[i] = a[j]; a[j] = tmp; }
@@ -281,197 +298,197 @@
     toastEl.children[1].textContent = text;
     toastEl.classList.add("is-on");
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { toastEl.classList.remove("is-on"); }, 2400);
+    toastTimer = setTimeout(function () { toastEl.classList.remove("is-on"); }, 2200);
   }
   function award(k, pts, text) {
     S.awarded = S.awarded || {};
-    if (!pts || S.awarded[k]) { if (text) toast(text); return; }
+    if (!pts || S.awarded[k]) return;
     S.awarded[k] = pts;
     S.xp += pts;
     save();
     toast(text || "Bonne réponse", pts);
-    renderRail();
-  }
-
-  /* ---------- Rail des missions ---------- */
-
-  function renderRail() {
-    chaptersEl.innerHTML = "";
-    CH.forEach(function (c, i) {
-      var done = S.done.indexOf(i) >= 0, cur = i === S.ch, open = done || cur;
-      var b = h('<button type="button" class="ch-item"><span class="ch-ico"></span><span class="ch-t"><small></small><b></b></span><span class="ch-pts"></span></button>');
-      b.classList.toggle("is-cur", cur);
-      b.classList.toggle("is-done", done);
-      b.classList.toggle("is-locked", !open);
-      b.disabled = !open;
-      b.querySelector(".ch-ico").innerHTML = done ? '<svg><use href="#i-check"/></svg>' : open ? String(i + 1 > MISSIONS ? "★" : i + 1) : '<svg><use href="#i-lock"/></svg>';
-      b.querySelector("small").textContent = c.label;
-      b.querySelector("b").textContent = c.title;
-      b.onclick = function () { var a = thread.querySelector('[data-anchor="' + i + '"]'); if (a) a.scrollIntoView({ behavior: "smooth", block: "start" }); showTab("story"); };
-      chaptersEl.appendChild(b);
-    });
-    var n = S.done.filter(function (x) { return x < MISSIONS; }).length;
-    $("[data-progress-label]").textContent = n + " / " + MISSIONS;
-    $("[data-progress-bar]").style.width = (n / MISSIONS * 100) + "%";
     $("[data-xp]").textContent = S.xp;
   }
 
-  /* ---------- Fil de l'histoire ---------- */
+  /* ---------- Navigation ---------- */
 
-  var shownKeys = {};
-  var typingTimer = null;
-  var typingNow = false;     // un message d'Inès est en cours d'écriture : il n'est pas encore affiché
+  function reached(c, n) { return c < S.ch || (c === S.ch && n <= pos(c)); }
+  function atFrontier() { return view.c === S.ch && view.n === pos(S.ch); }
+  function frontierStep() { var c = S.ch, i = mainIdx(c, pos(c)); return { c: c, i: i, s: CH[c].steps[i] }; }
+  function currentStep() { return frontierStep().s; }
 
-  function currentStep() { var c = CH[S.ch]; return c && c.steps[pos(S.ch)]; }
+  function stepDone(s, c, i) {
+    var state = st(c, i);
+    if (CHECK[s.t] || s.t === "qcm") return !!state.checked;
+    if (s.t === "tf") return Object.keys(state.ans || {}).length === s.items.length;
+    if (s.t === "practice") return !!state.done;
+    return true;
+  }
 
-  function renderThread() {
-    thread.innerHTML = "";
-    for (var c = 0; c <= S.ch; c++) {
-      var ch = CH[c];
-      var headKey = "h" + c;
-      var head = h('<div class="m-head block" data-anchor="' + c + '"><small></small><h2></h2><p></p><div class="phases"><span>Situation</span><span>Comprendre</span><span>Essayer</span><span>Retenir</span></div></div>');
-      head.querySelector("small").textContent = ch.label;
-      head.querySelector("h2").textContent = ch.title;
-      head.querySelector("p").textContent = "Objectif : " + ch.goal;
-      var curPh = c === S.ch && ch.steps[pos(c)] ? ch.steps[pos(c)].ph : null;
-      var order = ["S", "C", "E", "R"];
-      $$(".phases span", head).forEach(function (sp, k) {
-        var reached = c < S.ch || S.done.indexOf(c) >= 0 || ch.steps.slice(0, pos(c)).some(function (s) { return s.ph === order[k]; });
-        sp.classList.toggle("is-on", curPh === order[k]);
-        sp.classList.toggle("is-done", reached && curPh !== order[k]);
-      });
-      if (!shownKeys[headKey]) { head.classList.add("is-new"); shownKeys[headKey] = 1; }
-      thread.appendChild(head);
-      var upto = c < S.ch ? ch.steps.length - 1 : pos(c) - (typingNow ? 1 : 0);
-      for (var i = 0; i <= upto && i < ch.steps.length; i++) {
-        var node = renderStep(c, i);
-        if (!node) continue;
-        var wrap = document.createElement("div");
-        wrap.className = "block";
-        var isCur = c === S.ch && i === pos(c);
-        if (isCur && isInteractive(ch.steps[i])) { wrap.classList.add("is-current"); wrap.appendChild(h('<span class="now">À vous</span>')); }
-        else if (!isCur) wrap.classList.add("is-past");
-        wrap.appendChild(node);
-        var k = key(c, i);
-        if (!shownKeys[k]) { wrap.classList.add("is-new"); shownKeys[k] = 1; }
-        thread.appendChild(wrap);
-      }
+  function go(c, n) {
+    view = { c: c, n: n };
+    renderAll(true);
+  }
+
+  function forward() {
+    if (!atFrontier()) {
+      if (view.n < SCREENS[view.c].length - 1) go(view.c, view.n + 1);
+      else go(view.c + 1, 0);
+      return;
     }
-    var cur = thread.querySelector(".is-current") || thread.lastElementChild;
-    if (cur) setTimeout(function () { cur.scrollIntoView({ behavior: "smooth", block: "nearest" }); }, 60);
-    renderWorkState();
-  }
-
-  function isInteractive(s) { return s && s.t !== "ines" && s.t !== "final"; }
-
-  /* avance automatique : les messages d'Inès arrivent l'un après l'autre */
-  function flow() {
-    clearTimeout(typingTimer);
-    var s = currentStep();
-    if (!s || s.t !== "ines") { typingNow = false; renderThread(); renderRail(); return; }
-    typingNow = true;
-    renderThread();
-    var typing = h('<div class="msg-ines block"><span class="av av-ines">IM</span><div><div class="who">Inès <span>écrit…</span></div><div class="typing-ines" style="margin-top:6px"><i></i><i></i><i></i></div></div></div>');
-    thread.appendChild(typing);
-    typing.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    typingTimer = setTimeout(function () {
-      S.pos[S.ch] = pos(S.ch) + 1;
-      save();
-      flow();
-    }, Math.min(2200, 700 + s.text.length * 12));
-    if (window.innerWidth <= 960 && shell.dataset.tab === "claude") $("[data-tab-dot]").hidden = false;
-  }
-
-  function next() {
     S.pos[S.ch] = pos(S.ch) + 1;
     save();
-    flow();
+    go(S.ch, pos(S.ch));
+  }
+
+  function backward() {
+    if (view.n > 0) go(view.c, view.n - 1);
+    else if (view.c > 0) go(view.c - 1, SCREENS[view.c - 1].length - 1);
   }
 
   function completeChapter() {
-    if (S.done.indexOf(S.ch) < 0) S.done.push(S.ch);
-    if (S.ch < CH.length - 1) S.ch++;
+    var c = S.ch;
+    if (S.done.indexOf(c) < 0) S.done.push(c);
+    if (c < CH.length - 1) S.ch++;
     save();
-    renderRail();
-    flow();
+    toast(CH[c].label + " accomplie");
+    go(S.ch, pos(S.ch));
   }
 
-  function continueBtn(label) {
-    var row = h('<div class="card-actions continue-row"><button type="button" class="btn btn-dark">' + (label || "Continuer") + ' <svg><use href="#i-arrow"/></svg></button></div>');
-    row.firstChild.onclick = next;
-    return row;
+  /* bouton principal du pied de page : Valider, Continuer ou Mission suivante */
+  function primary() {
+    var c = view.c, i = mainIdx(c, view.n), s = CH[c].steps[i], state = st(c, i);
+    if (!atFrontier()) return { label: "Suivant", run: forward };
+    if (s.t === "final") return null;
+    if (CHECK[s.t] && !state.checked) {
+      return { label: "Valider", disabled: !READY[s.t](s, state), run: function () { CHECK[s.t](s, c, i, state); save(); renderAll(); } };
+    }
+    if (!stepDone(s, c, i)) return { label: "Continuer", disabled: true };
+    if (s.t === "keep") return { label: c < MISSIONS - 1 ? "Mission suivante" : "Voir mon bilan", run: completeChapter };
+    return { label: "Continuer", run: forward };
   }
 
-  function renderStep(c, i) {
-    var s = CH[c].steps[i];
-    var active = c === S.ch && i === pos(c);
-    var R = RENDER[s.t];
-    return R ? R(s, c, i, active) : null;
+  $("[data-next]").addEventListener("click", function () { var p = primary(); if (p && p.run && !p.disabled) p.run(); });
+  backBtn.addEventListener("click", backward);
+
+  /* ---------- En-tête du guide ---------- */
+
+  function renderHeader() {
+    var c = view.c, ch = CH[c];
+    $("[data-g-mission]").textContent = c < MISSIONS ? "Mission " + (c + 1) + " sur " + MISSIONS : "Bilan";
+    $("[data-g-title]").textContent = ch.title;
+    $("[data-xp]").textContent = S.xp;
+    var bar = $("[data-g-steps]");
+    bar.innerHTML = "";
+    SCREENS[c].forEach(function (x, n) {
+      var seg = document.createElement("i");
+      if (n === view.n) seg.className = "is-cur";
+      else if (reached(c, n)) seg.className = "is-done";
+      bar.appendChild(seg);
+    });
+    var pop = $("[data-missions-pop]");
+    pop.innerHTML = "";
+    CH.forEach(function (m, k) {
+      var done = S.done.indexOf(k) >= 0, open = k <= S.ch;
+      var b = h('<button type="button" class="mp-item"><span class="st"></span><span></span></button>');
+      b.lastChild.textContent = (k < MISSIONS ? (k + 1) + ". " : "") + m.title;
+      if (done) b.firstChild.innerHTML = '<svg><use href="#i-check"/></svg>';
+      b.classList.toggle("is-done", done);
+      b.classList.toggle("is-cur", k === c);
+      b.disabled = !open;
+      b.onclick = function () { closeMissions(); go(k, k === S.ch ? pos(k) : 0); showTab("story"); };
+      pop.appendChild(b);
+    });
+  }
+
+  function closeMissions() { $("[data-missions-pop]").hidden = true; $("[data-missions]").setAttribute("aria-expanded", "false"); }
+  $("[data-missions]").addEventListener("click", function (e) {
+    e.stopPropagation();
+    var pop = $("[data-missions-pop]");
+    pop.hidden = !pop.hidden;
+    this.setAttribute("aria-expanded", String(!pop.hidden));
+  });
+
+  /* ---------- Écran courant ---------- */
+
+  function renderAll(fresh) {
+    renderHeader();
+    var y = bodyEl.scrollTop;
+    bodyEl.innerHTML = "";
+    var c = view.c, frontier = atFrontier();
+    SCREENS[c][view.n].forEach(function (i) {
+      var s = CH[c].steps[i];
+      var node = RENDER[s.t](s, c, i, frontier && i === mainIdx(c, view.n));
+      if (node) bodyEl.appendChild(node);
+    });
+    if (fresh) bodyEl.scrollTop = 0; else bodyEl.scrollTop = y;
+    var p = primary();
+    nextBtn.hidden = !p;
+    if (p) { nextBtn.textContent = p.label; nextBtn.disabled = !!p.disabled; }
+    backBtn.disabled = view.c === 0 && view.n === 0;
+    renderWorkState();
+    liveAnalysis();
+  }
+
+  function frag() { return document.createElement("div"); }
+  function kind(text, claude) { return txt("p", "kind" + (claude ? " is-claude" : ""), text); }
+  function feedback(ok, text) {
+    var el = h('<div class="feedback ' + (ok ? "is-ok" : "is-ko") + '"><svg><use href="#i-' + (ok ? "check" : "bulb") + '"/></svg><span></span></div>');
+    el.lastChild.textContent = text;
+    return el;
+  }
+  function docBlock() {
+    var el = h('<div class="doc"><div class="doc-head"><svg><use href="#i-doc"/></svg><span>Compte rendu · Maison Aubrac</span></div><pre></pre></div>');
+    el.querySelector("pre").textContent = DOC;
+    return el;
   }
 
   var RENDER = {
     ines: function (s) {
-      var el = h('<div class="msg-ines"><span class="av av-ines">IM</span><div><div class="who">Inès Morel <span>Directrice du studio</span></div><p></p></div></div>');
+      var el = h('<div class="speaker"><span class="av av-ines">IM</span><div><div class="who">Inès · directrice du studio</div><p></p></div></div>');
       el.querySelector("p").textContent = s.text;
       return el;
     },
 
-    note: function (s, c, i, active) {
-      var el = h('<div><div class="note"><span class="ic"><svg><use href="#i-bulb"/></svg></span><div><b></b><div class="nt"></div></div></div></div>');
-      el.querySelector("b").textContent = s.title + " · ";
-      el.querySelector(".nt").innerHTML = s.html;
-      el.querySelector(".nt").style.display = "inline";
-      if (active) el.appendChild(continueBtn("J’ai compris"));
+    note: function (s) {
+      var el = frag();
+      el.appendChild(kind(s.title));
+      var n = h('<div class="note"></div>');
+      n.innerHTML = s.html;
+      el.appendChild(n);
       return el;
     },
 
-    compare: function (s, c, i, active) {
-      var el = h('<div class="card"><div class="card-k"><svg><use href="#i-target"/></svg>Observer</div><h3>Même besoin, deux demandes</h3><div class="compare">' +
-        '<div class="cmp bad"><small>Demande vague</small><div class="q">Écris un message de bienvenue.</div>' +
-        '<div class="a"><span class="av av-claude"><svg><use href="#i-spark"/></svg></span><span>« Bienvenue à [Prénom] ! Nous sommes ravis de t’accueillir au sein de [nom de l’équipe]… »</span></div>' +
-        '<div class="verdict">Générique, avec des trous à compléter.</div></div>' +
-        '<div class="cmp good"><small>Demande complète</small><div class="q"><span class="tok-t">Rédige un message de bienvenue</span> <span class="tok-c">pour Hugo, stagiaire designer graphique, qui rejoint notre studio lundi pour six mois</span>. <span class="tok-f">Ton chaleureux, tutoiement, 5 lignes maximum, pour Slack.</span></div>' +
-        '<div class="a"><span class="av av-claude"><svg><use href="#i-spark"/></svg></span><span>« Bienvenue Hugo ! Lundi, tu rejoins le studio pour six mois… »</span></div>' +
-        '<div class="verdict">Précis, presque prêt à poster.</div></div></div></div>');
-      var wrap = document.createElement("div");
-      wrap.appendChild(el);
-      if (active) wrap.appendChild(continueBtn("Voir pourquoi"));
-      return wrap;
+    compare: function () {
+      return h('<div><p class="kind">Observer</p><h2 class="q">Même besoin, deux demandes</h2><div class="compare">' +
+        '<div class="cmp bad"><span class="lbl">Demande vague</span><div class="prompt">Écris un message de bienvenue.</div>' +
+        '<div class="answer">« Bienvenue à [Prénom] ! Nous sommes ravis de t’accueillir au sein de [nom de l’équipe]… »<br>Générique, avec des trous.</div></div>' +
+        '<div class="cmp good"><span class="lbl">Demande complète</span><div class="prompt"><span class="tok-t">Rédige un message de bienvenue</span> <span class="tok-c">pour Hugo, stagiaire designer graphique, qui rejoint notre studio lundi pour six mois</span>. <span class="tok-f">Ton chaleureux, tutoiement, 5 lignes maximum, pour Slack.</span></div>' +
+        '<div class="answer">« Bienvenue Hugo ! Lundi, tu rejoins le studio pour six mois… »<br>Précis, presque prêt à poster.</div></div></div></div>');
     },
 
-    doc: function (s, c, i, active) {
-      var el = h('<div class="doc is-open"><div class="doc-head"><span class="doc-ic"><svg><use href="#i-doc"/></svg></span><div><b>Compte rendu · Maison Aubrac</b><small>Document fictif · partagé par Inès</small></div></div><div class="doc-body"><pre></pre></div></div>');
-      el.querySelector("pre").textContent = DOC;
-      if (!active) el.classList.remove("is-open");
-      el.querySelector(".doc-head").style.cursor = "pointer";
-      el.querySelector(".doc-head").onclick = function () { el.classList.toggle("is-open"); };
-      var wrap = document.createElement("div");
-      wrap.appendChild(el);
-      if (active) wrap.appendChild(continueBtn("J’ai lu le compte rendu"));
-      return wrap;
-    },
+    doc: function () { return docBlock(); },
 
-    qcm: function (s, c, i, active) { return choiceCard(s, c, i, active, false); },
-    multi: function (s, c, i, active) { return choiceCard(s, c, i, active, true); },
+    qcm: function (s, c, i) { return choiceStep(s, c, i, false); },
+    multi: function (s, c, i) { return choiceStep(s, c, i, true); },
 
-    link: function (s, c, i, active) {
+    link: function (s, c, i) {
       var state = st(c, i);
       state.map = state.map || {};
-      var CATS = [["T", "Tâche", "ce qu’il doit faire"], ["C", "Contexte", "la situation"], ["F", "Format", "la forme attendue"]];
-      var el = h('<div class="card"><div class="card-k"><svg><use href="#i-target"/></svg>Relier<span class="pts"></span></div><h3></h3><p class="sub"></p><div class="link-wrap"><div class="link-items"></div><div class="link-cats"></div></div></div>');
-      el.querySelector("h3").textContent = s.q;
+      var CATS = [["T", "Tâche", "ce qu’il doit faire"], ["C", "Contexte", "la situation"], ["F", "Format", "la forme"]];
+      var el = h('<div><p class="kind">Relier</p><h2 class="q"></h2><p class="sub"></p><div class="link-wrap"><div class="link-items"></div><div class="link-cats"></div></div></div>');
+      el.querySelector(".q").textContent = s.q;
       el.querySelector(".sub").textContent = s.sub;
-      el.querySelector(".pts").textContent = s.pts + " pts";
       var items = shuffle(s.items.map(function (x, k) { return [x[0], x[1], k]; }), 7 + c);
-      var sel = null;
       items.forEach(function (it) {
         var b = h('<button type="button" class="li-item"></button>');
         b.textContent = it[0];
         var got = state.map[it[2]];
-        if (got) b.appendChild(h('<span class="tag tag-' + got + '">' + got + "</span>"));
+        if (got) b.appendChild(h('<span class="tag tag-' + got + '">' + { T: "Tâche", C: "Contexte", F: "Format" }[got] + "</span>"));
         if (state.checked) b.classList.add(got === it[1] ? "is-right" : "is-wrong");
+        b.classList.toggle("is-sel", state.selItem === it[2]);
         b.disabled = !!state.checked;
-        b.onclick = function () { sel = it[2]; $$(".li-item", el).forEach(function (x) { x.classList.toggle("is-sel", x === b); }); };
+        b.onclick = function () { state.selItem = it[2]; renderAll(); };
         el.querySelector(".link-items").appendChild(b);
       });
       CATS.forEach(function (ct) {
@@ -479,42 +496,29 @@
         b.firstChild.textContent = ct[1];
         b.lastChild.textContent = ct[2];
         b.disabled = !!state.checked;
-        b.onclick = function () { if (sel === null) return; state.map[sel] = ct[0]; sel = null; save(); rerender(); };
+        b.onclick = function () {
+          if (state.selItem === undefined || state.selItem === null) return;
+          state.map[state.selItem] = ct[0];
+          state.selItem = null;
+          save(); renderAll();
+        };
         el.querySelector(".link-cats").appendChild(b);
       });
-      if (!state.checked && active) {
-        var all = Object.keys(state.map).length === s.items.length;
-        var acts = h('<div class="card-actions"><button type="button" class="btn btn-dark">Valider</button></div>');
-        acts.firstChild.disabled = !all;
-        acts.firstChild.onclick = function () {
-          state.checked = true;
-          state.score = s.items.filter(function (x, k) { return state.map[k] === x[1]; }).length;
-          save();
-          if (state.score === s.items.length) award(key(c, i), s.pts, "Tout est relié correctement");
-          rerender();
-        };
-        el.appendChild(acts);
-      }
       if (state.checked) {
         var ok = state.score === s.items.length;
-        el.appendChild(result(ok, ok ? "Parfait : vous savez reconnaître les trois ingrédients d’une demande."
-          : state.score + " sur " + s.items.length + ". Les morceaux en orange étaient mal placés : relisez les couleurs de la demande complète."));
+        el.appendChild(feedback(ok, ok ? "Parfait : vous reconnaissez les trois ingrédients."
+          : state.score + " sur " + s.items.length + ". Comparez avec les couleurs de la demande complète."));
       }
-      var wrap = document.createElement("div");
-      wrap.appendChild(el);
-      if (active && state.checked) wrap.appendChild(continueBtn());
-      return wrap;
+      return el;
     },
 
-    order: function (s, c, i, active) {
+    order: function (s, c, i) {
       var state = st(c, i);
       state.picked = state.picked || [];
-      var el = h('<div class="card"><div class="card-k"><svg><use href="#i-target"/></svg>Remettre dans l’ordre<span class="pts"></span></div><h3></h3><p class="sub"></p><div class="order-list"></div></div>');
-      el.querySelector("h3").textContent = s.q;
+      var el = h('<div><p class="kind">Remettre dans l’ordre</p><h2 class="q"></h2><p class="sub"></p><div class="order-list"></div></div>');
+      el.querySelector(".q").textContent = s.q;
       el.querySelector(".sub").textContent = s.sub;
-      el.querySelector(".pts").textContent = s.pts + " pts";
-      var items = shuffle(s.items.map(function (x, k) { return [x, k]; }), 11);
-      items.forEach(function (it) {
+      shuffle(s.items.map(function (x, k) { return [x, k]; }), 11).forEach(function (it) {
         var n = state.picked.indexOf(it[1]);
         var b = h('<button type="button" class="ord"><span class="n"></span><span></span></button>');
         b.lastChild.textContent = it[0];
@@ -525,39 +529,27 @@
         b.onclick = function () {
           var at = state.picked.indexOf(it[1]);
           if (at >= 0) state.picked.splice(at, 1); else state.picked.push(it[1]);
-          save(); rerender();
+          save(); renderAll();
         };
         el.querySelector(".order-list").appendChild(b);
       });
-      if (!state.checked && active) {
-        var acts = h('<div class="card-actions"><button type="button" class="btn btn-dark">Valider</button><button type="button" class="btn btn-soft">Effacer</button></div>');
-        acts.firstChild.disabled = state.picked.length !== s.items.length;
-        acts.firstChild.onclick = function () {
-          state.checked = true;
-          state.ok = state.picked.every(function (v, k) { return v === k; });
-          save();
-          if (state.ok) award(key(c, i), s.pts, "Bon ordre");
-          rerender();
-        };
-        acts.lastChild.onclick = function () { state.picked = []; save(); rerender(); };
+      if (!state.checked && state.picked.length) {
+        var acts = h('<div class="inline-actions"><button type="button" class="btn-ghost">Effacer</button></div>');
+        acts.firstChild.onclick = function () { state.picked = []; save(); renderAll(); };
         el.appendChild(acts);
       }
       if (state.checked) {
-        el.appendChild(result(state.ok, state.ok ? "Exactement : nouveau sujet, source, demande précise, puis relecture."
+        el.appendChild(feedback(state.ok, state.ok ? "Exactement."
           : "Le bon ordre : " + s.items.map(function (x, k) { return (k + 1) + ". " + x; }).join(" · ")));
       }
-      var wrap = document.createElement("div");
-      wrap.appendChild(el);
-      if (active && state.checked) wrap.appendChild(continueBtn());
-      return wrap;
+      return el;
     },
 
-    spot: function (s, c, i, active) {
+    spot: function (s, c, i) {
       var state = st(c, i);
       state.sel = state.sel || [];
-      var el = h('<div class="card"><div class="card-k"><svg><use href="#i-target"/></svg>Repérer l’erreur<span class="pts"></span></div><h3></h3><div class="spot-text"><span class="av av-claude"><svg><use href="#i-spark"/></svg></span></div></div>');
-      el.querySelector("h3").textContent = s.q;
-      el.querySelector(".pts").textContent = s.pts + " pts";
+      var el = h('<div><p class="kind">Repérer</p><h2 class="q"></h2><div class="spot-text"></div></div>');
+      el.querySelector(".q").textContent = s.q;
       var box = el.querySelector(".spot-text");
       s.parts.forEach(function (p, k) {
         if (typeof p === "string") { box.appendChild(document.createTextNode(p)); return; }
@@ -565,80 +557,59 @@
         b.textContent = p.hot;
         var on = state.sel.indexOf(k) >= 0;
         b.classList.toggle("is-sel", on && !state.checked);
-        if (state.checked && (on || p.bad)) b.classList.add(p.bad ? (on ? "is-right" : "is-wrong") : "is-wrong");
+        if (state.checked && (on || p.bad)) b.classList.add(p.bad && on ? "is-right" : "is-wrong");
         b.disabled = !!state.checked;
         b.onclick = function () {
           var at = state.sel.indexOf(k);
           if (at >= 0) state.sel.splice(at, 1); else state.sel.push(k);
-          save(); rerender();
+          save(); renderAll();
         };
         box.appendChild(b);
       });
-      var bad = s.parts.map(function (p, k) { return p && p.bad ? k : -1; }).filter(function (k) { return k >= 0; });
-      if (!state.checked && active) {
-        var acts = h('<div class="card-actions"><button type="button" class="btn btn-dark">Valider</button></div>');
-        acts.firstChild.disabled = !state.sel.length;
-        acts.firstChild.onclick = function () {
-          state.checked = true;
-          state.ok = state.sel.length === bad.length && bad.every(function (k) { return state.sel.indexOf(k) >= 0; });
-          save();
-          if (state.ok) award(key(c, i), s.pts, "Inventions repérées");
-          rerender();
-        };
-        el.appendChild(acts);
-      }
       if (state.checked) {
-        el.appendChild(result(state.ok, state.ok ? "Bien vu : ni budget ni date d’envoi dans le compte rendu. Le 22 avril, lui, y figure."
-          : "Les inventions étaient « 15 000 € » et « 15 avril » : absents du compte rendu. Le 22 avril, lui, y figure bien."));
+        el.appendChild(feedback(state.ok, state.ok ? "Bien vu : ni budget ni date d’envoi dans le compte rendu."
+          : "Les inventions : « 15 000 € » et « 15 avril ». Le 22 avril, lui, figure dans le compte rendu."));
       }
-      var wrap = document.createElement("div");
-      wrap.appendChild(el);
-      if (active && state.checked) wrap.appendChild(continueBtn());
-      return wrap;
+      return el;
     },
 
-    tf: function (s, c, i, active) {
+    tf: function (s, c, i) {
       var state = st(c, i);
       state.ans = state.ans || {};
-      var el = h('<div class="card"><div class="card-k"><svg><use href="#i-target"/></svg>' + (s.choices.length > 2 ? "Décider" : "Vrai ou faux") + '<span class="pts"></span></div><h3></h3><div class="tf"></div></div>');
-      el.querySelector("h3").textContent = s.q;
-      el.querySelector(".pts").textContent = s.pts + " pts par bonne réponse";
+      var el = h('<div><p class="kind"></p><h2 class="q"></h2><div class="tf"></div></div>');
+      el.querySelector(".kind").textContent = s.choices.length > 2 ? "Décider" : "Vrai ou faux";
+      el.querySelector(".q").textContent = s.q;
       s.items.forEach(function (it, k) {
         var row = h('<div class="tf-row"><p></p><div class="tf-btns"></div></div>');
         row.firstChild.textContent = it[0];
         var given = state.ans[k];
-        s.choices.forEach(function (ch) {
-          var b = h('<button type="button"></button>');
-          b.textContent = ch;
-          if (given) { b.disabled = true; if (ch === it[1]) b.classList.add("is-right"); else if (ch === given) b.classList.add("is-wrong"); }
+        s.choices.forEach(function (chx) {
+          var b = txt("button", "", chx);
+          b.type = "button";
+          if (given) { b.disabled = true; if (chx === it[1]) b.classList.add("is-right"); else if (chx === given) b.classList.add("is-wrong"); }
           b.onclick = function () {
-            state.ans[k] = ch;
+            state.ans[k] = chx;
             save();
-            if (ch === it[1]) award(key(c, i) + "." + k, s.pts, "Bonne réponse");
-            rerender();
+            if (chx === it[1]) award(key(c, i) + "." + k, s.pts, "Bonne réponse");
+            renderAll();
           };
           row.lastChild.appendChild(b);
         });
-        if (given) { var f = h('<p class="opt-fb"></p>'); f.textContent = it[2]; row.appendChild(f); }
+        if (given) row.appendChild(txt("p", "opt-fb", it[2]));
         el.querySelector(".tf").appendChild(row);
       });
-      var wrap = document.createElement("div");
-      wrap.appendChild(el);
-      if (active && Object.keys(state.ans).length === s.items.length) wrap.appendChild(continueBtn());
-      return wrap;
+      return el;
     },
 
     practice: function (s, c, i, active) {
       var state = st(c, i);
       var res = evaluate(s, c, i);
-      var el = h('<div class="practice"><div class="card-k"><svg><use href="#i-spark"/></svg>Essayer avec Claude<span class="pts"></span></div><h3></h3><p class="task"></p><ul class="crit"></ul></div>');
-      el.querySelector("h3").textContent = s.title;
-      el.querySelector(".pts").textContent = s.pts + " pts";
+      var el = h('<div><p class="kind is-claude">À faire dans Claude</p><h2 class="q"></h2><p class="task"></p><ul class="crit"></ul></div>');
+      el.querySelector(".q").textContent = s.title;
       el.querySelector(".task").textContent = s.task;
-      el.querySelector(".task").style.cssText = "margin:0 0 12px;font-size:14.5px;line-height:1.55;color:var(--ink-2)";
       if (s.facts) {
-        var f = h('<div style="margin:0 0 12px"><p style="margin:0 0 7px;font:600 12.5px/1 var(--text);color:var(--muted)">Les informations dont vous disposez :</p><div class="facts"></div></div>');
-        s.facts.forEach(function (x) { var sp = document.createElement("span"); sp.textContent = x; f.lastChild.appendChild(sp); });
+        var f = h('<div class="facts"></div>');
+        s.facts.forEach(function (x) { f.appendChild(txt("span", "", x)); });
         el.insertBefore(f, el.querySelector(".crit"));
       }
       s.criteria.forEach(function (cr) {
@@ -647,53 +618,48 @@
         li.classList.toggle("is-ok", !!res[cr[0]]);
         el.querySelector(".crit").appendChild(li);
       });
-      if (s.analysis && active && !state.done) {
-        el.appendChild(h('<div class="analysis" data-analysis><small>Analyse de votre demande, pendant que vous écrivez</small><div class="an-chips"><span class="an" data-an="T"><i></i>Tâche</span><span class="an" data-an="C"><i></i>Contexte</span><span class="an" data-an="F"><i></i>Format</span></div><p class="an-tip" data-an-tip>Commencez à écrire dans la zone de Claude.</p></div>'));
+      if (state.done) { el.appendChild(feedback(true, "Réussi. Lisez la réponse de Claude, puis continuez.")); return el; }
+      if (!active) return el;
+      if (s.analysis) {
+        el.appendChild(h('<div data-analysis><div class="analysis"><span class="an" data-an="T">Tâche</span><span class="an" data-an="C">Contexte</span><span class="an" data-an="F">Format</span></div><p class="an-tip" data-an-tip></p></div>'));
       }
-      if (active && !state.done) {
-        var acts = h('<div class="card-actions"></div>');
-        if (s.doc) {
-          var d = h('<button type="button" class="btn btn-line"><svg><use href="#i-doc"/></svg>Coller le compte rendu dans Claude</button>');
-          d.onclick = function () { insert("Voici le compte rendu d’une réunion :\n\n" + DOC + "\n\n"); };
-          acts.appendChild(d);
-        }
-        var g = h('<button type="button" class="btn btn-dark go-claude">Aller dans Claude <svg><use href="#i-arrow"/></svg></button>');
-        g.onclick = function () { showTab("claude"); input.focus(); };
-        acts.appendChild(g);
-        if (acts.children.length) el.appendChild(acts);
-        var hints = (s.hints || []).filter(function (x) { return !x.after || (state.tries || 0) >= x.after; });
-        if (hints.length) {
-          var open = S.level === "jamais" || state.hintsOpen;
-          var hb = h('<div class="hints"><button type="button" class="toggle"></button><div class="chips"></div></div>');
-          hb.firstChild.textContent = open ? "Masquer les idées" : "Besoin d’une idée ?";
-          hb.firstChild.onclick = function () { state.hintsOpen = !open; if (S.level === "jamais") S.level = "parfois"; save(); rerender(); };
-          if (open) hints.forEach(function (x) {
-            if (x.plain) { var p = h('<p class="an-tip" style="margin:0"></p>'); p.textContent = x.text; hb.lastChild.appendChild(p); return; }
-            var ch = h('<button type="button" class="chip"></button>');
-            ch.textContent = x.text;
-            ch.onclick = function () { insert(x.text); };
-            hb.lastChild.appendChild(ch);
+      var acts = h('<div class="inline-actions"></div>');
+      if (s.doc) {
+        var d = h('<button type="button" class="btn-line"><svg><use href="#i-doc"/></svg>Coller le compte rendu</button>');
+        d.onclick = function () { insert("Voici le compte rendu d’une réunion :\n\n" + DOC + "\n\n"); };
+        acts.appendChild(d);
+      }
+      var g = h('<button type="button" class="btn-primary go-claude">Ouvrir Claude</button>');
+      g.onclick = function () { showTab("claude"); input.focus(); };
+      acts.appendChild(g);
+      el.appendChild(acts);
+      var hints = (s.hints || []).filter(function (x) { return !x.after || (state.tries || 0) >= x.after; });
+      if (hints.length) {
+        var open = S.level === "jamais" || state.hintsOpen;
+        var tg = txt("button", "hint-toggle", open ? "Masquer l’aide" : "Besoin d’une idée ?");
+        tg.type = "button";
+        tg.onclick = function () { state.hintsOpen = !open; if (S.level === "jamais") S.level = "parfois"; save(); renderAll(); };
+        el.appendChild(tg);
+        if (open) {
+          var chips = h('<div class="chips"></div>');
+          hints.forEach(function (x) {
+            if (x.plain) { chips.appendChild(txt("p", "an-tip", x.text)); return; }
+            var b = txt("button", "chip", x.text);
+            b.type = "button";
+            b.title = "Insérer dans la zone de message";
+            b.onclick = function () { insert(x.text); };
+            chips.appendChild(b);
           });
-          else hb.lastChild.remove();
-          el.appendChild(hb);
+          el.appendChild(chips);
         }
       }
-      if (state.done) el.appendChild(result(true, "Mission réussie : relisez la réponse de Claude avant de continuer."));
-      var wrap = document.createElement("div");
-      wrap.appendChild(el);
-      if (active && state.done) wrap.appendChild(continueBtn());
-      return wrap;
+      return el;
     },
 
-    keep: function (s, c, i, active) {
-      var el = h('<div class="keep"><div class="card-k"><svg><use href="#i-bulb"/></svg>À retenir · ajouté à votre aide-mémoire</div><p></p></div>');
-      el.querySelector("p").textContent = TAKEAWAYS[s.i];
-      if (active) {
-        var a = h('<div class="card-actions"><button type="button" class="btn btn-dark"></button></div>');
-        a.firstChild.innerHTML = (c < MISSIONS - 1 ? "Mission suivante" : "Voir mon bilan") + ' <svg><use href="#i-arrow"/></svg>';
-        a.firstChild.onclick = function () { toast(CH[c].label + " accomplie"); completeChapter(); };
-        el.appendChild(a);
-      }
+    keep: function (s) {
+      var el = frag();
+      el.appendChild(txt("p", "keep-k", "À retenir"));
+      el.appendChild(txt("p", "keep", TAKEAWAYS[s.i]));
       return el;
     },
 
@@ -703,19 +669,19 @@
       if ((st(4, 4) || {}).ok) badges.push("Œil de lynx");
       var dec = st(5, 1).ans || {};
       if (CH[5].steps[1].items.every(function (it, k) { return dec[k] === it[1]; })) badges.push("Réflexes sûrs");
-      var el = h('<div class="final"><div class="card-k" style="color:var(--claude)"><svg><use href="#i-spark"/></svg>Votre première journée</div><h3>Aide-mémoire : Claude au quotidien</h3>' +
-        '<div class="stats"><div class="stat"><b data-f-xp></b><span>points</span></div><div class="stat"><b data-f-m></b><span>missions</span></div><div class="stat"><b data-f-msg></b><span>échanges avec Claude</span></div></div>' +
-        '<div class="badges"></div><ol class="memo"></ol><div data-f-prompt></div>' +
-        '<div class="card-actions"><button type="button" class="btn btn-dark" data-print>Imprimer ou enregistrer en PDF</button><button type="button" class="btn btn-soft" data-restart>Recommencer</button></div></div>');
+      var el = h('<div class="final"><div class="stats"><div class="stat"><b data-f-xp></b><span>points</span></div><div class="stat"><b data-f-m></b><span>missions</span></div><div class="stat"><b data-f-msg></b><span>échanges</span></div></div>' +
+        '<div class="badges"></div><p class="section-k">Vos réflexes</p><ol class="memo"></ol><div data-f-prompt></div>' +
+        '<div class="inline-actions"><button type="button" class="btn-primary" data-print>Imprimer l’aide-mémoire</button><button type="button" class="btn-ghost" data-restart>Recommencer</button></div></div>');
       el.querySelector("[data-f-xp]").textContent = S.xp;
       el.querySelector("[data-f-m]").textContent = S.done.filter(function (x) { return x < MISSIONS; }).length + "/" + MISSIONS;
       el.querySelector("[data-f-msg]").textContent = S.stats.live + S.stats.sim;
-      badges.forEach(function (b) { el.querySelector(".badges").appendChild(h('<span class="badge"><svg><use href="#i-check"/></svg>' + esc(b) + "</span>")); });
-      TAKEAWAYS.forEach(function (t) { var li = document.createElement("li"); li.textContent = t; el.querySelector(".memo").appendChild(li); });
+      badges.forEach(function (b) { el.querySelector(".badges").appendChild(txt("span", "badge", b)); });
+      if (!badges.length) el.querySelector(".badges").remove();
+      TAKEAWAYS.forEach(function (t) { el.querySelector(".memo").appendChild(txt("li", "", t)); });
       if (S.bestPrompt) {
-        var p = h('<div style="margin-top:14px"><p style="margin:0;font:600 13px/1 var(--text);color:var(--muted)">Votre demande complète de la mission 2 :</p><div class="my-prompt"></div></div>');
-        p.querySelector(".my-prompt").textContent = S.bestPrompt;
-        el.querySelector("[data-f-prompt]").appendChild(p);
+        var p = el.querySelector("[data-f-prompt]");
+        p.appendChild(txt("p", "section-k", "Votre demande de la mission 2"));
+        p.appendChild(txt("div", "my-prompt", S.bestPrompt));
       }
       el.querySelector("[data-print]").onclick = printMemo;
       el.querySelector("[data-restart]").onclick = function () {
@@ -727,68 +693,76 @@
     }
   };
 
-  function result(ok, text) {
-    var el = h('<div class="result ' + (ok ? "result--good" : "result--mid") + '"><svg><use href="#i-' + (ok ? "check" : "bulb") + '"/></svg><span></span></div>');
-    el.lastChild.textContent = text;
-    return el;
-  }
-
-  function choiceCard(s, c, i, active, multi) {
+  function choiceStep(s, c, i, multi) {
     var state = st(c, i);
     state.sel = state.sel || [];
-    var el = h('<div class="card"><div class="card-k"><svg><use href="#i-target"/></svg>' + (s.reflect ? "Prendre du recul" : multi ? "Plusieurs réponses" : "Question") + '<span class="pts"></span></div><h3></h3><div class="opts"></div></div>');
-    el.querySelector("h3").textContent = s.q;
-    el.querySelector(".pts").textContent = s.pts ? s.pts + " pts" : "";
+    var el = h('<div><p class="kind"></p><h2 class="q"></h2><div class="opts"></div></div>');
+    el.querySelector(".kind").textContent = s.reflect ? "Prendre du recul" : multi ? "Plusieurs réponses possibles" : "Question";
+    el.querySelector(".q").textContent = s.q;
+    var box = el.querySelector(".opts");
     s.opts.forEach(function (o, k) {
       var b = h('<button type="button" class="opt"><span class="box' + (multi ? "" : " round") + '"><svg><use href="#i-check"/></svg></span><span></span></button>');
       b.lastChild.textContent = o[0];
       var on = state.sel.indexOf(k) >= 0;
+      var fb = false;
       if (state.checked) {
         b.disabled = true;
-        if (s.reflect) b.classList.toggle("is-sel", on);
-        else if (o[1]) b.classList.add("is-right");
-        else if (on) b.classList.add("is-wrong");
+        if (s.reflect) { b.classList.toggle("is-sel", on); fb = on; }
+        else if (o[1]) { b.classList.add("is-right"); fb = on || multi; }
+        else if (on) { b.classList.add("is-wrong"); fb = true; }
+        if (multi && state.ok) fb = false;
       } else b.classList.toggle("is-sel", on);
       b.onclick = function () {
-        if (multi) { var at = state.sel.indexOf(k); if (at >= 0) state.sel.splice(at, 1); else state.sel.push(k); save(); rerender(); return; }
+        if (multi) { var at = state.sel.indexOf(k); if (at >= 0) state.sel.splice(at, 1); else state.sel.push(k); save(); renderAll(); return; }
         state.sel = [k];
         state.checked = true;
         save();
         if (!s.reflect && o[1]) award(key(c, i), s.pts, "Bonne réponse");
-        rerender();
+        renderAll();
       };
-      el.querySelector(".opts").appendChild(b);
-      if (state.checked && (on || (multi && !s.reflect))) {
-        var fbk = h('<p class="opt-fb"></p>');
-        fbk.textContent = o[2];
-        el.querySelector(".opts").appendChild(fbk);
-      }
+      box.appendChild(b);
+      if (fb) box.appendChild(txt("p", "opt-fb", o[2]));
     });
-    if (multi && !state.checked && active) {
-      var acts = h('<div class="card-actions"><button type="button" class="btn btn-dark">Valider</button></div>');
-      acts.firstChild.disabled = !state.sel.length;
-      acts.firstChild.onclick = function () {
-        state.checked = true;
-        state.ok = s.opts.every(function (o, k) { return !!o[1] === (state.sel.indexOf(k) >= 0); });
-        save();
-        if (state.ok) award(key(c, i), s.pts, "Toutes les bonnes réponses");
-        rerender();
-      };
-      el.appendChild(acts);
+    if (multi && state.checked && !s.reflect) el.appendChild(feedback(state.ok, state.ok ? "Parfait, tout est juste." : "Pas tout à fait : lisez les explications."));
+    if (s.peek) {
+      var d = h('<details class="peek"><summary>Revoir le compte rendu</summary></details>');
+      d.appendChild(docBlock());
+      el.appendChild(d);
     }
-    if (multi && state.checked) el.appendChild(result(state.ok, state.ok ? "Parfait, toutes les bonnes réponses." : "Pas tout à fait : lisez les explications sous chaque proposition."));
-    var wrap = document.createElement("div");
-    wrap.appendChild(el);
-    if (active && state.checked) wrap.appendChild(continueBtn());
-    return wrap;
+    return el;
   }
 
-  function rerender() {
-    var y = thread.scrollTop;
-    renderThread();
-    thread.scrollTop = y;
-    renderRail();
-  }
+  /* validations déclenchées par le bouton « Valider » du pied de page */
+  var READY = {
+    multi: function (s, state) { return (state.sel || []).length > 0; },
+    link: function (s, state) { return Object.keys(state.map || {}).length === s.items.length; },
+    order: function (s, state) { return (state.picked || []).length === s.items.length; },
+    spot: function (s, state) { return (state.sel || []).length > 0; }
+  };
+  var CHECK = {
+    multi: function (s, c, i, state) {
+      state.checked = true;
+      state.ok = s.opts.every(function (o, k) { return !!o[1] === (state.sel.indexOf(k) >= 0); });
+      if (state.ok) award(key(c, i), s.pts, "Tout est juste");
+    },
+    link: function (s, c, i, state) {
+      state.checked = true;
+      state.selItem = null;
+      state.score = s.items.filter(function (x, k) { return state.map[k] === x[1]; }).length;
+      if (state.score === s.items.length) award(key(c, i), s.pts, "Tout est relié");
+    },
+    order: function (s, c, i, state) {
+      state.checked = true;
+      state.ok = state.picked.every(function (v, k) { return v === k; });
+      if (state.ok) award(key(c, i), s.pts, "Bon ordre");
+    },
+    spot: function (s, c, i, state) {
+      var bad = s.parts.map(function (p, k) { return p && p.bad ? k : -1; }).filter(function (k) { return k >= 0; });
+      state.checked = true;
+      state.ok = state.sel.length === bad.length && bad.every(function (k) { return state.sel.indexOf(k) >= 0; });
+      if (state.ok) award(key(c, i), s.pts, "Inventions repérées");
+    }
+  };
 
   /* ---------- Critères des étapes « Essayer » ---------- */
 
@@ -818,7 +792,7 @@
         if (a.F) r.F = true;
         if (a.T && a.C >= 2 && a.F) best = x;
       });
-      if (best) { S.bestPrompt = best.m.content; S.welcomeConv = best.conv.id; } else { r.all = false; }
+      if (best) { S.bestPrompt = best.m.content; S.welcomeConv = best.conv.id; }
       r.__complete = !!best;
     } else if (c === 2) {
       var inWelcome = msgs.filter(function (x) { return x.conv.id === S.welcomeConv; });
@@ -841,19 +815,19 @@
   }
 
   function checkPractice() {
-    var s = currentStep();
+    var f = frontierStep(), s = f.s;
     if (!s || s.t !== "practice") return;
-    var state = st(S.ch, pos(S.ch));
+    var state = st(f.c, f.i);
     if (state.done) return;
-    var r = evaluate(s, S.ch, pos(S.ch));
+    var r = evaluate(s, f.c, f.i);
     var complete = r.__complete !== undefined ? r.__complete : s.criteria.every(function (cr) { return r[cr[0]]; });
     if (complete) {
       state.done = true;
       save();
-      award(key(S.ch, pos(S.ch)), s.pts, "Étape réussie");
-      if (window.innerWidth <= 960) setTimeout(function () { showTab("story"); }, 1400);
+      award(key(f.c, f.i), s.pts, "Étape réussie");
+      if (window.innerWidth <= 900) setTimeout(function () { showTab("story"); }, 1600);
     }
-    rerender();
+    renderAll();
   }
 
   /* ---------- Espace Claude ---------- */
@@ -908,17 +882,15 @@
 
   /* une action à la fois : Claude n'est utilisable qu'aux étapes « Essayer » */
   function renderWorkState() {
-    var s = currentStep();
-    var practice = s && s.t === "practice" && !st(S.ch, pos(S.ch)).done;
+    var f = frontierStep(), s = f.s;
+    var practice = !!s && s.t === "practice" && !st(f.c, f.i).done;
+    work.classList.toggle("is-active", practice);
     work.classList.toggle("is-locked", !practice);
     input.disabled = !practice || busy;
     sendBtn.disabled = !practice || busy;
-    input.placeholder = practice ? "Écrivez à Claude…" : "Terminez d’abord l’étape en cours, à gauche.";
-    banner.hidden = false;
-    banner.className = "work-banner " + (practice ? "is-task" : "is-wait");
-    banner.innerHTML = '<svg><use href="#i-' + (practice ? "target" : "lock") + '"/></svg><span></span>';
-    banner.lastChild.textContent = practice ? "À vous : " + s.task : "Claude vous attend. Suivez d’abord l’étape en cours dans le fil de gauche.";
-    $("[data-new]").classList.toggle("is-spot", !!practice && S.ch === 3 && !evaluate(s, 3, pos(3)).new);
+    input.placeholder = practice ? "Écrivez à Claude…" : "Claude s’ouvrira quand le guide vous le demandera.";
+    $("[data-new]").classList.toggle("is-spot", practice && f.c === 3 && !evaluate(s, 3, f.i).new);
+    $("[data-tab-dot]").hidden = !(practice && shell.dataset.tab === "story");
   }
 
   function insert(text) {
@@ -1027,7 +999,7 @@
   }
 
   function showError(el, c, msg) {
-    el.lastChild.innerHTML = '<div class="msg-error"><span></span><div class="card-actions"><button type="button" class="btn btn-soft" data-r>Réessayer</button><button type="button" class="btn btn-soft" data-s>Utiliser la simulation</button></div></div>';
+    el.lastChild.innerHTML = '<div class="msg-error"><span></span><div class="inline-actions"><button type="button" class="btn-line" data-r>Réessayer</button><button type="button" class="btn-line" data-s>Utiliser la simulation</button></div></div>';
     el.querySelector(".msg-error span").textContent = msg;
     el.querySelector("[data-r]").onclick = function () { el.remove(); ask(c); };
     el.querySelector("[data-s]").onclick = function () { setMode("sim", true); el.remove(); ask(c); };
@@ -1069,13 +1041,13 @@
 
   composer.addEventListener("submit", function (e) {
     e.preventDefault();
-    var s = currentStep();
+    var f = frontierStep();
     var text = input.value.trim();
-    if (!text || busy || !s || s.t !== "practice") return;
+    if (!text || busy || !f.s || f.s.t !== "practice") return;
     var c = conv() || newConv();
-    c.messages.push({ role: "user", content: text, ch: S.ch, step: pos(S.ch) });
+    c.messages.push({ role: "user", content: text, ch: f.c, step: f.i });
     if (c.messages.length === 1) c.title = text.replace(/\s+/g, " ").slice(0, 44) + (text.length > 44 ? "…" : "");
-    var state = st(S.ch, pos(S.ch));
+    var state = st(f.c, f.i);
     state.tries = (state.tries || 0) + 1;
     input.value = "";
     autosize();
@@ -1103,6 +1075,7 @@
   });
   document.addEventListener("click", function (e) {
     if (!e.target.closest(".hist")) { $("[data-hist]").hidden = true; $("[data-hist-toggle]").setAttribute("aria-expanded", "false"); }
+    if (!e.target.closest(".missions")) closeMissions();
   });
 
   /* ---------- Mode réel ou simulé ---------- */
@@ -1129,7 +1102,7 @@
   function showTab(tab) {
     shell.dataset.tab = tab;
     $$("[data-tab]").forEach(function (b) { b.setAttribute("aria-selected", b.dataset.tab === tab); });
-    if (tab === "story") $("[data-tab-dot]").hidden = true;
+    $("[data-tab-dot]").hidden = tab === "claude" || !work.classList.contains("is-active");
   }
   $$("[data-tab]").forEach(function (b) { b.addEventListener("click", function () { showTab(b.dataset.tab); }); });
 
@@ -1139,7 +1112,7 @@
     var html = '<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Aide-mémoire · Découvrir Claude</title><style>' +
       '@font-face{font-family:Inter;src:url(../assets/fonts/inter.woff2) format("woff2-variations");font-weight:100 900}' +
       '@page{size:A4;margin:18mm}body{font-family:Inter,system-ui,sans-serif;color:#0d1220}h1{font-size:26pt;margin:0 0 4mm;letter-spacing:-.02em}' +
-      '.k{font:600 9pt Inter;letter-spacing:.2em;text-transform:uppercase;color:#6b7288}.bar{height:1.2mm;width:30mm;border-radius:1mm;background:linear-gradient(90deg,#d9612b,#e0457b,#4f46e5);margin-bottom:8mm}' +
+      '.k{font:600 9pt Inter;letter-spacing:.2em;text-transform:uppercase;color:#6b7288}.bar{height:1.2mm;width:30mm;border-radius:1mm;background:#1a1a19;margin-bottom:8mm}' +
       'ol{padding-left:6mm}li{margin-bottom:4mm;font-size:12pt;line-height:1.5}.p{margin-top:8mm;padding:5mm;border-radius:3mm;background:#efece5;font-size:11pt;white-space:pre-wrap}' +
       'footer{margin-top:10mm;font-size:9pt;color:#6b7288}</style></head><body><div class="k">Découvrir Claude</div><h1>Mon aide-mémoire</h1><div class="bar"></div><ol>' +
       TAKEAWAYS.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") + "</ol>" +
@@ -1170,10 +1143,7 @@
     else intro.hidden = true;
     if (!conv()) newConv();
     renderConv();
-    renderRail();
-    // les étapes déjà affichées ne se réaniment pas au retour
-    if (!animate) for (var c = 0; c <= S.ch; c++) { shownKeys["h" + c] = 1; for (var i = 0; i < pos(c); i++) shownKeys[key(c, i)] = 1; }
-    flow();
+    renderAll(true);
   }
 
   $("[data-start]").addEventListener("click", function () { S.started = true; save(); openApp(true); });

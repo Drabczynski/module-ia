@@ -22,97 +22,80 @@
     <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></symbol>
     <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v5.5c0 4.3 3 8 7 9.5 4-1.5 7-5.2 7-9.5V6Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
   </defs>
 </svg>
 
 <!-- ============================ Ouverture ============================ -->
 <section class="intro" data-intro aria-labelledby="intro-title">
-  <div class="intro-glow" aria-hidden="true"></div>
-  <div class="intro-grid" aria-hidden="true"></div>
   <div class="intro-inner">
-    <div class="intro-badge"><span class="dot"></span>Formation interactive · Simulation pédagogique</div>
-    <h1 id="intro-title">Découvrir <span class="grad">Claude</span></h1>
-    <p class="intro-lead">Lundi, 9 h 02. C’est votre premier jour chez <b>Lumen</b>, un studio de design à Lyon. Inès, la directrice, vous a préparé six missions. Votre coéquipier pour la journée&nbsp;: Claude.</p>
-    <div class="intro-meta">
-      <span>20 minutes</span><span>6 missions</span><span>Conversation réelle avec Claude</span>
-    </div>
-    <div class="intro-goals">
-      <h2>À la fin de la journée, vous saurez&nbsp;:</h2>
-      <ol>
-        <li>mener une conversation avec Claude et la relancer&nbsp;;</li>
-        <li>formuler une demande complète&nbsp;: tâche, contexte, format&nbsp;;</li>
-        <li>améliorer une réponse sans tout recommencer&nbsp;;</li>
-        <li>faire travailler Claude sur un document, puis vérifier le résultat&nbsp;;</li>
-        <li>savoir ce que vous pouvez partager, ou non.</li>
-      </ol>
-    </div>
+    <p class="intro-k">Formation · 20 minutes</p>
+    <h1 id="intro-title">Découvrir Claude</h1>
+    <p class="intro-lead">Une journée fictive dans un studio de design. Six missions courtes pour apprendre à travailler avec Claude.</p>
+    <ul class="intro-goals">
+      <li>Converser et relancer</li>
+      <li>Formuler une demande claire</li>
+      <li>Améliorer une réponse</li>
+      <li>Travailler sur un document</li>
+      <li>Vérifier le résultat</li>
+      <li>Protéger les données</li>
+    </ul>
     <div class="intro-level" role="radiogroup" aria-label="Votre expérience des assistants IA">
       <span>Avez-vous déjà utilisé un assistant IA&nbsp;?</span>
-      <div class="lvl-choices">
+      <div class="seg">
         <button type="button" role="radio" aria-checked="false" data-level="jamais">Jamais</button>
-        <button type="button" role="radio" aria-checked="true" data-level="parfois">Quelques fois</button>
+        <button type="button" role="radio" aria-checked="true" data-level="parfois">Parfois</button>
         <button type="button" role="radio" aria-checked="false" data-level="souvent">Souvent</button>
       </div>
     </div>
-    <button type="button" class="btn-hero" data-start>Commencer la journée <svg><use href="#i-arrow"/></svg></button>
-    <p class="intro-note">Scénario et entreprise fictifs. N’utilisez aucune donnée réelle.</p>
-  </div>
-  <div class="intro-preview" aria-hidden="true">
-    <div class="pv-card pv-1"><span class="av av-ines">IM</span><div><b>Inès Morel</b><p>Bienvenue chez Lumen ! On commence doucement…</p></div></div>
-    <div class="pv-card pv-2"><span class="av av-claude"><svg><use href="#i-spark"/></svg></span><div><b>Claude</b><p>Bonjour ! Je peux vous aider à rédiger, résumer, analyser…</p></div></div>
-    <div class="pv-card pv-3"><span class="check"><svg><use href="#i-check"/></svg></span><div><b>Mission accomplie</b><p>Le pouvoir du contexte</p></div></div>
+    <button type="button" class="btn-primary btn-lg" data-start>Commencer <svg><use href="#i-arrow"/></svg></button>
+    <p class="intro-note">Scénario fictif. N’utilisez aucune donnée réelle.</p>
   </div>
 </section>
 
 <!-- ============================ Application ============================ -->
 <div class="shell" data-shell hidden>
 
-  <!-- progression -->
-  <aside class="rail" aria-label="Missions">
-    <div class="rail-head">
-      <span class="logo"><svg><use href="#i-spark"/></svg></span>
-      <div><b>Découvrir Claude</b><small>Votre première journée</small></div>
-    </div>
-    <nav class="chapters" data-chapters></nav>
-    <div class="rail-foot">
-      <div class="rail-progress">
-        <div class="rp-top"><span>Progression</span><b data-progress-label>0 / 6</b></div>
-        <div class="rp-bar"><span data-progress-bar></span></div>
-        <div class="xp"><span>Points</span><b data-xp>0</b></div>
-      </div>
-      <button type="button" class="mode" data-mode>Connexion…</button>
-    </div>
-  </aside>
-
   <!-- onglets sur mobile -->
   <div class="tabs" role="tablist">
-    <button type="button" role="tab" data-tab="story" aria-selected="true">Mission <span class="tab-dot" data-tab-dot hidden></span></button>
-    <button type="button" role="tab" data-tab="claude" aria-selected="false">Claude</button>
+    <button type="button" role="tab" data-tab="story" aria-selected="true">Guide</button>
+    <button type="button" role="tab" data-tab="claude" aria-selected="false">Claude <span class="tab-dot" data-tab-dot hidden></span></button>
   </div>
 
-  <!-- fil de l'histoire -->
-  <section class="story" data-panel="story" aria-label="Fil de discussion avec Inès">
-    <header class="panel-head">
-      <div class="ph-title"><svg><use href="#i-hash"/></svg><b>premier-jour</b></div>
-      <div class="ph-people"><span class="av av-ines sm">IM</span><span class="av av-you sm">V</span><span class="ph-sub">Inès vous accompagne</span></div>
+  <!-- guide : une étape à la fois -->
+  <aside class="guide" data-panel="story" aria-label="Guide de la formation">
+    <header class="g-head">
+      <div class="g-top">
+        <div class="missions">
+          <button type="button" class="g-missions" data-missions aria-expanded="false"><span data-g-mission>Mission 1 sur 6</span><svg><use href="#i-chevron"/></svg></button>
+          <div class="missions-pop" data-missions-pop hidden></div>
+        </div>
+        <span class="g-pts"><b data-xp>0</b> pts</span>
+      </div>
+      <h1 class="g-title" data-g-title></h1>
+      <div class="g-steps" data-g-steps aria-hidden="true"></div>
     </header>
-    <div class="thread" data-thread aria-live="polite"></div>
-  </section>
+    <div class="g-body" data-g-body aria-live="polite"></div>
+    <footer class="g-foot">
+      <button type="button" class="btn-ghost" data-back>Précédent</button>
+      <button type="button" class="btn-primary" data-next>Continuer</button>
+    </footer>
+  </aside>
 
   <!-- espace de travail Claude -->
   <section class="work" data-panel="claude" aria-label="Espace de travail avec Claude">
     <header class="panel-head work-head">
-      <div class="ph-title"><span class="av av-claude sm"><svg><use href="#i-spark"/></svg></span><b>Claude</b><span class="chip-env">Environnement de formation</span></div>
+      <div class="ph-title"><span class="av av-claude sm"><svg><use href="#i-spark"/></svg></span><b>Claude</b><span class="chip-env">Simulation pédagogique</span></div>
       <div class="work-actions">
         <div class="hist">
           <button type="button" class="icon-btn" data-hist-toggle aria-expanded="false" aria-label="Conversations précédentes"><svg><use href="#i-history"/></svg><span>Historique</span></button>
           <div class="hist-pop" data-hist hidden></div>
         </div>
         <button type="button" class="icon-btn" data-new><svg><use href="#i-plus"/></svg><span>Nouvelle conversation</span></button>
+        <button type="button" class="mode" data-mode>Connexion…</button>
       </div>
     </header>
-    <div class="work-banner" data-banner hidden></div>
     <div class="messages" data-messages aria-live="polite"></div>
     <form class="composer" data-composer>
       <textarea data-input rows="1" placeholder="Écrivez à Claude…" aria-label="Votre message à Claude"></textarea>

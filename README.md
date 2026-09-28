@@ -57,7 +57,8 @@ Chaque écran règle la largeur du panneau photo via `--pw` ; la photo s'anime d
 
 Module autonome de découverte : une journée fictive chez Lumen, six missions et un bilan.
 
-- Chaque mission suit la même logique : **Situation → Comprendre → Essayer → Retenir**, une action à la fois.
+- Interface sobre : le guide (à gauche) n'affiche qu'un écran à la fois, avec un seul bouton principal
+  (Valider, Continuer, Mission suivante) ; « Précédent » et le menu des missions permettent de revoir un écran.
 - Activités : QCM, choix multiples, relier, remettre dans l'ordre, repérer une erreur, vrai/faux, décisions,
   pratique réelle avec Claude (critères vérifiés automatiquement, analyse Tâche / Contexte / Format en direct).
 - L'espace Claude (à droite) n'est utilisable qu'aux étapes « Essayer ».
