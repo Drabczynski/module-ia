@@ -37,6 +37,9 @@
     <symbol id="i-ext" viewBox="0 0 24 24"><path d="M13 4h7v7M20 4l-9 9M18 14v4.5A1.5 1.5 0 0 1 16.5 20h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11.5" height="11.5" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M15.5 8.5V6A2 2 0 0 0 13.5 4H6a2 2 0 0 0-2 2v7.5a2 2 0 0 0 2 2h2.5" fill="none" stroke="currentColor" stroke-width="1.9"/></symbol>
     <symbol id="i-spark-s" viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4ZM7 6H4v1.5A3.5 3.5 0 0 0 7.5 11M17 6h3v1.5a3.5 3.5 0 0 1-3.5 3.5M12 14v3.5M8.5 20.5h7M9.5 17.5h5v3h-5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+    <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M3 12s3.3-6 9-6 9 6 9 6-3.3 6-9 6-9-6-9-6Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 4l16 16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-file" viewBox="0 0 64 76"><path d="M4 6a4 4 0 0 1 4-4h34l18 18v50a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4Z" fill="#e3e8f0"/><path d="M42 2v14a4 4 0 0 0 4 4h14" fill="#cdd5e1"/><path d="M14 32h30M14 41h30M14 50h22M14 59h26" stroke="#9aa6ba" stroke-width="3.2" stroke-linecap="round"/></symbol>
   </defs>
 </svg>
 
@@ -46,6 +49,7 @@
   <div class="photo" aria-hidden="true">
     <img data-photo="portrait" src="assets/img/lea-portrait.jpg" alt="">
     <img data-photo="laptop" src="assets/img/lea-laptop.jpg" alt="">
+    <img data-photo="desk" src="assets/img/lea-bureau.jpg" alt="">
   </div>
 
   <div class="progress" aria-hidden="true"><span></span></div>
@@ -367,6 +371,147 @@
 
       <button class="cta rv" style="--i:5" data-next>
         Continuer <svg aria-hidden="true"><use href="#i-arrow-r"/></svg>
+      </button>
+    </section>
+
+    <!-- ================================================================ 09 -->
+    <section class="slide s-absent" data-photo="portrait" style="--pw:806px;--ph:430px;--pr:0px;--pos:55% 14%" aria-label="Traiter le responsable absent">
+      <div class="sim sim--table rv" style="--i:2" aria-hidden="true">
+        <div class="sim-head">Simulation pédagogique</div>
+        <div class="sim-body">
+          <p class="sim-notes">Point équipe du 3 novembre. Nora prépare l’affiche pour le 5 novembre. Sami vérifie le stock pour le 6 novembre. Le lieu de la prochaine rencontre reste à confirmer.</p>
+          <svg class="sim-arrow" viewBox="0 0 24 24"><path d="M12 4v15M6.5 13.5 12 19l5.5-5.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="mini-grid">
+            <div class="h">Action</div><div class="h c">Responsable</div><div class="h c">Échéance</div>
+            <div>Préparer l’affiche</div><div class="c">Nora</div><div class="c">5 novembre</div>
+            <div>Vérifier le stock</div><div class="c">Sami</div><div class="c">6 novembre</div>
+            <div>Confirmer le lieu de la prochaine rencontre</div>
+            <div class="c"><span class="slot"><span class="np">non précisé</span></span></div>
+            <div class="c"><span class="slot"><span class="np">non précisé</span></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="pill pill--score rv" style="--i:0"><svg><use href="#i-trophy"/></svg>À vous de choisir <i></i> 1 point</div>
+        <h2 class="h1 rv" style="--i:1">Traiter le<br>responsable absent</h2>
+        <div class="rule" aria-hidden="true"></div>
+        <p class="question rv" style="--i:3">Qui doit confirmer le lieu de la prochaine rencontre&nbsp;?</p>
+
+        <div class="quiz rv" style="--i:4" data-quiz="q09" data-answer="c" role="radiogroup" aria-label="Qui doit confirmer le lieu ?">
+          <button type="button" class="q-opt" role="radio" aria-checked="false" data-value="a"
+            data-fb="Pas tout à fait. Les notes ne disent pas que Nora s’en charge : l’attribuer serait une invention."><span class="q-radio"></span><b>A.</b> Nora</button>
+          <button type="button" class="q-opt" role="radio" aria-checked="false" data-value="b"
+            data-fb="Pas tout à fait. Rien dans les notes ne désigne Sami : l’attribuer serait une invention."><span class="q-radio"></span><b>B.</b> Sami</button>
+          <button type="button" class="q-opt" role="radio" aria-checked="false" data-value="c"
+            data-fb="Exact. Personne n’est désigné : le tableau indique « non précisé » plutôt que d’inventer un nom."><span class="q-radio"></span><b>C.</b> La source ne le précise pas</button>
+        </div>
+        <p class="q-feedback" aria-live="polite"></p>
+      </div>
+
+      <button class="cta rv" style="--i:6" type="button" data-check="quiz">
+        <span class="cta-label">Valider</span> <svg aria-hidden="true"><use href="#i-arrow-r"/></svg>
+      </button>
+    </section>
+
+    <!-- ================================================================ 10 -->
+    <section class="slide s-fix" data-photo="portrait" style="--pw:638px;--ph:825px;--pr:28px;--pos:58% 0%" aria-label="Demander une correction">
+      <div class="content">
+        <h2 class="h1 rv" style="--i:0">Demander une correction</h2>
+        <p class="lead rv" style="--i:1">Si un responsable a été ajouté, écrivez :</p>
+
+        <div class="bubble-say rv" style="--i:2">
+          <p data-copy-src="correction">« Le responsable de la confirmation du lieu n’est pas indiqué. Remplace-le par non précisé. »</p>
+          <button type="button" class="copy" data-copy="correction"><svg><use href="#i-copy"/></svg><span>Copier</span></button>
+        </div>
+
+        <div class="fix rv" style="--i:3" data-fix>
+          <div class="ba" role="tablist" aria-label="Comparer avant et après">
+            <button type="button" role="tab" class="ba-btn ba-btn--before" data-ba="before" aria-selected="false">Avant</button>
+            <button type="button" role="tab" class="ba-btn ba-btn--after" data-ba="after" aria-selected="true">Après correction</button>
+          </div>
+          <div class="fix-table">
+            <div class="h">Action</div><div class="h">Responsable</div><div class="h">Échéance</div>
+            <div>Confirmer le lieu</div>
+            <div class="fix-cell">
+              <span class="v-before">Nora <em>ajouté par erreur</em></span>
+              <span class="v-after">non précisé</span>
+            </div>
+            <div>non précisé</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="cta rv" style="--i:5" data-next>
+        Continuer <svg aria-hidden="true"><use href="#i-arrow-r"/></svg>
+      </button>
+    </section>
+
+    <!-- ================================================================ 11 -->
+    <section class="slide s-attach" data-photo="portrait" style="--pw:590px;--ph:800px;--pr:28px;--pos:60% 0%" aria-label="Joindre ou coller">
+      <div class="content">
+        <h2 class="h1 rv" style="--i:0">Joindre ou coller</h2>
+        <p class="lead rv" style="--i:1">Un document autorisé peut être joint si la fonction est disponible. Pour cet exercice, le texte à copier suffit.</p>
+
+        <div class="sim sim--attach rv" style="--i:2">
+          <div class="sim-head">Simulation pédagogique</div>
+          <div class="sim-body">
+            <div class="file-tile" data-attach>
+              <div class="file-ico">
+                <svg class="file-doc"><use href="#i-file"/></svg>
+                <span class="file-plus"><svg><use href="#i-plus"/></svg></span>
+                <span class="file-ok"><svg><use href="#i-check"/></svg></span>
+              </div>
+              <div class="file-name">Notes_exercice.txt</div>
+              <div class="file-bar"><span></span></div>
+              <button type="button" class="btn-pill" data-attach-btn><svg><use href="#i-plus"/></svg><span>Ajouter un fichier</span></button>
+            </div>
+            <div class="or"><span>ou</span></div>
+            <div class="paste-card">
+              <h4>Notes de la réunion</h4>
+              <p data-copy-src="notes-11">Point équipe du 3 novembre.<br>Nora prépare l’affiche pour le 5 novembre.<br>Sami vérifie le stock pour le 6 novembre.<br>Le lieu de la prochaine rencontre reste à confirmer.</p>
+              <button type="button" class="copy" data-copy="notes-11"><svg><use href="#i-copy"/></svg><span>Copier</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="cta rv" style="--i:5" data-next>
+        Continuer <svg aria-hidden="true"><use href="#i-arrow-r"/></svg>
+      </button>
+    </section>
+
+    <!-- ================================================================ 12 -->
+    <section class="slide s-limit" data-photo="desk" data-fade style="--pw:860px;--ph:900px;--pr:0px;--pos:0% 0%" aria-label="Repérer une limite">
+      <div class="sim sim--blur rv" style="--i:2" aria-hidden="true">
+        <div class="sim-title">Simulation pédagogique</div>
+        <div class="blur-card">
+          <div class="blur-top"><span>Image floue</span><span class="warn"><svg><use href="#i-eye-off"/></svg>Lecture difficile</span></div>
+          <div class="blur-img">
+            <div class="blur-rings"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <p>Point équipe du 3 novembre.<br>Nora prépare l’affiche pour<br>le 5 novembre.<br>Sami vérifie le stock pour<br>le 6 novembre.<br>Le lieu de la prochaine rencontre</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="pill pill--score rv" style="--i:0"><svg><use href="#i-trophy"/></svg>À vous de choisir <i></i> 1 point</div>
+        <h2 class="h1 rv" style="--i:1">Repérer une limite</h2>
+        <p class="question rv" style="--i:2">Claude ne retrouve pas une phrase dans une image floue. Que faites-vous&nbsp;?</p>
+
+        <div class="quiz rv" style="--i:3" data-quiz="q12" data-answer="a" role="radiogroup" aria-label="Que faites-vous ?">
+          <button type="button" class="q-opt" role="radio" aria-checked="false" data-value="a"
+            data-fb="Exact. Avec une source lisible, Claude peut travailler correctement, et vous vérifiez toujours le résultat."><span class="q-radio"></span><b>A.</b> Je fournis une source lisible et je vérifie</button>
+          <button type="button" class="q-opt" role="radio" aria-checked="false" data-value="b"
+            data-fb="Non : demander d’inventer produit des informations fausses. Fournissez plutôt une source lisible, puis vérifiez."><span class="q-radio"></span><b>B.</b> Je lui demande d’inventer ce qui manque</button>
+          <button type="button" class="q-opt" role="radio" aria-checked="false" data-value="c"
+            data-fb="Non : une réponse, surtout tirée d’une source floue, peut contenir des erreurs. Fournissez une source lisible et vérifiez."><span class="q-radio"></span><b>C.</b> Je considère sa première réponse comme exacte</button>
+        </div>
+        <p class="q-feedback" aria-live="polite"></p>
+      </div>
+
+      <button class="cta rv" style="--i:6" type="button" data-check="quiz">
+        <span class="cta-label">Valider</span> <svg aria-hidden="true"><use href="#i-arrow-r"/></svg>
       </button>
     </section>
 

@@ -56,6 +56,7 @@
     Object.keys(defaults).forEach(function (v) {
       stage.style.setProperty(v, slide.style.getPropertyValue(v).trim() || defaults[v]);
     });
+    stage.toggleAttribute("data-fade", slide.hasAttribute("data-fade"));
     var which = slide.getAttribute("data-photo");
     for (var i = 0; i < photos.length; i++) {
       photos[i].classList.toggle("is-on", photos[i].getAttribute("data-photo") === which);
@@ -88,6 +89,7 @@
 
     applyPhoto(slide);
     loadVoice(slide);
+    slide.dispatchEvent(new CustomEvent("slide:enter"));
     slide.querySelectorAll("[data-match]").forEach(function (m) { if (m._redraw) setTimeout(m._redraw, 60); });
     currentEl.textContent = pad(index + 1);
     progressEl.style.setProperty("--p", ((index + 1) / TOTAL_SCREENS * 100) + "%");
@@ -503,6 +505,122 @@
     });
 
     refresh();
+  });
+
+  /* ---------- Quiz à choix unique (écrans 9 et 12) ---------- */
+
+  state.quiz = state.quiz || {};
+
+  Array.prototype.forEach.call(stage.querySelectorAll("[data-quiz]"), function (quiz) {
+    var slide = quiz.closest(".slide");
+    var id = quiz.dataset.quiz;
+    var answer = quiz.dataset.answer;
+    var opts = Array.prototype.slice.call(quiz.querySelectorAll(".q-opt"));
+    var fb = slide.querySelector(".q-feedback");
+    var cta = slide.querySelector("[data-check='quiz']");
+    var ctaLabel = cta.querySelector(".cta-label");
+    var choice = null;
+
+    function select(value) {
+      choice = value;
+      opts.forEach(function (o) { o.setAttribute("aria-checked", o.dataset.value === value); });
+      fb.classList.remove("is-on");
+    }
+
+    function feedback(text, tone) {
+      fb.textContent = text;
+      fb.className = "q-feedback is-on is-" + tone;
+    }
+
+    function reveal(value, animate) {
+      var right = value === answer;
+      quiz.classList.add("is-locked");
+      opts.forEach(function (o) {
+        o.classList.toggle("is-right", o.dataset.value === answer);
+        o.classList.toggle("is-wrong", o.dataset.value === value && !right);
+        if (!animate) o.style.animation = "none";
+        o.setAttribute("aria-checked", o.dataset.value === value);
+      });
+      var chosen = quiz.querySelector('[data-value="' + value + '"]');
+      feedback(chosen.dataset.fb, right ? "good" : "bad");
+      slide.classList.add("is-answered");
+      cta.classList.toggle("is-success", right);
+      ctaLabel.textContent = "Continuer";
+      cta.removeAttribute("data-check");
+      // différé : le clic de validation ne doit pas aussi faire avancer
+      setTimeout(function () { cta.setAttribute("data-next", ""); }, 0);
+    }
+
+    quiz.addEventListener("click", function (e) {
+      var o = e.target.closest(".q-opt");
+      if (o && !state.quiz[id]) select(o.dataset.value);
+    });
+    // navigation au clavier dans le groupe de réponses
+    quiz.addEventListener("keydown", function (e) {
+      if (state.quiz[id] || !/^Arrow(Up|Down)$/.test(e.key)) return;
+      e.preventDefault(); e.stopPropagation();
+      var i = Math.max(0, opts.findIndex(function (o) { return o.dataset.value === choice; }));
+      var n = opts[(i + (e.key === "ArrowDown" ? 1 : opts.length - 1)) % opts.length];
+      select(n.dataset.value);
+      n.focus();
+    });
+
+    cta.addEventListener("click", function () {
+      if (state.quiz[id]) return;               // déjà répondu : [data-next] prend le relais
+      if (!choice) {
+        feedback("Choisissez une réponse avant de valider.", "hint");
+        cta.classList.remove("is-denied"); void cta.offsetWidth; cta.classList.add("is-denied");
+        return;
+      }
+      // une seule tentative : c'est une question notée
+      state.quiz[id] = { choice: choice, correct: choice === answer, score: choice === answer ? 1 : 0 };
+      Tracking.save(state);
+      reveal(choice, true);
+    });
+
+    if (state.quiz[id]) reveal(state.quiz[id].choice, false);
+  });
+
+  /* ---------- Écran 10 : avant / après correction ---------- */
+
+  Array.prototype.forEach.call(stage.querySelectorAll("[data-fix]"), function (fix) {
+    var slide = fix.closest(".slide");
+    var timer;
+    function show(which) {
+      fix.classList.toggle("is-before", which === "before");
+      fix.querySelectorAll("[data-ba]").forEach(function (b) { b.setAttribute("aria-selected", b.dataset.ba === which); });
+    }
+    fix.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-ba]");
+      if (b) { clearTimeout(timer); show(b.dataset.ba); }
+    });
+    // à chaque arrivée : on montre l'erreur, puis la correction s'applique
+    slide.addEventListener("slide:enter", function () {
+      clearTimeout(timer);
+      show("before");
+      timer = setTimeout(function () { show("after"); }, 2600);
+    });
+  });
+
+  /* ---------- Écran 11 : simulation de pièce jointe ---------- */
+
+  Array.prototype.forEach.call(stage.querySelectorAll("[data-attach]"), function (tile) {
+    var btn = tile.querySelector("[data-attach-btn]");
+    var label = btn.querySelector("span");
+    btn.addEventListener("click", function () {
+      if (tile.classList.contains("is-loading")) return;
+      if (tile.classList.contains("is-done")) {         // retirer le fichier
+        tile.classList.remove("is-done");
+        label.textContent = "Ajouter un fichier";
+        return;
+      }
+      tile.classList.add("is-loading");
+      setTimeout(function () {
+        tile.classList.remove("is-loading");
+        tile.classList.add("is-done");
+        label.textContent = "Fichier joint · Retirer";
+      }, 1150);
+    });
   });
 
   /* ---------- Voix off & sous-titres ---------- */
