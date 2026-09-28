@@ -389,6 +389,8 @@
         p.drawn = false;
         if (p.state === "bad") wrong++;
       });
+      // le score retenu est celui du premier essai (1 point par bonne association)
+      if (saved.firstScore == null) saved.firstScore = pairs.length - wrong;
       paint();
       Tracking.save(state);
       if (!wrong) { succeed(); return; }
@@ -754,6 +756,178 @@
       go(index + 1);
     });
     paint();
+  });
+
+  /* ---------- Écran 17 : score et bilan ---------- */
+
+  function tableScore() {
+    var rows = (state.table || []).map(function (r) { return (r || []).join(" | ").toLowerCase(); });
+    var has = function (test) { return rows.some(test); };
+    var np = /non pr[ée]cis[ée]/g;
+    return [
+      has(function (r) { return /affiche/.test(r) && /nora/.test(r) && /\b5\b/.test(r); }),
+      has(function (r) { return /stock/.test(r) && /sami/.test(r) && /\b6\b/.test(r); }),
+      has(function (r) { return /lieu/.test(r) && (r.match(np) || []).length >= 2; })
+    ].filter(Boolean).length;
+  }
+
+  function claudeAnswerOk() {
+    var t = (state.answers && state.answers.claude || "").trim();
+    return !!t && countWords(t) <= WORD_LIMIT && /12/.test(t) && /messagerie/i.test(t);
+  }
+
+  function quizItem(id, slide, label) {
+    var q = state.quiz[id];
+    return { slide: slide, label: label, max: 1, pts: q && q.correct ? 1 : 0, done: !!q };
+  }
+
+  function scoreItems() {
+    var m = state.match || {};
+    var tbl = (state.table || []).some(function (r) { return (r || []).some(function (v) { return v && v.trim(); }); });
+    var claude = !!(state.answers && (state.answers.claude || "").trim());
+    return [
+      { slide: ".s-match", label: "Associer les commandes", max: 4, pts: m.firstScore || 0, done: m.firstScore != null,
+        hint: "1 point par bonne association au premier essai." },
+      { slide: ".s-build", label: "Créer votre tableau", max: 3, pts: tableScore(), done: tbl,
+        hint: "Lignes attendues : affiche (Nora, 5 novembre), stock (Sami, 6 novembre), lieu (non précisé)." },
+      quizItem("q09", ".s-absent", "Traiter le responsable absent"),
+      quizItem("q12", ".s-limit", "Repérer une limite"),
+      { slide: ".s-fair", label: "Une comparaison équitable", max: 1, pts: claudeAnswerOk() ? 1 : 0, done: claude,
+        hint: "Réponse de Claude collée, 60 mots maximum, date et messagerie mentionnées." },
+      quizItem("q15", ".s-conclude", "Choisir une conclusion")
+    ];
+  }
+
+  function computeResult() {
+    var items = scoreItems();
+    var score = 0, max = 0;
+    items.forEach(function (it) { score += it.pts; max += it.max; });
+    var manip = items[1].done || items[4].done;
+    state.result = { score: score, max: max, passed: score / max >= 0.7, manipulation: manip };
+    Tracking.save(state);
+    return { items: items, result: state.result };
+  }
+
+  stage.querySelectorAll("[data-results]").forEach(function (slide) {
+    var verdict = slide.querySelector(".verdict");
+    var count = slide.querySelector("[data-score-count]");
+    var panel = slide.querySelector("[data-review]");
+    var list = slide.querySelector("[data-review-list]");
+    var raf2;
+
+    function render() {
+      var out = computeResult(), r = out.result;
+      verdict.classList.toggle("is-fail", !r.passed);
+      slide.querySelector("[data-verdict-title]").textContent = r.passed ? "Module validé" : "Pas encore validé";
+      slide.querySelector("[data-score-max]").textContent = r.max;
+      slide.querySelector("[data-score-text]").textContent = r.score + " / " + r.max;
+      slide.querySelector("[data-score-advice]").textContent = r.passed
+        ? "Consultez les points à reprendre."
+        : "Reprenez les points signalés.";
+      var side = slide.querySelector(".verdict-side");
+      side.classList.toggle("is-todo", !r.manipulation);
+      slide.querySelector("[data-manip]").textContent = r.manipulation ? "Manipulation réalisée" : "Manipulation à réaliser";
+
+      // le score défile jusqu'à sa valeur
+      cancelAnimationFrame(raf2);
+      var t0 = null;
+      (function step(t) {
+        if (!t0) t0 = t;
+        var k = Math.min(1, (t - t0 - 900) / 900);
+        count.textContent = Math.round(Math.max(0, k) * r.score);
+        if (k < 1) raf2 = requestAnimationFrame(step);
+      })(performance.now());
+
+      list.innerHTML = "";
+      out.items.forEach(function (it) {
+        var li = document.createElement("li");
+        var st = !it.done ? "is-todo" : it.pts === it.max ? "is-ok" : it.pts ? "is-partial" : "is-miss";
+        li.className = st;
+        li.innerHTML = '<span class="st"><svg><use href="' + (st === "is-ok" ? "#i-check" : st === "is-todo" ? "#i-plus" : "#i-x") + '"/></svg></span>' +
+          "<span><b></b><small></small></span>" +
+          '<span class="pts">' + it.pts + " / " + it.max + "</span>" +
+          '<button type="button" class="go">Revoir</button>';
+        li.querySelector("b").textContent = it.label;
+        li.querySelector("small").textContent = !it.done ? "Activité non réalisée." : (it.hint || (it.pts ? "Bonne réponse." : "Réponse à revoir."));
+        li.querySelector(".go").dataset.slide = it.slide;
+        list.appendChild(li);
+      });
+    }
+
+    slide.addEventListener("slide:enter", render);
+    slide.querySelector("[data-review-open]").addEventListener("click", function () { panel.hidden = false; });
+    panel.addEventListener("click", function (e) {
+      if (e.target === panel || e.target.closest("[data-review-close]")) { panel.hidden = true; return; }
+      var g = e.target.closest(".go");
+      if (g) {
+        panel.hidden = true;
+        var target = stage.querySelector(".slide" + g.dataset.slide);
+        go(slides.indexOf(target));
+      }
+    });
+  });
+
+  /* ---------- Écran 18 : fiche imprimable et fin du module ---------- */
+
+  function sheetHTML() {
+    var r = state.result || computeResult().result;
+    var esc = function (t) { var d = document.createElement("div"); d.textContent = t; return d.innerHTML; };
+    var arg = state.pref && state.pref.text && state.pref.text.trim();
+    var date = new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+    return '<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Ma fiche · Module 3</title><style>' +
+      '@font-face{font-family:Inter;src:url(assets/fonts/inter.woff2) format("woff2-variations");font-weight:100 900}' +
+      '@font-face{font-family:"Inter Tight";src:url(assets/fonts/inter-tight.woff2) format("woff2-variations");font-weight:100 900}' +
+      '@page{size:A4;margin:18mm}body{font-family:Inter,system-ui,sans-serif;color:#0a1233;margin:0}' +
+      '.k{font:600 10pt/1 Inter;letter-spacing:.2em;text-transform:uppercase;color:#5b6785}' +
+      'h1{font:800 30pt/1 "Inter Tight",Inter;letter-spacing:-.03em;margin:10mm 0 3mm}.bar{width:32mm;height:1.4mm;background:#e2560d;border-radius:1mm}' +
+      'h2{font:800 17pt/1.2 "Inter Tight",Inter;letter-spacing:-.02em;margin:9mm 0 5mm}' +
+      'ol{list-style:none;padding:0;margin:0;counter-reset:g}li{counter-increment:g;display:flex;align-items:center;gap:5mm;padding:4.5mm 5mm;margin-bottom:3mm;border:1px solid #d9e1ee;border-radius:3mm;font:600 13pt/1.3 Inter}' +
+      'li:before{content:counter(g);width:9mm;height:9mm;border-radius:50%;background:#fde9da;color:#c94a08;display:grid;place-items:center;font-weight:700;flex:none}' +
+      '.box{border-radius:3mm;padding:5mm 6mm;margin-top:4mm;font-size:11pt;line-height:1.55}.p{background:#eef2f8}.o{background:#fff1e6}' +
+      '.box b{display:block;margin-bottom:1.5mm;font-size:10pt;letter-spacing:.04em;text-transform:uppercase;color:#5b6785}' +
+      'footer{margin-top:10mm;padding-top:4mm;border-top:1px solid #d9e1ee;display:flex;justify-content:space-between;font-size:10pt;color:#5b6785}' +
+      '</style></head><body>' +
+      '<div class="k">ChatGPT et Claude · Module 3</div><h1>Votre fiche à conserver</h1><div class="bar"></div>' +
+      '<h2>Mes premiers gestes dans Claude</h2><ol>' +
+      '<li>Fournir la source.</li><li>Préciser le tableau attendu.</li><li>Signaler ce qui manque.</li><li>Comparer les résultats sur les mêmes critères.</li></ol>' +
+      '<div class="box p"><b>Prompt modèle</b>À partir des notes suivantes, crée un tableau Action, Responsable, Échéance. Utilise seulement les notes. Écris « non précisé » pour une donnée absente.</div>' +
+      '<div class="box o"><b>Demander une correction</b>« Le responsable de la confirmation du lieu n’est pas indiqué. Remplace-le par non précisé. »</div>' +
+      (arg ? '<div class="box p"><b>Mon argument</b>' + esc(arg) + "</div>" : "") +
+      "<footer><span>Résultat : " + r.score + " / " + r.max + (r.passed ? " · Module validé" : "") + "</span><span>" + date + "</span></footer>" +
+      "</body></html>";
+  }
+
+  stage.querySelectorAll("[data-save-sheet]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      // impression dans un cadre caché : l'apprenant choisit « Enregistrer en PDF »
+      var frame = document.createElement("iframe");
+      frame.setAttribute("aria-hidden", "true");
+      frame.style.cssText = "position:fixed;width:0;height:0;border:0;right:0;bottom:0";
+      document.body.appendChild(frame);
+      frame.srcdoc = sheetHTML();
+      frame.onload = function () {
+        var w = frame.contentWindow;
+        var ready = w.document.fonts ? w.document.fonts.ready : Promise.resolve();
+        ready.then(function () {
+          w.focus();
+          w.print();
+          setTimeout(function () { frame.remove(); }, 1000);
+        });
+      };
+    });
+  });
+
+  stage.querySelectorAll("[data-finish]").forEach(function (btn) {
+    var slide = btn.closest(".slide");
+    var panel = slide.querySelector("[data-finish-panel]");
+    btn.addEventListener("click", function () {
+      state.completed = true;
+      computeResult();
+      panel.hidden = false;
+    });
+    panel.addEventListener("click", function (e) {
+      if (e.target === panel || e.target.closest("[data-finish-close]")) panel.hidden = true;
+    });
   });
 
   /* ---------- Voix off & sous-titres ---------- */
