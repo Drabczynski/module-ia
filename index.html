@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Module 3 · Prendre en main Claude</title>
+  <link rel="stylesheet" href="assets/css/course.css">
+</head>
+<body>
+
+<!-- Pictos réutilisés -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-arrow-r" viewBox="0 0 24 24"><path d="M4 12h15M13 5.5 19.5 12 13 18.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-arrow-l" viewBox="0 0 24 24"><path d="M20 12H5M11 5.5 4.5 12 11 18.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M21 3 10.2 13.8M21 3l-6.6 18-4.2-7.2L3 9.6 21 3Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M5 4.5 20 12 5 19.5l2.8-7.5L5 4.5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5 10 17 19 7" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 28 28"><path d="M7 3.5h9.5L22 9v15.5H7z" fill="#fff" stroke="#6c7894" stroke-width="1.8" stroke-linejoin="round"/><path d="M16.5 3.5V9H22M10.5 14h8M10.5 17.5h8M10.5 21h5" fill="none" stroke="#6c7894" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 28 28">
+      <g stroke="#e2560d" stroke-width="3" stroke-linecap="round">
+        <path d="M14 2.5v7M14 18.5v7M2.5 14h7M18.5 14h7M5.9 5.9l5 5M17.1 17.1l5 5M22.1 5.9l-5 5M10.9 17.1l-5 5"/>
+        <path d="M8.3 3.4l3 6M16.7 18.6l3 6M24.6 8.3l-6 3M9.4 16.7l-6 3" stroke-width="2.2" opacity=".85"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<main class="stage is-booting" id="stage" aria-live="polite">
+
+  <!-- Photo partagée : sa largeur se transforme d'un écran à l'autre -->
+  <div class="photo" aria-hidden="true">
+    <img data-photo="portrait" src="assets/img/lea-portrait.jpg" alt="">
+    <img data-photo="laptop" src="assets/img/lea-laptop.jpg" alt="">
+  </div>
+
+  <div class="progress" aria-hidden="true"><span></span></div>
+  <div class="brand">ChatGPT et Claude</div>
+  <div class="module-label">Module 3 <i></i> Prendre en main Claude</div>
+
+  <div class="slides">
+
+    <!-- ================================================================ 01 -->
+    <section class="slide s-intro" data-photo="portrait" style="--pw:735px;--ph:900px;--pr:0px;--pos:62% 0%" aria-label="Introduction">
+      <div class="content">
+        <div class="pill rv" style="--i:0">
+          <svg class="clock" viewBox="0 0 44 44" aria-hidden="true">
+            <circle cx="22" cy="22" r="17" fill="none" stroke="currentColor" stroke-width="3.2"/>
+            <path class="hand-m" d="M22 12.5V22l6 4.5" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          25 minutes
+        </div>
+
+        <h1 class="h1 rv" style="--i:1">Module 3.<br>Prendre en main Claude.</h1>
+        <div class="rule" aria-hidden="true"></div>
+
+        <p class="lead rv" style="--i:3">Durée indicative : 25 minutes.<br>Transformez des notes en actions faciles à suivre.</p>
+
+        <div class="demo" aria-hidden="true">
+          <div class="note">
+            <p>Point équipe du 3 novembre.</p>
+            <p>Nora prépare l’affiche pour le 5 novembre.</p>
+            <p>Sami vérifie le stock pour le 6 novembre.</p>
+            <p>Le lieu de la prochaine rencontre reste à confirmer.</p>
+          </div>
+
+          <svg class="flow" viewBox="0 0 80 40" fill="none">
+            <path d="M6 30C24 12 46 8 70 20" stroke="#e2560d" stroke-width="3.2" stroke-linecap="round"/>
+            <path d="M60 10.5 71 20.5 57.5 25" stroke="#e2560d" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:40;stroke-dashoffset:40"/>
+          </svg>
+
+          <div class="window">
+            <div class="win-bar"><div class="dots"><i></i><i></i><i></i></div></div>
+            <div class="win-title">Simulation pédagogique</div>
+            <div class="mini-table">
+              <div class="th">Action</div><div class="th">Responsable</div><div class="th">Échéance</div>
+              <div><span class="sk"></span></div><div><span class="sk"></span></div><div><span class="sk"></span></div>
+              <div><span class="sk"></span></div><div><span class="sk"></span></div><div><span class="sk"></span></div>
+              <div><span class="sk"></span></div><div><span class="sk"></span></div><div><span class="sk"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="cta cta--shine rv" style="--i:6" data-next>
+        Commencer <svg aria-hidden="true"><use href="#i-arrow-r"/></svg>
+      </button>
+    </section>
+
+    <!-- ================================================================ 02 -->
+    <section class="slide s-open" data-photo="laptop" style="--pw:708px;--ph:818px;--pr:28px;--pos:50% 0%" aria-label="Ouvrir Claude">
+      <div class="content">
+        <h2 class="h1 rv" style="--i:0">Ouvrir Claude</h2>
+        <p class="lead rv" style="--i:1">Ouvrez Claude dans un autre onglet avec votre accès autorisé. Gardez la formation ouverte.</p>
+
+        <div class="browser rv" style="--i:3" aria-hidden="true">
+          <div class="tabs">
+            <div class="dots"><i></i><i></i><i></i></div>
+            <div class="tab tab--form">
+              <svg class="ico"><use href="#i-doc"/></svg> Formation
+              <svg class="x"><use href="#i-x"/></svg>
+            </div>
+            <div class="tab tab--claude">
+              <svg class="ico spark"><use href="#i-spark"/></svg> Claude
+              <svg class="x"><use href="#i-x"/></svg>
+            </div>
+            <svg class="tab-add"><use href="#i-plus"/></svg>
+          </div>
+          <div class="page">
+            <div class="side">
+              <span class="sk" style="width:100%"></span>
+              <span class="sk" style="width:86%"></span>
+              <span class="sk" style="width:84%"></span>
+            </div>
+            <div class="main">
+              <h4>Simulation pédagogique</h4>
+              <span class="sk" style="width:100%"></span>
+              <span class="sk" style="width:74%"></span>
+              <div class="composer">
+                <span class="caret"></span>
+                <span class="send-ghost"><svg><use href="#i-play"/></svg></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="cta rv" style="--i:5" data-next>
+        Continuer <svg aria-hidden="true"><use href="#i-arrow-r"/></svg>
+      </button>
+    </section>
+
+    <!-- ================================================================ 03 -->
+    <section class="slide s-task" data-photo="portrait" style="--pw:507px;--ph:818px;--pr:28px;--pos:64% 0%" aria-label="La nouvelle tâche de Léa">
+      <div class="content">
+        <h2 class="h1 rv" style="--i:0">La nouvelle tâche de Léa</h2>
+        <p class="lead rv" style="--i:1">
+          Point équipe du 3 novembre. Nora prépare l’affiche pour le 5 novembre.
+          Sami vérifie le stock pour le 6 novembre. Le lieu de la prochaine rencontre
+          <span class="mark">reste à confirmer.</span>
+          <span class="ask">Léa veut savoir qui fait quoi et pour quand.</span>
+        </p>
+
+        <div class="notebook" aria-hidden="true">
+          <div class="rings"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="paper">
+            <p>Point équipe du 3 novembre.</p>
+            <p>Nora prépare l’affiche pour le 5 novembre.</p>
+            <p>Sami vérifie le stock pour le 6 novembre.</p>
+            <p>Le lieu de la prochaine rencontre <span class="mark">reste à confirmer.</span></p>
+          </div>
+        </div>
+
+        <div class="grid-table rv" style="--i:4" role="table" aria-label="Tableau à compléter">
+          <div class="th" role="columnheader">Action</div>
+          <div class="th" role="columnheader">Responsable</div>
+          <div class="th" role="columnheader">Échéance</div>
+          <div class="td"></div><div class="td"></div><div class="td"></div>
+          <div class="td"></div><div class="td"></div><div class="td"></div>
+          <div class="td"></div><div class="td"></div><div class="td"></div>
+        </div>
+      </div>
+
+      <button class="cta rv" style="--i:6" data-next>
+        Continuer <svg aria-hidden="true"><use href="#i-arrow-r"/></svg>
+      </button>
+    </section>
+
+    <!-- ================================================================ 04 -->
+    <section class="slide s-map" data-photo="portrait" style="--pw:593px;--ph:822px;--pr:28px;--pos:60% 0%" aria-label="Les repères dans Claude">
+      <div class="content">
+        <h2 class="h1 rv" style="--i:0">Les repères dans Claude</h2>
+        <p class="lead rv" style="--i:1">Retrouvez une nouvelle conversation, la zone de saisie, l’envoi et les échanges précédents.</p>
+
+        <div class="app rv" style="--i:3" data-hotspots>
+          <div class="app-head">
+            Simulation pédagogique
+            <span class="explored" aria-live="polite">
+              <span class="label">0 / 4 repères</span>
+              <span class="bar"><span></span></span>
+            </span>
+          </div>
+          <div class="app-body">
+            <div class="app-side">
+              <button class="new-chat target" data-target="1" type="button">
+                <svg><use href="#i-plus"/></svg> Nouvelle conversation
+              </button>
+              <div class="history target" data-target="4">
+                <div class="row"><span class="av"></span><span class="sk"></span></div>
+                <div class="row"><span class="av"></span><span class="sk"></span></div>
+                <div class="row"><span class="av"></span><span class="sk"></span></div>
+                <div class="row"><span class="av"></span><span class="sk"></span></div>
+              </div>
+            </div>
+            <div class="app-main">
+              <div class="bubble bubble--in"><span class="sk" style="width:100%"></span><span class="sk" style="width:74%"></span><span class="sk" style="width:62%"></span></div>
+              <div class="bubble bubble--out"><span class="sk" style="width:100%"></span><span class="sk" style="width:82%"></span><span class="sk" style="width:64%"></span></div>
+              <div class="input target" data-target="2">
+                Écrire votre message ici…
+                <button class="send target" data-target="3" type="button" aria-label="Envoyer"><svg><use href="#i-send"/></svg></button>
+              </div>
+            </div>
+          </div>
+
+          <button class="hotspot" style="--i:0;left:0;top:99px"  data-spot="1" data-tip="310,58"  aria-label="Repère 1 : nouvelle conversation">1<span class="tick"><svg><use href="#i-check"/></svg></span></button>
+          <button class="hotspot" style="--i:1;left:330px;top:392px" data-spot="2" data-tip="330,142" aria-label="Repère 2 : zone de saisie">2<span class="tick"><svg><use href="#i-check"/></svg></span></button>
+          <button class="hotspot" style="--i:2;left:calc(100% - 24px);top:356px" data-spot="3" data-tip="-352,112" aria-label="Repère 3 : envoi">3<span class="tick"><svg><use href="#i-check"/></svg></span></button>
+          <button class="hotspot" style="--i:3;left:0;top:227px" data-spot="4" data-tip="310,120" aria-label="Repère 4 : échanges précédents">4<span class="tick"><svg><use href="#i-check"/></svg></span></button>
+
+          <div class="tip" role="dialog" aria-modal="false">
+            <div class="k"></div>
+            <h5></h5>
+            <p></p>
+            <div class="nav"><small></small><button type="button" data-tip-next>Repère suivant</button></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="cta rv" style="--i:6" data-next>
+        Continuer <svg aria-hidden="true"><use href="#i-arrow-r"/></svg>
+      </button>
+    </section>
+
+  </div>
+
+  <button class="back" type="button" data-prev hidden>
+    <svg aria-hidden="true"><use href="#i-arrow-l"/></svg> Retour
+  </button>
+  <div class="counter"><span data-current>01</span><span class="sep">/</span><span data-total>18</span></div>
+  <div class="toast" role="status"></div>
+</main>
+
+<script src="assets/js/course.js"></script>
+</body>
+</html>
