@@ -31,6 +31,12 @@
     <symbol id="i-cc" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10.5 10.2a2.3 2.3 0 1 0 0 3.6M17 10.2a2.3 2.3 0 1 0 0 3.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
     <symbol id="i-vol" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M15.5 9a4 4 0 0 1 0 6M18.2 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
     <symbol id="i-vol-x" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M16 9.5l5 5M21 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-doc-w" viewBox="0 0 24 24"><path d="M6.5 3h8L19 7.5V21H6.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14.5 3v4.5H19M9.5 12h6M9.5 15h6M9.5 18h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20l1-4.5L15.5 5a2.1 2.1 0 0 1 3 0l.5.5a2.1 2.1 0 0 1 0 3L8.5 19 4 20ZM13.5 7l3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M3.5 9.5h17M3.5 14.5h17M9.5 9.5v10" fill="none" stroke="currentColor" stroke-width="1.9"/></symbol>
+    <symbol id="i-ext" viewBox="0 0 24 24"><path d="M13 4h7v7M20 4l-9 9M18 14v4.5A1.5 1.5 0 0 1 16.5 20h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11.5" height="11.5" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M15.5 8.5V6A2 2 0 0 0 13.5 4H6a2 2 0 0 0-2 2v7.5a2 2 0 0 0 2 2h2.5" fill="none" stroke="currentColor" stroke-width="1.9"/></symbol>
+    <symbol id="i-spark-s" viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
   </defs>
 </svg>
 
@@ -225,6 +231,141 @@
       </div>
 
       <button class="cta rv" style="--i:6" data-next>
+        Continuer <svg aria-hidden="true"><use href="#i-arrow-r"/></svg>
+      </button>
+    </section>
+
+    <!-- ================================================================ 05 -->
+    <section class="slide s-match" data-photo="portrait" style="--pw:576px;--ph:900px;--pr:0px;--pos:62% 0%;--dock-x:1086px;--back-x:620px" aria-label="Associer les commandes">
+      <div class="content">
+        <div class="pill rv" style="--i:0">
+          <svg class="clock" viewBox="0 0 44 44" aria-hidden="true">
+            <circle cx="22" cy="22" r="17" fill="none" stroke="currentColor" stroke-width="3.2"/>
+            <path class="hand-m" d="M22 12.5V22l6 4.5" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          À vous de jouer
+        </div>
+        <h2 class="h1 rv" style="--i:1">Associer les commandes</h2>
+        <p class="lead rv" style="--i:2">Associez le besoin à sa fonction dans Claude.</p>
+
+        <div class="match rv" style="--i:3" data-match>
+          <svg class="match-lines" aria-hidden="true"></svg>
+          <div class="match-col match-col--need">
+            <h3>Besoins</h3>
+            <button type="button" class="m-card" data-side="need" data-key="new">Démarrer un sujet<span class="m-dot"></span></button>
+            <button type="button" class="m-card" data-side="need" data-key="input">Saisir les notes<span class="m-dot"></span></button>
+            <button type="button" class="m-card" data-side="need" data-key="send">Soumettre la demande<span class="m-dot"></span></button>
+            <button type="button" class="m-card" data-side="need" data-key="history">Reprendre un échange<span class="m-dot"></span></button>
+          </div>
+          <div class="match-col match-col--fn">
+            <h3>Fonctions dans Claude</h3>
+            <button type="button" class="m-card" data-side="fn" data-key="history"><span class="m-dot"></span>Historique</button>
+            <button type="button" class="m-card" data-side="fn" data-key="send"><span class="m-dot"></span>Envoyer</button>
+            <button type="button" class="m-card" data-side="fn" data-key="new"><span class="m-dot"></span>Nouvelle conversation</button>
+            <button type="button" class="m-card" data-side="fn" data-key="input"><span class="m-dot"></span>Zone de saisie</button>
+          </div>
+        </div>
+        <p class="match-help" aria-live="polite">Cliquez sur un besoin, puis sur la fonction correspondante.</p>
+      </div>
+
+      <button class="cta rv" style="--i:6" type="button" data-check="match">
+        <span class="cta-label">Valider</span> <svg aria-hidden="true"><use href="#i-arrow-r"/></svg>
+      </button>
+    </section>
+
+    <!-- ================================================================ 06 -->
+    <section class="slide s-prep" data-photo="portrait" style="--pw:629px;--ph:800px;--pr:28px;--pos:58% 0%" aria-label="Préparer les notes">
+      <div class="content">
+        <h2 class="h1 rv" style="--i:0">Préparer les notes</h2>
+        <div class="rule" aria-hidden="true"></div>
+        <p class="lead rv" style="--i:2">Copiez seulement les notes de l’exercice. Ajoutez ce que vous attendez : un tableau avec Action, Responsable et Échéance.</p>
+
+        <article class="card card--peach rv" style="--i:3">
+          <header class="tag tag--orange"><span class="tag-ico"><svg><use href="#i-doc-w"/></svg></span>Notes</header>
+          <p data-copy-src="notes">Point équipe du 3 novembre. Nora prépare l’affiche pour le 5 novembre. Sami vérifie le stock pour le 6 novembre. Le lieu de la prochaine rencontre reste à confirmer.</p>
+          <button type="button" class="copy" data-copy="notes"><svg><use href="#i-copy"/></svg><span>Copier</span></button>
+        </article>
+
+        <article class="card card--blue rv" style="--i:4">
+          <header class="tag tag--orange"><span class="tag-ico"><svg><use href="#i-pen"/></svg></span>Consigne</header>
+          <p data-copy-src="consigne">Crée un tableau Action, Responsable, Échéance. Utilise seulement les notes. Écris non précisé pour une donnée absente.</p>
+          <button type="button" class="copy" data-copy="consigne"><svg><use href="#i-copy"/></svg><span>Copier</span></button>
+        </article>
+      </div>
+
+      <button class="cta rv" style="--i:6" data-next>
+        Continuer <svg aria-hidden="true"><use href="#i-arrow-r"/></svg>
+      </button>
+    </section>
+
+    <!-- ================================================================ 07 -->
+    <section class="slide s-result" data-photo="none" style="--pw:0px" aria-label="Voir la transformation">
+      <div class="content content--full">
+        <h2 class="h1 rv" style="--i:0">Voir la transformation</h2>
+
+        <article class="panel panel--peach rv" style="--i:1">
+          <header class="tag tag--orange tag--lg"><span class="tag-ico"><svg><use href="#i-doc-w"/></svg></span>Prompt</header>
+          <p class="prompt">À partir des notes suivantes, crée un tableau Action, Responsable, Échéance. Utilise seulement les notes. Écris « non précisé » pour une donnée absente.</p>
+          <p class="prompt prompt--notes">
+            Notes :<br>
+            <span class="ln">Point équipe du 3 novembre.</span><br>
+            <span class="ln" data-link="1">Nora prépare l’affiche pour le 5 novembre.</span><br>
+            <span class="ln" data-link="2">Sami vérifie le stock pour le 6 novembre.</span><br>
+            <span class="ln" data-link="3">Le lieu de la prochaine rencontre reste à confirmer.</span>
+          </p>
+        </article>
+
+        <article class="panel panel--blue rv" style="--i:2">
+          <header class="tag tag--blue tag--lg"><span class="tag-ico"><svg><use href="#i-grid"/></svg></span>Réponse illustrative</header>
+          <div class="result" role="table" aria-label="Tableau obtenu">
+            <div class="r-row r-head" role="row"><div role="columnheader">Action</div><div role="columnheader">Responsable</div><div role="columnheader">Échéance</div></div>
+            <div class="r-row" role="row" data-link="1" style="--r:0"><div role="cell">Préparer l’affiche</div><div role="cell">Nora</div><div role="cell">5 novembre</div></div>
+            <div class="r-row" role="row" data-link="2" style="--r:1"><div role="cell">Vérifier le stock</div><div role="cell">Sami</div><div role="cell">6 novembre</div></div>
+            <div class="r-row" role="row" data-link="3" style="--r:2"><div role="cell">Confirmer le lieu de la prochaine rencontre</div><div role="cell"><span class="np">non précisé</span></div><div role="cell"><span class="np">non précisé</span></div></div>
+          </div>
+          <p class="result-hint">Survolez une ligne pour retrouver la note d’origine.</p>
+        </article>
+      </div>
+
+      <button class="cta rv" style="--i:5" data-next>
+        Continuer <svg aria-hidden="true"><use href="#i-arrow-r"/></svg>
+      </button>
+    </section>
+
+    <!-- ================================================================ 08 -->
+    <section class="slide s-build" data-photo="none" style="--pw:0px" aria-label="Créer votre tableau">
+      <div class="content content--full">
+        <h2 class="h1 rv" style="--i:0">Créer votre tableau</h2>
+        <p class="lead rv" style="--i:1">Dans une nouvelle conversation Claude, utilisez le prompt et les notes affichés. Copiez votre tableau dans le module.</p>
+
+        <article class="box rv" style="--i:2">
+          <h3>Prompt à copier</h3>
+          <div class="prompt-box" data-copy-src="prompt">
+            <p>À partir des notes suivantes, crée un tableau Action, Responsable, Échéance. Utilise seulement les notes. Écris non précisé pour une donnée absente.</p>
+            <p>Notes :</p>
+            <ul>
+              <li>Point équipe du 3 novembre.</li>
+              <li>Nora prépare l’affiche pour le 5 novembre.</li>
+              <li>Sami vérifie le stock pour le 6 novembre.</li>
+              <li>Le lieu de la prochaine rencontre reste à confirmer.</li>
+            </ul>
+          </div>
+          <div class="box-actions">
+            <a class="btn-outline" href="https://claude.ai/new" target="_blank" rel="noopener"><svg><use href="#i-ext"/></svg>Ouvrir Claude</a>
+            <button type="button" class="btn-soft" data-copy="prompt"><svg><use href="#i-copy"/></svg><span>Copier le prompt</span></button>
+          </div>
+        </article>
+
+        <article class="box rv" style="--i:3">
+          <h3>Votre tableau <span class="fill-state" aria-live="polite"></span></h3>
+          <div class="edit-table" data-edit-table>
+            <div class="e-head">Action</div><div class="e-head">Responsable</div><div class="e-head">Échéance</div>
+          </div>
+          <p class="edit-hint"><svg><use href="#i-spark-s"/></svg>Astuce : collez le tableau copié depuis Claude dans la première case, il se répartit tout seul.</p>
+        </article>
+      </div>
+
+      <button class="cta rv" style="--i:5" data-next>
         Continuer <svg aria-hidden="true"><use href="#i-arrow-r"/></svg>
       </button>
     </section>

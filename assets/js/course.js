@@ -51,9 +51,10 @@
   function pad(n) { return (n < 10 ? "0" : "") + n; }
 
   function applyPhoto(slide) {
-    var cs = getComputedStyle(slide);
-    ["--pw", "--ph", "--pr", "--pos"].forEach(function (v) {
-      stage.style.setProperty(v, cs.getPropertyValue(v).trim());
+    // valeurs propres à l'écran (style inline), sinon valeurs par défaut
+    var defaults = { "--pw": "0px", "--ph": "900px", "--pr": "0px", "--pos": "60% 0%", "--dock-x": "800px", "--back-x": "32px" };
+    Object.keys(defaults).forEach(function (v) {
+      stage.style.setProperty(v, slide.style.getPropertyValue(v).trim() || defaults[v]);
     });
     var which = slide.getAttribute("data-photo");
     for (var i = 0; i < photos.length; i++) {
@@ -87,6 +88,7 @@
 
     applyPhoto(slide);
     loadVoice(slide);
+    slide.querySelectorAll("[data-match]").forEach(function (m) { if (m._redraw) setTimeout(m._redraw, 60); });
     currentEl.textContent = pad(index + 1);
     progressEl.style.setProperty("--p", ((index + 1) / TOTAL_SCREENS * 100) + "%");
     backBtn.hidden = index === 0;
@@ -217,6 +219,292 @@
     if (!isNaN(n)) go(Math.max(0, Math.min(slides.length - 1, n - 1)));
   });
 
+  /* ---------- Copier dans le presse-papiers ---------- */
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).catch(function () { return legacyCopy(text); });
+    }
+    return legacyCopy(text);
+  }
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { /* copie refusée */ }
+    document.body.removeChild(ta);
+    return ok ? Promise.resolve() : Promise.reject();
+  }
+  function readable(el) {
+    // conserve paragraphes et puces pour un collage propre dans Claude
+    var out = [];
+    Array.prototype.forEach.call(el.children.length ? el.children : [el], function (node) {
+      if (node.tagName === "UL") {
+        Array.prototype.forEach.call(node.children, function (li) { out.push("- " + li.textContent.trim()); });
+      } else {
+        // ligne vide après la consigne, avant « Notes : »
+        if (out.length && node.previousElementSibling && node.previousElementSibling.tagName === "P" && !/^Notes/.test(out[out.length - 1])) out.push("");
+        out.push(node.textContent.replace(/\s+/g, " ").trim());
+      }
+    });
+    return out.join("\n");
+  }
+
+  stage.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-copy]");
+    if (!btn) return;
+    var src = stage.querySelector('[data-copy-src="' + btn.dataset.copy + '"]');
+    var label = btn.querySelector("span");
+    var initial = label.dataset.initial || (label.dataset.initial = label.textContent);
+    copyText(readable(src)).then(function () {
+      label.textContent = "Copié";
+      btn.classList.add("is-done");
+    }, function () {
+      label.textContent = "Sélectionnez le texte";
+    });
+    clearTimeout(btn._t);
+    btn._t = setTimeout(function () { label.textContent = initial; btn.classList.remove("is-done"); }, 2000);
+  });
+
+  /* ---------- Écran 5 : associer besoins et fonctions ---------- */
+
+  var PAIR_COLORS = ["#1f5cf0", "#e2560d", "#7c4dff", "#0f9aa8"];
+
+  Array.prototype.forEach.call(stage.querySelectorAll("[data-match]"), function (box) {
+    var slide = box.closest(".slide");
+    var svg = box.querySelector(".match-lines");
+    var help = slide.querySelector(".match-help");
+    var cta = slide.querySelector("[data-check='match']");
+    var ctaLabel = cta.querySelector(".cta-label");
+    var cards = Array.prototype.slice.call(box.querySelectorAll(".m-card"));
+    var pairs = [];          // [{ need, fn, color }]
+    var selected = null;
+    var saved = state.match || (state.match = { attempts: 0, done: false });
+
+    function pairOf(card) {
+      for (var i = 0; i < pairs.length; i++) if (pairs[i].need === card || pairs[i].fn === card) return pairs[i];
+      return null;
+    }
+    function freeColor() {
+      for (var i = 0; i < PAIR_COLORS.length; i++) {
+        if (!pairs.some(function (p) { return p.color === PAIR_COLORS[i]; })) return PAIR_COLORS[i];
+      }
+      return PAIR_COLORS[0];
+    }
+
+    function draw() {
+      svg.innerHTML = "";
+      pairs.forEach(function (p) {
+        // les positions sont lues en unités de la scène (indépendantes du zoom)
+        var a = p.need, b = p.fn;
+        var x1 = a.offsetParent.offsetLeft + a.offsetLeft + a.offsetWidth - 20;
+        var y1 = a.offsetParent.offsetTop + a.offsetTop + a.offsetHeight / 2;
+        var x2 = b.offsetParent.offsetLeft + b.offsetLeft + 20;
+        var y2 = b.offsetParent.offsetTop + b.offsetTop + b.offsetHeight / 2;
+        var dx = (x2 - x1) * 0.55;
+        var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", "M" + x1 + " " + y1 + " C" + (x1 + dx) + " " + y1 + " " + (x2 - dx) + " " + y2 + " " + x2 + " " + y2);
+        var c = p.state === "good" ? "#1a9a5a" : p.state === "bad" ? "#d93636" : p.color;
+        path.setAttribute("stroke", c);
+        svg.appendChild(path);
+        var len = path.getTotalLength();
+        path.style.setProperty("--len", len);
+        if (p.drawn) { path.style.animation = "none"; path.style.strokeDashoffset = 0; }
+        p.drawn = true;
+      });
+    }
+
+    function paint() {
+      cards.forEach(function (c) {
+        var p = pairOf(c);
+        c.classList.toggle("is-paired", !!p);
+        c.classList.toggle("is-selected", c === selected);
+        c.classList.toggle("is-good", !!p && p.state === "good");
+        c.classList.toggle("is-bad", !!p && p.state === "bad");
+        c.classList.toggle("is-locked", !!p && p.state === "good");
+        c.style.setProperty("--c", p && !p.state ? p.color : "");
+        c.setAttribute("aria-pressed", c === selected);
+      });
+      draw();
+    }
+
+    function setHelp(text, tone) {
+      help.textContent = text;
+      help.classList.toggle("is-good", tone === "good");
+      help.classList.toggle("is-bad", tone === "bad");
+    }
+
+    box.addEventListener("click", function (e) {
+      var card = e.target.closest(".m-card");
+      if (!card || saved.done) return;
+      var existing = pairOf(card);
+      if (existing) {                           // re-cliquer défait l'association
+        pairs.splice(pairs.indexOf(existing), 1);
+        selected = card;
+      } else if (!selected || selected === card) {
+        selected = selected === card ? null : card;
+      } else if (selected.dataset.side === card.dataset.side) {
+        selected = card;
+      } else {
+        var need = card.dataset.side === "need" ? card : selected;
+        var fn = card.dataset.side === "fn" ? card : selected;
+        pairs.push({ need: need, fn: fn, color: freeColor() });
+        selected = null;
+      }
+      var left = cards.length / 2 - pairs.length;
+      setHelp(left ? (selected ? "Choisissez maintenant l’élément correspondant dans l’autre colonne." : "Encore " + left + " association" + (left > 1 ? "s" : "") + " à faire.") : "Tout est associé. Cliquez sur Valider.");
+      paint();
+    });
+
+    function succeed() {
+      saved.done = true;
+      Tracking.save(state);
+      cta.classList.add("is-success");
+      ctaLabel.textContent = "Continuer";
+      // différé : le clic de validation ne doit pas aussi faire avancer
+      setTimeout(function () { cta.setAttribute("data-next", ""); }, 0);
+      cta.removeAttribute("data-check");
+      setHelp("Bravo, les quatre associations sont justes.", "good");
+    }
+
+    cta.addEventListener("click", function () {
+      if (saved.done) return;                  // la navigation est gérée par [data-next]
+      if (pairs.length < cards.length / 2) {
+        setHelp("Associez les quatre besoins avant de valider.", "bad");
+        cta.classList.remove("is-denied"); void cta.offsetWidth; cta.classList.add("is-denied");
+        return;
+      }
+      saved.attempts++;
+      var wrong = 0;
+      pairs.forEach(function (p) {
+        p.state = p.need.dataset.key === p.fn.dataset.key ? "good" : "bad";
+        p.drawn = false;
+        if (p.state === "bad") wrong++;
+      });
+      paint();
+      Tracking.save(state);
+      if (!wrong) { succeed(); return; }
+      setHelp(wrong + " association" + (wrong > 1 ? "s" : "") + " à revoir. Les bonnes réponses restent en place.", "bad");
+      setTimeout(function () {
+        pairs = pairs.filter(function (p) { return p.state === "good"; });
+        paint();
+      }, 1400);
+    });
+
+    // exercice déjà réussi lors d'une visite précédente : on affiche la solution
+    if (saved.done) {
+      var byKey = {};
+      cards.forEach(function (c) { (byKey[c.dataset.key] = byKey[c.dataset.key] || {})[c.dataset.side] = c; });
+      Object.keys(byKey).forEach(function (k, i) { pairs.push({ need: byKey[k].need, fn: byKey[k].fn, color: PAIR_COLORS[i], state: "good" }); });
+      succeed();
+    }
+    box._redraw = function () { pairs.forEach(function (p) { p.drawn = false; }); paint(); };
+  });
+
+  /* ---------- Écran 7 : relier chaque ligne à sa note ---------- */
+
+  Array.prototype.forEach.call(stage.querySelectorAll(".s-result"), function (slide) {
+    function lit(id) {
+      slide.querySelectorAll("[data-link]").forEach(function (el) { el.classList.toggle("is-lit", el.dataset.link === id); });
+    }
+    slide.addEventListener("mouseover", function (e) {
+      var el = e.target.closest("[data-link]");
+      lit(el ? el.dataset.link : null);
+    });
+    slide.addEventListener("mouseleave", function () { lit(null); });
+  });
+
+  /* ---------- Écran 8 : tableau à compléter (collage intelligent) ---------- */
+
+  Array.prototype.forEach.call(stage.querySelectorAll("[data-edit-table]"), function (grid) {
+    var ROWS = 4, COLS = 3;
+    var status = grid.closest(".box").querySelector(".fill-state");
+    var data = state.table || (state.table = []);
+    var cells = [];
+    var PH = ["Action", "Responsable", "Échéance"];
+
+    for (var r = 0; r < ROWS; r++) {
+      data[r] = data[r] || ["", "", ""];
+      for (var c = 0; c < COLS; c++) {
+        var ta = document.createElement("textarea");
+        ta.className = "e-cell";
+        ta.rows = 2;
+        ta.dataset.r = r;
+        ta.dataset.c = c;
+        ta.value = data[r][c] || "";
+        ta.setAttribute("aria-label", PH[c] + ", ligne " + (r + 1));
+        if (r === 0 && c === 0) ta.placeholder = "Collez ici…";
+        grid.appendChild(ta);
+        cells.push(ta);
+      }
+    }
+
+    function refresh() {
+      var rows = data.filter(function (row) { return row.some(function (v) { return v.trim(); }); }).length;
+      status.textContent = rows ? rows + " ligne" + (rows > 1 ? "s" : "") + " remplie" + (rows > 1 ? "s" : "") : "";
+      status.classList.toggle("is-done", rows >= 3);
+    }
+
+    function parse(text) {
+      var rows = text.replace(/\r/g, "").split("\n").map(function (l) { return l.trim(); }).filter(Boolean);
+      var out = [];
+      rows.forEach(function (line) {
+        var parts;
+        if (line.indexOf("|") >= 0) {
+          parts = line.split("|").map(function (x) { return x.trim(); });
+          if (parts[0] === "") parts.shift();
+          if (parts[parts.length - 1] === "") parts.pop();
+        } else if (line.indexOf("\t") >= 0) {
+          parts = line.split("\t").map(function (x) { return x.trim(); });
+        } else {
+          parts = [line];
+        }
+        if (parts.every(function (x) { return /^:?-{2,}:?$/.test(x) || x === ""; })) return;   // séparateur markdown
+        if (/^\**action\**$/i.test(parts[0])) return;                                             // ligne d'en-tête
+        out.push(parts.map(function (x) { return x.replace(/\*\*/g, ""); }));
+      });
+      return out;
+    }
+
+    grid.addEventListener("paste", function (e) {
+      var cell = e.target.closest(".e-cell");
+      var text = (e.clipboardData || window.clipboardData).getData("text");
+      if (!cell || !/[\t|]|\n/.test(text.trim())) return;       // simple texte : collage normal
+      var rows = parse(text);
+      if (!rows.length) return;
+      e.preventDefault();
+      var r0 = +cell.dataset.r, c0 = +cell.dataset.c;
+      rows.forEach(function (row, i) {
+        row.forEach(function (val, j) {
+          var r = r0 + i, c = c0 + j;
+          if (r >= ROWS || c >= COLS) return;
+          var target = cells[r * COLS + c];
+          target.value = val;
+          data[r][c] = val;
+          target.classList.remove("is-filled-anim"); void target.offsetWidth;
+          target.style.animationDelay = (i * 90 + j * 40) + "ms";
+          target.classList.add("is-filled-anim");
+        });
+      });
+      Tracking.save(state);
+      refresh();
+    });
+
+    grid.addEventListener("input", function (e) {
+      var cell = e.target;
+      data[+cell.dataset.r][+cell.dataset.c] = cell.value;
+      Tracking.save(state);
+      refresh();
+    });
+
+    refresh();
+  });
+
   /* ---------- Voix off & sous-titres ---------- */
 
   var audio = document.getElementById("voice");
@@ -254,7 +542,7 @@
     var t = audio.currentTime, i = -1;
     for (var k = 0; k < cues.length; k++) if (cues[k][0] <= t) i = k;
     // un sous-titre reste affiché jusqu'au suivant ; le dernier s'efface peu après sa fin
-    if (i === cues.length - 1 && t > cues[i][1] + 0.6) i = -1;
+    if (i >= 0 && i === cues.length - 1 && t > cues[i][1] + 0.6) i = -1;
     showCue(i);
   }
 
@@ -275,6 +563,7 @@
     clearTimeout(startTimer);
     audio.pause();
     dock.classList.remove("is-playing", "is-waiting");
+    dock.classList.toggle("is-silent", !slide.getAttribute("data-audio"));
     slide.querySelectorAll(".cta").forEach(function (c) { c.classList.remove("is-ready"); });
     setProgress(0);
 
