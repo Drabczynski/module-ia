@@ -57,6 +57,7 @@
       stage.style.setProperty(v, slide.style.getPropertyValue(v).trim() || defaults[v]);
     });
     stage.toggleAttribute("data-fade", slide.hasAttribute("data-fade"));
+    stage.toggleAttribute("data-back-on-photo", slide.hasAttribute("data-back-on-photo"));
     var which = slide.getAttribute("data-photo");
     for (var i = 0; i < photos.length; i++) {
       photos[i].classList.toggle("is-on", photos[i].getAttribute("data-photo") === which);
@@ -621,6 +622,138 @@
         label.textContent = "Fichier joint · Retirer";
       }, 1150);
     });
+  });
+
+  /* ---------- Écrans 13 et 16 : réponses collées par l'apprenant ---------- */
+
+  state.answers = state.answers || {};
+  var WORD_LIMIT = 60;
+
+  function countWords(t) { return (t.match(/\S+/g) || []).length; }
+
+  function syncAnswer(key) {
+    var text = (state.answers[key] || "").trim();
+    var n = countWords(text);
+    stage.querySelectorAll('[data-wc="' + key + '"]').forEach(function (wc) {
+      wc.textContent = n + " / " + WORD_LIMIT + " mots";
+      wc.classList.toggle("is-ok", n > 0 && n <= WORD_LIMIT);
+      wc.classList.toggle("is-over", n > WORD_LIMIT);
+    });
+    // l'écran 16 affiche la réponse collée à l'écran 13 (sinon, le squelette)
+    stage.querySelectorAll('[data-answer-view="' + key + '"]').forEach(function (v) {
+      if (!v._skeleton) v._skeleton = v.innerHTML;
+      if (text) v.textContent = text; else v.innerHTML = v._skeleton;
+    });
+  }
+
+  stage.querySelectorAll("[data-answer-field]").forEach(function (field) {
+    var key = field.dataset.answerField;
+    field.value = state.answers[key] || "";
+    field.addEventListener("input", function () {
+      state.answers[key] = field.value;
+      Tracking.save(state);
+      syncAnswer(key);
+    });
+    syncAnswer(key);
+  });
+
+  /* ---------- Écran 14 : grille de lecture ---------- */
+
+  var CRITERIA = ["Date et horaires", "Messagerie", "Absence d’ajout", "Longueur demandée"];
+
+  stage.querySelectorAll("[data-rubric]").forEach(function (grid) {
+    var sum = grid.parentNode.querySelector(".rubric-sum");
+    var data = state.rubric || (state.rubric = { gpt: [], claude: [] });
+
+    CRITERIA.forEach(function (label, r) {
+      var k = document.createElement("div");
+      k.className = "rb-k";
+      k.textContent = label;
+      grid.appendChild(k);
+      ["gpt", "claude"].forEach(function (tool) {
+        var cell = document.createElement("div");
+        cell.className = "rb-c";
+        cell.innerHTML =
+          '<button type="button" class="rb-btn" data-v="yes" aria-pressed="false"><svg><use href="#i-check"/></svg>Respecté</button>' +
+          '<button type="button" class="rb-btn" data-v="no" aria-pressed="false"><svg><use href="#i-x"/></svg>Non</button>';
+        cell.dataset.tool = tool;
+        cell.dataset.r = r;
+        cell.setAttribute("role", "group");
+        cell.setAttribute("aria-label", label + ", " + (tool === "gpt" ? "ChatGPT" : "Claude"));
+        grid.appendChild(cell);
+      });
+    });
+
+    function paint() {
+      grid.querySelectorAll(".rb-c").forEach(function (cell) {
+        var v = data[cell.dataset.tool][+cell.dataset.r];
+        cell.querySelectorAll(".rb-btn").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.v === v); });
+      });
+      var score = function (t) { return data[t].filter(function (v) { return v === "yes"; }).length; };
+      var filled = data.gpt.filter(Boolean).length + data.claude.filter(Boolean).length;
+      sum.innerHTML = filled
+        ? '<span class="chip">ChatGPT : <b>' + score("gpt") + " / 4</b></span><span class=\"chip\">Claude : <b>" + score("claude") + " / 4</b></span>"
+        : "Pour chaque critère, indiquez s’il est respecté.";
+    }
+
+    grid.addEventListener("click", function (e) {
+      var b = e.target.closest(".rb-btn");
+      if (!b) return;
+      var cell = b.parentNode;
+      var arr = data[cell.dataset.tool];
+      arr[+cell.dataset.r] = arr[+cell.dataset.r] === b.dataset.v ? null : b.dataset.v;
+      Tracking.save(state);
+      paint();
+    });
+    paint();
+  });
+
+  /* ---------- Écran 16 : préférence argumentée ---------- */
+
+  stage.querySelectorAll("[data-pick]").forEach(function (pick) {
+    var slide = pick.closest(".slide");
+    var why = slide.querySelector("[data-why]");
+    var hint = slide.querySelector(".why-hint");
+    var cta = slide.querySelector("[data-check='pref']");
+    var saved = state.pref || (state.pref = { choice: null, text: "" });
+
+    function paint() {
+      pick.querySelectorAll(".pick-card").forEach(function (c) { c.setAttribute("aria-checked", c.dataset.pickValue === saved.choice); });
+    }
+    function setHint(t, tone) {
+      hint.textContent = t;
+      hint.classList.toggle("is-bad", tone === "bad");
+      hint.classList.toggle("is-good", tone === "good");
+    }
+
+    pick.addEventListener("click", function (e) {
+      var c = e.target.closest(".pick-card");
+      if (!c) return;
+      saved.choice = c.dataset.pickValue;
+      Tracking.save(state);
+      paint();
+      if (!why.value.trim()) why.focus();
+      setHint("Complétez maintenant votre argument.", "");
+    });
+
+    why.value = saved.text;
+    why.addEventListener("input", function () {
+      saved.text = why.value;
+      Tracking.save(state);
+      if (why.value.trim().length >= 20) setHint(saved.choice ? "Parfait, vous pouvez continuer." : "Indiquez aussi la réponse que vous retenez.", saved.choice ? "good" : "");
+    });
+
+    cta.addEventListener("click", function () {
+      var problem = !saved.choice ? "Cliquez d’abord sur la réponse que vous retenez."
+        : why.value.trim().length < 20 ? "Développez un peu votre argument (une phrase suffit)." : "";
+      if (problem) {
+        setHint(problem, "bad");
+        cta.classList.remove("is-denied"); void cta.offsetWidth; cta.classList.add("is-denied");
+        return;
+      }
+      go(index + 1);
+    });
+    paint();
   });
 
   /* ---------- Voix off & sous-titres ---------- */
