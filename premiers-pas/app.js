@@ -741,7 +741,7 @@
     var s = st();
     var y = bodyEl.scrollTop;
     bodyEl.innerHTML = "";
-    var pv = h('<div class="pv' + (s.compact ? " is-compact" : "") + '"></div>'), side = pv;
+    var pv = h('<div class="pv' + (s.compact ? " is-compact" : "") + (s.cover ? " is-cover" : "") + '"></div>'), side = pv;
     if (s.portrait) {
       var hero = h('<div class="pv-hero"><img class="pv-hero-img" alt=""><div class="pv-hero-main"></div></div>');
       hero.firstChild.src = s.portrait[0];
@@ -1312,11 +1312,11 @@
   var HUNT = { nb: "Le nombre de personnes", budget: "Le budget", lieu: "Le lieu" };
   var HUNT_WHY = { raison: "C’est le contexte : il ne change pas les idées proposées.", date: "Utile pour le jour J, mais il ne change pas les idées proposées." };
   var ESSAIS = [
-    { k: "idees", icon: "bulb", title: "Trouver des idées", sub: "Un nom pour la fête des voisins",
+    { k: "idees", icon: "bulb", img: "fete.jpg", title: "Trouver des idées", sub: "Un nom pour la fête des voisins",
       tpl: ["Propose 5 noms pour la fête des voisins de notre rue. Ambiance : ", { k: "amb", label: "Ambiance", opts: ["familiale", "festive", "rétro", "chic"] }, "."] },
-    { k: "apprendre", icon: "eye", title: "Apprendre", sub: "Une ligne de votre fiche de paie",
+    { k: "apprendre", icon: "eye", img: "apprendre.jpg", title: "Apprendre", sub: "Une ligne de votre fiche de paie",
       tpl: ["Explique-moi simplement ce que veut dire « net imposable » sur une fiche de paie. Je suis ", { k: "niv", label: "Votre niveau", opts: ["débutant", "à l’aise avec les chiffres", "pressé : en 3 lignes"] }, "."] },
-    { k: "resumer", icon: "doc", title: "Résumer", sub: "Le compte rendu du conseil",
+    { k: "resumer", icon: "doc", img: "resumer.jpg", title: "Résumer", sub: "Le compte rendu du conseil",
       tpl: ["Résume en 3 points ce compte rendu, pour ", { k: "pub", label: "Pour qui ?", opts: ["mes voisins", "mon équipe", "un enfant de 10 ans"] }, " : « Le conseil a voté la rénovation du gymnase, avec des travaux de mars à juin. La cantine passera au bio deux jours par semaine. Une réunion publique aura lieu le 14 à 18 h. »"] }
   ];
   function isPotConv(c) { return c && c.kind === "pot"; }
@@ -1444,10 +1444,12 @@
 
     /* Où trouver Claude (illustration) ------------------------------------------ */
     {
-      id: "acces", seq: 0, pill: "Bon à savoir", icon: "eye", title: "Avec quoi utiliser l’IA ?",
+      id: "acces", seq: 0, pill: "Bon à savoir", icon: "eye", title: "Avec quoi utiliser l’IA ?", bare: true, cover: true,
       audio: "pp-acces", say: "L’IA s’utilise généralement de trois façons : dans le navigateur, sur le site web de l’IA, avec l’application pour ordinateur, sur Mac et Windows, ou avec l’application mobile, sur iOS et Android.",
       render: function (pv) {
-        lead(pv, "Une IA générative s’utilise partout : sur un site web, dans une application pour ordinateur, ou sur votre téléphone.");
+        var cov = h('<div class="cover"><img src="../assets/img/train.jpg" alt=""><div class="cover-in"><h2 class="cover-t">Avec quoi utiliser l’IA ?</h2></div></div>');
+        pv.appendChild(cov);
+        pv = cov.lastChild;
         pv.appendChild(h('<figure class="devices" aria-label="Une IA dans le navigateur, sur ordinateur et sur mobile">' +
           '<div class="dev dev-web"><div class="dv-bar"><i></i><i></i><i></i><span>https://…</span></div><div class="dv-screen">' + MINI + '</div><figcaption><b>Navigateur</b>Un site web</figcaption></div>' +
           '<div class="dev dev-laptop"><div class="dv-lid"><div class="dv-screen">' + MINI + '</div></div><div class="dv-base"></div><figcaption><b>Application ordinateur</b>Mac et Windows</figcaption></div>' +
@@ -1514,7 +1516,8 @@
         lead(pv, "Choisissez une situation. La demande apparaît à gauche : <b>cliquez sur la case orange</b> pour la compléter, puis envoyez.");
         var g = h('<div class="sit-grid"></div>');
         ESSAIS.forEach(function (e) {
-          var b = h('<button type="button" class="sit"><span class="ic"><svg><use href="#i-' + e.icon + '"/></svg></span><b></b><small></small></button>');
+          var b = h('<button type="button" class="sit sit-photo"><img alt=""><span class="sit-tx"><b></b><small></small></span></button>');
+          b.querySelector("img").src = "../assets/img/" + e.img;
           b.querySelector("b").textContent = e.title;
           b.querySelector("small").textContent = e.sub;
           if (a.pick === e.k) b.classList.add("is-on");
