@@ -2920,3 +2920,8 @@ html.is-flow, html.is-flow body { height: auto; overflow: auto; }
 .is-embed.is-flow .back { top: 8px; bottom: auto; left: 8px; height: 36px; padding: 0 12px 0 8px; font-size: 14px; box-shadow: none; background: rgba(255,255,255,.92); }
 .is-embed.is-flow .back svg { width: 18px; height: 18px; }
 .is-embed .menu-btn { display: none; }
+/* atelier : plus d'air, pas de bouton Retour, bouton d'action déplacé dans la barre de l'atelier */
+.is-embed .back, .is-embed .slide > .cta { display: none !important; }
+.is-embed.is-flow .slides { padding-top: 12px; }
+.is-embed.is-flow .slide .content { padding: 30px 36px 8px; }
+.is-embed.is-flow .slide > .sim, .is-embed.is-flow .slide > .end-actions { margin: 16px 36px; }

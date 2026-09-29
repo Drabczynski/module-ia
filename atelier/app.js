@@ -76,45 +76,49 @@
   var bigHost = document.createElement("div");
   bigHost.className = "big-orb";
   var bigOrb = SiriOrb(bigHost, { size: 176, label: "Assistant pédagogique" });
+  var bigSay = document.createElement("div");
+  bigSay.className = "orb-say";
+  bigSay.setAttribute("aria-live", "polite");
   var orb = {
     setState: function (st) { smallOrb.setState(st); bigOrb.setState(st); },
     setLevel: function (fn) { smallOrb.setLevel(fn); bigOrb.setLevel(fn); }
   };
   var speaking = false, typingTimer = null;
   function orbMood() {
-    if (speaking) return orb.setState("speaking");
+    if (speaking) return orb.setState("listening");      // l'orbe réagit à la voix (contour et bandes)
     if (busy) return orb.setState("thinking");
     if (typingTimer) return orb.setState("listening");
     orb.setState("idle");
   }
 
-  /* niveau sonore réel de la voix (seulement en http : en fichier local, le navigateur couperait le son) */
-  var actx = null, analyser = null, levelData = null;
-  function unlockAudio() {
-    if (actx || !/^https?:$/.test(location.protocol) || !window.AudioContext) return;
-    try {
-      actx = new AudioContext();
-      var src = actx.createMediaElementSource(audio);
-      analyser = actx.createAnalyser();
-      analyser.fftSize = 512;
-      analyser.smoothingTimeConstant = 0.7;
-      src.connect(analyser);
-      analyser.connect(actx.destination);
-      levelData = new Uint8Array(analyser.frequencyBinCount);
-    } catch (e) { actx = null; analyser = null; }
+  /* niveau de la voix calé sur l'enregistrement : enveloppe d'amplitude calculée à l'avance
+     (60 valeurs par seconde), lue à la position de lecture. Aucune dérivation du son : rien ne peut le couper. */
+  var ENV_RATE = 60, envelopes = {};
+  function loadEnvelope(id) {
+    if (envelopes[id] || !window.fetch || !(window.OfflineAudioContext || window.webkitOfflineAudioContext)) return;
+    envelopes[id] = "loading";
+    fetch("../assets/audio/" + id + ".mp3").then(function (r) { return r.arrayBuffer(); }).then(function (buf) {
+      var Ctx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+      return new Ctx(1, 2, 44100).decodeAudioData(buf);
+    }).then(function (audioBuf) {
+      var data = audioBuf.getChannelData(0), step = Math.floor(audioBuf.sampleRate / ENV_RATE), out = [];
+      for (var i = 0; i < data.length; i += step) {
+        var sum = 0, end = Math.min(data.length, i + step);
+        for (var k = i; k < end; k++) sum += data[k] * data[k];
+        out.push(Math.sqrt(sum / (end - i)));
+      }
+      var sorted = out.slice().sort(function (x, y) { return x - y; });
+      var ref = sorted[Math.floor(sorted.length * 0.95)] || 1;
+      envelopes[id] = out.map(function (v) { return Math.min(1, Math.pow(v / ref, 0.8)); });
+    }).catch(function () { envelopes[id] = null; });
   }
-  var smoothed = 0;
+  function unlockAudio() { /* conservé pour compatibilité : la lecture n'a plus besoin d'être dérivée */ }
   function voiceLevel() {
-    if (!analyser || audio.paused) return -1;
-    analyser.getByteFrequencyData(levelData);
-    var nyq = actx.sampleRate / 2, bins = levelData.length;
-    var lo = Math.max(1, Math.round(85 / nyq * bins)), hi = Math.max(lo + 1, Math.round(3800 / nyq * bins));
-    var sum = 0, peak = 0;
-    for (var i = lo; i < hi; i++) { sum += levelData[i]; if (levelData[i] > peak) peak = levelData[i]; }
-    var energy = 0.65 * (sum / (hi - lo) / 255) + 0.35 * (peak / 255);
-    var norm = Math.min(1, Math.max(0, (energy - 0.14) / 0.62));
-    smoothed += (norm - smoothed) * 0.15;
-    return smoothed;
+    var env = envelopes[audio.dataset.id];
+    if (audio.paused || !env || env === "loading") return -1;
+    var i = Math.floor(audio.currentTime * ENV_RATE);
+    var v = env[Math.min(env.length - 1, i)] || 0, w = env[Math.min(env.length - 1, i + 1)] || 0;
+    return Math.max(v, w) * 0.95;
   }
   orb.setLevel(voiceLevel);
 
@@ -129,30 +133,63 @@
   }
   if (window.speechSynthesis) speechSynthesis.onvoiceschanged = function () { voices = speechSynthesis.getVoices(); };
 
+  /* texte de la voix affiché mot à mot, au rythme de l'enregistrement */
+  function Streamer(el) {
+    var words = [], text = null, shown = 0;
+    return {
+      set: function (t) {
+        if (t === text) return;
+        text = t; words = []; shown = 0; el.innerHTML = "";
+        (t || "").split(/\s+/).filter(Boolean).forEach(function (w) {
+          var sp = document.createElement("span");
+          sp.className = "sw";
+          sp.textContent = w;
+          el.appendChild(sp);
+          el.appendChild(document.createTextNode(" "));
+          words.push(sp);
+        });
+        el.setAttribute("aria-label", t || "");
+      },
+      progress: function (p) {
+        var k = Math.min(words.length, Math.ceil(words.length * Math.max(0, p)));
+        for (; shown < k; shown++) words[shown].classList.add("on");
+      }
+    };
+  }
+  var capStream = Streamer(capEl), sayStream = Streamer(bigSay);
+  function sayText(text) { capStream.set(text); sayStream.set(text); }
+  function sayProgress(p) { capStream.progress(p); sayStream.progress(p); }
+  var sayTimer = null;
+  function saying(on) {
+    clearTimeout(sayTimer);
+    if (on) app.classList.add("is-saying");
+    else sayTimer = setTimeout(function () { app.classList.remove("is-saying"); }, 2600);
+  }
+  // texte complet, sans voix (son coupé ou voix indisponible)
   function caption(text, idle) {
     capEl.classList.toggle("is-idle", !!idle);
-    capEl.innerHTML = "";
-    // lettres animées, regroupées par mot pour que les retours à la ligne tombent entre les mots
-    var i = 0;
-    (text || "").split(/(\s+)/).forEach(function (part) {
-      if (!part) return;
-      if (/^\s+$/.test(part)) { capEl.appendChild(document.createTextNode(" ")); i++; return; }
-      var w = document.createElement("span");
-      w.className = "w";
-      Array.prototype.forEach.call(part, function (ch) {
-        var c = document.createElement("span");
-        c.className = "ch";
-        c.style.setProperty("--i", Math.min(i++, 90));
-        c.textContent = ch;
-        w.appendChild(c);
-      });
-      capEl.appendChild(w);
-    });
-    capEl.setAttribute("aria-label", text || "");
+    sayText(text);
+    sayProgress(1);
+  }
+
+  // boucle d'affichage pendant la lecture d'un enregistrement
+  var capRaf = 0;
+  function capLoop() {
+    capRaf = 0;
+    if (audio.paused) return;
+    var t = audio.currentTime, i = -1;
+    for (var k = 0; k < cues.length; k++) if (cues[k][0] <= t + 0.05) i = k;
+    if (i >= 0) {
+      var c = cues[i];
+      sayText(c[2]);
+      sayProgress(t >= c[1] ? 1 : (t - c[0]) / Math.max(0.4, c[1] - c[0]) * 1.12);
+    }
+    capRaf = requestAnimationFrame(capLoop);
   }
 
   var cues = [], cueIdx = -1, current = null;
   function stopVoice() {
+    saying(false);
     audio.pause();
     if (window.speechSynthesis) speechSynthesis.cancel();
     speaking = false;
@@ -161,7 +198,9 @@
   function ended() {
     speaking = false;
     orbMood();
-    caption(current ? current.text : "", true);
+    sayProgress(1);
+    saying(false);
+    capEl.classList.add("is-idle");
     post({ type: "voice-ended" });
   }
   function narrate(item) {
@@ -173,9 +212,12 @@
     var capts = (window.COURSE_CAPTIONS || {})[item.audio];
     if (item.audio && capts) {
       cues = capts;
+      capEl.classList.remove("is-idle");
+      sayText(""); saying(true);
       audio.src = "../assets/audio/" + item.audio + ".mp3";
+      audio.dataset.id = item.audio;
+      loadEnvelope(item.audio);
       audio.currentTime = 0;
-      caption(cues[0][2]);
       var p = audio.play();
       if (p && p.catch) p.catch(function () { blocked = true; caption(item.text, true); });
       return;
@@ -184,20 +226,26 @@
     if (!v) { caption(item.text, true); return; }
     var u = new SpeechSynthesisUtterance(item.text);
     u.voice = v; u.lang = v.lang; u.rate = 1.02;
-    u.onstart = function () { speaking = true; orbMood(); };
+    var t0 = 0, estRaf = 0;
+    u.onstart = function () {
+      speaking = true; orbMood(); t0 = performance.now();
+      (function est() {           // si le navigateur ne signale pas les mots, estimation au temps écoulé
+        if (!speaking) return;
+        sayProgress((performance.now() - t0) / (item.text.length * 62));
+        estRaf = requestAnimationFrame(est);
+      })();
+    };
+    u.onboundary = function (ev) { if (ev.name === "word" || ev.charIndex) sayProgress((ev.charIndex + (ev.charLength || 1)) / item.text.length); };
     u.onend = ended;
     u.onerror = function (ev) { if (ev && ev.error === "not-allowed") blocked = true; speaking = false; orbMood(); caption(item.text, true); };
-    caption(item.text);
+    capEl.classList.remove("is-idle");
+    sayText(item.text); saying(true);
     speechSynthesis.speak(u);
   }
-  audio.addEventListener("play", function () { speaking = true; orbMood(); if (actx && actx.state === "suspended") actx.resume(); });
+  audio.addEventListener("play", function () { speaking = true; orbMood(); if (!capRaf) capLoop(); });
   audio.addEventListener("pause", function () { if (!audio.ended) { speaking = false; orbMood(); } });
   audio.addEventListener("ended", ended);
-  audio.addEventListener("timeupdate", function () {
-    var t = audio.currentTime, i = -1;
-    for (var k = 0; k < cues.length; k++) if (cues[k][0] <= t) i = k;
-    if (i !== cueIdx && i >= 0) { cueIdx = i; caption(cues[i][2]); }
-  });
+
 
   $("[data-replay]").addEventListener("click", function () { narrate(current); });
   var soundBtn = $("[data-sound]");
@@ -231,7 +279,20 @@
       if (!text) toast("Aucun tableau dans la conversation. Envoyez d’abord votre demande à Claude.");
     }
     if (d.type === "open-claude") focusClaude();
+    if (d.type === "cta") paintNext(d);
   });
+
+  /* bouton d'action de l'écran, affiché dans la barre : il reprend le libellé et l'état du module */
+  var nextBtn = $("[data-next]");
+  function paintNext(d) {
+    nextBtn.hidden = !d.label;
+    if (!d.label) return;
+    $("[data-next-label]").textContent = d.label;
+    nextBtn.classList.toggle("is-success", !!d.success);
+    nextBtn.classList.toggle("is-ready", !!d.ready);
+    if (d.denied) { nextBtn.classList.remove("is-denied"); void nextBtn.offsetWidth; nextBtn.classList.add("is-denied"); }
+  }
+  nextBtn.addEventListener("click", function () { post({ type: "cta" }); });
 
   function onScreen(d) {
     screen = d.code;
@@ -345,6 +406,7 @@
     messagesEl.innerHTML = "";
     if (!c || !c.messages.length) {
       messagesEl.innerHTML = '<div class="empty-state"><h2>Comment puis-je vous aider ?</h2><p>Environnement de formation · dossiers fictifs uniquement</p></div>';
+      messagesEl.firstChild.insertBefore(bigSay, messagesEl.firstChild.firstChild);
       messagesEl.firstChild.insertBefore(bigHost, messagesEl.firstChild.firstChild);
     } else c.messages.forEach(function (m) { messagesEl.appendChild(msgNode(m)); });
     app.classList.toggle("has-big-orb", !c || !c.messages.length);

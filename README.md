@@ -69,12 +69,14 @@ Chaque écran règle la largeur du panneau photo via `--pw` ; la photo s'anime d
 - Première visite : l'introduction à faire défiler s'affiche en plein écran (`atelier/intro.html`), sans Claude.
 - Ensuite : Claude à gauche (simulation de l'interface, où l'apprenant écrit), la formation à droite dans un panneau
   étroit. Le panneau affiche le module d'origine (`index.html?embed=1`) en colonne, sans photo : mêmes écrans,
-  mêmes cartes, « relier » avec ses liens, quiz, bilan. Boutons d'action noirs en bas à droite, « Retour » en haut.
+  mêmes cartes, « relier » avec ses liens, quiz, bilan. Le bouton d'action de chaque écran (Valider, Continuer…)
+  est reporté dans la barre de l'assistant, en bas du panneau.
 - 3.08 : « Reprendre le tableau de Claude » importe le dernier tableau de la conversation dans la grille.
 - 3.04 : pastilles orange cliquables sur l'interface de Claude.
 - Assistant pédagogique en forme d'orbe (`atelier/orb.js`, WebGL, sphère laiteuse aux bandes pastel) : il lit la
-  consigne de chaque écran dès l'arrivée (MP3 pour 3.01 à 3.04, synthèse vocale du navigateur ailleurs), s'anime
-  avec la voix, écoute quand l'apprenant écrit, réfléchit pendant la réponse de Claude.
+  consigne de chaque écran dès l'arrivée (MP3 pour 3.01 à 3.04, synthèse vocale du navigateur ailleurs). Pendant la
+  voix, l'orbe passe à l'état « listening » et suit l'amplitude de l'enregistrement (enveloppe calculée à l'avance) ;
+  le texte s'affiche mot à mot sous la grande orbe, au rythme des sous-titres.
 - Largeur du panneau réglable : poignée entre Claude et la formation (glisser, flèches du clavier, double-clic pour
   revenir au réglage par défaut) ; la largeur est mémorisée.
 - Chaque ouverture repart de zéro : exercices vierges, reprise à l'écran 3.02 (le suivi de la version diapositives

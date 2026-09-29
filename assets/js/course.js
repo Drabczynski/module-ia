@@ -1518,6 +1518,8 @@
 
   /* ---------- Atelier : échanges avec la page parente ---------- */
 
+  function activeCta() { var sl = slides[index]; return sl ? sl.querySelector(":scope > .cta") : null; }
+
   if (EMBED) {
     window.addEventListener("message", function (e) {
       if (e.source !== window.parent || !e.data || e.data.src !== "atelier") return;
@@ -1528,8 +1530,24 @@
         if (cta) cta.classList.add("is-ready");
       }
       if (d.type === "go" && typeof d.index === "number") go(d.index);
+      // bouton « Continuer » de l'atelier : il actionne le bouton d'action de l'écran (Valider, Continuer…)
+      if (d.type === "cta") { var c = activeCta(); if (c) c.click(); }
       if (d.type === "prev") go(index - 1);
     });
+    // l'atelier affiche le bouton d'action dans sa barre : on lui transmet son libellé et son état
+    var ctaSent = "";
+    var reportCta = function () {
+      var c = activeCta();
+      var msg = { type: "cta", label: c ? c.textContent.replace(/\s+/g, " ").trim() : null,
+        success: !!c && c.classList.contains("is-success"), ready: !!c && c.classList.contains("is-ready"),
+        denied: !!c && c.classList.contains("is-denied") };
+      var key = JSON.stringify(msg);
+      if (key !== ctaSent) { ctaSent = key; tell(msg); }
+    };
+    var ctaRaf = 0;
+    new MutationObserver(function () { if (!ctaRaf) ctaRaf = requestAnimationFrame(function () { ctaRaf = 0; reportCta(); }); })
+      .observe(stage, { subtree: true, attributes: true, attributeFilter: ["class"], childList: true, characterData: true });
+
     // « Ouvrir Claude » : Claude est déjà ouvert à gauche
     stage.addEventListener("click", function (e) {
       var a = e.target.closest('a[href*="claude.ai"]');
