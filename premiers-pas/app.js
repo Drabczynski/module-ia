@@ -1,7 +1,7 @@
 /* ==========================================================================
    Module 1 · Première rencontre
-   Découvrir Claude, à quoi il sert, écrire son premier prompt, commencer simple.
-   Même moteur que l'atelier : Claude simulé à gauche, la formation à droite,
+   Découvrir l’IA générative, à quoi elle sert, écrire son premier prompt, commencer simple.
+   Même moteur que l’atelier : assistant d’IA simulé à gauche, la formation à droite,
    l'orbe lit chaque consigne (voix de synthèse en attendant les enregistrements).
    ========================================================================== */
 (function () {
@@ -438,7 +438,7 @@
     if (/net imposable/.test(t)) return "Le **net imposable**, c’est la part de votre salaire qui sert à calculer l’impôt sur le revenu.\n\nIl est un peu plus élevé que le **net à payer** (ce que vous recevez sur votre compte), car certaines sommes prélevées, comme une partie de la CSG et la CRDS, sont quand même comptées comme un revenu.\n\nEn bref : le net à payer, c’est ce que vous touchez ; le net imposable, c’est ce que l’administration fiscale prend en compte.";
     if (/r[ée]sum/.test(t)) return "En 3 points :\n\n1. **Gymnase** : la rénovation est votée, travaux de mars à juin.\n2. **Cantine** : repas bio deux jours par semaine.\n3. **Réunion publique** : le 14, à 18 h.";
     if (/^(bonjour|salut|hello|bonsoir|coucou|hey)\b/.test(t.trim()) || /qui es.?tu|présente.?toi|que sais.?tu|tu sais faire|tu peux faire/.test(t))
-      return "Bonjour ! Je suis Claude, un assistant d’intelligence artificielle conçu par Anthropic.\n\nVous pouvez m’écrire comme à une personne : me poser une question, me demander d’écrire un message, de résumer un texte, de trouver des idées ou de traduire.\n\nPar quoi voulez-vous commencer ?";
+      return "Bonjour ! Je suis un assistant d’intelligence artificielle.\n\nVous pouvez m’écrire comme à une personne : me poser une question, me demander d’écrire un message, de résumer un texte, de trouver des idées ou de traduire.\n\nPar quoi voulez-vous commencer ?";
     if (st() && st().id === "bonjour") return "Je comprends ! Je suis une intelligence artificielle : on peut discuter, me poser une question ou me demander un coup de main pour écrire.\n\nPour faire connaissance, dites-moi simplement bonjour, ou demandez-moi qui je suis.";
     return "Je vous lis ! Pour cet exercice, suivez la consigne affichée à droite : je vous répondrai au mieux.";
   }
@@ -515,7 +515,7 @@
     input.disabled = !on;
     sendBtn.disabled = !on || !!(tpl && !tplDone());
     claudeEl.classList.toggle("is-locked", !composeOn);
-    input.placeholder = composeOn ? "Répondre à Claude…" : "Le champ s’activera quand ce sera à vous d’écrire.";
+    input.placeholder = composeOn ? "Écrire à l’IA…" : "Le champ s’activera quand ce sera à vous d’écrire.";
   }
   function compose(on, tip) {
     composeOn = !!on;
@@ -1162,7 +1162,7 @@
         pv.appendChild(box);
         if (a.tries.length) {
           var ok = a.tries[a.tries.length - 1];
-          fb(pv, ok ? "ok" : "ko", ok ? okText : "<b>À reprendre :</b> gardez seulement ce que Claude ne pouvait pas deviner, et qui change vraiment la réponse.");
+          fb(pv, ok ? "ok" : "ko", ok ? okText : "<b>À reprendre :</b> gardez seulement ce que l’IA ne pouvait pas deviner, et qui change vraiment la réponse.");
         }
         if (a.done && !a.best) fb(pv, "", "<b>Correction :</b> " + items.filter(function (x) { return x[1]; }).map(function (x) { return esc(x[0]); }).join(" · "));
         triesLine(pv, a, 1);
@@ -1400,13 +1400,13 @@
       audio: "pp-bonjour", say: "À gauche, vous avez accès à l’IA. Le champ de saisie est maintenant actif. Écrivez-lui un premier message, par exemple : Bonjour, qui es-tu ? Puis envoyez-le !",
       render: function (pv) {
         var a = act("bonjour");
-        lead(pv, "L’IA est ouverte <b>à gauche</b> (ici, Claude). On lui écrit comme à une personne : avec des phrases normales, pas besoin de mots-clés.");
+        lead(pv, "L’IA est ouverte <b>à gauche</b>. On lui écrit comme à une personne : avec des phrases normales, pas besoin de mots-clés.");
         stepsList(pv, [
           { html: "Écrivez un premier message dans le champ de saisie, à gauche." },
           { html: "Envoyez-le : <b>flèche</b> ou touche <b>Entrée</b>." },
           { html: "Lisez sa réponse." }
         ], a.done ? 3 : a.sent ? 2 : a.typed ? 1 : 0);
-        if (!a.sent) suggestions(pv, "Pas d’idée ? Cliquez sur une suggestion :", ["Bonjour, qui es-tu ?", "Bonjour ! Que sais-tu faire ?", "Salut Claude, présente-toi en deux phrases."]);
+        if (!a.sent) suggestions(pv, "Pas d’idée ? Cliquez sur une suggestion :", ["Bonjour, qui es-tu ?", "Bonjour ! Que sais-tu faire ?", "Salut ! Présente-toi en deux phrases."]);
         if (a.retry) fbNew(pv, "ko", "<b>L’IA vous a répondu, mais ce n’est pas encore un premier contact.</b> Dites-lui bonjour, ou demandez-lui qui elle est.");
         if (a.done) fbNew(pv, "ok", "<b>Premier échange réussi.</b> L’IA répond à ce que vous lui écrivez, comme dans une conversation.");
       },
@@ -1447,8 +1447,8 @@
       id: "acces", seq: 0, pill: "Bon à savoir", icon: "eye", title: "Avec quoi utiliser l’IA ?",
       audio: "pp-acces", say: "L’IA s’utilise généralement de trois façons : dans le navigateur, sur le site web de l’IA, avec l’application pour ordinateur, sur Mac et Windows, ou avec l’application mobile, sur iOS et Android.",
       render: function (pv) {
-        lead(pv, "Une IA comme Claude s’utilise partout : sur un site web, dans une application pour ordinateur, ou sur votre téléphone.");
-        pv.appendChild(h('<figure class="devices" aria-label="Claude dans le navigateur, sur ordinateur et sur mobile">' +
+        lead(pv, "Une IA générative s’utilise partout : sur un site web, dans une application pour ordinateur, ou sur votre téléphone.");
+        pv.appendChild(h('<figure class="devices" aria-label="Une IA dans le navigateur, sur ordinateur et sur mobile">' +
           '<div class="dev dev-web"><div class="dv-bar"><i></i><i></i><i></i><span>https://…</span></div><div class="dv-screen">' + MINI + '</div><figcaption><b>Navigateur</b>Un site web</figcaption></div>' +
           '<div class="dev dev-laptop"><div class="dv-lid"><div class="dv-screen">' + MINI + '</div></div><div class="dv-base"></div><figcaption><b>Application ordinateur</b>Mac et Windows</figcaption></div>' +
           '<div class="dev dev-phone"><div class="dv-screen">' + MINI + '</div><figcaption><b>Application mobile</b>iOS et Android</figcaption></div>' +
@@ -1559,7 +1559,7 @@
         var phase = a.done ? 2 : a.open === "pot" ? 1 : 0;
         pv.appendChild(h('<p class="pv-task"></p>')).innerHTML = phase === 0 ? (a.wrong ? "Pas celui-là : ouvrez le mail du <b>pot de départ</b>." : "Ouvrez le mail du <b>pot de départ</b>.") : phase === 1 ? "À gauche, demandez <b>des idées pour ce pot</b>, en une phrase." : "L’IA a répondu. Ses idées sont-elles adaptées ?";
         mailApp(pv, phase === 0 ? "open" : "show");
-        if (a.off) fb(pv, "ko", "Parlez à Claude du <b>pot de départ</b> : c’est notre situation.");
+        if (a.off) fb(pv, "ko", "Parlez à l’IA du <b>pot de départ</b> : c’est notre situation.");
         if (a.long) fb(pv, "", "Votre demande est déjà détaillée : très bien ! On va quand même voir ce que donne une demande courte.");
       },
       ready: function () { return !!act("mail").done; },
@@ -1601,7 +1601,7 @@
         var a = act("manque");
         a.found = a.found || {};
         var n = Object.keys(HUNT).filter(function (k) { return a.found[k]; }).length;
-        pv.appendChild(h('<p class="pv-task"></p>')).innerHTML = a.done ? "<b>✓ Bien vu :</b> Claude ne pouvait pas deviner ces 3 informations." : "Dans le mail, cliquez sur les <b>3 infos à ajouter à votre demande</b>. <span class='pv-count'>" + n + " / 3</span>";
+        pv.appendChild(h('<p class="pv-task"></p>')).innerHTML = a.done ? "<b>✓ Bien vu :</b> l’IA ne pouvait pas deviner ces 3 informations." : "Dans le mail, cliquez sur les <b>3 infos à ajouter à votre demande</b>. <span class='pv-count'>" + n + " / 3</span>";
         mailApp(pv, "hunt");
         if (a.why && !a.done) fb(pv, "ko", esc(a.why));
       },
@@ -1696,9 +1696,9 @@
           { html: "<b>Copiez le mot</b> de Diogo, <b>collez-le</b> dans le champ de saisie (Ctrl + V), et <b>demandez-lui de le traduire</b>." },
           { html: "Envoyez, puis lisez la traduction." }
         ], phase);
-        if (a.noNote) fb(pv, "ko", "Claude n’a pas le mot de Diogo : <b>collez-le</b> dans votre message.");
-        else if (a.vague) fb(pv, "ko", "Claude ne sait pas quoi faire du mot : dites-lui de le <b>traduire en français</b>.");
-        if (a.done) fb(pv, "ok", "<b>Réussi :</b> un sujet, une conversation. Vos échanges restent faciles à retrouver, et Claude ne mélange pas les sujets.");
+        if (a.noNote) fb(pv, "ko", "L’IA n’a pas le mot de Diogo : <b>collez-le</b> dans votre message.");
+        else if (a.vague) fb(pv, "ko", "L’IA ne sait pas quoi faire du mot : dites-lui de le <b>traduire en français</b>.");
+        if (a.done) fb(pv, "ok", "<b>Réussi :</b> un sujet, une conversation. Vos échanges restent faciles à retrouver, et l’IA ne mélange pas les sujets.");
       },
       ready: function () { return !!act("voisin").done; },
       enter: function () {
@@ -1794,7 +1794,7 @@
         P.validated = ok;
         var C = 2 * Math.PI * 74;
         var res = h('<div class="res"><div class="res-top"><div class="res-ring' + (ok ? " is-ok" : "") + '"><svg viewBox="0 0 168 168"><circle class="bg" cx="84" cy="84" r="74"/><circle class="fg" cx="84" cy="84" r="74"/></svg><div class="res-num"><span><b>0</b><small>sur ' + MAX + '</small></span></div></div>' +
-          '<div class="res-msg"><span class="res-badge ' + (ok ? "ok" : "ko") + '">' + (ok ? "✓ Module validé" : "Seuil de validation : 70 %") + "</span><h2>" + (ok ? "Belle première rencontre !" : "Encore un petit effort") + "</h2><p>" + (ok ? "Vous savez écrire à Claude, commencer simple, puis préciser." : "Revoyez les activités indiquées, puis revenez ici.") + '</p></div></div><ul class="res-list"></ul></div>');
+          '<div class="res-msg"><span class="res-badge ' + (ok ? "ok" : "ko") + '">' + (ok ? "✓ Module validé" : "Seuil de validation : 70 %") + "</span><h2>" + (ok ? "Belle première rencontre !" : "Encore un petit effort") + "</h2><p>" + (ok ? "Vous savez écrire à une IA, commencer simple, puis préciser." : "Revoyez les activités indiquées, puis revenez ici.") + '</p></div></div><ul class="res-list"></ul></div>');
         var fg = res.querySelector(".fg");
         fg.style.strokeDasharray = C;
         fg.style.strokeDashoffset = C;
@@ -1821,10 +1821,10 @@
     /* Fiche -------------------------------------------------------------------------- */
     {
       id: "fiche", seq: 4, pill: "À garder", icon: "check", title: "Mes premiers réflexes", full: true,
-      say: "Voici vos quatre premiers réflexes. Gardez cette fiche : elle vous servira dès votre prochaine conversation avec Claude.",
+      say: "Voici vos quatre premiers réflexes. Gardez cette fiche : elle vous servira dès votre prochaine conversation avec une IA.",
       render: function (pv) {
         var a = act("fiche");
-        pv.appendChild(h('<div class="pv-card pv-sheet"><ol><li><i>1</i>Commencer simple : une phrase suffit pour démarrer.</li><li><i>2</i>Donner ce que Claude ne peut pas deviner : budget, nombre, lieu, âge, durée…</li><li><i>3</i>Relancer dans la même conversation pour affiner.</li><li><i>4</i>Un nouveau sujet, une nouvelle conversation.</li></ol></div>'));
+        pv.appendChild(h('<div class="pv-card pv-sheet"><ol><li><i>1</i>Commencer simple : une phrase suffit pour démarrer.</li><li><i>2</i>Donner ce que l’IA ne peut pas deviner : budget, nombre, lieu, âge, durée…</li><li><i>3</i>Relancer dans la même conversation pour affiner.</li><li><i>4</i>Un nouveau sujet, une nouvelle conversation.</li></ol></div>'));
         var p = h("<p></p>");
         p.appendChild(button(a.saved ? "Fiche enregistrée" : "Enregistrer la fiche", "check", function () { a.saved = true; refresh(); }));
         pv.appendChild(p);
@@ -1909,11 +1909,11 @@
     mode = m;
     if (forced) { S.forceSim = m === "sim"; save(); }
     modeBtn.dataset.state = m;
-    modeBtn.textContent = m === "live" ? "Claude connecté" : "Mode simulé";
-    modeBtn.title = m === "live" ? "Cliquer pour passer en simulation" : "Cliquer pour tenter la connexion à Claude";
+    modeBtn.textContent = m === "live" ? "IA connectée" : "Mode simulé";
+    modeBtn.title = m === "live" ? "Cliquer pour passer en simulation" : "Cliquer pour tenter la connexion à l’IA";
     $("[data-work-note]").textContent = m === "live"
-      ? "Interface simulée pour la formation. Réponses générées par Claude : vérifiez toujours les faits."
-      : "Interface et réponses simulées pour la formation. Ce n’est pas l’interface réelle de Claude.";
+      ? "Interface simulée pour la formation. Réponses générées par une IA : vérifiez toujours les faits."
+      : "Interface et réponses simulées pour la formation. Ce n’est pas l’interface réelle d’un outil d’IA.";
   }
   function probe() {
     if (!API || S.forceSim) { setMode("sim"); return; }
@@ -2015,26 +2015,38 @@
 
   /* ---------- Le parcours : douze modules, du premier contact à l'usage autonome ---------- */
 
+  // [titre, description, en cours, contenu à apprendre]
   var PARCOURS = [
     ["Démarrer", [
-      ["Première rencontre", "Découvrir l’IA, écrire un premier prompt, commencer simple.", true],
-      ["Bien formuler sa demande", "Le contexte, l’objectif et le format attendu."],
-      ["Dialoguer pour affiner", "Relancer, corriger, reprendre une conversation."]
+      ["Première rencontre", "Découvrir l’IA, écrire un premier prompt, commencer simple.", true]
     ]],
-    ["Produire au quotidien", [
-      ["Le mail mécontent", "Répondre avec le bon ton, sans rien promettre."],
-      ["Résumer sans trahir", "Un long document réduit à l’essentiel, puis vérifié."],
-      ["La tempête d’idées", "Trouver des idées, puis les trier."],
-      ["Traduire et adapter", "Une autre langue, un autre public."]
+    ["Rédiger des prompts", [
+      ["La structure d’un prompt", "Rôle, cible, objectif, contexte, format."],
+      ["Des prompts pour les images", "Décrire un visuel pour un post ou un rapport."]
     ]],
-    ["Utiliser en confiance", [
-      ["Vérifier ce que dit l’IA", "Repérer une erreur ou une invention, recouper."],
-      ["Ce qu’on ne partage pas", "Données personnelles et informations confidentielles."]
+    ["Améliorer les contenus", [
+      ["Dialoguer pour affiner", "Enrichir le contexte, corriger sans recommencer."],
+      ["Optimiser un contenu existant", "Réécrire selon un ton, un format, une contrainte."]
     ]],
-    ["Aller plus loin", [
-      ["Fichiers et images", "Joindre un document, lire un graphique ou une photo."],
-      ["Organiser et planifier", "Listes, plannings et tableaux avec l’IA."],
-      ["Apprendre avec l’IA", "Se faire expliquer une notion, puis s’entraîner."]
+    ["Protéger les données", [
+      ["Ce qu’on ne partage pas", "Repérer les données sensibles, anonymiser un prompt."]
+    ]],
+    ["Des contenus pour tous", [
+      ["Écrire pour tous", "Un texte clair et structuré pour un handicap cognitif."],
+      ["Images, audio, vidéo accessibles", "Texte alternatif, transcription, sous-titres.", false, true]
+    ]],
+    ["Le cadre légal", [
+      ["RGPD et IA Act : l’essentiel", "Les règles utiles au poste de travail.", false, true],
+      ["Biais et risques", "Analyser un cas, proposer des corrections."],
+      ["Tenir sa veille réglementaire", "Sources officielles, dernière version des textes.", false, true]
+    ]],
+    ["Intégrer l’IA à son poste", [
+      ["Cartographier son poste", "Repérer les tâches que l’IA peut optimiser."],
+      ["Choisir ses outils", "Comparer les outils, estimer un budget.", false, true],
+      ["Son plan d’intégration", "Rédiger la stratégie, sans oublier le handicap."]
+    ]],
+    ["Se préparer", [
+      ["Préparer la certification", "Des entraînements au format des six mises en situation."]
     ]]
   ];
   (function buildMenu() {
@@ -2047,6 +2059,7 @@
         var li = h('<li class="mm-mod"><span class="mm-n"></span><span class="mm-tx"><b></b><small></small></span><em></em></li>');
         li.querySelector(".mm-n").textContent = String(n).padStart(2, "0");
         li.querySelector("b").textContent = m[0];
+        if (m[3]) li.querySelector("b").appendChild(h('<sup class="mm-star" title="Module avec du contenu à apprendre">*</sup>'));
         li.querySelector("small").textContent = m[1];
         li.querySelector("em").textContent = m[2] ? "En cours" : "Bientôt";
         if (m[2]) { li.classList.add("is-on"); li.tabIndex = 0; li.onclick = closeMenu; }
@@ -2054,6 +2067,7 @@
       });
       list.appendChild(sec);
     });
+    list.appendChild(h('<p class="mm-note"><sup class="mm-star">*</sup> Module avec du contenu à apprendre.</p>'));
   })();
   var menuEl = $("[data-menu]");
   function openMenu() { menuEl.hidden = false; requestAnimationFrame(function () { menuEl.classList.add("is-on"); }); }

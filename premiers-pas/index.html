@@ -71,13 +71,13 @@
   </header>
 
   <div class="tabs" role="tablist">
-    <button type="button" role="tab" data-tab="claude" aria-selected="false">Claude <span class="tab-dot" data-tab-dot hidden></span></button>
+    <button type="button" role="tab" data-tab="claude" aria-selected="false">IA <span class="tab-dot" data-tab-dot hidden></span></button>
     <button type="button" role="tab" data-tab="story" aria-selected="true">Formation</button>
   </div>
 
   <div class="split" data-shell>
     <!-- Claude (simulation de l'interface) -->
-    <section class="claude" data-panel="claude" aria-label="Claude, simulation pédagogique">
+    <section class="claude" data-panel="claude" aria-label="Assistant d’IA, simulation pédagogique">
       <nav class="side" data-side aria-label="Conversations">
         <button type="button" class="side-new" data-side-new><svg><use href="#i-plus"/></svg>Nouvelle conversation</button>
         <p class="side-h">Récents</p>
@@ -87,10 +87,10 @@
         <div class="messages" data-messages aria-live="polite"></div>
         <form class="composer" data-composer data-fn="input">
           <div class="attach-chip" data-attach-chip hidden><svg><use href="#i-doc"/></svg><span>document-fictif.pdf</span><button type="button" data-attach-remove aria-label="Retirer le fichier"><svg><use href="#i-x"/></svg></button></div>
-          <textarea data-input data-fn="slash" rows="1" placeholder="Répondre à Claude…" aria-label="Votre message à Claude"></textarea>
+          <textarea data-input data-fn="slash" rows="1" placeholder="Écrire à l’IA…" aria-label="Votre message à l’IA"></textarea>
           <div class="composer-foot">
             <button type="button" class="c-icon" data-attach data-fn="attach" aria-label="Ajouter un fichier"><svg><use href="#i-plus"/></svg></button>
-            <span class="c-model">Claude</span>
+            <span class="c-model">Assistant IA</span>
             <span class="send-wrap" data-fn="send"><button type="submit" class="send" aria-label="Envoyer"><svg><use href="#i-up"/></svg></button></span>
           </div>
         </form>
@@ -131,7 +131,7 @@
 <div class="mm" data-menu hidden>
   <div class="mm-back" data-menu-close></div>
   <aside class="mm-panel" role="dialog" aria-label="Les modules du parcours">
-    <div class="mm-head"><div><b>Le parcours</b><span>12 modules · environ 15 minutes chacun</span></div><button type="button" class="mm-x" data-menu-close aria-label="Fermer"><svg><use href="#i-x"/></svg></button></div>
+    <div class="mm-head"><div><b>Le parcours</b><span>Certification « Utiliser l’IA générative » · 15 modules</span></div><button type="button" class="mm-x" data-menu-close aria-label="Fermer"><svg><use href="#i-x"/></svg></button></div>
     <div class="mm-list" data-menu-list></div>
   </aside>
 </div>
