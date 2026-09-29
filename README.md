@@ -80,6 +80,20 @@ Claude à gauche (simulation de l'interface), la formation à droite, **pas à p
   (`assets/audio/mots.js`), état « listening » pendant la voix ; elle glisse vers la barre du panneau quand la
   conversation commence. Panneau redimensionnable, boutons Retour et Continuer dans la barre du bas. Chaque ouverture repart de zéro.
 
+## Module 1 · Première rencontre (`premiers-pas/`)
+
+Nouveau parcours court, sur un seul thème : découvrir Claude, à quoi il sert, écrire son premier prompt, commencer simple.
+Contenu tiré des articles d'aide Claude « Get started with Claude » et « What are some things I can use Claude for? ».
+Storyboard : `premiers-pas/STORYBOARD.md`.
+
+- Même moteur que l'atelier (Claude simulé à gauche, formation à droite, orbe, pas à pas), situations fictives de la vie courante :
+  pot de départ, mot d'un voisin en portugais, exposé scolaire.
+- Activités variées : écrire dans Claude, cartes à glisser (vrai/faux), glisser-déposer, relier, classer dans l'ordre,
+  étiquettes à cocher, boîte mail simulée, choisir entre deux réponses, pastilles sur l'interface, défi final.
+- Barème : 18 points, seuil 70 %. Bilan et fiche en plein écran, bouton Quitter (SCORM si présent).
+- Voix de synthèse du navigateur en attendant les enregistrements ; l'accueil démarre au clic sur « Commencer ».
+- Fonction `api/chat.ts`, identifiant `premiers-pas` ; mode simulé automatique sans clé.
+
 ## Découvrir Claude (`decouvrir/`)
 
 Module autonome de découverte : une journée fictive chez Lumen, six missions et un bilan.
