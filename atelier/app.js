@@ -613,12 +613,19 @@
     var s = st();
     var y = bodyEl.scrollTop;
     bodyEl.innerHTML = "";
-    var pv = h('<div class="pv"></div>');
-    pv.appendChild(h('<p class="pv-seq">Séquence ' + (s.seq + 1) + "<i></i>" + esc(SEQS[s.seq]) + "</p>"));
-    if (s.pill) pv.appendChild(h('<span class="pv-pill"><svg><use href="#i-' + (s.icon || "clock") + '"/></svg>' + esc(s.pill) + "</span>"));
-    pv.appendChild(h('<h1 class="pv-h1">' + esc(s.title) + "</h1>"));
-    pv.appendChild(h('<span class="pv-rule"></span>'));
-    s.render(pv);
+    var pv = h('<div class="pv"></div>'), side = pv;
+    if (s.portrait) {
+      var hero = h('<div class="pv-hero"><img class="pv-hero-img" alt=""><div class="pv-hero-main"></div></div>');
+      hero.firstChild.src = s.portrait[0];
+      hero.firstChild.alt = s.portrait[1];
+      pv.appendChild(hero);
+      side = hero.lastChild;
+    }
+    side.appendChild(h('<p class="pv-seq">Séquence ' + (s.seq + 1) + "<i></i>" + esc(SEQS[s.seq]) + "</p>"));
+    if (s.pill) side.appendChild(h('<span class="pv-pill"><svg><use href="#i-' + (s.icon || "clock") + '"/></svg>' + esc(s.pill) + "</span>"));
+    side.appendChild(h('<h1 class="pv-h1">' + esc(s.title) + "</h1>"));
+    side.appendChild(h('<span class="pv-rule"></span>'));
+    s.render(pv, side);
     if (!fresh) Array.prototype.forEach.call(pv.children, function (c) { c.style.animation = "none"; });
     bodyEl.appendChild(pv);
     bodyEl.scrollTop = fresh ? 0 : y;
@@ -722,7 +729,7 @@
   var STEPS = [
     /* 3.02 · Claude est ici --------------------------------------------------- */
     {
-      id: "claude", seq: 0, pill: "Premier contact", icon: "hand", title: "Voici Claude",
+      id: "claude", seq: 0, pill: "Premier contact", icon: "hand", title: "Voici Claude", audio: "sequence-1",
       say: "Claude est ouvert à gauche. C’est là que vous écrirez vos demandes. De mon côté, je vous guide étape par étape, et le champ de Claude s’active quand c’est à vous d’écrire.",
       render: function (pv) {
         lead(pv, "Claude est ouvert <b>à gauche</b>. Pendant tout le module, c’est là que vous écrirez vos demandes, et qu’il vous répondra.");
@@ -736,12 +743,13 @@
     /* 3.03 · La tâche de Léa -------------------------------------------------- */
     {
       id: "lea", seq: 0, pill: "La situation", icon: "eye", title: "La nouvelle tâche de Léa", audio: "ecran-03",
+      portrait: ["../assets/img/lea-portrait.jpg", "Léa, qui sort du point d’équipe"],
       say: "Voici Léa. Elle sort d’un point d’équipe. Cliquez sur les deux noms, puis sur les deux échéances.",
-      render: function (pv) {
+      render: function (pv, side) {
         var a = act("lea");
         a.found = a.found || [];
         var phase = ["nora", "sami"].every(function (k) { return a.found.indexOf(k) >= 0; }) ? (["d5", "d6"].every(function (k) { return a.found.indexOf(k) >= 0; }) ? "done" : "dates") : "names";
-        pv.appendChild(h('<div class="pv-lea"><img src="../assets/img/lea-portrait.jpg" alt="Léa"><p><small>Léa</small>Elle sort du point d’équipe avec quelques notes. Elle veut savoir <b>qui fait quoi, et pour quand</b>.</p></div>'));
+        side.appendChild(h('<p class="pv-lead">Léa sort du point d’équipe avec quelques notes. Elle veut savoir <b>qui fait quoi, et pour quand</b>.</p>'));
         var nb = h('<div class="pv-nb"><p>Point équipe du <span data-k="d3">3 novembre</span>.</p><p><span data-k="nora">Nora</span> prépare l’affiche pour le <span data-k="d5">5 novembre</span>.</p><p><span data-k="sami">Sami</span> vérifie le stock pour le <span data-k="d6">6 novembre</span>.</p><p>Le lieu de la prochaine rencontre <span data-k="lieu">reste à confirmer.</span></p></div>');
         $$("[data-k]", nb).forEach(function (sp) {
           var k = sp.dataset.k;
@@ -760,7 +768,7 @@
           };
           sp.replaceWith(b);
         });
-        pv.appendChild(nb);
+        side.appendChild(nb);
         var has = function (k) { return a.found.indexOf(k) >= 0; };
         var cell = function (k, v) { return has(k) ? '<div class="pop">' + v + "</div>" : '<div class="empty"></div>'; };
         pv.appendChild(h('<div class="pv-grid"><div class="th">Action</div><div class="th">Responsable</div><div class="th">Échéance</div>' +
@@ -813,7 +821,7 @@
 
     /* 3.05 · Associer les commandes (4 points) --------------------------------- */
     {
-      id: "associer", seq: 1, pill: "À vous de jouer · 4 points", icon: "clock", title: "Associer les commandes",
+      id: "associer", seq: 1, pill: "À vous de jouer · 4 points", icon: "clock", title: "Associer les commandes", audio: "associer",
       say: "Associez chaque besoin à sa fonction dans Claude. Sélectionnez un besoin, puis sa fonction.",
       render: function (pv) { renderMatch(pv); },
       primary: function () { return matchPrimary(); }

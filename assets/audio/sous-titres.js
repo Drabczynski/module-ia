@@ -27,5 +27,15 @@ window.COURSE_CAPTIONS = {
     [0.08, 4.46, "Avant d’écrire votre première demande, repérons les éléments essentiels de l’écran."],
     [5.2, 10.02, "Il y en a quatre. Cliquez sur chaque pastille orange pour découvrir à quoi il sert."],
     [11, 13.94, "Quand vous les aurez tous explorés, cliquez sur « Continuer »."]
+  ],
+  "sequence-1": [
+    [0.16, 1.2, "Claude est ouvert à gauche."],
+    [1.94, 3.56, "C’est là que vous écrirez vos demandes."],
+    [4.62, 6.74, "De mon côté, je vous guide étape par étape,"],
+    [7.27, 9.49, "et le champ de Claude s’active quand c’est à vous d’écrire."]
+  ],
+  "associer": [
+    [0.06, 2.69, "Associez chaque besoin à sa fonction dans Claude."],
+    [3.92, 6.08, "Sélectionnez un besoin, puis sa fonction."]
   ]
 };
