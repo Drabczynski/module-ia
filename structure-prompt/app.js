@@ -416,7 +416,10 @@
     if (/offre d.emploi|recrut|candidat/.test(all)) {
       var structured = /tu es|en tant que/.test(all) && /lyon|cdi|télétravail|24/.test(all);
       if (!structured) return OFFRE_VAGUE;
-      return offre(/3 mars|mars|prise de poste|démarr|début/.test(all)) + (/3 mars|mars|prise de poste|démarr|début/.test(t) && users.length > 1 ? "\n\nJ’ai ajouté la date de prise de poste." : "");
+      // la date n'apparaît que si elle est donnée après le premier prompt (le contexte proposé ne la contient pas)
+      var later = users.slice(1).map(function (m) { return m.content; }).join("\n").toLowerCase();
+      var dated = /\b\d{1,2}\s*mars\b|prise de poste|date d.arrivée|date de début/.test(later) || /\b\d{1,2}\s*mars\b/.test((users[0] || {}).content || "");
+      return offre(dated) + (dated && users.length > 1 && /mars|prise de poste|date/.test(t) ? "\n\nJ’ai ajouté la date de prise de poste." : "");
     }
     if (/24 décembre|fermeture|fermé/.test(all)) {
       var b = bricksIn(all), n = BRICKS.filter(function (x) { return b[x.k]; }).length;
