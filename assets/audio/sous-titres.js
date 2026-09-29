@@ -205,10 +205,6 @@ window.COURSE_CAPTIONS = {
     [0.05, 1.98, "Voici un prompt découpé en morceaux."],
     [2.48, 5.1, "Reliez chaque morceau à la brique qui lui correspond."]
   ],
-  "module-2/manque": [
-    [0.08, 2.98, "Chacun de ces trois prompts a oublié une des cinq briques."],
-    [3.73, 6.1, "Pour chaque prompt, cliquez sur la brique oubliée."]
-  ],
   "module-2/construire": [
     [0.06, 1.36, "Voici le message de Sophie."],
     [1.92, 5.16, "À gauche, le prompt est prêt en cinq cases, une par brique."],
@@ -239,5 +235,9 @@ window.COURSE_CAPTIONS = {
     [0.08, 1.97, "Voici votre structure en cinq briques."],
     [2.54, 3.4, "Gardez-la sous la main :"],
     [3.78, 5.62, "elle vous servira pour tous vos prompts."]
+  ],
+  "module-2/manque": [
+    [0.07, 2.06, "Chaque prompt a oublié une brique."],
+    [2.53, 2.99, "Laquelle ?"]
   ]
 };

@@ -1426,8 +1426,8 @@
 
     /* 5 · Quelle brique manque ? ------------------------------------------------------- */
     extend({
-      id: "manque", seq: 1, title: "La brique oubliée",
-      say: "Chacun de ces deux prompts a oublié une brique. Laquelle ?"
+      id: "manque", seq: 1, title: "La brique oubliée", audio: "module-2/manque",
+      say: "Chaque prompt a oublié une brique. Laquelle ?"
     }, whichMissing("manque", [
       ["Rédige une publication pour les abonnés de notre boulangerie, afin d’annoncer la nouvelle galette. En 3 phrases, ton gourmand.", "role", "Qui écrit ? Un community manager, par exemple."],
       ["Tu es juriste. Résume ce contrat en 5 points clairs, pour un nouveau salarié.", "ctx", "Le contrat n’est pas donné : rien à résumer."]

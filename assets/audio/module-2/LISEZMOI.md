@@ -1,7 +1,7 @@
 # Module 2 · La structure d’un prompt : voix à enregistrer
 
 Déposez chaque enregistrement dans ce dossier (`assets/audio/module-2/`), avec le nom indiqué.
-Les enregistrements sont en place et synchronisés au mot près. **À refaire : `manque.mp3`** (l’étape n’a plus que deux prompts). Nouveau texte : « Chacun de ces deux prompts a oublié une brique. Laquelle ? »
+Les enregistrements sont en place et synchronisés au mot près.
 
 ## 1. Accueil
 Fichier : `bienvenue.mp3`
@@ -36,7 +36,7 @@ Fichier : `relier.mp3`
 ## 7. La brique oubliée
 Fichier : `manque.mp3`
 
-> Chacun de ces trois prompts a oublié une des cinq briques. Pour chaque prompt, cliquez sur la brique oubliée.
+> Chaque prompt a oublié une brique. Laquelle ?
 
 ## 8. Construire le prompt
 Fichier : `construire.mp3`
