@@ -1,124 +1,107 @@
-# Module 1 · Premiers pas avec Claude
+# Module 1 · Première rencontre
 
-Nouveau parcours, indépendant du découpage précédent (l'atelier existant reste intact).
-Source : article d'aide Claude « Get started with Claude » (support.claude.com).
-Même logique que l'atelier : Claude simulé à gauche, panneau « Tâches en arrière-plan » à droite, orbe qui parle, étapes pas à pas.
-Données fictives. Toute l'interface est une « Simulation pédagogique ».
-
-**Fil rouge :** Sofia, responsable de l'accueil d'une médiathèque municipale.
-Ce matin, trois choses l'attendent : un mail de lecteur mécontent, l'affiche de l'atelier de samedi et un message en espagnol.
+**Thème unique :** découvrir Claude, à quoi il sert, écrire son premier prompt, commencer simple.
+**Durée visée :** 12 à 15 minutes. 5 séquences, 15 étapes.
+**Sources :** articles d'aide Claude « Get started with Claude » et « What are some things I can use Claude for? ».
+**Format :** même logique que l'atelier. Claude simulé à gauche, panneau « Tâches en arrière-plan » à droite, orbe qui parle, étapes pas à pas. Données fictives, « Simulation pédagogique ».
+**Ton :** situations de la vie de tous les jours, jamais de théorie seule. Chaque notion est vécue avant d'être nommée.
 
 ---
 
-## Séquence 0 · Accueil
+## Séquence 1 · Faire connaissance
 
-**0.1 · Bienvenue**
-L'orbe, au centre de Claude, souhaite la bienvenue et annonce la journée de Sofia.
-→ *Action : cliquer sur « Commencer » (lance la voix), puis écouter.*
+**1.1 · Bienvenue**
+L'orbe, au centre de Claude, se présente et annonce le programme : rencontrer Claude et lui écrire un premier message.
+→ *Action : cliquer sur « Commencer », puis écouter. Le panneau apparaît à la fin.*
 
-**0.2 · La matinée de Sofia**
-Le panneau affiche la boîte mail de Sofia (simulée), avec trois messages non lus et un portrait de Sofia.
-→ *Action : écouter, puis cliquer sur « Continuer ».*
+**1.2 · Dire bonjour**
+Premier contact, sans consigne technique. Le champ de Claude s'active pour la première fois.
+→ *Action : écrire un premier message libre (ex. « Bonjour, qui es-tu ? ») et l'envoyer. Claude se présente.*
 
-## Séquence 1 · Trouver et ouvrir Claude
+**1.3 · Vrai ou faux ?**
+Trois idées reçues à trancher : « Claude connaît mon entreprise » (faux, il ne sait que ce qu'on lui donne) ; « On lui écrit comme à une personne » (vrai) ; « Sa réponse est toujours juste » (faux, on vérifie).
+→ *Action : cliquer sur Vrai ou Faux pour chaque carte. Chaque clic affiche une explication d'une ligne.*
 
-**1.1 · Où utiliser Claude**
-Il y a trois accès : le navigateur (claude.ai), l'application ordinateur (Mac, Windows) et l'application mobile (iOS, Android). Il faut avoir 18 ans et être dans une région prise en charge.
-→ *Action : Sofia est dans le bus avec son téléphone. Cliquer sur la bonne carte (mobile). Deux essais.*
+**1.4 · Où le trouver**
+Il y a trois accès : navigateur (claude.ai), application ordinateur et application mobile. Il faut avoir 18 ans et être dans une région prise en charge.
+→ *Action : trois situations (« au bureau », « dans le train », « sur le PC de la maison »). Cliquer sur le bon accès pour chacune.*
 
-**1.2 · Les repères de l'écran**
-Le panneau se replie. Des pastilles orange apparaissent sur Claude : zone de saisie, bouton Envoyer, bouton « + », nouvelle conversation et historique.
+## Séquence 2 · À quoi ça sert ?
+
+**2.1 · Sept usages, sept situations**
+Le panneau montre les usages cités par l'aide Claude : écrire, apprendre, résumer, trouver des idées, traduire, lire une image, programmer.
+→ *Action : relier 5 situations réelles à leur usage (4 points). Les situations sont décrites juste en dessous.*
+
+- « Un voisin vous laisse un mot en portugais » → traduire
+- « Le compte rendu du conseil fait 12 pages » → résumer
+- « Trouver un nom pour la fête des voisins » → idées
+- « Comprendre une ligne de votre fiche de paie » → apprendre
+- « La photo du graphique de consommation d'électricité » → lire une image
+
+**2.2 · Essayer pour de vrai**
+On passe de la théorie au geste : l'apprenant choisit une des situations.
+→ *Action : cliquer sur une carte-situation. Le début du prompt se place dans le champ. Le compléter avec ses mots, puis envoyer.*
+
+## Séquence 3 · Mon premier vrai prompt : commencer simple
+
+**3.1 · C'est quoi, un prompt ?**
+Un prompt, c'est simplement ce qu'on écrit à Claude, d'une question courte à une demande détaillée.
+→ *Action : trois prompts s'affichent dans le désordre. Les classer du plus simple au plus détaillé en cliquant dans l'ordre.*
+
+**3.2 · La situation**
+Le panneau affiche un mail (simulé) : « Pot de départ de Martine vendredi, tu t'en occupes ? »
+→ *Action : lire le mail, puis cliquer sur « Continuer ».*
+
+**3.3 · Commencer simple**
+C'est le conseil n° 1 de l'aide Claude : on commence par une demande courte, sans chercher la perfection.
+→ *Action : écrire une demande courte (ex. « Donne-moi des idées pour un pot de départ ») et l'envoyer.*
+
+**3.4 · Qu'est-ce qui manque ?**
+Claude répond avec des idées génériques (traiteur, karaoké, salle louée) : elles ne sont pas adaptées.
+→ *Action : dans le panneau, cliquer sur les informations que Claude ne pouvait pas deviner : budget, nombre de personnes, lieu. Les pièges (« la couleur préférée de Martine ») ne comptent pas.*
+
+**3.5 · Préciser et relancer**
+C'est le conseil n° 2 : être précis, puis affiner dans la même conversation.
+→ *Action : écrire une relance qui donne au moins deux précisions (ex. « 50 €, 12 personnes, dans la salle de pause ») et l'envoyer. On passe automatiquement à la suite dès que la relance contient deux précisions.*
+
+**3.6 · Avant / après**
+Le panneau met côte à côte la première et la seconde réponse de Claude.
+→ *Action : cliquer sur la réponse que vous utiliseriez vraiment, puis lire l'explication.*
+
+## Séquence 4 · Les bons gestes dans l'interface
+
+**4.1 · Les repères de l'écran**
+Le panneau se replie. Des pastilles apparaissent sur Claude : zone de saisie, Envoyer, « + » (ajouter un fichier), « / » (commandes) et nouvelle conversation.
 → *Action : cliquer sur les cinq pastilles. On passe automatiquement à la suite.*
 
-## Séquence 2 · Un premier message, tout simple
+**4.2 · Un sujet, une conversation**
+Changement de sujet : répondre au mot du voisin en portugais. On ne mélange pas avec le pot de départ.
+→ *Action : cliquer sur « Nouvelle conversation », écrire la demande de traduction et l'envoyer.*
 
-**2.1 · Commencer simple**
-L'article conseille de commencer par une question simple. Le champ de Claude s'active pour la première fois.
-→ *Action : écrire une question libre (ex. « Comment dire poliment qu'une salle est fermée ? ») et l'envoyer.*
+## Séquence 5 · Bilan
 
-**2.2 · Ce que fait un prompt**
-Claude répond. Le panneau explique qu'un prompt peut être une simple question ou une demande complexe.
-→ *Action : lire la réponse à gauche, puis cliquer sur « Continuer ».*
+**5.1 · Défi final**
+Situation sans aide : votre fille vous demande de l'aider à préparer un exposé sur les volcans pour lundi.
+→ *Action : écrire une demande simple, puis une relance avec deux précisions (âge, durée de l'exposé). La vérification est automatique (2 points).*
 
-## Séquence 3 · Le mail du lecteur mécontent
-
-**3.1 · Le mail**
-Le panneau affiche le mail (simulé) de M. Garnier. Il conteste une pénalité de retard et demande les horaires du samedi.
-→ *Action : cliquer sur « Placer le mail dans Claude ». Le texte arrive dans le champ de saisie.*
-
-**3.2 · Vague ou précis ?**
-Deux demandes sont comparées : « Réponds à ce mail » et une version qui précise le ton, la longueur et les informations à donner.
-→ *Action : choisir celle qui donnera une réponse utilisable. 1 point, deux essais.*
-
-**3.3 · Rendre la demande précise**
-Le champ contient le mail. Sous le champ, des étiquettes : « ton courtois », « 80 mots max. », « horaires : samedi 10 h-17 h », « ne pas promettre de remboursement ».
-→ *Action : cliquer sur les étiquettes pour les ajouter au prompt, puis envoyer.*
-
-**3.4 · Contrôler la réponse**
-Claude répond, mais invente un geste commercial (« nous annulons la pénalité »).
-→ *Action : cliquer sur la phrase inventée dans la réponse de Claude. 1 point.*
-
-**3.5 · Itérer dans la même conversation**
-L'article conseille d'affiner par étapes. On corrige sans tout recommencer.
-→ *Action : écrire une relance (ex. « Retire la phrase sur la pénalité, garde le reste ») et l'envoyer. On passe automatiquement à la suite si la phrase a disparu.*
-
-## Séquence 4 · L'affiche de l'atelier (page Word simulée)
-
-**4.1 · Le document vide**
-Le panneau devient une page Word simulée, « Affiche – Atelier numérique ». Elle est vide, avec les consignes du chef en commentaire dans la marge.
-→ *Action : lire les commentaires, puis cliquer sur « Continuer ».*
-
-**4.2 · Joindre l'ancienne affiche avec « + »**
-Le bouton « + » permet d'ajouter un fichier. Sofia joint la photo de l'affiche de l'an dernier pour garder le même style.
-→ *Action : cliquer sur « + », choisir « affiche-2025.jpg », écrire la demande et envoyer.*
-
-**4.3 · Insérer dans le document**
-Claude propose un texte d'affiche. Un bouton l'insère dans la page Word, où les éléments obligatoires se cochent (date, lieu, public, inscription).
-→ *Action : cliquer sur « Insérer dans le document ». Si un élément manque, écrire une relance à Claude.*
-
-## Séquence 5 · Le message en espagnol
-
-**5.1 · Répondre dans une autre langue**
-Une lectrice écrit en espagnol. Claude fonctionne bien en français, en anglais et dans beaucoup d'autres langues. La langue de l'interface se choisit dans les paramètres.
-→ *Action : écrire un prompt qui demande une réponse en espagnol, avec les horaires, puis envoyer.*
-
-**5.2 · Où changer la langue**
-L'écran Paramètres de Claude (simulé) s'ouvre sur la gauche.
-→ *Action : cliquer sur le menu Langue, puis sur « Continuer ».*
-
-## Séquence 6 · Les limites d'utilisation
-
-**6.1 · « Limite atteinte »**
-En fin de matinée, Claude affiche un message de limite. Avec le plan gratuit, les sessions se réinitialisent toutes les cinq heures.
-→ *Action : choisir la bonne réaction (regrouper ses demandes, reprendre plus tard). 1 point.*
-
-## Séquence 7 · En autonomie
-
-**7.1 · Le panneau sur la porte**
-Nouvelle situation sans aide : la médiathèque ferme exceptionnellement lundi. Sofia doit écrire l'affichette pour la porte.
-→ *Action : écrire seul le prompt complet et l'envoyer. La vérification est automatique sur 4 critères (source, public, format, longueur). 4 points, trois essais.*
-
-## Séquence 8 · Bilan
-
-**8.1 · Votre résultat**
-Plein écran : score sur 7 points, détail par activité, bouton « Revoir » sur les activités manquées.
+**5.2 · Votre résultat**
+Plein écran : le score sur 7 (relier 4, avant/après 1, défi 2), le détail par activité et un bouton « Revoir » sur les activités manquées.
 → *Action : cliquer sur « Continuer » ou « Quitter ».*
 
-**8.2 · Mes 4 réflexes**
-Fiche à garder : commencer simple, être précis, itérer, explorer d'autres tâches. Elle annonce les modules suivants.
+**5.3 · Mes premiers réflexes**
+Fiche à garder : 1. Commencer simple. 2. Donner les précisions que Claude ne peut pas deviner. 3. Relancer dans la même conversation. 4. Un nouveau sujet, une nouvelle conversation.
 → *Action : cliquer sur « Enregistrer la fiche », puis sur « Quitter ».*
 
 ---
 
-## Modules suivants
+## La suite : un module = un thème
 
-Ils sont tirés de l'article « What are some things I can use Claude for? ». Chaque module suit un nouveau cas terrain.
-
-| Module | Usage | Cas concret |
-|---|---|---|
-| 2 | Écrire | Un courrier aux familles, dans une page Word simulée |
-| 3 | Résumer | Un compte rendu de réunion de 4 pages, résumé pour un élu |
-| 4 | Apprendre | Comprendre une notion (ex. le RGPD à l'accueil) en posant des questions |
-| 5 | Idées et discussion | Préparer la fête de quartier, puis confronter les idées |
-| 6 | Traduire | Un règlement intérieur en anglais et en portugais |
-| 7 | Analyser une image | Lire le graphique de fréquentation et en tirer 3 constats |
+| # | Module | Thème | Cas terrain |
+|---|---|---|---|
+| 1 | Première rencontre | Découvrir, premier prompt, commencer simple | Pot de départ, mot du voisin, exposé |
+| 2 | Le mail mécontent | Écrire : ton, longueur, ne rien promettre | Réclamation d'un client, page Outlook simulée |
+| 3 | Résumer sans trahir | Résumer un long document | Compte rendu de 12 pages, page Word simulée |
+| 4 | La tempête d'idées | Trouver et trier des idées | Fête de quartier, puis choisir 3 idées |
+| 5 | Parler d'autres langues | Traduire et adapter | Règlement intérieur en anglais et en portugais |
+| 6 | Ce que Claude voit | Lire une image ou un graphique | Photo d'un graphique de fréquentation |
+| 7 | Apprendre avec Claude | Se faire expliquer une notion | Comprendre sa fiche de paie, pas à pas |
