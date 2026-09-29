@@ -66,28 +66,19 @@ Chaque écran règle la largeur du panneau photo via `--pw` ; la photo s'anime d
 
 ## Atelier (`atelier/`)
 
-- Première visite : l'introduction à faire défiler s'affiche en plein écran (`atelier/intro.html`), sans Claude.
-- Ensuite : Claude à gauche (simulation de l'interface, où l'apprenant écrit), la formation à droite dans un panneau
-  étroit. Le panneau affiche le module d'origine (`index.html?embed=1`) en colonne, sans photo : mêmes écrans,
-  mêmes cartes, « relier » avec ses liens, quiz, bilan. Le bouton d'action de chaque écran (Valider, Continuer…)
-  est reporté dans la barre de l'assistant, en bas du panneau.
-- 3.08 : « Reprendre le tableau de Claude » importe le dernier tableau de la conversation dans la grille.
-- Après l'introduction : accueil de l'assistante d'apprentissage (orbe au centre, voix `assets/audio/bienvenue.mp3`,
-  texte mot à mot). « Continuer » : l'orbe rejoint sa place au centre de Claude, l'interface apparaît en fondu.
-- 3.04 : le panneau de formation se replie, les repères se font sur l'interface de Claude (pastilles orange),
-  puis le panneau revient et l'écran du module les marque comme vus.
-- 3.03 : la photo de Léa s'affiche (écrans qui parlent d'elle) ; titres agrandis dans le panneau.
-- Minutage mot à mot des voix (`assets/audio/mots.js`), mesuré sur les creux d'énergie de chaque enregistrement.
-- Quand la conversation commence, l'orbe glisse du centre de Claude vers la barre du panneau (et revient si la
-  conversation est vidée).
-- Assistant pédagogique en forme d'orbe (`atelier/orb.js`, WebGL, sphère laiteuse aux bandes pastel) : il lit la
-  consigne de chaque écran dès l'arrivée (MP3 pour 3.01 à 3.04, synthèse vocale du navigateur ailleurs). Pendant la
-  voix, l'orbe passe à l'état « listening » et suit l'amplitude de l'enregistrement (enveloppe calculée à l'avance) ;
-  le texte s'affiche mot à mot sous la grande orbe, au rythme des sous-titres.
-- Largeur du panneau réglable : poignée entre Claude et la formation (glisser, flèches du clavier, double-clic pour
-  revenir au réglage par défaut) ; la largeur est mémorisée.
-- Chaque ouverture repart de zéro : exercices vierges, reprise à l'écran 3.02 (le suivi de la version diapositives
-  n'est pas touché). Au retour, pas d'écran d'accueil : si le navigateur bloque la voix, elle démarre au premier clic.
+Claude à gauche (simulation de l'interface), la formation à droite, **pas à pas**, tout au même endroit.
+
+- Introduction plein écran (`atelier/intro.html`), puis accueil de l'assistante d'apprentissage (orbe au centre,
+  voix `bienvenue.mp3`, texte mot à mot) qui rejoint sa place dans Claude.
+- Parcours réécrit pour l'atelier à partir du storyboard (3.02 à 3.18), dans la mise en forme des écrans d'origine :
+  une étape à la fois, pas de doublon avec les réponses de Claude, pas de copier-coller entre deux outils.
+- Le champ de Claude n'est actif que lorsque l'étape demande d'écrire ; il est alors mis en avant (phase d'écriture).
+- Les réponses de Claude sont contrôlées automatiquement (tableau : 4 critères du storyboard) ; une réponse juste
+  fait passer à l'étape suivante. 3.04 : panneau replié, repères sur Claude, suite automatique après les 4 pastilles.
+- Barème : 11 points (associer 4, tableau 4, trois QCM à 1 point), deux essais par activité, seuil 70 %.
+- Orbe (`atelier/orb.js`) : voix des consignes (MP3 quand ils existent, synthèse vocale ailleurs), texte mot à mot
+  (`assets/audio/mots.js`), état « listening » pendant la voix ; elle glisse vers la barre du panneau quand la
+  conversation commence. Panneau redimensionnable. Chaque ouverture repart de zéro.
 
 ## Découvrir Claude (`decouvrir/`)
 
