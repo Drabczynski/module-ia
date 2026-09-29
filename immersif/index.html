@@ -3,79 +3,250 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Module 3 · Version immersive</title>
+  <title>Module 3 · Prendre en main Claude</title>
   <link rel="stylesheet" href="app.css">
 </head>
 <body>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 2.5 14.2 9.8 21.5 12l-7.3 2.2L12 21.5l-2.2-7.3L2.5 12l7.3-2.2Z" fill="currentColor"/></symbol>
     <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
     <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M5 5h14a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 19 17H10l-4.5 3.5V17H5a1.5 1.5 0 0 1-1.5-1.5v-9A1.5 1.5 0 0 1 5 5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
-    <symbol id="i-side" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 4.5v15" stroke="currentColor" stroke-width="1.8"/></symbol>
-    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6M12 7.5v.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
-    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5 10 17 19 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="i-arrow-r" viewBox="0 0 24 24"><path d="M4 12h15M13 5.5 19.5 12 13 18.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="i-arrow-l" viewBox="0 0 24 24"><path d="M20 12H5M11 5.5 4.5 12 11 18.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5 10 17 19 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5.5" y="10.5" width="13" height="9.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 5.5 19.5 12 13 18.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6.5 3h8L19 7.5V21H6.5z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M14.5 3v4.5H19M9.5 12h6M9.5 15h6M9.5 18h4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-history" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5M12 8v4.5l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="i-mark" viewBox="0 0 24 24"><path d="M12 3.5 14 10l6.5 2-6.5 2-2 6.5-2-6.5-6.5-2 6.5-2Z" fill="currentColor"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M15.5 8.5V6a1.5 1.5 0 0 0-1.5-1.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><path d="m20 11.5-7.8 7.8a5 5 0 0 1-7.1-7.1l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4l7.8-7.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5Z" fill="currentColor"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M7.5 5.5h3v13h-3zM13.5 5.5h3v13h-3z" fill="currentColor"/></symbol>
+    <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4.5h5.5V10M19.5 4.5 11 13M10 6H6a1.5 1.5 0 0 0-1.5 1.5v10.5A1.5 1.5 0 0 0 6 19.5h10.5A1.5 1.5 0 0 0 18 18v-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
   </defs>
 </svg>
 
-<div class="app" data-app>
+<!-- ============================ Écran 3.01 : introduction à faire défiler ============================ -->
+<section class="intro" data-intro aria-labelledby="intro-title" hidden>
+  <header class="x-top">
+    <div class="x-bar" aria-hidden="true"><i data-x-progress></i></div>
+    <ol class="intro-path" aria-label="Progression du parcours">
+      <li class="is-done"><svg><use href="#i-check"/></svg>Module 1</li>
+      <li class="is-done"><svg><use href="#i-check"/></svg>Module 2</li>
+      <li class="is-cur" aria-current="step">Module 3</li>
+      <li>Module 4</li>
+    </ol>
+    <button type="button" class="x-skip" data-start-top>Passer l’introduction</button>
+  </header>
 
-  <!-- Panneau du coach : étape, consigne, activité, retours -->
-  <aside class="coach" data-coach aria-label="Consignes de la formation">
-    <button type="button" class="coach-head" data-coach-toggle aria-expanded="true">
-      <img class="lea" src="../assets/img/lea-portrait.jpg" alt="">
-      <span class="coach-titles">
-        <span class="c-step" data-step-code>3.04</span>
-        <span class="c-title" data-step-title></span>
-      </span>
-      <svg class="c-chevron" aria-hidden="true"><use href="#i-chevron"/></svg>
-    </button>
-    <div class="c-progress" aria-hidden="true"><span data-progress></span></div>
-    <div class="coach-meta">
-      <button type="button" class="conn" data-conn aria-live="polite">Connexion…</button>
-      <a class="tb-link" href="../index.html">Version diapositives</a>
+  <nav class="x-toc" aria-label="Sommaire de l’introduction">
+    <a href="#x-hero" data-toc>Ouverture</a>
+    <a href="#x-tache" data-toc>La tâche de Léa</a>
+    <a href="#x-methode" data-toc>La méthode</a>
+    <a href="#x-objectifs" data-toc>Objectifs</a>
+    <a href="#x-parcours" data-toc>Parcours</a>
+    <a href="#x-eval" data-toc>Évaluation</a>
+    <a href="#x-depart" data-toc>Avant de commencer</a>
+  </nav>
+
+  <!-- ouverture -->
+  <div class="x-hero" id="x-hero">
+    <img class="x-lea rv" src="../assets/img/lea-portrait.jpg" alt="Léa, salariée, qui vous accompagne dans ce module">
+    <div class="x-hero-txt">
+      <p class="x-k rv">Module 3 · Durée indicative : 25 minutes</p>
+      <h1 id="intro-title" class="x-h1 rv">Prendre en main Claude</h1>
+      <p class="x-lead rv">Transformez des notes en actions faciles à suivre.</p>
+      <div class="speaker speaker--intro rv" data-vo-intro></div>
+      <div class="x-hero-cta rv">
+        <button type="button" class="btn-primary btn-lg" data-start>Commencer</button>
+        <a class="x-down" href="#x-tache">Découvrir le module <svg><use href="#i-chevron"/></svg></a>
+      </div>
     </div>
-    <div class="coach-body" data-coach-body></div>
-    <footer class="coach-foot">
-      <button type="button" class="btn-ghost" data-prev><svg><use href="#i-arrow-l"/></svg>Retour</button>
-      <button type="button" class="btn-primary" data-next>Continuer<svg><use href="#i-arrow-r"/></svg></button>
+  </div>
+
+  <!-- la tâche : récit à défilement, visuel fixe -->
+  <section class="x-sec" id="x-tache" aria-labelledby="x-tache-t">
+    <div class="x-intro-block">
+      <p class="x-k rv">La situation</p>
+      <h2 id="x-tache-t" class="x-h2 rv">Une réunion produit des actions.<br>Encore faut-il les retrouver.</h2>
+    </div>
+    <div class="x-scrolly" data-scrolly>
+      <div class="x-steps">
+        <div class="x-step" data-step="1"><h3>Voici les notes de Léa</h3><p>Elle sort du point d’équipe du 3 novembre. Quatre phrases, prises vite.</p></div>
+        <div class="x-step" data-step="2"><h3>Elles contiennent des personnes</h3><p>Nora et Sami ont chacun une action. Ce sont les responsables.</p></div>
+        <div class="x-step" data-step="3"><h3>… et des échéances</h3><p>Le 5 et le 6 novembre. Le 3 novembre, lui, est la date de la réunion : ce n’est pas une échéance.</p></div>
+        <div class="x-step" data-step="4"><h3>Une information manque</h3><p>Le lieu de la prochaine rencontre reste à confirmer. Personne n’est désigné, aucune date n’est donnée.</p></div>
+        <div class="x-step" data-step="5"><h3>Un tableau rend tout visible</h3><p>Action, responsable, échéance : chacun voit ce qu’il a à faire, et pour quand.</p></div>
+        <div class="x-step" data-step="6"><h3>Ce qui manque reste signalé</h3><p>Un bon tableau n’invente rien. Il écrit «&nbsp;non précisé&nbsp;». C’est ce que vous apprendrez à obtenir de Claude.</p></div>
+      </div>
+      <div class="x-visual" aria-hidden="true">
+        <div class="x-stage" data-stage="1">
+          <div class="xv-notes">
+            <span class="xv-lbl"><i class="lt lt-c">C</i>Notes</span>
+            <p>Point équipe du <span class="xv-d0">3 novembre</span>. <span class="xv-n">Nora</span> prépare l’affiche pour le <span class="xv-d">5 novembre</span>. <span class="xv-n">Sami</span> vérifie le stock pour le <span class="xv-d">6 novembre</span>. <span class="xv-miss">Le lieu de la prochaine rencontre reste à confirmer.</span></p>
+          </div>
+          <div class="xv-arrow"><svg><use href="#i-arrow"/></svg></div>
+          <table class="xv-table">
+            <thead><tr><th>Action</th><th>Responsable</th><th>Échéance</th></tr></thead>
+            <tbody>
+              <tr><td>Préparer l’affiche</td><td class="c-n">Nora</td><td class="c-d">5 novembre</td></tr>
+              <tr><td>Vérifier le stock</td><td class="c-n">Sami</td><td class="c-d">6 novembre</td></tr>
+              <tr><td>Confirmer le lieu</td><td class="c-m">non précisé</td><td class="c-m">non précisé</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- la méthode -->
+  <section class="x-sec" id="x-methode" aria-labelledby="x-methode-t">
+    <p class="x-k rv">La méthode</p>
+    <h2 id="x-methode-t" class="x-h2 rv">Claude est votre second outil.<br>La façon de travailler ne change pas.</h2>
+    <ol class="x-three">
+      <li class="rv"><span class="x-num">01</span><h3>Observer</h3><p>Une situation, une démonstration relue. Vous voyez ce qu’on attend.</p></li>
+      <li class="rv"><span class="x-num">02</span><h3>Essayer</h3><p>Dans Claude, avec votre accès autorisé ou la simulation du module.</p></li>
+      <li class="rv"><span class="x-num">03</span><h3>Vérifier</h3><p>Vous comparez le résultat avec la source, critère par critère.</p></li>
+    </ol>
+    <div class="x-marks">
+      <p class="x-k rv">Quatre repères pour lire une demande</p>
+      <ul>
+        <li class="rv"><i class="lt lt-r">R</i><b>Rôle</b><span>si utile, facultatif</span></li>
+        <li class="rv"><i class="lt lt-c">C</i><b>Contexte</b><span>et données : les notes</span></li>
+        <li class="rv"><i class="lt lt-t">T</i><b>Tâche</b><span>créer un tableau</span></li>
+        <li class="rv"><i class="lt lt-f">F</i><b>Format</b><span>et contraintes : colonnes, «&nbsp;non précisé&nbsp;»</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- objectifs -->
+  <section class="x-sec" id="x-objectifs" aria-labelledby="x-objectifs-t">
+    <p class="x-k rv">À la fin du module</p>
+    <h2 id="x-objectifs-t" class="x-h2 rv">Vous saurez faire quatre choses.</h2>
+    <ol class="x-goals">
+      <li class="rv"><span>1</span>Repérer les commandes de Claude</li>
+      <li class="rv"><span>2</span>Créer un tableau à partir de notes</li>
+      <li class="rv"><span>3</span>Signaler une donnée absente</li>
+      <li class="rv"><span>4</span>Comparer sans généraliser à partir d’un seul essai</li>
+    </ol>
+  </section>
+
+  <!-- parcours -->
+  <section class="x-sec" id="x-parcours" aria-labelledby="x-parcours-t">
+    <p class="x-k rv">Le parcours</p>
+    <h2 id="x-parcours-t" class="x-h2 rv">Six séquences, <span class="x-count" data-count="25">25</span> minutes.</h2>
+    <ol class="x-timeline">
+      <li class="rv" style="--m:3"><span class="x-min">3 min</span><b>Découvrir le second outil</b><i></i></li>
+      <li class="rv" style="--m:4"><span class="x-min">4 min</span><b>Repérer et saisir</b><i></i></li>
+      <li class="rv" style="--m:7"><span class="x-min">7 min</span><b>Produire et contrôler un tableau</b><i></i></li>
+      <li class="rv" style="--m:3"><span class="x-min">3 min</span><b>Ajouter un contenu autorisé</b><i></i></li>
+      <li class="rv" style="--m:5"><span class="x-min">5 min</span><b>Comparer les deux outils</b><i></i></li>
+      <li class="rv" style="--m:3"><span class="x-min">3 min</span><b>Conserver les acquis</b><i></i></li>
+    </ol>
+    <p class="x-note rv">Durées indicatives. Rien n’est chronométré : prenez le temps de lire.</p>
+  </section>
+
+  <!-- évaluation -->
+  <section class="x-sec" id="x-eval" aria-labelledby="x-eval-t">
+    <p class="x-k rv">L’évaluation</p>
+    <h2 id="x-eval-t" class="x-h2 rv">Cinq activités notées.<br>Un seuil clair.</h2>
+    <div class="x-figs">
+      <div class="x-fig rv"><b><span class="x-count" data-count="11">11</span></b><span>points au total</span></div>
+      <div class="x-fig rv"><b><span class="x-count" data-count="70">70</span> %</b><span>du maximum pour valider</span></div>
+      <div class="x-fig rv"><b><span class="x-count" data-count="2">2</span></b><span>essais par question avant le corrigé</span></div>
+      <div class="x-fig rv"><b><span class="x-count" data-count="3">3</span></b><span>soumissions pour votre tableau</span></div>
+    </div>
+    <p class="x-note rv">Le meilleur essai est retenu. La manipulation dans Claude compte pour valider la prise en main.</p>
+  </section>
+
+  <!-- départ -->
+  <section class="x-sec x-end" id="x-depart" aria-labelledby="x-depart-t">
+    <p class="x-k rv">Avant de commencer</p>
+    <h2 id="x-depart-t" class="x-h2 rv">Trois règles, puis c’est à vous.</h2>
+    <ul class="x-rules">
+      <li class="rv"><b>Données fictives uniquement.</b> Les notes et les messages du module sont des exemples.</li>
+      <li class="rv"><b>Aucun identifiant.</b> Le module ne vous demandera jamais de mot de passe.</li>
+      <li class="rv"><b>Simulation signalée.</b> L’interface à droite du module est une simulation pédagogique, pas l’interface réelle de Claude.</li>
+    </ul>
+    <div class="x-final rv">
+      <button type="button" class="btn-primary btn-lg" data-start>Commencer</button>
+      <span>Séquence 1 · Découvrir le second outil</span>
+    </div>
+  </section>
+</section>
+
+<!-- ============================ Application ============================ -->
+<div class="shell" data-shell hidden>
+
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" data-tab="story" aria-selected="true">Formation</button>
+    <button type="button" role="tab" data-tab="claude" aria-selected="false">Claude <span class="tab-dot" data-tab-dot hidden></span></button>
+  </div>
+
+  <aside class="guide" data-panel="story" aria-label="Formation">
+    <header class="g-head">
+      <div class="g-top">
+        <button type="button" class="g-menu" data-menu-open><svg><use href="#i-menu"/></svg>Menu</button>
+        <span class="g-code" data-g-code>3.02</span>
+      </div>
+      <p class="g-seq" data-g-seq></p>
+      <h1 class="g-title" data-g-title></h1>
+      <div class="g-steps" data-g-steps aria-hidden="true"></div>
+    </header>
+    <div class="g-body" data-g-body aria-live="polite"></div>
+    <footer class="g-foot">
+      <button type="button" class="btn-ghost" data-back>Retour</button>
+      <button type="button" class="btn-primary" data-next>Continuer</button>
     </footer>
   </aside>
 
-  <!-- Interface de conversation (inspirée des assistants IA, simulation pédagogique) -->
-  <section class="chat" aria-label="Interface de conversation, simulation pédagogique">
-    <nav class="chat-side" data-side aria-label="Conversations">
-      <button type="button" class="new-chat" data-fn="new"><svg><use href="#i-plus"/></svg>Nouvelle conversation</button>
-      <div class="recents-wrap" data-fn="history">
-        <h3>Récents</h3>
-        <ul class="recents" data-recents></ul>
+  <section class="work" data-panel="claude" aria-label="Claude, simulation pédagogique">
+    <header class="panel-head work-head">
+      <div class="ph-title"><span class="av av-claude sm"><svg><use href="#i-spark"/></svg></span><b>Claude</b><span class="chip-env">Simulation pédagogique</span></div>
+      <div class="work-actions">
+        <div class="hist" data-fn="history">
+          <button type="button" class="icon-btn" data-hist-toggle aria-expanded="false" aria-label="Historique des conversations"><svg><use href="#i-history"/></svg><span>Historique</span></button>
+          <div class="hist-pop" data-hist hidden></div>
+        </div>
+        <button type="button" class="icon-btn" data-new data-fn="new"><svg><use href="#i-plus"/></svg><span>Nouvelle conversation</span></button>
+        <button type="button" class="mode" data-mode>Connexion…</button>
       </div>
-      <p class="side-note">Environnement de formation. Utilisez uniquement les dossiers fictifs.</p>
-    </nav>
-
-    <div class="chat-main">
-      <div class="chat-head">
-        <button type="button" class="side-toggle" data-side-toggle aria-label="Afficher les conversations"><svg><use href="#i-side"/></svg></button>
-        <span class="conv-title" data-conv-title>Nouvelle conversation</span>
-        <span class="env-pill">Simulation pédagogique</span>
+    </header>
+    <div class="messages" data-messages aria-live="polite"></div>
+    <form class="composer" data-composer data-fn="input">
+      <div class="attach-chip" data-attach-chip hidden><svg><use href="#i-doc"/></svg><span>note-reunion-fictive.txt</span><button type="button" data-attach-remove aria-label="Retirer le fichier"><svg><use href="#i-x"/></svg></button></div>
+      <textarea data-input rows="1" placeholder="Écrivez à Claude…" aria-label="Votre message à Claude"></textarea>
+      <div class="composer-foot">
+        <button type="button" class="attach" data-attach data-fn="attach" aria-label="Ajouter un fichier"><svg><use href="#i-clip"/></svg></button>
+        <span class="kbd-hint"><kbd>Entrée</kbd> envoyer · <kbd>Maj</kbd>+<kbd>Entrée</kbd> nouvelle ligne</span>
+        <span class="send-wrap" data-fn="send"><button type="submit" class="send" aria-label="Envoyer"><svg><use href="#i-up"/></svg></button></span>
       </div>
-
-      <div class="messages" data-messages aria-live="polite"></div>
-
-      <form class="composer" data-fn="input" data-composer>
-        <textarea data-input rows="1" placeholder="Écrivez votre message ici…" aria-label="Votre message"></textarea>
-        <button type="submit" class="send" data-fn="send" aria-label="Envoyer"><svg><use href="#i-up"/></svg></button>
-      </form>
-      <p class="composer-note" data-composer-note></p>
-    </div>
+    </form>
+    <p class="work-note" data-work-note></p>
   </section>
 </div>
 
+<!-- menu du module et Mes repères -->
+<div class="menu-wrap" data-menu hidden>
+  <div class="menu-panel" role="dialog" aria-modal="true" aria-labelledby="menu-title">
+    <div class="menu-head"><h2 id="menu-title">Prendre en main Claude</h2><button type="button" class="icon-btn" data-menu-close aria-label="Fermer le menu"><svg><use href="#i-x"/></svg></button></div>
+    <div class="menu-score" data-menu-score></div>
+    <div data-menu-list></div>
+    <div class="menu-reperes">
+      <h3>Mes repères</h3>
+      <div data-reperes></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" data-toast role="status" aria-live="polite"></div>
+<audio data-audio preload="none"></audio>
+
+<script src="../assets/audio/sous-titres.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

@@ -38,9 +38,20 @@ Chaque écran règle la largeur du panneau photo via `--pw` ; la photo s'anime d
   à défaut, la réponse illustrative relue du storyboard est affichée avec la mention « exemple ».
 - Sous 820 px de large, la scène devient une page où les colonnes s'empilent.
 
-## Version immersive (prototype, écrans 3.04 à 3.10)
+## Version immersive (storyboard complet, écrans 3.01 à 3.18)
 
-`immersif/` : le coach guide l'apprenant à gauche, l'apprenant converse avec Claude à droite.
+`immersif/` suit le storyboard *Module 3 · Prendre en main Claude* avec une simulation de l'interface de Claude à droite.
+
+- **3.01** : introduction à faire défiler (récit des notes de Léa qui deviennent un tableau, méthode,
+  objectifs, parcours, évaluation, règles), apparitions au défilement, sommaire latéral, barre de progression.
+- **3.02 à 3.18** : une étape à la fois, voix off transcrite (audio 3.01 à 3.03), boutons stables
+  (Continuer, Valider, Réessayer, Voir la correction, Revenir au menu), menu et *Mes repères*.
+- Barème : 11 points (3.05 : 4, 3.08 : 4, 3.09, 3.12, 3.15 : 1). Deux essais avant le corrigé, meilleur essai retenu ;
+  tableau 3.08 contrôlé de façon déterministe sur 4 critères (1 / 0,5 / 0), meilleure de trois soumissions ;
+  reprise explicite avec historique. Validation : score ÷ 11 ≥ 0,70 et pratique faite.
+- Pratique : dans l'onglet Claude réel (tableau collé dans le module) ou dans la simulation ;
+  les deux sont enregistrés séparément (`window.ImmersifTracking.snapshot()`).
+- Aucun retour personnalisé par IA.
 
 - `api/chat.ts` : fonction Vercel qui appelle Claude (modèle `claude-opus-5`, réponses en continu).
   La clé reste côté serveur. Variables d'environnement Vercel :
