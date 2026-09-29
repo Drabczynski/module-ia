@@ -792,10 +792,9 @@
           '<p><span class="hl ok" data-at="7.63">Sami</span> <span class="hl" data-at="8.07">vérifie le stock</span> pour le <span class="hl ok" data-at="9.35">6 novembre</span>.</p>' +
           '<p><span class="hl" data-at="10.3">Le lieu de la prochaine rencontre</span> <span class="hl warn" data-at="12.21">reste à confirmer.</span></p></div>'));
         pv.appendChild(h('<div class="pv-grid" data-at="16.2" data-until="17.1"><div class="th">Action</div><div class="th" data-at="17.17" data-until="19.4">Responsable</div><div class="th" data-at="18.16" data-until="19.4">Échéance</div>' +
-          '<div>Préparer l’affiche</div><div class="empty"></div><div class="empty"></div>' +
-          '<div>Vérifier le stock</div><div class="empty"></div><div class="empty"></div>' +
+          '<div>Préparer l’affiche</div><div>Nora</div><div>5 novembre</div>' +
+          '<div>Vérifier le stock</div><div>Sami</div><div>6 novembre</div>' +
           '<div class="gl" data-at="19.45">Confirmer le lieu</div><div class="empty gl" data-at="21.89"></div><div class="empty gl" data-at="22.7"></div></div>'));
-        fb(pv, "ko", "<b>Point à retenir :</b> le lieu reste à confirmer. Aucun responsable n’est désigné pour cette action.");
       }
     },
 
