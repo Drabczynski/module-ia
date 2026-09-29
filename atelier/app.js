@@ -639,6 +639,8 @@
     attachBtn.disabled = true;
     P.i = Math.max(0, Math.min(STEPS.length - 1, i));
     markT = S.sound && STEPS[P.i].audio ? 0 : 999;
+    split.classList.toggle("panel-full", !!STEPS[P.i].full);     // bilan : le panneau passe en plein écran
+    app.classList.toggle("is-full", !!STEPS[P.i].full);
     render(true);
     var s = st();
     if (s.enter) s.enter();
@@ -672,10 +674,42 @@
     paintNext();
   }
   function refresh() { render(false); }
-  var backBtn = $("[data-back]");
+  var backBtn = $("[data-back]"), quitBtn = $("[data-quit]");
+  quitBtn.addEventListener("click", quit);
+  // Quitter : signale la fin à la plateforme (SCORM 1.2 ou 2004) si elle est présente, puis ferme la fenêtre
+  function findApi(name) {
+    for (var w = window, n = 0; w && n < 8; n++) {
+      try { if (w[name]) return w[name]; } catch (e) { return null; }
+      if (w.parent && w.parent !== w) w = w.parent; else if (w.opener) w = w.opener; else break;
+    }
+    return null;
+  }
+  function quit() {
+    stopVoice();
+    var snap = window.AtelierTracking.snapshot(), pct = Math.round(snap.score / snap.max * 100);
+    var api12 = findApi("API"), api04 = findApi("API_1484_11");
+    try {
+      if (api04) {
+        api04.SetValue("cmi.score.scaled", String(snap.score / snap.max));
+        api04.SetValue("cmi.score.raw", String(snap.score)); api04.SetValue("cmi.score.min", "0"); api04.SetValue("cmi.score.max", String(snap.max));
+        api04.SetValue("cmi.completion_status", "completed");
+        api04.SetValue("cmi.success_status", snap.validated ? "passed" : "failed");
+        api04.SetValue("cmi.exit", "normal");
+        api04.Commit(""); api04.Terminate("");
+      } else if (api12) {
+        api12.LMSSetValue("cmi.core.score.raw", String(pct)); api12.LMSSetValue("cmi.core.score.min", "0"); api12.LMSSetValue("cmi.core.score.max", "100");
+        api12.LMSSetValue("cmi.core.lesson_status", snap.validated ? "passed" : "failed");
+        api12.LMSCommit(""); api12.LMSFinish("");
+      }
+    } catch (e) {}
+    try { window.top.close(); } catch (e) {}
+    try { window.close(); } catch (e) {}
+    setTimeout(function () { $("[data-end]").hidden = false; }, 250);
+  }
   backBtn.addEventListener("click", function () { if (P.i > 0) go(P.i - 1); });
   function paintNext() {
     backBtn.hidden = P.i === 0;
+    quitBtn.hidden = !st().full;
     var s = st(), p = s.primary ? s.primary() : { label: "Continuer", disabled: s.ready ? !s.ready() : false, run: next };
     if (!p) { nextBtn.hidden = true; return; }
     nextBtn.hidden = false;
@@ -1161,8 +1195,8 @@
 
     /* 3.17 · Votre résultat ----------------------------------------------------- */
     {
-      id: "resultat", seq: 5, pill: "Bilan", icon: "trophy", title: "Votre résultat",
-      say: "Le score montre les activités réussies. Une tâche réelle doit aussi être contrôlée.",
+      id: "resultat", seq: 5, pill: "Bilan", icon: "trophy", title: "Votre résultat", full: true,
+      say: "Voici votre résultat, activité par activité. Si une activité n’est pas réussie, vous pouvez la revoir.",
       render: function (pv) {
         var items = scoreItems(), total = items.reduce(function (s, x) { return s + x.pts; }, 0);
         pv.appendChild(h('<p class="pv-score">' + fmt(total) + " <small>sur 11</small></p>"));
@@ -1187,7 +1221,7 @@
 
     /* 3.18 · Votre fiche ---------------------------------------------------------- */
     {
-      id: "fiche", seq: 5, pill: "À conserver", icon: "check", title: "Mes premiers gestes dans Claude",
+      id: "fiche", seq: 5, pill: "À conserver", icon: "check", title: "Mes premiers gestes dans Claude", full: true,
       say: "Gardez cette fiche pour votre prochaine utilisation.",
       render: function (pv) {
         var a = act("fiche");

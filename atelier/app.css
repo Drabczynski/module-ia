@@ -518,3 +518,19 @@ svg { display: block; }
 .spot-tip { pointer-events: none; padding: 12px 34px 12px 14px; }
 .spot-x { pointer-events: auto; position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .12); color: #fff; font: 400 16px/1 var(--text); display: grid; place-items: center; cursor: pointer; }
 .spot-x:hover { background: rgba(255, 255, 255, .25); }
+
+/* Bilan en plein écran */
+.split.panel-full { grid-template-columns: 0 0 1fr; padding-left: 8px; }
+.split.panel-full .claude { opacity: 0; pointer-events: none; overflow: hidden; }
+.split.panel-full .resizer { visibility: hidden; }
+.split.panel-full .panel { border-radius: 18px; }
+.split.panel-full .pv { max-width: 980px; margin-left: auto; margin-right: auto; }
+.topbar { transition: height .5s var(--ease); }
+.app.is-full .topbar { height: 8px; overflow: hidden; }
+.app.is-full .topbar > * { visibility: hidden; }
+.claude { transition: opacity .45s var(--ease); }
+.btn-quit.btn-sm { display: inline-flex; align-items: center; height: 40px; padding: 0 18px; border: 1.5px solid #d6d3cb; border-radius: 12px; background: #fff; color: var(--ink); font-weight: 600; }
+.btn-quit.btn-sm:hover { border-color: var(--ink); }
+.end-screen { position: fixed; inset: 0; z-index: 120; display: grid; place-items: center; background: rgba(250, 249, 245, .96); text-align: center; }
+.end-screen h2 { margin: 0 0 10px; font: 800 clamp(32px, 4vw, 48px)/1.05 var(--display); letter-spacing: -.035em; }
+.end-screen p { margin: 0; color: var(--muted); font-size: 17px; }
