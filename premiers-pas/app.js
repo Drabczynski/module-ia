@@ -439,7 +439,8 @@
     if (/r[ée]sum/.test(t)) return "En 3 points :\n\n1. **Gymnase** : la rénovation est votée, travaux de mars à juin.\n2. **Cantine** : repas bio deux jours par semaine.\n3. **Réunion publique** : le 14, à 18 h.";
     if (/^(bonjour|salut|hello|bonsoir|coucou|hey)\b/.test(t.trim()) || /qui es.?tu|présente.?toi|que sais.?tu|tu sais faire|tu peux faire/.test(t))
       return "Bonjour ! Je suis Claude, un assistant d’intelligence artificielle conçu par Anthropic.\n\nVous pouvez m’écrire comme à une personne : me poser une question, me demander d’écrire un message, de résumer un texte, de trouver des idées ou de traduire.\n\nPar quoi voulez-vous commencer ?";
-    return "Je suis en mode simulé : je réponds surtout aux exercices de la formation. Suivez l’étape affichée à droite.";
+    if (st() && st().id === "bonjour") return "Je comprends ! Je suis une intelligence artificielle : on peut discuter, me poser une question ou me demander un coup de main pour écrire.\n\nPour faire connaissance, dites-moi simplement bonjour, ou demandez-moi qui je suis.";
+    return "Je vous lis ! Pour cet exercice, suivez la consigne affichée à droite : je vous répondrai au mieux.";
   }
 
   function addPending() {
@@ -753,7 +754,7 @@
       side.appendChild(h('<span class="pv-rule"></span>'));
     }
     s.render(pv, side);
-    if (!fresh) Array.prototype.forEach.call(pv.children, function (c) { c.style.animation = "none"; });
+    if (!fresh) Array.prototype.forEach.call(pv.children, function (c) { if (!c.classList.contains("is-new")) c.style.animation = "none"; });
     bodyEl.appendChild(pv);
     syncMarks(markT);
     bodyEl.scrollTop = fresh ? 0 : y;
@@ -808,6 +809,7 @@
 
   /* petits constructeurs de contenu */
   function lead(pv, html) { pv.appendChild(h('<p class="pv-lead">' + html + "</p>")); }
+  function fbNew(pv, kind, html) { fb(pv, kind, html); pv.lastChild.classList.add("is-new", "fb-pop"); }
   function fb(pv, kind, html) {
     var icon = kind === "ok" ? "check" : kind === "ko" ? "bulb" : "info";
     pv.appendChild(h('<p class="pv-fb' + (kind ? " is-" + kind : "") + '"><svg><use href="#i-' + icon + '"/></svg><span>' + html + "</span></p>"));
@@ -1062,10 +1064,10 @@
         }
         if (k) {
           var last = a.res[k - 1];
-          fb(pv, last.ok ? "ok" : "ko", "<b>" + (last.ok ? "Bien vu" : "Pas tout à fait") + " :</b> « " + esc(cards[k - 1][0]) + " » est " + (cards[k - 1][1] ? "vrai" : "faux") + ". " + esc(cards[k - 1][2]));
+          fbNew(pv, last.ok ? "ok" : "ko", "<b>" + (last.ok ? "Bien vu" : "Pas tout à fait") + " :</b> « " + esc(cards[k - 1][0]) + " » est " + (cards[k - 1][1] ? "vrai" : "faux") + ". " + esc(cards[k - 1][2]));
         }
         if (k === cards.length) {
-          var ul = h('<ul class="sw-recap"></ul>');
+          var ul = h('<ul class="sw-recap is-new"></ul>');
           cards.forEach(function (cd, j) {
             var li = h('<li><span class="st"></span><span></span></li>');
             li.firstChild.textContent = a.res[j].ok ? "✓" : "✗";
@@ -1402,14 +1404,24 @@
           { html: "Lisez sa réponse." }
         ], a.done ? 3 : a.sent ? 2 : a.typed ? 1 : 0);
         if (!a.sent) suggestions(pv, "Pas d’idée ? Cliquez sur une suggestion :", ["Bonjour, qui es-tu ?", "Bonjour ! Que sais-tu faire ?", "Salut Claude, présente-toi en deux phrases."]);
-        if (a.done) fb(pv, "ok", "<b>Premier échange réussi.</b> L’IA répond à ce que vous lui écrivez, comme dans une conversation.");
+        if (a.retry) fbNew(pv, "ko", "<b>L’IA vous a répondu, mais ce n’est pas encore un premier contact.</b> Dites-lui bonjour, ou demandez-lui qui elle est.");
+        if (a.done) fbNew(pv, "ok", "<b>Premier échange réussi.</b> L’IA répond à ce que vous lui écrivez, comme dans une conversation.");
       },
       ready: function () { return !!act("bonjour").done; },
       enter: function () { if (!act("bonjour").done) compose(true, "À vous : écrivez un premier message"); },
       onType: function () { var a = act("bonjour"); if (!a.typed) { a.typed = true; refresh(); } },
       onInsert: function () { var a = act("bonjour"); if (!a.typed) { a.typed = true; refresh(); } },
-      onSend: function () { act("bonjour").sent = true; compose(false); refresh(); },
-      onAnswer: function () { act("bonjour").done = true; refresh(); autoNext(5200); }
+      onSend: function (c, text) {
+        var a = act("bonjour");
+        a.sent = true;
+        a.ok = /bonjour|salut|hello|coucou|bonsoir|hey|qui es|présente|que sais|tu sais|tu peux|aide|\?/i.test(text);
+        compose(false); refresh();
+      },
+      onAnswer: function () {
+        var a = act("bonjour");
+        if (!a.ok) { a.sent = false; a.retry = true; refresh(); compose(true); return; }
+        a.done = true; a.retry = false; refresh(); autoNext(5200);
+      }
     },
 
     /* Vrai ou faux (cartes à glisser) ------------------------------------------- */
