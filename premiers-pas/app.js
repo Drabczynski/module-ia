@@ -1227,7 +1227,7 @@
           var fn = a.links[k];
           if (fn) { b.classList.add("is-linked"); b.style.setProperty("--c", cfg.colors[fn]); }
           if (a.sel === k && !locked) b.classList.add("is-sel");
-          if ((locked && fn) || (a.good && a.good[k])) b.classList.add(fn === n2[1] ? "is-good" : "is-bad");
+          if ((locked && fn) || (a.good && a.good[k])) { b.classList.add(fn === n2[1] ? "is-good" : "is-bad"); b.style.setProperty("--c", fn === n2[1] ? "#1a9a5a" : "#d93636"); }
           b.disabled = !!locked || !!(a.good && a.good[k]);
           b.onclick = function () { a.sel = k; refresh(); };
           m.children[1].appendChild(b);
@@ -1236,7 +1236,11 @@
           var b = h('<button type="button" class="mc fn"><span class="dot"></span><span></span></button>');
           b.lastChild.textContent = f[1];
           b.dataset.fn = f[0];
-          if (Object.keys(a.links).some(function (k) { return a.links[k] === f[0]; })) { b.classList.add("is-linked"); b.style.setProperty("--c", cfg.colors[f[0]]); }
+          var from = Object.keys(a.links).filter(function (k) { return a.links[k] === f[0]; })[0];
+          if (from !== undefined) {
+            b.classList.add("is-linked"); b.style.setProperty("--c", cfg.colors[f[0]]);
+            if (locked || (a.good && a.good[from])) { var ok = cfg.left[from][1] === f[0]; b.classList.add(ok ? "is-good" : "is-bad"); b.style.setProperty("--c", ok ? "#1a9a5a" : "#d93636"); }
+          }
           b.disabled = !!locked;
           b.onclick = function () {
             if (a.sel === null || a.sel === undefined) { toast("Choisissez d’abord un élément, à gauche."); return; }
@@ -1323,39 +1327,38 @@
     hunt.found = hunt.found || {};
     var cur = MAILS.filter(function (m) { return m.id === a.open; })[0];
     if (cur && !cur.body) cur = null;
-    var ph = h('<div class="iphone"><div class="ip-screen"><div class="ip-status"><b>9:41</b><span class="ip-ic"><i></i><i></i><i></i><em></em></span></div><div class="ip-body"></div></div></div>');
-    var body = ph.querySelector(".ip-body");
+    var unread = MAILS.filter(function (m) { return !(a.opened && a.opened[m.id]); }).length;
+    var box = h('<div class="mx"><div class="mx-list"><div class="mx-h"><b>Réception</b><span></span></div></div><div class="mx-read"></div></div>');
+    box.querySelector(".mx-h span").textContent = unread ? unread + " non lu" + (unread > 1 ? "s" : "") : "Tout est lu";
+    MAILS.forEach(function (m) {
+      var b = h('<button type="button" class="mx-row"><i class="mx-dot"></i><span class="mx-tx"><span class="mx-top"><b></b><time></time></span><span class="mx-subj"></span><span class="mx-prev"></span></span></button>');
+      b.querySelector("b").textContent = m.from;
+      b.querySelector("time").textContent = m.time;
+      b.querySelector(".mx-subj").textContent = m.subj;
+      b.querySelector(".mx-prev").textContent = m.prev;
+      if (a.open === m.id) b.classList.add("is-on");
+      if (a.opened && a.opened[m.id]) b.classList.add("is-read");
+      if (a.wrong === m.id) b.classList.add("is-nope");
+      b.disabled = mode !== "open";
+      b.onclick = function () {
+        a.opened = a.opened || {};
+        if (!m.body) { a.wrong = m.id; a.opened[m.id] = true; refresh(); return; }
+        a.open = m.id; a.wrong = null; a.opened[m.id] = true;
+        refresh();
+        hook("onMailOpen", m.id);
+      };
+      box.firstChild.appendChild(b);
+    });
+    var rd = box.lastChild;
     if (!cur) {
-      body.appendChild(h('<div class="ip-nav"><span>Boîtes</span><span>Modifier</span></div>'));
-      body.appendChild(h('<h2 class="ip-title">Réception</h2>'));
-      var list = h('<div class="ip-list"></div>');
-      MAILS.forEach(function (m) {
-        var b = h('<button type="button" class="ip-row"><i class="ip-dot"></i><span class="ip-tx"><span class="ip-top"><b></b><time></time></span><span class="ip-subj"></span><span class="ip-prev"></span></span></button>');
-        b.querySelector("b").textContent = m.from;
-        b.querySelector("time").textContent = m.time;
-        b.querySelector(".ip-subj").textContent = m.subj;
-        b.querySelector(".ip-prev").textContent = m.prev;
-        if (a.opened && a.opened[m.id]) b.classList.add("is-read");
-        if (a.wrong === m.id) b.classList.add("is-nope");
-        b.disabled = mode !== "open";
-        b.onclick = function () {
-          a.opened = a.opened || {};
-          if (!m.body) { a.wrong = m.id; refresh(); return; }
-          a.open = m.id; a.wrong = null; a.opened[m.id] = true;
-          refresh();
-          hook("onMailOpen", m.id);
-        };
-        list.appendChild(b);
-      });
-      body.appendChild(list);
+      rd.appendChild(h('<div class="mx-empty"><svg><use href="#i-mail"/></svg><p>Aucun message sélectionné</p></div>'));
     } else {
-      body.appendChild(h('<div class="ip-nav"><span class="ip-back">‹ Réception</span><span></span></div>'));
-      var mv = h('<div class="ip-mail"><div class="ip-from"><span class="ip-av"></span><div><b></b><small></small></div></div><h3></h3><div class="ip-text"></div></div>');
-      mv.querySelector(".ip-av").textContent = cur.from.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2);
-      mv.querySelector(".ip-from b").textContent = cur.from;
-      mv.querySelector(".ip-from small").textContent = "À : moi · " + cur.time;
+      var mv = h('<div class="mx-mail"><div class="mx-from"><span class="mx-av"></span><div><b></b><small>À : moi</small></div><time></time></div><h3></h3><div class="mx-text"></div></div>');
+      mv.querySelector(".mx-av").textContent = cur.from.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2);
+      mv.querySelector(".mx-from b").textContent = cur.from;
+      mv.querySelector(".mx-from time").textContent = "Aujourd’hui, " + cur.time;
       mv.querySelector("h3").textContent = cur.subj;
-      var tx = mv.querySelector(".ip-text");
+      var tx = mv.querySelector(".mx-text");
       cur.body.forEach(function (line) {
         var p = document.createElement("p");
         line.split(/(\{[^}]+\})/).forEach(function (part) {
@@ -1383,9 +1386,9 @@
         });
         tx.appendChild(p);
       });
-      body.appendChild(mv);
+      rd.appendChild(mv);
     }
-    pv.appendChild(ph);
+    pv.appendChild(box);
   }
 
   /* ---------- Les étapes ---------- */
@@ -1484,7 +1487,7 @@
       id: "usages", seq: 1, pill: "Reliez · 5 points", icon: "clock", title: "Le bon usage",
       audio: "pp-usages", say: "L’intelligence artificielle vient de vous donner ses usages. À vous ! Reliez chaque situation de la vie courante à l’usage qui convient."
     }, (function () {
-      var COLORS = { tra: "#db2777", res: "#0d9488", ide: "#d97706", app: "#2563eb", img: "#7c3aed" };
+      var COLORS = { tra: "#1f5cf0", res: "#1f5cf0", ide: "#1f5cf0", app: "#1f5cf0", img: "#1f5cf0" };   // un seul bleu, puis vert ou rouge à la correction
       var w = relier("usages", {
         heads: ["Situations", "Usages"],
         left: [

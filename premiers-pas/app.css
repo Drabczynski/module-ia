@@ -935,3 +935,45 @@ svg { display: block; }
 .pv > .fb-pop { animation: fb-pop .55s cubic-bezier(.22, 1.3, .36, 1) backwards; }
 @keyframes fb-pop { from { opacity: 0; transform: translateY(10px) scale(.97); } }
 .pv > .sw-recap.is-new { animation: pv-rise .6s var(--ease) .15s backwards; }
+.mc.is-good, .mc.is-bad { box-shadow: inset 4px 0 0 var(--c); border-color: var(--c); }
+.mc.is-good .dot, .mc.is-bad .dot { background: var(--c); }
+
+/* ==========================================================================
+   Boîte mail : deux colonnes, sobre (esprit Mail d'Apple)
+   ========================================================================== */
+.pv.is-compact > .mx { flex: 1; }
+.mx { display: grid; grid-template-columns: minmax(220px, 38%) 1fr; min-height: 340px; border-radius: 18px; background: #fff; box-shadow: 0 0 0 1px rgba(16, 24, 56, .07), 0 24px 48px -28px rgba(16, 24, 56, .35); overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--text); }
+.mx-list { display: flex; flex-direction: column; gap: 2px; padding: 12px 8px; background: #fafafa; border-right: 1px solid #ececf0; overflow: auto; }
+.mx-h { display: flex; align-items: baseline; justify-content: space-between; padding: 4px 10px 10px; }
+.mx-h b { font-size: 19px; font-weight: 700; letter-spacing: -.01em; color: #1c1c1e; }
+.mx-h span { font-size: 12.5px; color: #8e8e93; }
+.mx-row { display: flex; gap: 8px; width: 100%; padding: 10px 10px 11px 6px; border: 0; border-radius: 10px; background: transparent; text-align: left; transition: background .15s; }
+.mx-row:hover:not(:disabled) { background: #f0f0f3; }
+.mx-row.is-on { background: #e7efff; }
+.mx-row:disabled { cursor: default; }
+.mx-row:disabled:not(.is-on) { opacity: .55; }
+.mx-row.is-nope { animation: nudge .45s ease; }
+.mx-dot { width: 8px; height: 8px; margin-top: 6px; flex: none; border-radius: 50%; background: #0a84ff; }
+.mx-row.is-read .mx-dot { visibility: hidden; }
+.mx-tx { min-width: 0; flex: 1; display: grid; gap: 2px; }
+.mx-top { display: flex; justify-content: space-between; gap: 8px; }
+.mx-top b { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 14.5px; font-weight: 600; color: #1c1c1e; }
+.mx-top time { flex: none; font-size: 12.5px; color: #8e8e93; }
+.mx-subj { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 13.5px; color: #3a3a3c; }
+.mx-prev { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 13px; color: #8e8e93; }
+.mx-read { min-width: 0; overflow: auto; }
+.mx-empty { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: #aeaeb2; font-size: 14px; }
+.mx-empty svg { width: 38px; height: 38px; color: #d1d1d6; }
+.mx-empty p { margin: 0; }
+.mx-mail { padding: 26px 30px 28px; animation: mx-in .4s var(--ease); }
+@keyframes mx-in { from { opacity: 0; transform: translateY(6px); } }
+.mx-from { display: flex; align-items: center; gap: 12px; }
+.mx-from div { flex: 1; min-width: 0; }
+.mx-from b { display: block; font-size: 15px; font-weight: 600; color: #1c1c1e; }
+.mx-from small { font-size: 12.5px; color: #8e8e93; }
+.mx-from time { font-size: 12.5px; color: #8e8e93; }
+.mx-av { width: 40px; height: 40px; flex: none; display: grid; place-items: center; border-radius: 50%; background: linear-gradient(160deg, #b8b8c0, #8a8a94); color: #fff; font-size: 14px; font-weight: 600; }
+.mx-mail h3 { margin: 22px 0 14px; font: 700 22px/1.25 var(--display); letter-spacing: -.02em; color: #1c1c1e; }
+.mx-text { font-size: 16px; line-height: 1.65; color: #2c2c2e; }
+.mx-text p { margin: 0 0 12px; }
+@media (max-width: 720px) { .mx { grid-template-columns: 1fr; } .mx-list { border-right: 0; border-bottom: 1px solid #ececf0; } }
