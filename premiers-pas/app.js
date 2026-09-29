@@ -172,6 +172,7 @@
     orbMood();
   }
   function ended() {
+    setTimeout(function () { hook("onVoiceEnd"); }, 250);
     syncMarks(999);
     speaking = false;
     orbMood();
@@ -565,7 +566,6 @@
     composer.classList.add("has-tpl");
     compose(true, tip);
     paintTemplate();
-    setTimeout(function () { if (tpl) openSlot(null); }, 700);
   }
   function paintTemplate() {
     var box = tpl.el;
@@ -614,9 +614,7 @@
     tpl.vals[p.k] = v;
     closeSlot();
     paintTemplate();
-    var nextEmpty = tpl.parts.filter(function (x) { return typeof x !== "string" && !tpl.vals[x.k]; })[0];
-    if (nextEmpty) setTimeout(function () { openSlot(nextEmpty); }, 160);
-    else if (composeTip) composeTip.textContent = "Tout est prêt : envoyez (flèche ou Entrée)";
+    if (tplDone() && composeTip) composeTip.textContent = "Tout est prêt : envoyez (flèche ou Entrée)";
   }
   function clearTemplate() {
     closeSlot();
@@ -888,7 +886,8 @@
   /* ---------- Activités interactives ---------- */
 
   // essais : "done" quand réussi ou après deux essais ; "checked" entre deux essais
-  function triesLine(pv, a, pts, max) {
+  function triesLine() {}
+  function triesLineOld(pv, a, pts, max) {
     pv.appendChild(h('<p class="pv-tries">' + pts + " point" + (pts > 1 ? "s" : "") + " · essai " + Math.min((a.tries || []).length + (a.done || a.checked ? 0 : 1), max || 2) + " sur " + (max || 2) + "</p>"));
   }
 
@@ -1097,7 +1096,6 @@
         var a = act(id);
         a.seq = a.seq || []; a.tries = a.tries || [];
         var locked = a.done || a.checked;
-        pv.appendChild(h('<div class="ord-axis"><span>Le plus simple</span><i></i><span>Le plus détaillé</span></div>'));
         var box = h('<div class="ord"></div>');
         shown.forEach(function (k) {
           var pos = a.seq.indexOf(k);
@@ -1115,7 +1113,6 @@
           box.appendChild(b);
         });
         pv.appendChild(box);
-        if (!locked) pv.appendChild(h('<p class="pv-hint">Cliquez d’abord sur le prompt le plus simple, puis sur le suivant. Un nouveau clic annule.</p>'));
         if (a.tries.length) {
           var ok = a.tries[a.tries.length - 1];
           fb(pv, ok ? "ok" : "ko", ok ? "<b>Réussi :</b> plus on donne de précisions, plus la réponse sera adaptée. Les trois restent des prompts." : "<b>À reprendre :</b> comparez la quantité de précisions dans chaque prompt.");
@@ -1382,18 +1379,18 @@
   var STEPS = [
     /* Dire bonjour ------------------------------------------------------------- */
     {
-      id: "bonjour", seq: 0, pill: "À vous d’écrire", icon: "pencil", title: "Dites bonjour à Claude",
+      id: "bonjour", seq: 0, pill: "À vous d’écrire", icon: "pencil", title: "Dites bonjour à l’IA",
       audio: "pp-bonjour", say: "À gauche, vous avez accès à l’IA. Le champ de saisie est maintenant actif. Écrivez-lui un premier message, par exemple : « Bonjour, qui es-tu ? » Puis envoyez-le !",
       render: function (pv) {
         var a = act("bonjour");
-        lead(pv, "Claude est ouvert <b>à gauche</b>. On lui écrit comme à une personne : avec des phrases normales, pas besoin de mots-clés.");
+        lead(pv, "L’IA est ouverte <b>à gauche</b> (ici, Claude). On lui écrit comme à une personne : avec des phrases normales, pas besoin de mots-clés.");
         stepsList(pv, [
-          { html: "Écrivez un premier message dans le champ de Claude." },
+          { html: "Écrivez un premier message dans le champ de saisie, à gauche." },
           { html: "Envoyez-le : <b>flèche</b> ou touche <b>Entrée</b>." },
           { html: "Lisez sa réponse." }
         ], a.done ? 3 : a.sent ? 2 : a.typed ? 1 : 0);
         if (!a.sent) suggestions(pv, "Pas d’idée ? Cliquez sur une suggestion :", ["Bonjour, qui es-tu ?", "Bonjour ! Que sais-tu faire ?", "Salut Claude, présente-toi en deux phrases."]);
-        if (a.done) fb(pv, "ok", "<b>Premier échange réussi.</b> Claude est un assistant d’intelligence artificielle, conçu par Anthropic. Il répond à ce que vous lui écrivez.");
+        if (a.done) fb(pv, "ok", "<b>Premier échange réussi.</b> L’IA répond à ce que vous lui écrivez, comme dans une conversation.");
       },
       ready: function () { return !!act("bonjour").done; },
       enter: function () { if (!act("bonjour").done) compose(true, "À vous : écrivez un premier message"); },
@@ -1409,9 +1406,9 @@
       audio: "pp-vraifaux", say: "Trois idées reçues sur l’intelligence artificielle. Glissez la carte vers la droite si c’est vrai, vers la gauche si c’est faux. Vous pouvez aussi utiliser les boutons."
     }, (function () {
       var w = swipe("vraifaux", [
-        ["Claude connaît déjà mon entreprise et mes dossiers.", false, "Il ne sait que ce que vous lui écrivez ou lui donnez dans la conversation."],
-        ["On peut lui écrire en français, comme à une personne.", true, "Des phrases normales suffisent. Il fonctionne aussi dans beaucoup d’autres langues."],
-        ["Ses réponses sont toujours justes.", false, "Claude peut se tromper : on relit, et on vérifie les faits importants."]
+        ["L’IA connaît déjà mon entreprise et mes dossiers.", false, "Elle ne sait que ce que vous lui écrivez ou lui donnez dans la conversation."],
+        ["On peut lui écrire en français, comme à une personne.", true, "Des phrases normales suffisent. Elle comprend aussi beaucoup d’autres langues."],
+        ["Ses réponses sont toujours justes.", false, "L’IA peut se tromper : on relit, et on vérifie les faits importants."]
       ]);
       var r = w.render;
       w.render = function (pv) { lead(pv, "Vrai à droite, faux à gauche. Une carte à la fois."); r(pv); };
@@ -1420,30 +1417,29 @@
 
     /* Où trouver Claude (illustration) ------------------------------------------ */
     {
-      id: "acces", seq: 0, pill: "Bon à savoir", icon: "eye", title: "Où trouver Claude ?",
+      id: "acces", seq: 0, pill: "Bon à savoir", icon: "eye", title: "Avec quoi utiliser l’IA ?",
       audio: "pp-acces", say: "L’IA s’utilise généralement de trois façons : dans le navigateur, sur le site web de l’IA, avec l’application pour ordinateur, sur Mac et Windows, ou avec l’application mobile, sur iOS et Android.",
       render: function (pv) {
-        lead(pv, "Même Claude, trois portes d’entrée. Vos conversations vous suivent de l’une à l’autre.");
+        lead(pv, "Une IA comme Claude s’utilise partout : sur un site web, dans une application pour ordinateur, ou sur votre téléphone.");
         pv.appendChild(h('<figure class="devices" aria-label="Claude dans le navigateur, sur ordinateur et sur mobile">' +
-          '<div class="dev dev-web"><div class="dv-bar"><i></i><i></i><i></i><span>claude.ai</span></div><div class="dv-screen">' + MINI + '</div><figcaption><b>Navigateur</b>Le site claude.ai</figcaption></div>' +
+          '<div class="dev dev-web"><div class="dv-bar"><i></i><i></i><i></i><span>https://…</span></div><div class="dv-screen">' + MINI + '</div><figcaption><b>Navigateur</b>Un site web</figcaption></div>' +
           '<div class="dev dev-laptop"><div class="dv-lid"><div class="dv-screen">' + MINI + '</div></div><div class="dv-base"></div><figcaption><b>Application ordinateur</b>Mac et Windows</figcaption></div>' +
           '<div class="dev dev-phone"><div class="dv-screen">' + MINI + '</div><figcaption><b>Application mobile</b>iOS et Android</figcaption></div>' +
           "</figure>"));
-        fb(pv, "", "Pour utiliser Claude, il faut avoir <b>au moins 18 ans</b> et se trouver dans une région où le service est proposé.");
       }
     },
 
     /* Demander à Claude à quoi il sert ----------------------------------------- */
     {
-      id: "demander", seq: 1, pill: "À vous d’écrire", icon: "pencil", title: "Demandez-lui à quoi il sert",
+      id: "demander", seq: 1, pill: "À vous d’écrire", icon: "pencil", title: "Demandez-lui à quoi elle sert",
       audio: "pp-demander", say: "Le mieux placé pour vous dire à quoi sert l’IA, c’est l’IA. La demande est prête dans son champ. Cliquez sur les cases orange pour la compléter, puis envoyez.",
       render: function (pv) {
         var a = act("demander");
-        lead(pv, "Le mieux placé pour vous le dire, c’est Claude. La demande est prête dans son champ : <b>cliquez sur les cases orange</b> pour la compléter, puis envoyez.");
+        lead(pv, "La mieux placée pour vous le dire, c’est l’IA. La demande est prête dans son champ : <b>cliquez sur les cases orange</b> pour la compléter, puis envoyez.");
         stepsList(pv, [
-          { html: "Complétez les <b>cases orange</b>, dans le champ de Claude." },
+          { html: "Cliquez sur les <b>cases orange</b>, dans le champ de saisie, pour les compléter." },
           { html: "Envoyez la demande." },
-          { html: "Lisez la réponse : Claude liste ce qu’il sait faire." }
+          { html: "Lisez la réponse : l’IA liste ce qu’elle sait faire." }
         ], a.done ? 3 : a.sent ? 2 : a.filled ? 1 : 0);
         if (a.done) fb(pv, "ok", "<b>Voilà ses usages :</b> écrire, apprendre, résumer, trouver des idées, traduire, analyser une image, programmer. Gardez-les en tête pour l’activité suivante.");
       },
@@ -1478,7 +1474,7 @@
         colors: COLORS
       });
       var r = w.render;
-      w.render = function (pv) { lead(pv, "Claude vient de vous répondre, à gauche. <b>Cliquez sur une situation, puis sur l’usage</b> qui convient."); r(pv); };
+      w.render = function (pv) { lead(pv, "L’IA vient de vous répondre, à gauche. <b>Cliquez sur une situation, puis sur l’usage</b> qui convient."); r(pv); };
       return w;
     })()),
 
@@ -1488,7 +1484,7 @@
       audio: "pp-essayer", say: "À vous d’essayer ! Choisissez une situation parmi les exemples à droite de votre écran. La demande apparaîtra dans le champ de l’IA. Vous n’aurez plus qu’à l’envoyer.",
       render: function (pv) {
         var a = act("essayer");
-        lead(pv, "Choisissez une situation. La demande apparaît dans Claude : <b>complétez la case orange</b>, puis envoyez.");
+        lead(pv, "Choisissez une situation. La demande apparaît à gauche : <b>cliquez sur la case orange</b> pour la compléter, puis envoyez.");
         var g = h('<div class="sit-grid"></div>');
         ESSAIS.forEach(function (e) {
           var b = h('<button type="button" class="sit"><span class="ic"><svg><use href="#i-' + e.icon + '"/></svg></span><b></b><small></small></button>');
@@ -1505,7 +1501,7 @@
           g.appendChild(b);
         });
         pv.appendChild(g);
-        if (a.done) fb(pv, "ok", "<b>C’est aussi simple que ça.</b> Une situation réelle, une phrase claire : Claude s’occupe du reste. Pensez à relire sa réponse.");
+        if (a.done) fb(pv, "ok", "<b>C’est aussi simple que ça.</b> Une situation réelle, une phrase claire : l’IA s’occupe du reste. Pensez à relire sa réponse.");
       },
       ready: function () { return !!act("essayer").done; },
       onSend: function () { act("essayer").sent = true; compose(false); refresh(); },
@@ -1523,7 +1519,7 @@
         "Donne-moi 3 idées de dessert sans four, pour 6 personnes dont un enfant allergique aux noix, prêtes en 20 minutes, avec la liste des courses."
       ], [1, 2, 0]);
       var r = w.render;
-      w.render = function (pv) { lead(pv, "Un <b>prompt</b>, c’est ce que vous écrivez à Claude : d’une question courte à une demande détaillée."); r(pv); };
+      w.render = function (pv) { lead(pv, "Un <b>prompt</b>, c’est ce que vous écrivez à l’IA. Cliquez dans l’ordre, <b>du plus simple au plus détaillé</b>."); r(pv); };
       return w;
     })()),
 
@@ -1534,7 +1530,7 @@
       render: function (pv) {
         var a = act("mail");
         var phase = a.done ? 2 : a.open === "pot" ? 1 : 0;
-        pv.appendChild(h('<p class="pv-task"></p>')).innerHTML = phase === 0 ? "<b>1.</b> Ouvrez le mail du pot de départ." : phase === 1 ? "<b>2.</b> Commencez simple : dans Claude, demandez <b>des idées pour ce pot</b>, en une phrase courte." : "<b>✓</b> Claude a répondu. Ses idées sont-elles adaptées à ce pot ?";
+        pv.appendChild(h('<p class="pv-task"></p>')).innerHTML = phase === 0 ? "<b>1.</b> Ouvrez le mail du pot de départ." : phase === 1 ? "<b>2.</b> Commencez simple : à gauche, demandez <b>des idées pour ce pot</b>, en une phrase courte." : "<b>✓</b> Claude a répondu. Ses idées sont-elles adaptées à ce pot ?";
         mailApp(pv, phase === 0 ? "open" : "show");
         if (a.off) fb(pv, "ko", "Parlez à Claude du <b>pot de départ</b> : c’est notre situation.");
         if (a.long) fb(pv, "", "Votre demande est déjà détaillée : très bien ! On va quand même voir ce que donne une demande courte.");
@@ -1545,9 +1541,12 @@
         var a = act("mail");
         if (id !== "pot" || a.started) return;
         a.started = true;
+        a.waitVoice = true;
         narrate({ audio: "pp-mail-ouvert", text: "Super ! C’est bien celui-là. Premier conseil : commencez simple. Dans l’IA, demandez des idées pour ce pot, en une phrase courte. Par exemple : « Donne-moi des idées pour un pot de départ. »" });
-        startSimple();
+        if (!S.sound) { a.waitVoice = false; startSimple(); }
+        setTimeout(function () { if (a.waitVoice && st().id === "mail") { a.waitVoice = false; startSimple(); } }, 14000);   // filet si la voix ne se lance pas
       },
+      onVoiceEnd: function () { var a = act("mail"); if (a.waitVoice) { a.waitVoice = false; startSimple(); } },
       onSend: function (c, text) {
         var a = act("mail");
         c.kind = "pot"; c.title = "Pot de départ";
@@ -1627,7 +1626,7 @@
 
     /* Trier les idées (glisser-déposer) ---------------------------------------------- */
     extend({
-      id: "avantapres", seq: 2, pill: "Glissez-déposez · 6 points", icon: "hand", title: "Trier les idées de Claude",
+      id: "avantapres", seq: 2, pill: "Glissez-déposez · 6 points", icon: "hand", title: "Trier les idées de l’IA",
       audio: "pp-avantapres", say: "Claude vous a donné deux séries d’idées. Glissez chaque idée dans la bonne colonne : utilisable pour le pot de Martine, ou pas adaptée."
     }, (function () {
       var w = dragDrop("avantapres", {
@@ -1637,11 +1636,11 @@
           ["Un cadeau et une carte signée par l’équipe", "ok"],
           ["Louer une salle avec un DJ", "ko"],
           ["Un diaporama projeté en salle de pause", "ok"],
-          ["Offrir un week-end en cadeau", "ko"]
+          ["Un repas au restaurant pour les 12", "ko"]
         ],
         buckets: [
           ["ok", "Utilisable", "60 €, 12 personnes, salle de pause", "check"],
-          ["ko", "Pas adaptée", "Hors budget ou inutile", "x"]
+          ["ko", "Pas adaptée", "Dépasse 60 € ou inutile", "x"]
         ],
         after: function (pv, a) { if (a.done) fb(pv, "", "<b>Regardez d’où elles viennent :</b> les idées pas adaptées viennent toutes de votre <b>demande courte</b>. Les utilisables, de votre <b>demande précisée</b>. C’est tout l’intérêt de préciser."); }
       });
@@ -1691,8 +1690,8 @@
         note.appendChild(button(a.copied ? "Mot copié" : "Copier le mot", "copy", function () { copyNote(); }));
         pv.appendChild(note);
         stepsList(pv, [
-          { html: "Nouveau sujet : ouvrez une <b>nouvelle conversation</b> (bouton ✎, en haut à gauche de Claude)." },
-          { html: "<b>Copiez le mot</b> de Diogo, <b>collez-le</b> dans Claude (Ctrl + V), et <b>demandez-lui de le traduire</b>." },
+          { html: "Nouveau sujet : ouvrez une <b>nouvelle conversation</b> (bouton ✎, en haut à gauche)." },
+          { html: "<b>Copiez le mot</b> de Diogo, <b>collez-le</b> dans le champ de saisie (Ctrl + V), et <b>demandez-lui de le traduire</b>." },
           { html: "Envoyez, puis lisez la traduction." }
         ], phase);
         if (a.noNote) fb(pv, "ko", "Claude n’a pas le mot de Diogo : <b>collez-le</b> dans votre message.");
@@ -1965,6 +1964,54 @@
   }
   $$("[data-tab]").forEach(function (b) { b.addEventListener("click", function () { split.dataset.tab = b.dataset.tab; $$("[data-tab]").forEach(function (x) { x.setAttribute("aria-selected", String(x === b)); }); }); });
 
+  /* ---------- Accueil : nuage de points autour de l'orbe, qui tourbillonne sous la souris ---------- */
+
+  var cloud = (function () {
+    var cv = document.createElement("canvas"), ctx = cv.getContext("2d"), pts = [], raf = 0, on = false;
+    var mx = -9999, my = -9999, R = 0, Rt = 1, A = 1, At = 1, rot = 0, dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.className = "wl-canvas";
+    claudeEl.insertBefore(cv, claudeEl.firstChild);
+    for (var i = 0; i < 2600; i++) {
+      var u = Math.random() * 2 - 1, th = Math.random() * Math.PI * 2, r = 0.5 + 0.5 * Math.pow(Math.random(), 0.35), q = Math.sqrt(1 - u * u);
+      pts.push({ x: q * Math.cos(th) * r, y: u * r, z: q * Math.sin(th) * r, ox: 0, oy: 0, s: Math.random() < 0.08 ? 1.9 : 1.1 });
+    }
+    window.addEventListener("pointermove", function (e) { var b = cv.getBoundingClientRect(); mx = e.clientX - b.left; my = e.clientY - b.top; });
+    function size() { var b = cv.getBoundingClientRect(); cv.width = b.width * dpr; cv.height = b.height * dpr; }
+    function frame() {
+      if (!on) return;
+      raf = requestAnimationFrame(frame);
+      if (cv.width !== Math.round(cv.getBoundingClientRect().width * dpr)) size();
+      var b = cv.getBoundingClientRect(), o = bigHost.getBoundingClientRect();
+      var cx = o.width ? o.left + o.width / 2 - b.left : b.width / 2, cy = o.width ? o.top + o.height / 2 - b.top : b.height / 2;
+      var base = Math.min(330, Math.min(b.width, b.height) * 0.36);
+      R += (base * Rt - R) * 0.05; A += (At - A) * 0.05; rot += 0.0016;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, b.width, b.height);
+      var cs = Math.cos(rot), sn = Math.sin(rot), cT = Math.cos(0.35), sT = Math.sin(0.35);
+      for (var k = 0; k < pts.length; k++) {
+        var p = pts[k];
+        var x = p.x * cs - p.z * sn, z = p.x * sn + p.z * cs, y = p.y * cT - z * sT; z = p.y * sT + z * cT;
+        var px = cx + x * R, py = cy + y * R;
+        var dx = px + p.ox - mx, dy = py + p.oy - my, d = Math.sqrt(dx * dx + dy * dy);
+        if (d < 150 && d > 0.5) {                        // tourbillon autour du curseur
+          var f = (1 - d / 150);
+          p.ox += (-dy / d * 3.2 + dx / d * 1.1) * f * f * 6;
+          p.oy += (dx / d * 3.2 + dy / d * 1.1) * f * f * 6;
+        }
+        p.ox *= 0.93; p.oy *= 0.93;
+        var al = (0.18 + 0.5 * (z + 1) / 2) * A;
+        ctx.fillStyle = "rgba(31, 30, 28," + al.toFixed(3) + ")";
+        ctx.fillRect(px + p.ox, py + p.oy, p.s, p.s);
+      }
+    }
+    return {
+      start: function () { if (on) return; on = true; cv.classList.remove("is-off"); size(); R = 0; Rt = 1; A = 0; At = 1; frame(); },
+      gather: function () { Rt = 0.62; At = 0.55; },
+      stop: function () { cv.classList.add("is-off"); setTimeout(function () { on = false; cancelAnimationFrame(raf); }, 950); }
+    };
+  })();
+  var wlHero = $("[data-wl-hero]");
+
   /* ---------- Accueil : l'orbe au centre, le message de bienvenue mot à mot ---------- */
 
   var WELCOME_TEXT = "Bonjour et bienvenue ! Je serai votre assistante pour toute la durée des modules. Aujourd’hui, vous allez… oui, c’est ça : écrire vos premiers messages à une IA. C’est parti !";
@@ -1983,6 +2030,8 @@
     saying(true);
     sayText(WELCOME_TEXT);
     sayReveal(0);
+    wlHero.classList.add("is-on");
+    cloud.start();
     showGo("Commencer");
   }
   function speakWelcome() {
@@ -2016,6 +2065,8 @@
     if (wlStarted) { leaveWelcome(); return; }
     wlStarted = true;
     wlGo.classList.remove("is-on");
+    wlHero.classList.add("is-started");
+    cloud.gather();
     speakWelcome();
   });
   function leaveWelcome() {
@@ -2026,6 +2077,8 @@
     wlGo.classList.remove("is-on");
     app.classList.remove("is-welcome");
     split.classList.remove("panel-away");
+    wlHero.classList.remove("is-on");
+    cloud.stop();
     saying(false);
     setTimeout(function () { go(0); }, 800);
   }

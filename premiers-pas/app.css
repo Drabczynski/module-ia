@@ -854,3 +854,35 @@ svg { display: block; }
 .dd-bucket[data-key="ko"] .ic { background: #fdecec; color: #c42f2f; }
 .dd-bucket[data-key="ok"] .ic { background: #e3f5ea; color: #147044; }
 .split.panel-full .pv-h1 { color: #1f1e1c; }
+
+/* ==========================================================================
+   Accueil : titre, nuage de points interactif autour de l'orbe
+   ========================================================================== */
+.wl-canvas { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; opacity: 1; transition: opacity .9s var(--ease); }
+.wl-canvas.is-off { opacity: 0; }
+.claude { position: relative; }
+.claude > .side, .claude > .chat { position: relative; z-index: 1; }
+.wl-hero { position: fixed; inset: 0; z-index: 60; pointer-events: none; opacity: 0; transition: opacity .7s var(--ease); }
+.app.is-welcome ~ .wl-hero, .wl-hero.is-on { opacity: 1; }
+.wl-hero.is-started .wl-title, .wl-hero.is-started .wl-foot-l, .wl-hero.is-started .wl-foot-r { opacity: 0; transform: translateY(-10px); }
+.wl-title { position: absolute; left: clamp(28px, 5vw, 80px); top: 20vh; margin: 0; font: 400 clamp(44px, 5.4vw, 82px)/1 var(--display); letter-spacing: -.055em; color: #141413; transition: opacity .7s var(--ease), transform .7s var(--ease); }
+.wl-hero .wl-go { position: absolute; left: clamp(28px, 5vw, 80px); top: calc(20vh + clamp(44px, 5.4vw, 82px) * 2 + 34px); bottom: auto; height: 38px; padding: 0 16px 0 18px; gap: 8px; font: 600 14px/1 var(--text); transform: translateY(8px); pointer-events: auto; }
+.wl-hero .wl-go svg { width: 15px; height: 15px; }
+.wl-hero .wl-go.is-on { transform: none; }
+.wl-foot-l, .wl-foot-r { position: absolute; bottom: 132px; margin: 0; font: 400 12.5px/1.55 var(--text); color: #6b675e; transition: opacity .7s var(--ease), transform .7s var(--ease); }
+.wl-foot-l { left: clamp(28px, 5vw, 80px); max-width: 360px; }
+.wl-foot-r { right: clamp(28px, 4vw, 64px); text-align: right; }
+.wl-foot-r b { color: #1f1e1c; font-weight: 600; }
+.app.is-welcome .empty-state h2, .app.is-welcome .empty-state > p { opacity: 0 !important; }
+
+/* panneau de formation : fond blanc, plus d'air en haut */
+.panel-body { background: #fff; }
+.pv { padding-top: 48px; }
+.pv.is-compact { padding-top: 34px; }
+
+/* plus d'air dans les listes d'étapes et autour du post-it */
+.pv-steps { gap: 12px; margin-top: 8px; }
+.pv-steps li { padding: 16px 18px; }
+.postit { margin: 4px 0 34px 6px; }
+.ord { gap: 14px; }
+.ord-card { padding: 18px 20px; font-size: 17px; }
