@@ -339,6 +339,15 @@
     var ul = $("[data-recents]");
     ul.innerHTML = "";
     var list = P.convs.filter(function (c) { return c.messages.length; });
+    if (demoRecents) {
+      // exemples fictifs, pour illustrer le repère « Échanges précédents »
+      ["Idées pour l’affiche", "Relance du fournisseur", "Ordre du jour du point équipe"].forEach(function (t) {
+        var li = h('<li><button type="button" class="is-demo" tabindex="-1"><svg><use href="#i-chat"/></svg><span></span></button></li>');
+        li.querySelector("span").textContent = t;
+        ul.appendChild(li);
+      });
+      if (!list.length) return;
+    }
     if (!list.length) { ul.innerHTML = '<li class="empty">Vos échanges apparaîtront ici.</li>'; return; }
     list.forEach(function (c) {
       var li = document.createElement("li");
@@ -553,7 +562,7 @@
     ["send", "Envoyer", "La flèche envoie le message. La touche Entrée aussi."],
     ["history", "Échanges précédents", "Retrouvez vos conversations passées."]
   ];
-  var tipEl = null, repSeen = [], repCard = null;
+  var tipEl = null, repSeen = [], repCard = null, demoRecents = false;
   function clearSpots() {
     $$(".spot-badge").forEach(function (b) { b.remove(); });
     $$(".is-spot").forEach(function (b) { b.classList.remove("is-spot"); });
@@ -744,42 +753,16 @@
     {
       id: "lea", seq: 0, pill: "La situation", icon: "eye", title: "La nouvelle tâche de Léa", audio: "ecran-03",
       portrait: ["../assets/img/lea-portrait.jpg", "Léa, qui sort du point d’équipe"],
-      say: "Voici Léa. Elle sort d’un point d’équipe. Cliquez sur les deux noms, puis sur les deux échéances.",
+      say: "Voici Léa. Elle sort d’un point d’équipe et elle a pris quelques notes rapides. Nora prépare l’affiche pour le 5 novembre. Sami vérifie le stock pour le 6. Et le lieu de la prochaine rencontre… reste à confirmer. Ce que Léa veut maintenant, c’est un tableau simple : qui fait quoi, et pour quand. Remarquez ce dernier point : il n’a encore ni responsable ni date. Gardez-le en tête, on y reviendra.",
       render: function (pv, side) {
-        var a = act("lea");
-        a.found = a.found || [];
-        var phase = ["nora", "sami"].every(function (k) { return a.found.indexOf(k) >= 0; }) ? (["d5", "d6"].every(function (k) { return a.found.indexOf(k) >= 0; }) ? "done" : "dates") : "names";
         side.appendChild(h('<p class="pv-lead">Léa sort du point d’équipe avec quelques notes. Elle veut savoir <b>qui fait quoi, et pour quand</b>.</p>'));
-        var nb = h('<div class="pv-nb"><p>Point équipe du <span data-k="d3">3 novembre</span>.</p><p><span data-k="nora">Nora</span> prépare l’affiche pour le <span data-k="d5">5 novembre</span>.</p><p><span data-k="sami">Sami</span> vérifie le stock pour le <span data-k="d6">6 novembre</span>.</p><p>Le lieu de la prochaine rencontre <span data-k="lieu">reste à confirmer.</span></p></div>');
-        $$("[data-k]", nb).forEach(function (sp) {
-          var k = sp.dataset.k;
-          if (k === "lieu") { if (phase === "done") sp.className = "pv-mark"; return; }
-          var b = h('<button type="button" class="tk"></button>');
-          b.textContent = sp.textContent;
-          if (a.found.indexOf(k) >= 0) b.classList.add("is-done");
-          b.disabled = phase === "done" || a.found.indexOf(k) >= 0;
-          b.onclick = function () {
-            var okName = phase === "names" && (k === "nora" || k === "sami");
-            var okDate = phase === "dates" && (k === "d5" || k === "d6");
-            if (okName || okDate) { a.found.push(k); a.miss = null; }
-            else { a.miss = phase === "names" ? "Cherchez d’abord les deux prénoms." : k === "d3" ? "Le 3 novembre est la date de la réunion, pas une échéance." : "Cliquez maintenant sur les échéances."; }
-            refresh();
-            if (!(okName || okDate)) { var el = $$(".tk", bodyEl).filter(function (x) { return x.textContent === b.textContent; })[0]; if (el) el.classList.add("is-miss"); }
-          };
-          sp.replaceWith(b);
-        });
-        side.appendChild(nb);
-        var has = function (k) { return a.found.indexOf(k) >= 0; };
-        var cell = function (k, v) { return has(k) ? '<div class="pop">' + v + "</div>" : '<div class="empty"></div>'; };
+        side.appendChild(h('<div class="pv-nb"><p>Point équipe du 3 novembre.</p><p><span class="tk is-done">Nora</span> prépare l’affiche pour le <span class="tk is-done">5 novembre</span>.</p><p><span class="tk is-done">Sami</span> vérifie le stock pour le <span class="tk is-done">6 novembre</span>.</p><p>Le lieu de la prochaine rencontre <span class="pv-mark">reste à confirmer.</span></p></div>'));
         pv.appendChild(h('<div class="pv-grid"><div class="th">Action</div><div class="th">Responsable</div><div class="th">Échéance</div>' +
-          "<div>Préparer l’affiche</div>" + cell("nora", "Nora") + cell("d5", "5 novembre") +
-          "<div>Vérifier le stock</div>" + cell("sami", "Sami") + cell("d6", "6 novembre") +
-          "<div>Confirmer le lieu</div>" + (phase === "done" ? '<div class="warn">?</div><div class="warn">?</div>' : '<div class="empty"></div><div class="empty"></div>') + "</div>"));
-        if (a.miss) fb(pv, "ko", esc(a.miss));
-        else if (phase !== "done") pv.appendChild(h('<p class="pv-hint">' + (phase === "names" ? "Cliquez sur les deux noms dans les notes." : "Cliquez maintenant sur les deux échéances.") + "</p>"));
-        else fb(pv, "ko", "<b>Point à retenir :</b> le lieu reste à confirmer. Aucun responsable n’est désigné pour cette action.");
-      },
-      ready: function () { return act("lea").found && act("lea").found.length >= 4; }
+          "<div>Préparer l’affiche</div><div>Nora</div><div>5 novembre</div>" +
+          "<div>Vérifier le stock</div><div>Sami</div><div>6 novembre</div>" +
+          '<div>Confirmer le lieu</div><div class="warn">?</div><div class="warn">?</div></div>'));
+        fb(pv, "ko", "<b>Point à retenir :</b> le lieu reste à confirmer. Aucun responsable n’est désigné pour cette action.");
+      }
     },
 
     /* 3.04 · Les repères, directement sur Claude ------------------------------- */
@@ -797,7 +780,9 @@
             badge(r[0], String(i + 1), function (b) {
               if (repSeen.indexOf(i) < 0) repSeen.push(i);
               b.classList.add("is-seen");
-              showTip(b, r[1], r[2]);
+              if (r[0] === "history") { demoRecents = true; renderRecents(); toggleSide(true); }
+              else toggleSide(false);
+              setTimeout(function () { showTip(b, r[1], r[2]); }, r[0] === "history" ? 280 : 0);
               paintRep();
               if (repSeen.length === 4) {
                 act("reperes").done = true;
@@ -806,14 +791,11 @@
               }
             });
           });
-          repCard = h('<div class="rep-card" role="status"><h3>Les repères dans Claude</h3><p></p><div class="rep-foot"><span class="rep-count"></span></div></div>');
-          claudeEl.appendChild(repCard);
-          paintRep();
-          requestAnimationFrame(function () { repCard.classList.add("is-on"); });
         }, 700);
       },
       leave: function () {
         split.classList.remove("panel-away");
+        if (demoRecents) { demoRecents = false; toggleSide(false); renderRecents(); }
         if (repCard) { var c = repCard; repCard = null; c.classList.remove("is-on"); setTimeout(function () { c.remove(); }, 400); }
         showTab("story");
       }
@@ -830,6 +812,7 @@
     /* 3.06 · Une demande complète ------------------------------------------ */
     {
       id: "demande", seq: 1, pill: "Préparer", icon: "bulb", title: "Une demande complète",
+      audio: "notes",
       say: "Claude ne connaît pas les notes de Léa. Une bonne demande lui donne la source, et le résultat attendu. Une pièce jointe n’est pas nécessaire pour un court texte.",
       render: function (pv) {
         lead(pv, "Claude ne connaît pas les notes de Léa. Une bonne demande lui donne <b>deux choses</b> :");

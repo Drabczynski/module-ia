@@ -494,3 +494,4 @@ svg { display: block; }
 .pv-hero-main .pv-nb { margin-bottom: 0; font-size: 23px; }
 .pv-hero-main .pv-lead { margin-bottom: 16px; }
 @media (max-width: 980px) { .pv-hero { grid-template-columns: 1fr; } .pv-hero-img { max-height: 320px; aspect-ratio: auto; } }
+.side .is-demo { pointer-events: none; }

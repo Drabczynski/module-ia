@@ -37,5 +37,10 @@ window.COURSE_CAPTIONS = {
   "associer": [
     [0.06, 2.69, "Associez chaque besoin à sa fonction dans Claude."],
     [3.92, 6.08, "Sélectionnez un besoin, puis sa fonction."]
+  ],
+  "notes": [
+    [0.16, 1.64, "Claude ne connaît pas les notes de Léa."],
+    [2.28, 5.42, "Une bonne demande lui donne la source et le résultat attendu."],
+    [6.2, 8.48, "Une pièce jointe n’est pas nécessaire pour un court texte."]
   ]
 };
