@@ -395,11 +395,11 @@
   /* ---------- Les cinq briques d'un prompt : détection simple, pour guider (pas pour noter la qualité) ---------- */
 
   var BRICKS = [
-    { k: "role", name: "Rôle", q: "Qui l’IA doit-elle être ?", re: /\btu es\b|\ben tant que\b|\bagis comme\b|\bjoue le rôle\b|\bmets-toi (dans la peau|à la place)\b|\btu joues\b/i },
-    { k: "cible", name: "Cible", q: "Pour qui est le texte ?", re: /\b(pour|à destination de|destiné[e]?s? à|à l’attention de|à l'attention de|adressé[e]?s? à)\s+(les|des|nos|mes|un|une|le|la|l’|l')?\s*(client|candidat|équipe|salarié|collègue|lecteur|public|habitant|parent|abonné|visiteur|usager|adhérent|personne|jeune|débutant)/i },
-    { k: "obj", name: "Objectif", q: "Que doit-il produire, et pourquoi ?", re: /\b(rédige|écris|écrire|propose|prépare|crée|annonce|informe|afin de|pour que|objectif|le but)\b/i },
-    { k: "ctx", name: "Contexte", q: "Quelles informations doit-il connaître ?", re: /\d{1,2}\s*(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)|\b(fermé|fermeture|horaires?|boutique|magasin|agence|entreprise|pme|association|contexte|situation)\b/i },
-    { k: "fmt", name: "Format", q: "Sous quelle forme ?", re: /\d+\s*(mots|lignes|phrases|caractères|points)|\b(ton|court|courte|paragraphes?|liste|puces|objet|rubriques?|tableau|format|titre)\b/i }
+    { k: "role", name: "Rôle", q: "Qui l’IA doit-elle être ?", re: /\b(tu es|vous êtes|en tant qu|agi[st]? comme|agissez comme|joue[sz]? (le rôle|un|une)|incarne|mets-toi (dans la peau|à la place)|imagine que tu es|comporte-toi comme)\b/i },
+    { k: "cible", name: "Cible", q: "Pour qui est le texte ?", re: /\b(clients?|clientèle|candidats?|équipes?|salariés?|collègues?|lecteurs?|public|habitants?|parents?|abonnés?|visiteurs?|usagers?|adhérents?|patients?|élèves?|étudiants?|partenaires?|fournisseurs?|voisins?|destinataires?)\b/i },
+    { k: "obj", name: "Objectif", q: "Que doit-il produire, et pourquoi ?", re: /\b(rédige[sz]?|écri[st]|écrire|propose[sz]?|prépare[sz]?|crée[sz]?|annonce[rsz]?|informe[rsz]?|explique[rsz]?|préviens|prévenir|afin de|pour que|objectif|le but)\b/i },
+    { k: "ctx", name: "Contexte", q: "Quelles informations doit-il connaître ?", re: /\d{1,2}\s*(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)|\b(fermé|fermée|fermés|fermeture|rouvr|réouverture|horaires?|boutique|magasin|agence|entreprise|pme|association|contexte|situation)/i },
+    { k: "fmt", name: "Format", q: "Sous quelle forme ?", re: /\d+\s*(mots|lignes|phrases|caractères|points)|\b(ton|court|courte|bref|brève|paragraphes?|liste|puces|objet|rubriques?|tableau|format|titre|mail|e-mail|email|courriel|lettre|affiche|publication|post|sms|message court)\b/i }
   ];
   function bricksIn(t) { var o = {}; BRICKS.forEach(function (b) { o[b.k] = b.re.test(t || ""); }); return o; }
 
@@ -419,7 +419,7 @@
       return offre(/3 mars|mars|prise de poste|démarr|début/.test(all)) + (/3 mars|mars|prise de poste|démarr|début/.test(t) && users.length > 1 ? "\n\nJ’ai ajouté la date de prise de poste." : "");
     }
     if (/24 décembre|fermeture|fermé/.test(all)) {
-      var b = bricksIn(t), n = BRICKS.filter(function (x) { return b[x.k]; }).length;
+      var b = bricksIn(all), n = BRICKS.filter(function (x) { return b[x.k]; }).length;
       if (n >= 4) return "**Objet : Fermeture exceptionnelle le 24 décembre**\n\nBonjour,\n\nNotre boutique sera exceptionnellement **fermée le mardi 24 décembre**, pour permettre à toute l’équipe de fêter Noël en famille.\n\nNous vous accueillerons à nouveau dès le **jeudi 26 décembre**, aux horaires habituels.\n\nMerci de votre fidélité, et très belles fêtes de fin d’année !\n\nL’équipe de la boutique";
       return "Voici un message possible :\n\n« Nous vous informons que nous serons fermés le 24 décembre. Merci de votre compréhension. »\n\nDites-moi à qui il s’adresse, le ton souhaité et le format (mail, affiche, publication), je l’adapterai.";
     }
@@ -1426,12 +1426,11 @@
 
     /* 5 · Quelle brique manque ? ------------------------------------------------------- */
     extend({
-      id: "manque", seq: 1, title: "La brique oubliée", audio: "module-2/manque",
-      say: "Chacun de ces trois prompts a oublié une des cinq briques. Pour chaque prompt, cliquez sur la brique oubliée."
+      id: "manque", seq: 1, title: "La brique oubliée",
+      say: "Chacun de ces deux prompts a oublié une brique. Laquelle ?"
     }, whichMissing("manque", [
-      ["Tu es assistant de direction. Rédige un mail pour l’équipe afin d’annoncer la réunion de lundi à 9 h, en salle B.", "fmt", "Aucune indication de forme : longueur, ton, objet du mail…"],
-      ["Rédige une publication pour les abonnés de notre boulangerie, afin d’annoncer la nouvelle galette. En 3 phrases, ton gourmand, avec un emoji.", "role", "On ne dit pas qui l’IA doit être : un community manager, par exemple."],
-      ["Tu es juriste. Résume ce contrat en 5 points clairs, pour un nouveau salarié.", "ctx", "Le contrat n’est pas donné : l’IA n’a aucune information à résumer."]
+      ["Rédige une publication pour les abonnés de notre boulangerie, afin d’annoncer la nouvelle galette. En 3 phrases, ton gourmand.", "role", "Qui écrit ? Un community manager, par exemple."],
+      ["Tu es juriste. Résume ce contrat en 5 points clairs, pour un nouveau salarié.", "ctx", "Le contrat n’est pas donné : rien à résumer."]
     ])),
 
     /* 6 · Le brief de Sophie, puis le prompt à construire ---------------------------------- */
@@ -1517,7 +1516,7 @@
         var a = act("seul");
         pv.appendChild(h('<div class="sms"><span class="sms-who">Sophie</span><p>La boutique sera fermée le mardi 24 décembre. Tu peux prévenir nos clients par mail ? On rouvre le 26 😊</p></div>'));
         lead(pv, "Écrivez un prompt complet dans le champ, à gauche. <b>Les briques s’allument</b> quand l’IA les repère.");
-        var chips = h('<div class="bk-row bk-live"></div>'), got = bricksIn(a.draft || "");
+        var chips = h('<div class="bk-row bk-live"></div>'), got = bricksIn((a.sent || "") + " " + (a.draft || ""));
         BRICKS.forEach(function (b) {
           var c = h('<span class="bk' + (got[b.k] ? " is-on" : "") + '"><i></i></span>');
           c.appendChild(document.createTextNode(b.name));
@@ -1525,14 +1524,14 @@
           chips.appendChild(c);
         });
         pv.appendChild(chips);
-        if (a.missing && !a.done) fbNew(pv, "ko", "<b>Il manque :</b> " + a.missing + ". Complétez votre prompt, puis renvoyez.");
+        if (a.missing && !a.done) fbNew(pv, "ko", "<b>Il manque :</b> " + a.missing + ". Envoyez un message pour compléter : les briques déjà données restent acquises.");
         if (a.done) fbNew(pv, a.best === 5 ? "ok" : "", "<b>" + a.best + " briques sur 5.</b> " + (a.best === 5 ? "Un prompt complet, écrit par vous. Bravo !" : "Pensez à la brique qui manquait la prochaine fois."));
       },
       ready: function () { return !!act("seul").done; },
       primary: function () {
         var a = act("seul");
         if (a.done) return { label: "Continuer", run: next, success: a.best === 5 };
-        if ((a.tries || 0) >= 2) return { label: "Voir mon résultat", run: function () { a.done = true; next(); } };
+        if ((a.tries || 0) >= 3) return { label: "Voir mon résultat", run: function () { a.done = true; next(); } };
         return { label: "Continuer", disabled: true, run: next };
       },
       enter: function () {
@@ -1542,18 +1541,20 @@
         compose(true);
       },
       onType: function () {
-        var a = act("seul"), before = JSON.stringify(bricksIn(a.draft || ""));
+        var a = act("seul"), before = JSON.stringify(bricksIn((a.sent || "") + " " + (a.draft || "")));
         a.draft = input.value;
-        if (JSON.stringify(bricksIn(a.draft)) !== before) refresh();
+        if (JSON.stringify(bricksIn((a.sent || "") + " " + a.draft)) !== before) refresh();
       },
       onSend: function (c, text) {
-        var a = act("seul"), got = bricksIn(text);
-        a.draft = text;
+        var a = act("seul");
+        a.sent = (a.sent || "") + " " + text;
+        a.draft = "";
+        var got = bricksIn(a.sent);
         a.tries = (a.tries || 0) + 1;
         a.best = Math.max(a.best || 0, BRICKS.filter(function (b) { return got[b.k]; }).length);
         var miss = BRICKS.filter(function (b) { return !got[b.k]; }).map(function (b) { return b.name.toLowerCase(); });
         a.missing = miss.join(", ");
-        if (!miss.length || a.tries >= 2) a.done = true;
+        if (!miss.length || a.tries >= 3) a.done = true;
         compose(false); refresh();
       },
       onAnswer: function () { var a = act("seul"); if (!a.done) { a.draft = ""; compose(true); refresh(); } else if (a.best === 5) autoNext(6500); }
@@ -1580,14 +1581,14 @@
 
   function stepIdx(id) { for (var i = 0; i < STEPS.length; i++) if (STEPS[i].id === id) return i; return 0; }
   function resetAct(id) { var best = act(id).best; P.act[id] = { best: best }; }
-  var MAX = 21;
+  var MAX = 20;
   function scoreItems() {
     var best = function (id) { return (P.act[id] || {}).best || 0; };
     return [
       { id: "invente", idx: stepIdx("invente"), label: "Ce que l’IA a inventé", pts: best("invente"), max: 1 },
       { id: "pourquoi", idx: stepIdx("pourquoi"), label: "Pourquoi ces inventions ?", pts: best("pourquoi"), max: 1 },
       { id: "relier", idx: stepIdx("relier"), label: "Reconnaître les briques", pts: best("relier"), max: 5 },
-      { id: "manque", idx: stepIdx("manque"), label: "La brique oubliée", pts: best("manque"), max: 3 },
+      { id: "manque", idx: stepIdx("manque"), label: "La brique oubliée", pts: best("manque"), max: 2 },
       { id: "construire", idx: stepIdx("construire"), label: "Construire le prompt", pts: best("construire"), max: 5 },
       { id: "verifier", idx: stepIdx("verifier"), label: "Vérifier le résultat", pts: best("verifier"), max: 1 },
       { id: "seul", idx: stepIdx("seul"), label: "À vous, sans aide", pts: best("seul"), max: 5 }
@@ -1626,10 +1627,9 @@
       render: function (pv) {
         var a = act(id);
         a.ans = a.ans || {};
-        lead(pv, "Chacun de ces prompts a <b>oublié une des cinq briques</b>. Pour chaque prompt, cliquez sur la brique oubliée.");
+        lead(pv, "Chaque prompt a oublié une brique. <b>Laquelle ?</b>");
         items.forEach(function (it, k) {
-          var box = h('<div class="wm"><span class="wm-n"></span><p class="wm-p"></p><p class="wm-q">Quelle brique a été oubliée ?</p><div class="wm-opts"></div></div>');
-          box.querySelector(".wm-n").textContent = "Prompt " + (k + 1) + " sur " + items.length;
+          var box = h('<div class="wm"><p class="wm-p"></p><div class="wm-opts"></div></div>');
           box.querySelector(".wm-p").textContent = "« " + it[0] + " »";
           BRICKS.forEach(function (b) {
             var o = h('<button type="button" class="qo"><span class="r"></span><span></span></button>');
@@ -1651,7 +1651,7 @@
           });
           if (a.ans[k] !== undefined) {
             var ok = a.ans[k] === it[1], name = BRICKS.filter(function (b) { return b.k === it[1]; })[0].name.toLowerCase();
-            box.appendChild(h('<p class="wm-fb ' + (ok ? "ok" : "ko") + '"></p>')).textContent = (ok ? "✓ Bien vu, c’est le " + name + ". " : "✗ C’était le " + name + ". ") + it[2];
+            box.appendChild(h('<p class="wm-fb ' + (ok ? "ok" : "ko") + '"></p>')).textContent = (ok ? "✓ " : "✗ C’était le " + name + ". ") + it[2];
           }
           pv.appendChild(box);
         });

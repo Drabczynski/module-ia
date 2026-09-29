@@ -1,7 +1,7 @@
 # Module 2 · La structure d’un prompt
 
 **Compétence visée :** C2 du référentiel RS6776, rédiger un prompt structuré (critères Cr2.1 à Cr2.3).
-**Durée visée :** environ 15 minutes, 9 activités, barème sur 21 points.
+**Durée visée :** environ 15 minutes, 9 activités, barème sur 20 points.
 **Fil rouge :** Sophie, responsable dans une PME fictive, demande une offre d’emploi pour un poste d’assistant·e administratif·ve.
 **Voix :** voix de synthèse en attendant les enregistrements (`assets/audio/module-2/`).
 
@@ -12,7 +12,7 @@
 | 2 bis | Pourquoi ces inventions ? | QCM : l’IA a comblé les trous faute de contexte | 1 |
 | 3 | Les cinq briques d’un prompt | Retourne 5 cartes : Rôle, Cible, Objectif, Contexte, Format | – |
 | 4 | Reconnaître les briques | Relie 5 morceaux de prompt à leur brique | 5 |
-| 5 | La brique oubliée | Pour 3 prompts incomplets, choisit la brique oubliée (format QCM) | 3 |
+| 5 | La brique oubliée | Pour 2 prompts incomplets, choisit la brique oubliée (format QCM) | 2 |
 | 6 | Construire le prompt | Lit le message de Sophie, puis complète les 5 cases orange du prompt et l’envoie | 5 |
 | 7 | Vérifier le résultat | Compare l’offre au message de Sophie, puis coche ce qui manque (la date de prise de poste) | 1 |
 | 8 | Compléter la demande | Relance dans la même conversation pour ajouter la date | – |
