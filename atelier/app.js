@@ -627,7 +627,10 @@
     paintNext();
   }
   function refresh() { render(false); }
+  var backBtn = $("[data-back]");
+  backBtn.addEventListener("click", function () { if (P.i > 0) go(P.i - 1); });
   function paintNext() {
+    backBtn.hidden = P.i === 0;
     var s = st(), p = s.primary ? s.primary() : { label: "Continuer", disabled: s.ready ? !s.ready() : false, run: next };
     if (!p) { nextBtn.hidden = true; return; }
     nextBtn.hidden = false;
@@ -1382,7 +1385,6 @@
     app.hidden = false;
     if (current) narrate(current);
   }
-  $("[data-intro-open]").addEventListener("click", openIntro);
 
   var WELCOME_WORDS = function () { return (window.COURSE_WORDS || {}).bienvenue || []; };
   var WELCOME_TEXT = "Hey, salut ! On va apprendre à utiliser l’IA ensemble. Et quoi de mieux qu’une IA pour t’épauler ? Je vais te guider pas à pas. Suis-moi !";
@@ -1405,20 +1407,33 @@
     $("[data-wl-slot]").appendChild(bigHost);
     wlStream.set(WELCOME_TEXT);
     compose(false);
-    setTimeout(function () { wlGo.classList.add("is-on"); }, 1400);
-    if (!S.sound) { wlStream.progress(1); return; }
+    if (!S.sound) { wlStream.progress(1); showGo("Continuer"); return; }
     audio.src = "../assets/audio/bienvenue.mp3";
     audio.dataset.id = "bienvenue";
     loadEnvelope("bienvenue");
+    audio.addEventListener("play", function onPlay() { audio.removeEventListener("play", onPlay); wlStarted = true; wlGo.classList.remove("is-on"); if (!wlRaf) wlLoop(); });
+    audio.addEventListener("ended", function onEnd() {
+      audio.removeEventListener("ended", onEnd);
+      if (!inWelcome) return;
+      wlStream.progress(1);
+      setTimeout(leaveWelcome, 900);                // fin du message : le panneau de formation apparaît
+    });
     var p = audio.play();
-    if (p && p.catch) p.catch(function () { wlStream.progress(1); });
-    audio.addEventListener("play", function onPlay() { audio.removeEventListener("play", onPlay); if (!wlRaf) wlLoop(); });
+    if (p && p.catch) p.catch(function () { showGo("Commencer"); });   // lecture bloquée : un clic la lance
   }
+  var wlStarted = false;
+  function showGo(label) { wlGo.firstChild.textContent = label; wlGo.classList.add("is-on"); }
   wlGo.addEventListener("click", function () {
+    if (!inWelcome) return;
+    if (!wlStarted && S.sound) { audio.play().catch(function () { leaveWelcome(); }); return; }
+    leaveWelcome();
+  });
+  function leaveWelcome() {
     if (!inWelcome) return;
     inWelcome = false;
     audio.pause();
     wlStream.progress(1);
+    wlGo.classList.remove("is-on");
     welcomeEl.classList.add("is-leaving");
     setTimeout(function () {
       var from = bigHost.getBoundingClientRect();
@@ -1432,7 +1447,7 @@
       welcomeEl.hidden = true;
       setTimeout(function () { bigHost.classList.remove("is-flying"); beginParcours(); }, 1000);
     }, 280);
-  });
+  }
   function beginParcours() { started = true; go(0); }
 
   /* ---------- Démarrage ---------- */
@@ -1446,8 +1461,7 @@
   showTab("story");
   setMode("sim");
   probe();
-  if (S.introDone) { app.hidden = false; renderConv(); beginParcours(); }
-  else openIntro();
+  startWelcome();
 
   window.AtelierTracking = {
     snapshot: function () {

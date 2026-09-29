@@ -473,3 +473,5 @@ svg { display: block; }
 @media (max-width: 980px) { .pv { padding: 24px 18px 30px; } .pv-match { gap: 14px; } .pv-blur { grid-template-columns: 1fr; } }
 .ph-prog { flex: none; height: 3px; background: #eef1f6; }
 .ph-prog i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #3b77ff, #1a4fd6); transition: width .6s var(--ease); }
+.btn-back.btn-sm { height: 40px; padding: 0 12px; border-radius: 11px; font-size: 14.5px; flex: none; }
+.app.is-welcome .claude .composer, .app.is-welcome .claude .work-note { opacity: 0 !important; pointer-events: none; }
