@@ -86,14 +86,21 @@ Plein écran : score sur 15 (seuil 70 %) et bouton « Revoir » sur les activit�
 
 ---
 
-## La suite : un module = un thème
+## Le parcours : 12 modules
 
-| # | Module | Thème | Cas terrain |
+Chaque module traite un seul thème et suit un cas de la vie courante. On progresse du premier contact à un usage autonome et responsable. La liste est aussi visible dans le menu « Les modules » de l'écran d'accueil.
+
+| Partie | # | Module | Thème |
 |---|---|---|---|
-| 1 | Première rencontre | Découvrir, premier prompt, commencer simple | Pot de départ, mot du voisin, exposé |
-| 2 | Le mail mécontent | Écrire : ton, longueur, ne rien promettre | Réclamation d'un client, page Outlook simulée |
-| 3 | Résumer sans trahir | Résumer un long document | Compte rendu de 12 pages, page Word simulée |
-| 4 | La tempête d'idées | Trouver et trier des idées | Fête de quartier, puis choisir 3 idées |
-| 5 | Parler d'autres langues | Traduire et adapter | Règlement intérieur en anglais et en portugais |
-| 6 | Ce que Claude voit | Lire une image ou un graphique | Photo d'un graphique de fréquentation |
-| 7 | Apprendre avec Claude | Se faire expliquer une notion | Comprendre sa fiche de paie, pas à pas |
+| Démarrer | 1 | Première rencontre | Découvrir l'IA, écrire un premier prompt, commencer simple |
+| | 2 | Bien formuler sa demande | Le contexte, l'objectif et le format attendu |
+| | 3 | Dialoguer pour affiner | Relancer, corriger, reprendre une conversation |
+| Produire au quotidien | 4 | Le mail mécontent | Répondre avec le bon ton, sans rien promettre |
+| | 5 | Résumer sans trahir | Un long document réduit à l'essentiel, puis vérifié |
+| | 6 | La tempête d'idées | Trouver des idées, puis les trier |
+| | 7 | Traduire et adapter | Une autre langue, un autre public |
+| Utiliser en confiance | 8 | Vérifier ce que dit l'IA | Repérer une erreur ou une invention, recouper |
+| | 9 | Ce qu'on ne partage pas | Données personnelles et informations confidentielles |
+| Aller plus loin | 10 | Fichiers et images | Joindre un document, lire un graphique ou une photo |
+| | 11 | Organiser et planifier | Listes, plannings et tableaux avec l'IA |
+| | 12 | Apprendre avec l'IA | Se faire expliquer une notion, puis s'entraîner |

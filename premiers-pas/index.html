@@ -47,8 +47,11 @@
 
 <!-- bouton de lancement de l'accueil (la voix a besoin d'un premier clic) -->
 <div class="wl-hero" data-wl-hero aria-hidden="false">
-  <h1 class="wl-title">Première rencontre<br>avec l’IA.</h1>
-  <button type="button" class="wl-go" data-wl-go hidden>Commencer<svg><use href="#i-arrow"/></svg></button>
+  <div class="wl-main">
+    <h1 class="wl-title">Première rencontre<br>avec l’IA.</h1>
+    <button type="button" class="wl-go" data-wl-go hidden>Commencer<svg><use href="#i-arrow"/></svg></button>
+  </div>
+  <button type="button" class="wl-menu" data-menu-open aria-haspopup="dialog"><svg><use href="#i-menu"/></svg>Les modules</button>
   <p class="wl-foot-l"><span>Découvrir l’IA, écrire son premier prompt, commencer simple.</span><span>Des situations de la vie courante, pas de théorie.</span></p>
   <p class="wl-foot-r"><b>Module 1</b><br>15 minutes · 5 séquences</p>
 </div>
@@ -123,6 +126,14 @@
       </footer>
     </aside>
   </div>
+</div>
+
+<div class="mm" data-menu hidden>
+  <div class="mm-back" data-menu-close></div>
+  <aside class="mm-panel" role="dialog" aria-label="Les modules du parcours">
+    <div class="mm-head"><div><b>Le parcours</b><span>12 modules · environ 15 minutes chacun</span></div><button type="button" class="mm-x" data-menu-close aria-label="Fermer"><svg><use href="#i-x"/></svg></button></div>
+    <div class="mm-list" data-menu-list></div>
+  </aside>
 </div>
 
 <div class="end-screen" data-end hidden><div><h2>Formation terminée</h2><p>Merci pour votre participation. Vous pouvez fermer cette fenêtre.</p></div></div>

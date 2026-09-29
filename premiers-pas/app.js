@@ -2013,6 +2013,55 @@
   })();
   var wlHero = $("[data-wl-hero]");
 
+  /* ---------- Le parcours : douze modules, du premier contact à l'usage autonome ---------- */
+
+  var PARCOURS = [
+    ["Démarrer", [
+      ["Première rencontre", "Découvrir l’IA, écrire un premier prompt, commencer simple.", true],
+      ["Bien formuler sa demande", "Le contexte, l’objectif et le format attendu."],
+      ["Dialoguer pour affiner", "Relancer, corriger, reprendre une conversation."]
+    ]],
+    ["Produire au quotidien", [
+      ["Le mail mécontent", "Répondre avec le bon ton, sans rien promettre."],
+      ["Résumer sans trahir", "Un long document réduit à l’essentiel, puis vérifié."],
+      ["La tempête d’idées", "Trouver des idées, puis les trier."],
+      ["Traduire et adapter", "Une autre langue, un autre public."]
+    ]],
+    ["Utiliser en confiance", [
+      ["Vérifier ce que dit l’IA", "Repérer une erreur ou une invention, recouper."],
+      ["Ce qu’on ne partage pas", "Données personnelles et informations confidentielles."]
+    ]],
+    ["Aller plus loin", [
+      ["Fichiers et images", "Joindre un document, lire un graphique ou une photo."],
+      ["Organiser et planifier", "Listes, plannings et tableaux avec l’IA."],
+      ["Apprendre avec l’IA", "Se faire expliquer une notion, puis s’entraîner."]
+    ]]
+  ];
+  (function buildMenu() {
+    var list = $("[data-menu-list]"), n = 0;
+    PARCOURS.forEach(function (part) {
+      var sec = h('<section class="mm-part"><h3></h3><ol></ol></section>');
+      sec.firstChild.textContent = part[0];
+      part[1].forEach(function (m) {
+        n++;
+        var li = h('<li class="mm-mod"><span class="mm-n"></span><span class="mm-tx"><b></b><small></small></span><em></em></li>');
+        li.querySelector(".mm-n").textContent = String(n).padStart(2, "0");
+        li.querySelector("b").textContent = m[0];
+        li.querySelector("small").textContent = m[1];
+        li.querySelector("em").textContent = m[2] ? "En cours" : "Bientôt";
+        if (m[2]) { li.classList.add("is-on"); li.tabIndex = 0; li.onclick = closeMenu; }
+        sec.lastChild.appendChild(li);
+      });
+      list.appendChild(sec);
+    });
+  })();
+  var menuEl = $("[data-menu]");
+  function openMenu() { menuEl.hidden = false; requestAnimationFrame(function () { menuEl.classList.add("is-on"); }); }
+  function closeMenu() { menuEl.classList.remove("is-on"); setTimeout(function () { menuEl.hidden = true; }, 350); }
+  $("[data-menu-open]").addEventListener("click", openMenu);
+  $$("[data-menu-close]").forEach(function (b) { b.addEventListener("click", closeMenu); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !menuEl.hidden) closeMenu(); });
+
   /* ---------- Accueil : l'orbe au centre, le message de bienvenue mot à mot ---------- */
 
   var WELCOME_TEXT = "Bonjour et bienvenue ! Je serai votre assistante pour toute la durée des modules. Aujourd’hui, vous allez… oui, c’est ça : écrire vos premiers messages à une IA. C’est parti !";
