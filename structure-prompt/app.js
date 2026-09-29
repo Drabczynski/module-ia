@@ -1331,7 +1331,7 @@
     /* 1 · Le problème --------------------------------------------------------------- */
     {
       id: "vague", seq: 0, title: "Une demande trop vague", audio: "module-2/vague",
-      say: "Sophie, votre responsable, vous demande de rédiger une offre d’emploi. Premier réflexe : on demande directement à l’IA. La demande est prête dans le champ : envoyez-la, et regardez ce qui revient.",
+      say: "Sophie, votre responsable, vous demande de rédiger une offre d’emploi. Premier réflexe : on demande directement à l’IA. La demande est prête dans le champ. Envoyez-la, et regardez le résultat.",
       render: function (pv) {
         var a = act("vague");
         lead(pv, "Sophie vous demande de rédiger une <b>offre d’emploi</b>. Premier réflexe : on demande directement à l’IA.");
@@ -1382,7 +1382,7 @@
     /* 2 bis · Pourquoi ces inventions ? (QCM) --------------------------------------------- */
     extend({
       id: "pourquoi", seq: 0, title: "Pourquoi ces inventions ?", audio: "module-2/pourquoi",
-      say: "Une question pour bien comprendre. Pourquoi l’IA a-t-elle inventé une ville, un salaire et un treizième mois ?"
+      say: "Une question pour bien comprendre. Pourquoi l’IA a-t-elle inventé une ville, un salaire et un 13e mois ?"
     }, quiz("pourquoi", "Pourquoi l’IA a-t-elle inventé la ville, le salaire et le 13e mois ?", [
       ["Elle se trompe à chaque fois : il ne faut pas s’en servir.", "Non : avec les bonnes informations, elle fait un travail utile. Le problème vient de la demande."],
       ["On ne lui a donné aucun contexte : elle a comblé les trous.", "Exact : sans informations, l’IA complète avec ce qui lui semble plausible. D’où l’importance du contexte."],
@@ -1392,7 +1392,7 @@
     /* 3 · Les cinq briques (cartes à retourner) ----------------------------------------- */
     extend({
       id: "briques", seq: 1, title: "Les cinq briques d’un prompt", audio: "module-2/briques",
-      say: "Un bon prompt se construit avec cinq briques : le rôle, la cible, l’objectif, le contexte, et le format. Retournez chaque carte pour découvrir à quoi elle sert."
+      say: "Un bon prompt se construit avec cinq briques : le rôle, la cible, l’objectif, le contexte et le format. Retournez chaque carte pour découvrir à quoi elle sert."
     }, flipCards("briques", [
       ["R", "Rôle", "Qui l’IA doit-elle être ?", "« Tu es chargé·e de recrutement dans une PME. »"],
       ["C", "Cible", "Pour qui est le texte ?", "« …pour des candidats débutants. »"],
@@ -1437,7 +1437,7 @@
     /* 6 · Le brief de Sophie, puis le prompt à construire ---------------------------------- */
     {
       id: "construire", seq: 2, title: "Construire le prompt", audio: "module-2/construire",
-      say: "Voici le message de Sophie. À gauche, le prompt est prêt en cinq cases : une par brique. Cliquez sur chaque case orange, choisissez la bonne réponse, ou écrivez la vôtre, puis envoyez.",
+      say: "Voici le message de Sophie. À gauche, le prompt est prêt en cinq cases, une par brique. Cliquez sur chaque case orange, choisissez la bonne réponse ou écrivez la vôtre, puis envoyez.",
       render: function (pv) {
         var a = act("construire");
         var note = h('<div class="brief"><div class="brief-h"><span class="brief-av">S</span><div><b>Sophie Laurent</b><small>Responsable · aujourd’hui, 09:12</small></div></div></div>');
@@ -1478,7 +1478,7 @@
     /* 7 · Vérifier le résultat ------------------------------------------------------------ */
     extend({
       id: "verifier", seq: 2, title: "Vérifier le résultat", audio: "module-2/verifier",
-      say: "Un prompt structuré donne un bien meilleur résultat. Mais on vérifie toujours. Comparez l’offre, à gauche, avec le message de Sophie : quelle information manque ?"
+      say: "Un prompt structuré donne un bien meilleur résultat. Mais on vérifie toujours. Comparez l’offre, à gauche, avec le message de Sophie. Quelle information manque ?"
     }, (function () {
       var w = pickMany("verifier", [
         ["Le contrat : CDI, 35 h", false],

@@ -1,7 +1,7 @@
 # Module 2 · La structure d’un prompt : voix à enregistrer
 
 Déposez chaque enregistrement dans ce dossier (`assets/audio/module-2/`), avec le nom indiqué.
-Tant qu’un fichier manque, la voix de synthèse lit le texte.
+Les 13 enregistrements sont en place et synchronisés au mot près.
 
 ## 1. Accueil
 Fichier : `bienvenue.mp3`

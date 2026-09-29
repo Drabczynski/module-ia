@@ -171,5 +171,73 @@ window.COURSE_CAPTIONS = {
     [5.22, 8.72, "Dans l’IA, demandez des idées pour ce pot, en une phrase courte."],
     [9.2, 9.64, "Par exemple :"],
     [10.24, 11.9, "Donne-moi des idées pour un pot de départ."]
+  ],
+  "module-2/bienvenue": [
+    [0.05, 0.62, "Bon retour !"],
+    [1.18, 5.42, "Dans ce module, vous allez apprendre à construire un prompt solide, avec cinq briques :"],
+    [6.08, 10.24, "le rôle, la cible, l’objectif, le contexte et le format."],
+    [10.88, 12.9, "Fini les réponses inventées. C’est parti !"]
+  ],
+  "module-2/vague": [
+    [0.06, 3.64, "Sophie, votre responsable, vous demande de rédiger une offre d’emploi."],
+    [4.27, 6.94, "Premier réflexe : on demande directement à l’IA."],
+    [7.5, 8.65, "La demande est prête dans le champ."],
+    [9.1, 11.06, "Envoyez-la, et regardez le résultat."]
+  ],
+  "module-2/invente": [
+    [1.44, 3.16, "L’IA ne connaît pas votre poste."],
+    [3.64, 5.01, "Alors elle a comblé les trous."],
+    [5.68, 7.24, "Dans sa réponse, à gauche,"],
+    [7.64, 9.81, "cliquez sur les trois informations qu’elle a inventées."]
+  ],
+  "module-2/pourquoi": [
+    [0.06, 1.64, "Une question pour bien comprendre."],
+    [2.3, 6.44, "Pourquoi l’IA a-t-elle inventé une ville, un salaire et un 13e mois ?"]
+  ],
+  "module-2/briques": [
+    [0.06, 2.33, "Un bon prompt se construit avec cinq briques :"],
+    [3.01, 4.5, "le rôle, la cible,"],
+    [4.94, 5.56, "l’objectif,"],
+    [6.07, 7.64, "le contexte et le format."],
+    [8.1, 10.6, "Retournez chaque carte pour découvrir à quoi elle sert."]
+  ],
+  "module-2/relier": [
+    [0.05, 1.98, "Voici un prompt découpé en morceaux."],
+    [2.48, 5.1, "Reliez chaque morceau à la brique qui lui correspond."]
+  ],
+  "module-2/manque": [
+    [0.08, 2.98, "Chacun de ces trois prompts a oublié une des cinq briques."],
+    [3.73, 6.1, "Pour chaque prompt, cliquez sur la brique oubliée."]
+  ],
+  "module-2/construire": [
+    [0.06, 1.36, "Voici le message de Sophie."],
+    [1.92, 5.16, "À gauche, le prompt est prêt en cinq cases, une par brique."],
+    [5.76, 10.19, "Cliquez sur chaque case orange, choisissez la bonne réponse ou écrivez la vôtre,"],
+    [10.64, 11.43, "puis envoyez."]
+  ],
+  "module-2/verifier": [
+    [0.06, 2.76, "Un prompt structuré donne un bien meilleur résultat."],
+    [3.24, 4.29, "Mais on vérifie toujours."],
+    [4.86, 7.68, "Comparez l’offre, à gauche, avec le message de Sophie."],
+    [8.18, 9.28, "Quelle information manque ?"]
+  ],
+  "module-2/completer": [
+    [0.08, 1.48, "Pas besoin de tout recommencer."],
+    [1.97, 6.12, "Dans la même conversation, demandez à l’IA d’ajouter la date de prise de poste."]
+  ],
+  "module-2/seul": [
+    [0.06, 2.28, "Dernière étape, sans cases à compléter."],
+    [2.81, 5.08, "La boutique sera fermée le 24 décembre."],
+    [5.94, 10.32, "Écrivez vous-même un prompt complet, avec les cinq briques, pour prévenir les clients."],
+    [10.95, 14.02, "Les briques s’allument à droite, au fur et à mesure que vous écrivez."]
+  ],
+  "module-2/resultat": [
+    [0.06, 2.85, "Voici votre résultat, activité par activité."],
+    [3.36, 6.12, "Si une activité n’est pas réussie, vous pouvez la revoir."]
+  ],
+  "module-2/fiche": [
+    [0.08, 1.97, "Voici votre structure en cinq briques."],
+    [2.54, 3.4, "Gardez-la sous la main :"],
+    [3.78, 5.62, "elle vous servira pour tous vos prompts."]
   ]
 };
