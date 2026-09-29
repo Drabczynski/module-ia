@@ -71,13 +71,6 @@ window.COURSE_CAPTIONS = {
     [8.49, 10.6, "écrire vos premiers messages à une IA."],
     [11.0, 11.52, "C’est parti !"]
   ],
-  "pp-bonjour": [
-    [0.11, 2.1, "À gauche, vous avez accès à l’IA."],
-    [2.61, 4.54, "Le champ de saisie est maintenant actif."],
-    [5.06, 7.27, "Écrivez-lui un premier message, par exemple :"],
-    [7.9, 10.1, "« Bonjour, qui es-tu ? »"],
-    [10.66, 11.56, "Puis envoyez-le !"]
-  ],
   "pp-vraifaux": [
     [0.07, 2.52, "Trois idées reçues sur l’intelligence artificielle."],
     [3.18, 5.38, "Glissez la carte vers la droite si c’est vrai,"],
@@ -119,14 +112,6 @@ window.COURSE_CAPTIONS = {
     [1.45, 3.46, "On va jouer avec de vraies situations, cette fois."],
     [4.11, 5.27, "Vous avez trois nouveaux mails."],
     [5.8, 8.45, "Ouvrez celui qui parle du pot de départ de Martine."]
-  ],
-  "pp-mail-ouvert": [
-    [0.06, 0.56, "Super !"],
-    [1.06, 1.86, "C’est bien celui-là."],
-    [2.46, 4.39, "Premier conseil : commencez simple."],
-    [5.22, 8.72, "Dans l’IA, demandez des idées pour ce pot, en une phrase courte."],
-    [9.2, 9.64, "Par exemple :"],
-    [10.24, 11.9, "« Donne-moi des idées pour un pot de départ. »"]
   ],
   "pp-manque": [
     [0.06, 0.56, "Voilà."],
@@ -171,5 +156,20 @@ window.COURSE_CAPTIONS = {
   "pp-resultat": [
     [0.14, 4.09, "Tadaaa ! Voici votre résultat, activité par activité."],
     [4.65, 7.36, "Si une activité n’est pas réussie, vous pouvez la revoir."]
+  ],
+  "pp-bonjour": [
+    [0.11, 2.1, "À gauche, vous avez accès à l’IA."],
+    [2.61, 4.54, "Le champ de saisie est maintenant actif."],
+    [5.06, 7.27, "Écrivez-lui un premier message, par exemple :"],
+    [7.9, 10.1, "Bonjour, qui es-tu ?"],
+    [10.66, 11.56, "Puis envoyez-le !"]
+  ],
+  "pp-mail-ouvert": [
+    [0.06, 0.56, "Super !"],
+    [1.06, 1.86, "C’est bien celui-là."],
+    [2.46, 4.39, "Premier conseil : commencez simple."],
+    [5.22, 8.72, "Dans l’IA, demandez des idées pour ce pot, en une phrase courte."],
+    [9.2, 9.64, "Par exemple :"],
+    [10.24, 11.9, "Donne-moi des idées pour un pot de départ."]
   ]
 };

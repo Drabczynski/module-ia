@@ -158,7 +158,8 @@
       if (W) {
         var next = cues[i + 1] ? cues[i + 1][0] - 0.12 : Infinity;
         var mine = W.filter(function (w) { return w[0] >= c[0] - 0.12 && w[0] < next; });
-        sayReveal(mine.filter(function (w) { return w[0] <= t + 0.04; }).length);
+        var nOn = mine.filter(function (w) { return w[0] <= t + 0.04; }).length, nTok = tokens(c[2]).length;
+        sayReveal(mine.length ? Math.round(nOn * nTok / mine.length) : 0);
       } else sayProgress(t >= c[1] ? 1 : (t - c[0]) / Math.max(0.4, c[1] - c[0]) * 1.12);
     }
     capRaf = requestAnimationFrame(capLoop);
@@ -519,7 +520,7 @@
     composeOn = !!on;
     app.classList.toggle("focus-compose", composeOn);
     if (composeTip) { composeTip.remove(); composeTip = null; }
-    if (composeOn && tip) {
+    if (false && composeOn && tip) {
       composeTip = h('<span class="compose-tip"></span>');
       composeTip.textContent = tip;
       composer.appendChild(composeTip);
@@ -1318,31 +1319,41 @@
   function mailApp(pv, mode) {
     var a = act("mail"), hunt = act("manque");
     hunt.found = hunt.found || {};
-    var box = h('<div class="inbox is-big"><div class="ib-list"><p class="ib-folder">Boîte de réception</p></div><div class="ib-read"></div></div>');
-    MAILS.forEach(function (m) {
-      var b = h('<button type="button" class="ib-item"><span class="ib-av"></span><span class="ib-tx"><span class="ib-top"><b></b><time></time></span><span class="ib-subj"></span><span class="ib-prev"></span></span></button>');
-      b.querySelector(".ib-av").textContent = m.from.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2);
-      b.querySelector("b").textContent = m.from;
-      b.querySelector("time").textContent = m.time;
-      b.querySelector(".ib-subj").textContent = m.subj;
-      b.querySelector(".ib-prev").textContent = m.prev;
-      if (a.open === m.id) b.classList.add("is-on");
-      if (a.opened && a.opened[m.id]) b.classList.add("is-read");
-      b.disabled = mode !== "open";
-      b.onclick = function () {
-        a.open = m.id; a.opened = a.opened || {}; a.opened[m.id] = true;
-        refresh();
-        hook("onMailOpen", m.id);
-      };
-      box.firstChild.appendChild(b);
-    });
-    var cur = MAILS.filter(function (m) { return m.id === a.open; })[0], rd = box.lastChild;
-    if (!cur) rd.appendChild(h('<div class="ib-empty"><svg><use href="#i-mail"/></svg><p>Cliquez sur un mail, à gauche, pour le lire.</p></div>'));
-    else if (!cur.body) { var e = h('<div class="ib-empty"><svg><use href="#i-mail"/></svg><p></p></div>'); e.lastChild.textContent = "« " + cur.subj + " » : ce n’est pas celui-là. Cherchez le mail du pot de départ."; rd.appendChild(e); }
-    else {
-      rd.appendChild(h('<div class="ib-h"><b></b><span></span></div>'));
-      rd.querySelector(".ib-h b").textContent = cur.subj;
-      rd.querySelector(".ib-h span").textContent = "De : " + cur.from + " · À : vous · " + cur.time;
+    var cur = MAILS.filter(function (m) { return m.id === a.open; })[0];
+    if (cur && !cur.body) cur = null;
+    var ph = h('<div class="iphone"><div class="ip-screen"><div class="ip-status"><b>9:41</b><span class="ip-ic"><i></i><i></i><i></i><em></em></span></div><div class="ip-body"></div></div></div>');
+    var body = ph.querySelector(".ip-body");
+    if (!cur) {
+      body.appendChild(h('<div class="ip-nav"><span>Boîtes</span><span>Modifier</span></div>'));
+      body.appendChild(h('<h2 class="ip-title">Réception</h2>'));
+      var list = h('<div class="ip-list"></div>');
+      MAILS.forEach(function (m) {
+        var b = h('<button type="button" class="ip-row"><i class="ip-dot"></i><span class="ip-tx"><span class="ip-top"><b></b><time></time></span><span class="ip-subj"></span><span class="ip-prev"></span></span></button>');
+        b.querySelector("b").textContent = m.from;
+        b.querySelector("time").textContent = m.time;
+        b.querySelector(".ip-subj").textContent = m.subj;
+        b.querySelector(".ip-prev").textContent = m.prev;
+        if (a.opened && a.opened[m.id]) b.classList.add("is-read");
+        if (a.wrong === m.id) b.classList.add("is-nope");
+        b.disabled = mode !== "open";
+        b.onclick = function () {
+          a.opened = a.opened || {};
+          if (!m.body) { a.wrong = m.id; refresh(); return; }
+          a.open = m.id; a.wrong = null; a.opened[m.id] = true;
+          refresh();
+          hook("onMailOpen", m.id);
+        };
+        list.appendChild(b);
+      });
+      body.appendChild(list);
+    } else {
+      body.appendChild(h('<div class="ip-nav"><span class="ip-back">‹ Réception</span><span></span></div>'));
+      var mv = h('<div class="ip-mail"><div class="ip-from"><span class="ip-av"></span><div><b></b><small></small></div></div><h3></h3><div class="ip-text"></div></div>');
+      mv.querySelector(".ip-av").textContent = cur.from.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2);
+      mv.querySelector(".ip-from b").textContent = cur.from;
+      mv.querySelector(".ip-from small").textContent = "À : moi · " + cur.time;
+      mv.querySelector("h3").textContent = cur.subj;
+      var tx = mv.querySelector(".ip-text");
       cur.body.forEach(function (line) {
         var p = document.createElement("p");
         line.split(/(\{[^}]+\})/).forEach(function (part) {
@@ -1368,10 +1379,11 @@
           }
           p.appendChild(sp);
         });
-        rd.appendChild(p);
+        tx.appendChild(p);
       });
+      body.appendChild(mv);
     }
-    pv.appendChild(box);
+    pv.appendChild(ph);
   }
 
   /* ---------- Les étapes ---------- */
@@ -1380,7 +1392,7 @@
     /* Dire bonjour ------------------------------------------------------------- */
     {
       id: "bonjour", seq: 0, pill: "À vous d’écrire", icon: "pencil", title: "Dites bonjour à l’IA",
-      audio: "pp-bonjour", say: "À gauche, vous avez accès à l’IA. Le champ de saisie est maintenant actif. Écrivez-lui un premier message, par exemple : « Bonjour, qui es-tu ? » Puis envoyez-le !",
+      audio: "pp-bonjour", say: "À gauche, vous avez accès à l’IA. Le champ de saisie est maintenant actif. Écrivez-lui un premier message, par exemple : Bonjour, qui es-tu ? Puis envoyez-le !",
       render: function (pv) {
         var a = act("bonjour");
         lead(pv, "L’IA est ouverte <b>à gauche</b> (ici, Claude). On lui écrit comme à une personne : avec des phrases normales, pas besoin de mots-clés.");
@@ -1530,7 +1542,7 @@
       render: function (pv) {
         var a = act("mail");
         var phase = a.done ? 2 : a.open === "pot" ? 1 : 0;
-        pv.appendChild(h('<p class="pv-task"></p>')).innerHTML = phase === 0 ? "<b>1.</b> Ouvrez le mail du pot de départ." : phase === 1 ? "<b>2.</b> Commencez simple : à gauche, demandez <b>des idées pour ce pot</b>, en une phrase courte." : "<b>✓</b> Claude a répondu. Ses idées sont-elles adaptées à ce pot ?";
+        pv.appendChild(h('<p class="pv-task"></p>')).innerHTML = phase === 0 ? (a.wrong ? "Pas celui-là : ouvrez le mail du <b>pot de départ</b>." : "Ouvrez le mail du <b>pot de départ</b>.") : phase === 1 ? "À gauche, demandez <b>des idées pour ce pot</b>, en une phrase." : "L’IA a répondu. Ses idées sont-elles adaptées ?";
         mailApp(pv, phase === 0 ? "open" : "show");
         if (a.off) fb(pv, "ko", "Parlez à Claude du <b>pot de départ</b> : c’est notre situation.");
         if (a.long) fb(pv, "", "Votre demande est déjà détaillée : très bien ! On va quand même voir ce que donne une demande courte.");
@@ -1542,7 +1554,7 @@
         if (id !== "pot" || a.started) return;
         a.started = true;
         a.waitVoice = true;
-        narrate({ audio: "pp-mail-ouvert", text: "Super ! C’est bien celui-là. Premier conseil : commencez simple. Dans l’IA, demandez des idées pour ce pot, en une phrase courte. Par exemple : « Donne-moi des idées pour un pot de départ. »" });
+        narrate({ audio: "pp-mail-ouvert", text: "Super ! C’est bien celui-là. Premier conseil : commencez simple. Dans l’IA, demandez des idées pour ce pot, en une phrase courte. Par exemple : Donne-moi des idées pour un pot de départ." });
         if (!S.sound) { a.waitVoice = false; startSimple(); }
         setTimeout(function () { if (a.waitVoice && st().id === "mail") { a.waitVoice = false; startSimple(); } }, 14000);   // filet si la voix ne se lance pas
       },
@@ -1589,7 +1601,7 @@
       audio: "pp-relance", say: "Deuxième conseil : être précis, puis affiner. Pas besoin de tout recommencer. Dans la même conversation, complétez les cases orange avec les informations du mail, puis envoyez.",
       render: function (pv) {
         var a = act("relance");
-        pv.appendChild(h('<p class="pv-task"></p>')).innerHTML = a.done ? "<b>✓</b> Claude a adapté ses idées à votre situation." : "Dans <b>la même conversation</b>, complétez les <b>cases orange</b> avec les informations du mail, puis envoyez.";
+        pv.appendChild(h('<p class="pv-task"></p>')).innerHTML = a.done ? "<b>✓</b> L’IA a adapté ses idées." : "À gauche, complétez les <b>cases orange</b> avec les infos du mail.";
         mailApp(pv, "show");
         if (a.wrong && !a.done) fb(pv, "ko", "<b>À vérifier :</b> " + esc(a.wrong) + " ne correspond pas au mail de Karim. Corrigez la case, puis renvoyez.");
         if (a.done) fb(pv, "ok", "<b>Réussi :</b> avec vos précisions, la réponse colle à votre situation. Vous avez affiné, sans recommencer.");
@@ -1623,31 +1635,6 @@
       },
       onTemplate: function (vals) { act("relance").vals = JSON.parse(JSON.stringify(vals)); }
     },
-
-    /* Trier les idées (glisser-déposer) ---------------------------------------------- */
-    extend({
-      id: "avantapres", seq: 2, pill: "Glissez-déposez · 6 points", icon: "hand", title: "Trier les idées de l’IA",
-      audio: "pp-avantapres", say: "Claude vous a donné deux séries d’idées. Glissez chaque idée dans la bonne colonne : utilisable pour le pot de Martine, ou pas adaptée."
-    }, (function () {
-      var w = dragDrop("avantapres", {
-        items: [
-          ["Un buffet partagé, boissons et gâteau", "ok"],
-          ["Un traiteur pour un buffet complet", "ko"],
-          ["Un cadeau et une carte signée par l’équipe", "ok"],
-          ["Louer une salle avec un DJ", "ko"],
-          ["Un diaporama projeté en salle de pause", "ok"],
-          ["Un repas au restaurant pour les 12", "ko"]
-        ],
-        buckets: [
-          ["ok", "Utilisable", "60 €, 12 personnes, salle de pause", "check"],
-          ["ko", "Pas adaptée", "Dépasse 60 € ou inutile", "x"]
-        ],
-        after: function (pv, a) { if (a.done) fb(pv, "", "<b>Regardez d’où elles viennent :</b> les idées pas adaptées viennent toutes de votre <b>demande courte</b>. Les utilisables, de votre <b>demande précisée</b>. C’est tout l’intérêt de préciser."); }
-      });
-      var r = w.render;
-      w.render = function (pv) { lead(pv, "Glissez chaque idée dans la bonne colonne. Vous pouvez aussi cliquer sur une idée, puis sur une colonne."); r(pv); };
-      return w;
-    })()),
 
     /* Les repères de l'écran ----------------------------------------------------- */
     {
@@ -1738,7 +1725,7 @@
         stepsList(pv, [
           { html: "Ouvrez une <b>nouvelle conversation</b>." },
           { html: "Écrivez une <b>première demande courte</b>. Par exemple : « Aide-moi à préparer un exposé sur les volcans. »" },
-          { html: "Claude répond de façon générale. Envoyez-lui un <b>deuxième message</b> avec les infos de Léna : <b>sa classe</b> (CM2), <b>la durée</b> (5 minutes), <b>les images</b>." }
+          { html: "L’IA répond de façon générale. Envoyez-lui un <b>deuxième message</b> avec les infos de Léna : <b>sa classe</b> (CM2), <b>la durée</b> (5 minutes), <b>les images</b>." }
         ], phase);
         if (a.miss) fb(pv, "ko", "<b>Il manque des infos :</b> donnez au moins deux éléments du message de Léna : sa classe, la durée, les images.");
         if (a.done) fb(pv, a.best === 2 ? "ok" : "", a.best === 2 ? "<b>Défi réussi :</b> un début simple, puis des précisions. La réponse est adaptée à Léna." : "Défi terminé. Retenez : la classe, la durée et le support changent tout.");
@@ -1849,9 +1836,9 @@
     template(["Traduis ce mot de mon voisin en ", { k: "lang", label: "Langue", opts: ["français", "anglais", "espagnol"] }, " : « " + NOTE_PT + " »"], "Choisissez la langue, puis envoyez");
   }
 
-  var MAX = 20;
+  var MAX = 14;
   function copyNote() {
-    var done = function () { act("voisin").copied = true; toast("Mot copié : collez-le dans Claude (Ctrl + V)"); refresh(); };
+    var done = function () { act("voisin").copied = true; refresh(); };
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(NOTE_PT).then(done, fallback); else fallback();
     function fallback() {
       var t = document.createElement("textarea");
@@ -1896,7 +1883,6 @@
       { id: "prompt", idx: stepIdx("prompt"), label: "C’est quoi, un prompt ?", pts: best("prompt"), max: 1 },
       { id: "manque", idx: stepIdx("manque"), label: "Qu’est-ce qui manque ?", pts: best("manque"), max: 1 },
       { id: "relance", idx: stepIdx("relance"), label: "Préciser, puis relancer", pts: best("relance"), max: 2 },
-      { id: "avantapres", idx: stepIdx("avantapres"), label: "Trier les idées", pts: best("avantapres"), max: 6 },
       { id: "defi", idx: stepIdx("defi"), label: "Le défi : l’exposé de Léna", pts: best("defi"), max: 2 }
     ];
   }
