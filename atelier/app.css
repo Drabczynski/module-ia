@@ -475,3 +475,13 @@ svg { display: block; }
 .ph-prog i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #3b77ff, #1a4fd6); transition: width .6s var(--ease); }
 .btn-back.btn-sm { height: 40px; padding: 0 12px; border-radius: 11px; font-size: 14.5px; flex: none; }
 .app.is-welcome .claude .composer, .app.is-welcome .claude .work-note { opacity: 0 !important; pointer-events: none; }
+
+/* ---------- Ouverture dans Claude ---------- */
+.app.is-welcome .panel, .app.is-welcome .resizer { opacity: 0; }
+.app.is-welcome .claude .composer, .app.is-welcome .claude .work-note { opacity: 1 !important; pointer-events: none; }
+.app.is-welcome .topbar, .app.is-welcome .empty-state h2, .app.is-welcome .empty-state > p { opacity: 1; }
+.wl-go { position: fixed; left: 50%; bottom: 150px; z-index: 70; display: inline-flex; align-items: center; gap: 10px; height: 52px; padding: 0 24px 0 28px; border: 0; border-radius: 999px; background: var(--ink); color: #fff; font: 600 16px/1 var(--text); transform: translate(-50%, 10px); opacity: 0; transition: opacity .5s var(--ease), transform .5s var(--ease), background .15s; }
+.wl-go svg { width: 18px; height: 18px; }
+.wl-go.is-on { opacity: 1; transform: translate(-50%, 0); }
+.wl-go:hover { background: #2b2b29; }
+.is-welcome .orb-say { font-size: 17px; max-width: 480px; }

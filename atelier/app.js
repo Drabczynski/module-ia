@@ -71,7 +71,7 @@
     if (speaking) return orb.setState("listening");
     if (busy) return orb.setState("thinking");
     if (typingTimer) return orb.setState("listening");
-    orb.setState("idle");
+    orb.setState("disabled");                            // sans parole : orbe immobile et éteinte
   }
 
   // niveau de la voix : enveloppe d'amplitude de l'enregistrement, lue à la position de lecture
@@ -318,7 +318,6 @@
     return el;
   }
   function renderConv() {
-    if (inWelcome) return;
     var c = conv(), big = !c || !c.messages.length;
     var wasBig = app.classList.contains("has-big-orb") && bigHost.isConnected && !app.hidden;
     var from = wasBig ? bigHost.getBoundingClientRect() : null;
@@ -1388,26 +1387,30 @@
 
   var WELCOME_WORDS = function () { return (window.COURSE_WORDS || {}).bienvenue || []; };
   var WELCOME_TEXT = "Hey, salut ! On va apprendre à utiliser l’IA ensemble. Et quoi de mieux qu’une IA pour t’épauler ? Je vais te guider pas à pas. Suis-moi !";
-  var welcomeEl = $("[data-welcome]"), wlGo = $("[data-wl-go]"), wlStream = Streamer($("[data-wl-say]"));
+  var wlGo = $("[data-wl-go]");
   var wlRaf = 0, inWelcome = false;
   function wlLoop() {
     wlRaf = 0;
     if (!inWelcome) return;
     var t = audio.currentTime;
-    wlStream.reveal(WELCOME_WORDS().filter(function (w) { return w[0] <= t + 0.04; }).length);
+    sayReveal(WELCOME_WORDS().filter(function (w) { return w[0] <= t + 0.04; }).length);
     if (!audio.paused) wlRaf = requestAnimationFrame(wlLoop);
   }
+  // ouverture : l'interface de Claude, l'orbe au centre et le message de bienvenue mot à mot ;
+  // le panneau de formation est replié et s'ouvre à la fin du message
   function startWelcome() {
-    inWelcome = true;
+    inWelcome = false;
     stopVoice();
     cues = [];
     app.hidden = false;
     app.classList.add("is-welcome");
-    welcomeEl.hidden = false;
-    $("[data-wl-slot]").appendChild(bigHost);
-    wlStream.set(WELCOME_TEXT);
+    saying(true);
+    split.classList.add("panel-away");
     compose(false);
-    if (!S.sound) { wlStream.progress(1); showGo("Continuer"); return; }
+    renderConv();
+    inWelcome = true;
+    sayText(WELCOME_TEXT);
+    if (!S.sound) { sayProgress(1); showGo("Continuer"); return; }
     audio.src = "../assets/audio/bienvenue.mp3";
     audio.dataset.id = "bienvenue";
     loadEnvelope("bienvenue");
@@ -1415,14 +1418,14 @@
     audio.addEventListener("ended", function onEnd() {
       audio.removeEventListener("ended", onEnd);
       if (!inWelcome) return;
-      wlStream.progress(1);
+      sayProgress(1);
       setTimeout(leaveWelcome, 900);                // fin du message : le panneau de formation apparaît
     });
     var p = audio.play();
-    if (p && p.catch) p.catch(function () { showGo("Commencer"); });   // lecture bloquée : un clic la lance
+    if (p && p.catch) p.catch(function () { showGo("Commencer"); });   // lecture bloquée par le navigateur : un clic la lance
   }
   var wlStarted = false;
-  function showGo(label) { wlGo.firstChild.textContent = label; wlGo.classList.add("is-on"); }
+  function showGo(label) { wlGo.firstChild.textContent = label; wlGo.hidden = false; requestAnimationFrame(function () { wlGo.classList.add("is-on"); }); }
   wlGo.addEventListener("click", function () {
     if (!inWelcome) return;
     if (!wlStarted && S.sound) { audio.play().catch(function () { leaveWelcome(); }); return; }
@@ -1432,21 +1435,12 @@
     if (!inWelcome) return;
     inWelcome = false;
     audio.pause();
-    wlStream.progress(1);
+    sayProgress(1);
     wlGo.classList.remove("is-on");
-    welcomeEl.classList.add("is-leaving");
-    setTimeout(function () {
-      var from = bigHost.getBoundingClientRect();
-      app.classList.remove("is-welcome");
-      renderConv();
-      var to = bigHost.getBoundingClientRect();
-      bigHost.style.transform = "translate(" + (from.left - to.left) + "px," + (from.top - to.top) + "px)";
-      void bigHost.offsetWidth;
-      bigHost.classList.add("is-flying");
-      bigHost.style.transform = "";
-      welcomeEl.hidden = true;
-      setTimeout(function () { bigHost.classList.remove("is-flying"); beginParcours(); }, 1000);
-    }, 280);
+    app.classList.remove("is-welcome");
+    split.classList.remove("panel-away");          // le panneau glisse, l'orbe se recentre avec Claude
+    saying(false);
+    setTimeout(beginParcours, 800);
   }
   function beginParcours() { started = true; go(0); }
 

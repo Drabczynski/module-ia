@@ -44,13 +44,8 @@
 
 
 
-<!-- ============ Accueil de l'assistante d'apprentissage (après l'introduction) ============ -->
-<div class="welcome" data-welcome hidden>
-  <div class="wl-slot" data-wl-slot></div>
-  <p class="wl-k">Votre assistante d’apprentissage</p>
-  <div class="wl-say" data-wl-say aria-live="polite"></div>
-  <button type="button" class="btn-next btn-lg wl-go" data-wl-go>Continuer<svg><use href="#i-arrow"/></svg></button>
-</div>
+<!-- bouton de lancement de l'accueil (si le navigateur bloque la lecture automatique) -->
+<button type="button" class="wl-go" data-wl-go hidden>Commencer<svg><use href="#i-arrow"/></svg></button>
 
 <!-- ============ Application : Claude à gauche, formation à droite ============ -->
 <div class="app" data-app hidden>
