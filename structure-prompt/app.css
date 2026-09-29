@@ -1,0 +1,61 @@
+/* Module 2 · La structure d'un prompt : styles propres au module (le reste vient de ../premiers-pas/app.css) */
+
+/* cartes à retourner */
+.flip-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 12px; }
+.flip { height: 200px; padding: 0; border: 0; background: none; perspective: 900px; text-align: left; }
+.flip-in { position: relative; display: block; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .7s cubic-bezier(.22, 1, .36, 1); }
+.flip.is-on .flip-in { transform: rotateY(180deg); }
+.flip-f, .flip-b { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 16px; border-radius: 18px; backface-visibility: hidden; box-shadow: 0 0 0 1px var(--pv-line), 0 16px 30px -22px rgba(16, 24, 56, .5); }
+.flip-f { justify-content: space-between; background: linear-gradient(160deg, #fff 0%, #fbf6f1 100%); }
+.flip-f em { font: 800 48px/1 var(--display); font-style: normal; color: var(--pv-orange); }
+.flip-f b { font: 700 18px/1.1 var(--display); color: var(--pv-ink); }
+.flip-f small { font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #a8b0c2; }
+.flip:hover .flip-f { box-shadow: 0 0 0 1.5px var(--pv-orange), 0 18px 32px -20px rgba(226, 86, 13, .45); }
+.flip-b { gap: 8px; background: var(--pv-ink); color: #fff; transform: rotateY(180deg); }
+.flip-b b { font: 700 16px/1.1 var(--display); color: #ffb28a; }
+.flip-q { font-size: 14px; font-weight: 600; line-height: 1.35; }
+.flip-ex { margin-top: auto; font-size: 12.5px; line-height: 1.4; color: rgba(255, 255, 255, .72); font-style: italic; }
+
+/* quelle brique manque ? */
+.wm { margin-bottom: 14px; padding: 16px 18px; border-radius: 16px; background: #fff; box-shadow: inset 0 0 0 1px var(--pv-line); }
+.wm-p { margin: 0 0 12px; font-size: 15.5px; line-height: 1.5; color: var(--pv-ink); }
+.wm-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.wm-opts button { padding: 8px 14px; border: 1.5px solid #d8e0ec; border-radius: 99px; background: #fff; font: 600 13.5px/1 var(--text); color: var(--pv-ink2); transition: border-color .15s, background .15s; }
+.wm-opts button:hover:not(:disabled) { border-color: var(--pv-blue); background: #f6f9ff; }
+.wm-opts button:disabled { cursor: default; opacity: .5; }
+.wm-opts button.is-good { opacity: 1; border-color: #1a9a5a; background: #effaf3; color: #147044; }
+.wm-opts button.is-bad { opacity: 1; border-color: #d93636; background: #fff4f4; color: #b42828; }
+.wm-fb { margin: 12px 0 0; font-size: 14px; line-height: 1.45; animation: fb-pop .5s cubic-bezier(.22, 1.3, .36, 1) backwards; }
+.wm-fb.ok { color: #147044; }
+.wm-fb.ko { color: #8a3b0c; }
+
+/* le brief de Sophie */
+.brief { margin: 0 0 18px; padding: 18px 20px; border-radius: 16px; background: #fff; box-shadow: 0 0 0 1px rgba(16, 24, 56, .07), 0 18px 36px -26px rgba(16, 24, 56, .4); font-size: 15.5px; line-height: 1.5; color: #2c2c2e; }
+.brief p { margin: 0 0 6px; }
+.brief-h { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.brief-av { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: linear-gradient(160deg, #f6a57c, #d97757); color: #fff; font-weight: 700; }
+.brief-h b { display: block; font-size: 14.5px; color: #1c1c1e; }
+.brief-h small { font-size: 12px; color: #8e8e93; }
+
+/* les cinq briques, qui s'allument */
+.bk-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 6px; }
+.bk { display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 99px; background: #fff; box-shadow: inset 0 0 0 1.5px var(--pv-line); font: 600 14px/1 var(--text); color: #9aa3b5; transition: background .3s, box-shadow .3s, color .3s; }
+.bk i { width: 9px; height: 9px; border-radius: 50%; background: #d5dcea; transition: background .3s, transform .3s; }
+.bk.is-on { background: #effaf3; box-shadow: inset 0 0 0 1.5px #1a9a5a; color: #145c37; }
+.bk.is-on i { background: #1a9a5a; transform: scale(1.2); }
+.bk-live .bk { font-size: 15px; padding: 11px 16px; }
+
+/* repérer dans la réponse de l'IA */
+.messages.is-hunting .chat-hunt { padding: 0 2px; border-radius: 4px; background: transparent; color: inherit; cursor: pointer; box-shadow: inset 0 -2px 0 rgba(226, 86, 13, .35); transition: background .2s, box-shadow .2s; }
+.messages.is-hunting .chat-hunt:hover { background: #fff1e6; }
+.chat-hunt.is-found { background: #ffd9bf !important; box-shadow: 0 0 0 2px #ffd9bf !important; }
+.chat-hunt.is-nope { animation: nudge .45s ease; }
+
+/* fiche R-C-O-C-F */
+.pv-sheet li span b { color: #1f1e1c; }
+.flip-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+.flip { height: 230px; }
+.flip-f, .flip-b { padding: 14px 12px; }
+.flip-q { font-size: 13px; }
+.flip-ex { font-size: 12px; }
+@media (max-width: 1100px) { .flip-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }

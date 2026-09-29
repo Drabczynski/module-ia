@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Module 2 · La structure d’un prompt</title>
+  <link rel="stylesheet" href="../premiers-pas/app.css">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 2.5 14.2 9.8 21.5 12l-7.3 2.2L12 21.5l-2.2-7.3L2.5 12l7.3-2.2Z" fill="currentColor"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5 10 17 19 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 5.5 19.5 12 13 18.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M20 12H5M11 5.5 4.5 12 11 18.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6.5 3h8L19 7.5V21H6.5z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M14.5 3v4.5H19M9.5 12h6M9.5 15h6M9.5 18h4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4ZM13.5 6.5l4 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+    <symbol id="i-side" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9.5 4.5v15" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M5 5h14a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 19 17H10l-4.5 3.5V17H5a1.5 1.5 0 0 1-1.5-1.5v-9A1.5 1.5 0 0 1 5 5Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M15.5 8.5V6a1.5 1.5 0 0 0-1.5-1.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><path d="m20 11.5-7.8 7.8a5 5 0 0 1-7.1-7.1l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4l7.8-7.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-replay" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3M4.5 4.5v4h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m16 9.5 5 5M21 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4.5h5.5V10M19.5 4.5 11 13M10 6H6a1.5 1.5 0 0 0-1.5 1.5v10.5A1.5 1.5 0 0 0 6 19.5h10.5A1.5 1.5 0 0 0 18 18v-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M7.5 4.5h9v4a4.5 4.5 0 0 1-9 0zM7.5 6H4.5a3 3 0 0 0 3 4M16.5 6h3a3 3 0 0 1-3 4M12 13v4M8.5 20h7M9.5 17h5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.7"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 11v6M12 7.5v.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 11.5V5.8a1.5 1.5 0 0 1 3 0V11m0-4.5a1.5 1.5 0 0 1 3 0V11m0-3.5a1.5 1.5 0 0 1 3 0v5.5c0 4-2.5 7-6.5 7-3 0-4.5-1.5-6-4l-1.6-2.8a1.4 1.4 0 0 1 2.4-1.4L8 13.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M5 19l1-4L15.5 5.5a2.1 2.1 0 0 1 3 3L9 18z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M3.5 12h17M12 3.5c2.4 2.3 3.6 5.2 3.6 8.5s-1.2 6.2-3.6 8.5c-2.4-2.3-3.6-5.2-3.6-8.5s1.2-6.2 3.6-8.5Z" fill="none" stroke="currentColor" stroke-width="1.7"/></symbol>
+    <symbol id="i-laptop" viewBox="0 0 24 24"><rect x="4.5" y="5" width="15" height="10.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M2.5 19h19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M11 17.5h2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="9" cy="10" r="1.6" fill="currentColor"/><path d="m4.5 17 5-4.5 3.5 3 2.5-2 4 3.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+    <symbol id="i-code" viewBox="0 0 24 24"><path d="m8.5 7.5-5 4.5 5 4.5M15.5 7.5l5 4.5-5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="m4 7 8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+
+<!-- bouton de lancement de l'accueil (la voix a besoin d'un premier clic) -->
+<div class="wl-hero" data-wl-hero aria-hidden="false">
+  <div class="wl-main">
+    <h1 class="wl-title">La structure<br>d’un prompt.</h1>
+    <button type="button" class="wl-go" data-wl-go hidden>Commencer<svg><use href="#i-arrow"/></svg></button>
+  </div>
+  <button type="button" class="wl-menu" data-menu-open aria-haspopup="dialog"><svg><use href="#i-menu"/></svg>Les modules</button>
+  <p class="wl-foot-l"><span>Rôle, cible, objectif, contexte, format : cinq briques pour un prompt solide.</span><span>Un cas réel : rédiger une offre d’emploi.</span></p>
+  <p class="wl-foot-r"><b>Module 2</b><br>15 minutes · 9 activités</p>
+</div>
+
+<!-- ============ Application : Claude à gauche, formation à droite ============ -->
+<div class="app" data-app hidden>
+  <header class="topbar">
+    <div class="tb-left">
+      <button type="button" class="tb-icon" data-side-toggle data-fn="history" aria-label="Conversations précédentes" aria-expanded="false"><svg><use href="#i-side"/></svg></button>
+      <button type="button" class="tb-icon" data-new data-fn="new" aria-label="Nouvelle conversation"><svg><use href="#i-pen"/></svg></button>
+      <span class="tb-title"><span class="tb-mark"><svg><use href="#i-spark"/></svg></span><span data-conv-title>Nouvelle conversation</span></span>
+      <span class="tb-pill">Simulation pédagogique</span>
+    </div>
+    <div class="tb-right">
+      <button type="button" class="tb-mode" data-mode>Connexion…</button>
+    </div>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" data-tab="claude" aria-selected="false">IA <span class="tab-dot" data-tab-dot hidden></span></button>
+    <button type="button" role="tab" data-tab="story" aria-selected="true">Formation</button>
+  </div>
+
+  <div class="split" data-shell>
+    <!-- Claude (simulation de l'interface) -->
+    <section class="claude" data-panel="claude" aria-label="Assistant d’IA, simulation pédagogique">
+      <nav class="side" data-side aria-label="Conversations">
+        <button type="button" class="side-new" data-side-new><svg><use href="#i-plus"/></svg>Nouvelle conversation</button>
+        <p class="side-h">Récents</p>
+        <ul class="recents" data-recents></ul>
+      </nav>
+      <div class="chat">
+        <div class="messages" data-messages aria-live="polite"></div>
+        <form class="composer" data-composer data-fn="input">
+          <div class="attach-chip" data-attach-chip hidden><svg><use href="#i-doc"/></svg><span>document-fictif.pdf</span><button type="button" data-attach-remove aria-label="Retirer le fichier"><svg><use href="#i-x"/></svg></button></div>
+          <textarea data-input data-fn="slash" rows="1" placeholder="Écrire à l’IA…" aria-label="Votre message à l’IA"></textarea>
+          <div class="composer-foot">
+            <button type="button" class="c-icon" data-attach data-fn="attach" aria-label="Ajouter un fichier"><svg><use href="#i-plus"/></svg></button>
+            <span class="c-model">Assistant IA</span>
+            <span class="send-wrap" data-fn="send"><button type="submit" class="send" aria-label="Envoyer"><svg><use href="#i-up"/></svg></button></span>
+          </div>
+        </form>
+        <p class="work-note" data-work-note></p>
+      </div>
+    </section>
+
+    <!-- poignée : largeur du panneau de formation, au choix de l'apprenant -->
+    <div class="resizer" data-resizer role="separator" aria-orientation="vertical" tabindex="0" aria-label="Largeur du panneau de formation (flèches gauche et droite)"></div>
+
+    <!-- Formation -->
+    <aside class="panel" data-panel="story" aria-label="Formation">
+      <div class="panel-head">
+        <span class="ph-t">Module 2 · La structure d’un prompt</span>
+        <div class="ph-actions">
+          
+        </div>
+      </div>
+      <div class="ph-prog" aria-hidden="true"><i data-prog></i></div>
+      <div class="panel-body" data-p-body></div>
+      <footer class="panel-foot">
+        <div class="narr">
+          <div class="narr-orb" data-orb></div>
+          <p class="narr-cap is-idle" data-cap aria-live="polite"></p>
+          <div class="narr-ctl">
+            <button type="button" class="nc" data-replay aria-label="Réécouter la consigne"><svg><use href="#i-replay"/></svg></button>
+            <button type="button" class="nc" data-sound aria-label="Couper le son"><svg><use href="#i-sound"/></svg></button>
+          </div>
+        </div>
+        <button type="button" class="btn-back btn-sm" data-back hidden><svg><use href="#i-back"/></svg>Retour</button>
+        <button type="button" class="btn-quit btn-sm" data-quit hidden>Quitter</button>
+        <button type="button" class="btn-next btn-sm" data-next hidden><span data-next-label>Continuer</span><svg><use href="#i-arrow"/></svg></button>
+      </footer>
+    </aside>
+  </div>
+</div>
+
+<div class="mm" data-menu hidden>
+  <div class="mm-back" data-menu-close></div>
+  <aside class="mm-panel" role="dialog" aria-label="Les modules du parcours">
+    <div class="mm-head"><div><b>Le parcours</b><span>Certification « Utiliser l’IA générative » · 15 modules</span></div><button type="button" class="mm-x" data-menu-close aria-label="Fermer"><svg><use href="#i-x"/></svg></button></div>
+    <div class="mm-list" data-menu-list></div>
+  </aside>
+</div>
+
+<div class="end-screen" data-end hidden><div><h2>Formation terminée</h2><p>Merci pour votre participation. Vous pouvez fermer cette fenêtre.</p></div></div>
+<div class="toast" data-toast role="status" aria-live="polite"></div>
+<audio data-audio preload="auto"></audio>
+
+<script src="../assets/audio/sous-titres.js"></script>
+<script src="../assets/audio/mots.js"></script>
+<script src="../premiers-pas/orb.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

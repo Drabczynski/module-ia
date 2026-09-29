@@ -94,6 +94,12 @@ Storyboard : `premiers-pas/STORYBOARD.md`.
 - Voix de synthèse du navigateur en attendant les enregistrements ; l'accueil démarre au clic sur « Commencer ».
 - Fonction `api/chat.ts`, identifiant `premiers-pas` ; mode simulé automatique sans clé.
 
+## Module 2 · La structure d’un prompt (`structure-prompt/`)
+
+Compétence C2 de la certification RS6776 : Rôle, Cible, Objectif, Contexte, Format, sur le cas d’une offre d’emploi.
+Même moteur que le module 1 (styles et orbe partagés avec `premiers-pas/`). Storyboard et textes à enregistrer : `structure-prompt/STORYBOARD.md`.
+Fonction `api/chat.ts`, identifiant `structure-prompt`. Le menu « Les modules » relie les modules déjà construits.
+
 ## Découvrir Claude (`decouvrir/`)
 
 Module autonome de découverte : une journée fictive chez Lumen, six missions et un bilan.

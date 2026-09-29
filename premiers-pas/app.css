@@ -1050,3 +1050,7 @@ svg { display: block; }
 .cover-t { animation: cover-rise .9s var(--ease) .45s both; }
 .cover .devices { animation: cover-rise .9s var(--ease) .65s both; }
 @keyframes cover-rise { from { opacity: 0; transform: translateY(18px); } }
+.mm-mod.is-open { cursor: pointer; }
+.mm-mod.is-open:hover { background: #f7f5f0; }
+.mm-mod.is-open .mm-tx b { color: #1f1e1c; font-weight: 600; }
+.mm-mod.is-open em { padding: 5px 8px; border-radius: 99px; background: #f1eee7; color: #6b675e; }
