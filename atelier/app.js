@@ -525,6 +525,7 @@
     e.preventDefault();
     var text = input.value.trim();
     if (!text || busy || !composeOn) return;
+    if (st().send) { input.value = ""; autosize(); if (composeTip) { composeTip.remove(); composeTip = null; } st().send(text); return; }
     var c = conv();
     if (!c || c.kind === "demo") c = newConv();
     c.messages.push({ role: "user", content: text });
@@ -758,9 +759,9 @@
         side.appendChild(h('<p class="pv-lead">Léa sort du point d’équipe avec quelques notes. Elle veut savoir <b>qui fait quoi, et pour quand</b>.</p>'));
         side.appendChild(h('<div class="pv-nb"><p>Point équipe du 3 novembre.</p><p><span class="tk is-done">Nora</span> prépare l’affiche pour le <span class="tk is-done">5 novembre</span>.</p><p><span class="tk is-done">Sami</span> vérifie le stock pour le <span class="tk is-done">6 novembre</span>.</p><p>Le lieu de la prochaine rencontre <span class="pv-mark">reste à confirmer.</span></p></div>'));
         pv.appendChild(h('<div class="pv-grid"><div class="th">Action</div><div class="th">Responsable</div><div class="th">Échéance</div>' +
-          "<div>Préparer l’affiche</div><div>Nora</div><div>5 novembre</div>" +
-          "<div>Vérifier le stock</div><div>Sami</div><div>6 novembre</div>" +
-          '<div>Confirmer le lieu</div><div class="warn">?</div><div class="warn">?</div></div>'));
+          '<div>Préparer l’affiche</div><div class="empty"></div><div class="empty"></div>' +
+          '<div>Vérifier le stock</div><div class="empty"></div><div class="empty"></div>' +
+          '<div>Confirmer le lieu</div><div class="empty"></div><div class="empty"></div></div>'));
         fb(pv, "ko", "<b>Point à retenir :</b> le lieu reste à confirmer. Aucun responsable n’est désigné pour cette action.");
       }
     },
@@ -828,48 +829,54 @@
     /* 3.07 · Démonstration dans Claude ----------------------------------------- */
     {
       id: "demo", seq: 2, pill: "Démonstration", icon: "eye", title: "Voir la transformation",
-      say: "Regardez à gauche. La demande part, et Claude répond. Le tableau reprend les faits, et conserve les informations manquantes.",
+      say: "La demande est déjà écrite dans le champ de Claude. Envoyez-la. Le tableau reprend les faits, et conserve les informations manquantes.",
       render: function (pv) {
         var a = act("demo");
-        lead(pv, a.shown ? "Voici la réponse, à gauche. Vérifiez-la en trois points : cliquez sur chacun." : "Regardez à gauche : la demande est envoyée, puis Claude répond.");
-        if (!a.shown) return;
-        a.seen = a.seen || [];
-        var POINTS = [[0, "Nora prépare l’affiche, pour le 5 novembre"], [1, "Sami vérifie le stock, pour le 6 novembre"], [2, "Le lieu : « non précisé », rien d’inventé"]];
-        var ul = h('<ul class="pv-check"></ul>');
-        POINTS.forEach(function (pt, k) {
-          var b = h('<button type="button"><span class="n">' + (k + 1) + "</span><span></span></button>");
-          b.lastChild.textContent = pt[1];
-          b.classList.toggle("is-seen", a.seen.indexOf(k) >= 0);
-          b.classList.toggle("is-on", a.on === k);
-          b.onclick = function () { a.on = k; if (a.seen.indexOf(k) < 0) a.seen.push(k); highlightRow(pt[0]); refresh(); };
-          var li = document.createElement("li"); li.appendChild(b); ul.appendChild(li);
+        if (!a.shown) {
+          lead(pv, a.sent ? "La demande est partie. Claude répond, à gauche." : "La demande est déjà écrite dans le champ de Claude. <b>Envoyez-la</b> : flèche ou touche Entrée.");
+          return;
+        }
+        lead(pv, "Voici la réponse, à gauche. Elle se vérifie en trois points :");
+        var ul = h('<ul class="pv-check is-static"></ul>');
+        ["Nora prépare l’affiche, pour le 5 novembre", "Sami vérifie le stock, pour le 6 novembre", "Le lieu : « non précisé », rien d’inventé"].forEach(function (t, k) {
+          var li = h('<li><div class="pv-check-row"><span class="n">' + (k + 1) + "</span><span></span></div></li>");
+          li.querySelector("span:last-child").textContent = t;
+          ul.appendChild(li);
         });
         pv.appendChild(ul);
-        if (a.seen.length === 3) fb(pv, "", "Cette réponse est un exemple relu. Claude peut formuler autrement : vérifiez les mêmes critères.");
+        fb(pv, "", "Cette réponse est un exemple relu. Claude peut formuler autrement : vérifiez les mêmes critères.");
       },
-      ready: function () { return act("demo").seen && act("demo").seen.length === 3; },
+      ready: function () { return !!act("demo").shown; },
       enter: function () {
         var a = act("demo");
-        if (a.shown) return;
-        autoTimer = setTimeout(function () {
-          var c = newConv("demo", "Exemple relu : tableau des actions");
-          c.messages.push({ role: "user", content: PROMPT });
-          renderConv();
-          setTimeout(function () {
-            setBusy(true);
-            var el = addPending();
-            var answer = "Voici le tableau établi à partir de vos notes :\n\n" + REF_TABLE;
-            setTimeout(function () {
-              streamText(el, answer, function () {
-                c.messages.push({ role: "assistant", content: answer, tag: "demo" });
-                setBusy(false);
-                renderConv();
-                a.shown = true;
-                refresh();
-              });
-            }, 700);
-          }, 900);
-        }, 1400);
+        if (a.shown || a.sent) return;
+        newConv("demo", "Exemple relu : tableau des actions");
+        renderConv();
+        input.readOnly = true;
+        compose(true, "Envoyez la demande : flèche ou Entrée");
+        insert(PROMPT);
+      },
+      leave: function () { input.readOnly = false; if (!act("demo").shown) { input.value = ""; autosize(); } },
+      send: function () {
+        var a = act("demo"), c = conv();
+        a.sent = true;
+        input.readOnly = false;
+        compose(false);
+        c.messages.push({ role: "user", content: PROMPT });
+        renderConv();
+        refresh();
+        setBusy(true);
+        var el = addPending();
+        var answer = "Voici le tableau établi à partir de vos notes :\n\n" + REF_TABLE;
+        setTimeout(function () {
+          streamText(el, answer, function () {
+            c.messages.push({ role: "assistant", content: answer, tag: "demo" });
+            setBusy(false);
+            renderConv();
+            a.shown = true;
+            refresh();
+          });
+        }, 700);
       }
     },
 

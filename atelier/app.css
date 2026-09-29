@@ -470,6 +470,8 @@ svg { display: block; }
 .pv-check button.is-on { border-color: #e2560d; background: #fff6ee; }
 .pv-check button.is-on .n { background: #e2560d; color: #fff; }
 .pv-check button.is-seen .n { background: #1a9a5a; color: #fff; }
+.pv-check-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1.5px solid #d8e0ec; border-radius: 12px; background: #fff; font: 500 15.5px/1.3 var(--text); color: var(--pv-ink); }
+.pv-check-row .n { width: 26px; height: 26px; flex: none; border-radius: 50%; display: grid; place-items: center; background: #1a9a5a; font: 700 12.5px/1 var(--text); color: #fff; }
 @media (max-width: 980px) { .pv { padding: 24px 18px 30px; } .pv-match { gap: 14px; } .pv-blur { grid-template-columns: 1fr; } }
 .ph-prog { flex: none; height: 3px; background: #eef1f6; }
 .ph-prog i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #3b77ff, #1a4fd6); transition: width .6s var(--ease); }
