@@ -861,7 +861,7 @@
 
     /* 3.07 · Démonstration dans Claude ----------------------------------------- */
     {
-      id: "demo", seq: 2, pill: "Démonstration", icon: "eye", title: "Voir la transformation",
+      id: "demo", seq: 2, pill: "Démonstration", icon: "eye", title: "Voir la transformation", audio: "demo",
       say: "La demande est déjà écrite dans le champ de Claude. Envoyez-la. Le tableau reprend les faits, et conserve les informations manquantes.",
       render: function (pv) {
         var a = act("demo");
@@ -915,7 +915,7 @@
 
     /* 3.08 · À vous : créez votre tableau (4 points) ----------------------------- */
     {
-      id: "pratique", seq: 2, pill: "À vous de jouer · 4 points", icon: "clock", title: "Créez votre tableau",
+      id: "pratique", seq: 2, pill: "À vous de jouer · 4 points", icon: "clock", title: "Créez votre tableau", audio: "pratique",
       say: "À vous. Ouvrez une nouvelle conversation, écrivez la demande avec la source et le résultat attendu, puis envoyez-la.",
       render: function (pv) {
         var a = act("pratique");
@@ -987,7 +987,7 @@
     },
 
     /* 3.09 · Le responsable absent (1 point) ---------------------------------- */
-    extend({ id: "absent", seq: 2, pill: "À vous de choisir · 1 point", icon: "trophy", title: "Traiter le responsable absent",
+    extend({ id: "absent", seq: 2, pill: "À vous de choisir · 1 point", icon: "trophy", title: "Traiter le responsable absent", audio: "absent",
       say: "Choisissez votre réponse, puis consultez son explication." },
       quiz("absent", "Qui doit confirmer le lieu de la prochaine rencontre ?", [
         ["Nora", "Nora est chargée de l’affiche. Ne lui attribuez pas une autre tâche sans information."],
@@ -996,7 +996,7 @@
 
     /* 3.10 · Demander une correction ------------------------------------------ */
     {
-      id: "correction", seq: 2, pill: "Corriger", icon: "pencil", title: "Demander une correction",
+      id: "correction", seq: 2, pill: "Corriger", icon: "pencil", title: "Demander une correction", audio: "correction",
       say: "Si Claude ajoute une information, nommez exactement l’erreur, et le résultat attendu, dans le même échange.",
       needed: function () { var a = act("pratique"); return !!(a.rows && inventedOwner(a.rows)) && !act("correction").done; },
       render: function (pv) {

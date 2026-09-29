@@ -42,5 +42,26 @@ window.COURSE_CAPTIONS = {
     [0.16, 1.64, "Claude ne connaît pas les notes de Léa."],
     [2.28, 5.42, "Une bonne demande lui donne la source et le résultat attendu."],
     [6.2, 8.48, "Une pièce jointe n’est pas nécessaire pour un court texte."]
+  ],
+  "demo": [
+    [0.12, 2.31, "La demande est déjà écrite dans le champ de Claude."],
+    [2.91, 3.48, "Envoyez-la."],
+    [4.42, 5.58, "Le tableau reprend les faits,"],
+    [6.02, 7.84, "et conserve les informations manquantes."]
+  ],
+  "pratique": [
+    [0.06, 0.36, "À vous !"],
+    [1.28, 2.66, "Ouvrez une nouvelle conversation,"],
+    [3.19, 5.98, "écrivez la demande avec la source et le résultat attendu,"],
+    [6.54, 7.3, "puis envoyez-la."]
+  ],
+  "absent": [
+    [0.03, 3.12, "Choisissez votre réponse, puis consultez son explication."]
+  ],
+  "correction": [
+    [0.08, 1.74, "Si Claude ajoute une information,"],
+    [2.12, 3.56, "nommez exactement l’erreur,"],
+    [4.14, 5.28, "et le résultat attendu,"],
+    [5.7, 6.6, "dans le même échange."]
   ]
 };
