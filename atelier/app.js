@@ -72,7 +72,15 @@
   /* ---------- Orbe ---------- */
 
   var gateOrb = SiriOrb($("[data-gate-orb]"), { size: 168, label: "Assistant pédagogique" });
-  var orb = SiriOrb($("[data-orb]"), { size: 52, label: "Assistant pédagogique" });
+  var smallOrb = SiriOrb($("[data-orb]"), { size: 52, label: "Assistant pédagogique" });
+  // grande orbe au centre de Claude, à la place de l'étoile, tant que la conversation est vide
+  var bigHost = document.createElement("div");
+  bigHost.className = "big-orb";
+  var bigOrb = SiriOrb(bigHost, { size: 176, label: "Assistant pédagogique" });
+  var orb = {
+    setState: function (st) { smallOrb.setState(st); bigOrb.setState(st); },
+    setLevel: function (fn) { smallOrb.setLevel(fn); bigOrb.setLevel(fn); }
+  };
   var speaking = false, typingTimer = null;
   function orbMood() {
     if (speaking) return orb.setState("speaking");
@@ -337,8 +345,10 @@
     $("[data-conv-title]").textContent = c && c.messages.length ? c.title : "Nouvelle conversation";
     messagesEl.innerHTML = "";
     if (!c || !c.messages.length) {
-      messagesEl.innerHTML = '<div class="empty-state"><svg class="mark"><use href="#i-spark"/></svg><h2>Comment puis-je vous aider ?</h2><p>Environnement de formation · dossiers fictifs uniquement</p></div>';
+      messagesEl.innerHTML = '<div class="empty-state"><h2>Comment puis-je vous aider ?</h2><p>Environnement de formation · dossiers fictifs uniquement</p></div>';
+      messagesEl.firstChild.insertBefore(bigHost, messagesEl.firstChild.firstChild);
     } else c.messages.forEach(function (m) { messagesEl.appendChild(msgNode(m)); });
+    app.classList.toggle("has-big-orb", !c || !c.messages.length);
     messagesEl.scrollTop = messagesEl.scrollHeight;
     renderRecents();
   }

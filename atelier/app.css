@@ -224,3 +224,7 @@ svg { display: block; }
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
 .msg--ai .body table, .msg--ai .body th, .msg--ai .body td { overflow-wrap: normal; word-break: normal; hyphens: manual; }
+
+/* grande orbe au centre de Claude ; la petite (panneau) n'apparaît qu'une fois la conversation lancée */
+.big-orb { margin: 0 auto 22px; }
+.has-big-orb .narr-orb { display: none; }
