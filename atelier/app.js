@@ -151,11 +151,18 @@
   }
   function caption(text, idle) { capEl.classList.toggle("is-idle", !!idle); sayText(text); sayProgress(1); }
 
-  var cues = [], current = null, capRaf = 0, blocked = false;
+  var cues = [], current = null, capRaf = 0, blocked = false, markT = 999;
+  function syncMarks(t) {
+    markT = t;
+    $$("[data-at]", bodyEl).forEach(function (el) {
+      el.classList.toggle("hl-on", t >= +el.dataset.at && !(el.dataset.until && t >= +el.dataset.until));
+    });
+  }
   function capLoop() {
     capRaf = 0;
     if (audio.paused) return;
     var t = audio.currentTime, i = -1;
+    syncMarks(t);
     for (var k = 0; k < cues.length; k++) if (cues[k][0] <= t + 0.05) i = k;
     if (i >= 0) {
       var c = cues[i], W = (window.COURSE_WORDS || {})[audio.dataset.id];
@@ -176,6 +183,7 @@
     orbMood();
   }
   function ended() {
+    syncMarks(999);
     speaking = false;
     orbMood();
     sayProgress(1);
@@ -187,7 +195,7 @@
     stopVoice();
     cues = [];
     if (!item) return;
-    if (!S.sound) { caption(item.text, true); return; }
+    if (!S.sound) { syncMarks(999); caption(item.text, true); return; }
     var capts = (window.COURSE_CAPTIONS || {})[item.audio];
     if (item.audio && capts) {
       cues = capts;
@@ -197,9 +205,11 @@
       audio.dataset.id = item.audio;
       loadEnvelope(item.audio);
       var p = audio.play();
-      if (p && p.catch) p.catch(function () { blocked = true; caption(item.text, true); });
+      if (p && p.catch) p.catch(function () { blocked = true; syncMarks(999); caption(item.text, true); });
+      syncMarks(0);
       return;
     }
+    syncMarks(999);
     var v = frVoice();
     if (!v) { caption(item.text, true); return; }
     var u = new SpeechSynthesisUtterance(item.text);
@@ -572,25 +582,42 @@
   function badge(fn, label, onClick) {
     var z = $(".app [data-fn='" + fn + "']");
     if (!z) return null;
-    if (getComputedStyle(z).position === "static") z.style.position = "relative";
+    // calque fixe au-dessus de toute l'interface : jamais rognée ni atténuée
     var b = h('<button type="button" class="spot-badge"></button>');
     b.textContent = label;
+    b._zone = z;
     if (onClick) b.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); onClick(b); });
     else b.style.pointerEvents = "none";
-    z.appendChild(b);
+    document.body.appendChild(b);
+    placeBadges();
     return b;
+  }
+  var badgeRaf = 0;
+  function placeBadges() {
+    cancelAnimationFrame(badgeRaf);
+    var list = $$(".spot-badge");
+    if (!list.length) return;
+    list.forEach(function (b) {
+      var r = b._zone.getBoundingClientRect();
+      b.style.visibility = r.width ? "" : "hidden";
+      var x = r.right - 16, y = r.top < 30 ? r.bottom - 12 : r.top - 16;
+      b.style.left = Math.max(6, Math.min(window.innerWidth - 34, x)) + "px";
+      b.style.top = Math.max(6, Math.min(window.innerHeight - 34, y)) + "px";
+    });
+    badgeRaf = requestAnimationFrame(placeBadges);
   }
   function showTip(b, title, text) {
     if (tipEl) tipEl.remove();
-    tipEl = h('<div class="spot-tip" role="status"><b></b><span></span></div>');
-    tipEl.firstChild.textContent = title;
+    tipEl = h('<div class="spot-tip" role="status"><button type="button" class="spot-x" aria-label="Fermer">×</button><b></b><span></span></div>');
+    tipEl.querySelector("b").textContent = title;
     tipEl.lastChild.textContent = text;
+    tipEl.firstChild.onclick = function () { if (tipEl) { tipEl.remove(); tipEl = null; } };
     document.body.appendChild(tipEl);
     var rc = b.getBoundingClientRect();
     tipEl.style.left = Math.max(8, Math.min(window.innerWidth - 270, rc.left - 20)) + "px";
     tipEl.style.top = (rc.bottom + 8 + tipEl.offsetHeight > window.innerHeight ? rc.top - tipEl.offsetHeight - 8 : rc.bottom + 8) + "px";
   }
-  document.addEventListener("click", function (e) { if (tipEl && !e.target.closest(".spot-badge")) { tipEl.remove(); tipEl = null; } });
+  document.addEventListener("click", function (e) { if (tipEl && !e.target.closest(".spot-badge, .spot-tip")) { tipEl.remove(); tipEl = null; } });
   function spot(fn) { var z = $(".app [data-fn='" + fn + "']"); if (z) z.classList.add("is-spot"); }
 
   /* ---------- Moteur du parcours ---------- */
@@ -611,6 +638,7 @@
     compose(false);
     attachBtn.disabled = true;
     P.i = Math.max(0, Math.min(STEPS.length - 1, i));
+    markT = S.sound && STEPS[P.i].audio ? 0 : 999;
     render(true);
     var s = st();
     if (s.enter) s.enter();
@@ -638,6 +666,7 @@
     s.render(pv, side);
     if (!fresh) Array.prototype.forEach.call(pv.children, function (c) { c.style.animation = "none"; });
     bodyEl.appendChild(pv);
+    syncMarks(markT);
     bodyEl.scrollTop = fresh ? 0 : y;
     $("[data-prog]").style.width = ((P.i + 1) / STEPS.length * 100) + "%";
     paintNext();
@@ -757,11 +786,15 @@
       say: "Voici Léa. Elle sort d’un point d’équipe et elle a pris quelques notes rapides. Nora prépare l’affiche pour le 5 novembre. Sami vérifie le stock pour le 6. Et le lieu de la prochaine rencontre… reste à confirmer. Ce que Léa veut maintenant, c’est un tableau simple : qui fait quoi, et pour quand. Remarquez ce dernier point : il n’a encore ni responsable ni date. Gardez-le en tête, on y reviendra.",
       render: function (pv, side) {
         side.appendChild(h('<p class="pv-lead">Léa sort du point d’équipe avec quelques notes. Elle veut savoir <b>qui fait quoi, et pour quand</b>.</p>'));
-        side.appendChild(h('<div class="pv-nb"><p>Point équipe du 3 novembre.</p><p><span class="tk is-done">Nora</span> prépare l’affiche pour le <span class="tk is-done">5 novembre</span>.</p><p><span class="tk is-done">Sami</span> vérifie le stock pour le <span class="tk is-done">6 novembre</span>.</p><p>Le lieu de la prochaine rencontre <span class="pv-mark">reste à confirmer.</span></p></div>'));
-        pv.appendChild(h('<div class="pv-grid"><div class="th">Action</div><div class="th">Responsable</div><div class="th">Échéance</div>' +
+        // les repères se surlignent au moment où la voix les prononce (data-at, en secondes)
+        side.appendChild(h('<div class="pv-nb"><p>Point équipe du 3 novembre.</p>' +
+          '<p><span class="hl ok" data-at="4.98">Nora</span> <span class="hl" data-at="5.42">prépare l’affiche</span> pour le <span class="hl ok" data-at="6.92">5 novembre</span>.</p>' +
+          '<p><span class="hl ok" data-at="7.63">Sami</span> <span class="hl" data-at="8.07">vérifie le stock</span> pour le <span class="hl ok" data-at="9.35">6 novembre</span>.</p>' +
+          '<p><span class="hl" data-at="10.3">Le lieu de la prochaine rencontre</span> <span class="hl warn" data-at="12.21">reste à confirmer.</span></p></div>'));
+        pv.appendChild(h('<div class="pv-grid" data-at="16.2" data-until="17.1"><div class="th">Action</div><div class="th" data-at="17.17" data-until="19.4">Responsable</div><div class="th" data-at="18.16" data-until="19.4">Échéance</div>' +
           '<div>Préparer l’affiche</div><div class="empty"></div><div class="empty"></div>' +
           '<div>Vérifier le stock</div><div class="empty"></div><div class="empty"></div>' +
-          '<div>Confirmer le lieu</div><div class="empty"></div><div class="empty"></div></div>'));
+          '<div class="gl" data-at="19.45">Confirmer le lieu</div><div class="empty gl" data-at="21.89"></div><div class="empty gl" data-at="22.7"></div></div>'));
         fb(pv, "ko", "<b>Point à retenir :</b> le lieu reste à confirmer. Aucun responsable n’est désigné pour cette action.");
       }
     },
