@@ -31,6 +31,17 @@
   };
   window.CourseTracking = Tracking;
 
+  /* ---------- Intégration dans l'atelier (panneau de formation à côté de Claude) ---------- */
+
+  // ouvert dans l'atelier : la voix passe par l'assistant pédagogique du parent
+  var EMBED = window.parent !== window && /[?&]embed\b/.test(location.search);
+  if (EMBED) document.documentElement.classList.add("is-embed");
+  function tell(msg) {
+    if (!EMBED) return;
+    msg.src = "module3";
+    try { window.parent.postMessage(msg, location.origin && location.origin !== "null" ? location.origin : "*"); } catch (e) { /* parent indisponible */ }
+  }
+
   var state = Tracking.load();
   state.visited = state.visited || [];
   state.spots = state.spots || [];
@@ -108,6 +119,11 @@
     applyPhoto(slide);
     loadVoice(slide);
     slide.dispatchEvent(new CustomEvent("slide:enter"));
+    var h1 = slide.querySelector(".h1"), lead = slide.querySelector(".lead");
+    tell({ type: "screen", index: index, code: screenCode(index), total: TOTAL_SCREENS,
+      audio: slide.getAttribute("data-audio") || null,
+      title: h1 ? h1.textContent.trim() : slide.getAttribute("aria-label"),
+      lead: lead ? lead.textContent.trim() : "" });
     slide.querySelectorAll("[data-match]").forEach(function (m) { if (m._redraw) setTimeout(m._redraw, 60); });
     currentEl.textContent = pad(index + 1);
     progressEl.style.setProperty("--p", ((index + 1) / TOTAL_SCREENS * 100) + "%");
@@ -766,14 +782,7 @@
       refresh();
     }
 
-    grid.addEventListener("paste", function (e) {
-      var cell = e.target.closest(".e-cell");
-      var text = (e.clipboardData || window.clipboardData).getData("text");
-      if (!cell || !/[\t|]|\n/.test(text.trim())) return;       // simple texte : collage normal
-      var rows = parse(text);
-      if (!rows.length) return;
-      e.preventDefault();
-      var r0 = +cell.dataset.r, c0 = +cell.dataset.c;
+    function fill(rows, r0, c0) {
       rows.forEach(function (row, i) {
         row.forEach(function (val, j) {
           var r = r0 + i, c = c0 + j;
@@ -787,7 +796,35 @@
         });
       });
       changed();
+    }
+
+    grid.addEventListener("paste", function (e) {
+      var cell = e.target.closest(".e-cell");
+      var text = (e.clipboardData || window.clipboardData).getData("text");
+      if (!cell || !/[\t|]|\n/.test(text.trim())) return;       // simple texte : collage normal
+      var rows = parse(text);
+      if (!rows.length) return;
+      e.preventDefault();
+      fill(rows, +cell.dataset.r, +cell.dataset.c);
     });
+
+    // atelier : reprendre le dernier tableau obtenu dans la conversation Claude
+    grid._fromText = function (text) {
+      var rows = parse(text || "").filter(function (r) { return r.length >= 2; });
+      if (!rows.length) { checks.innerHTML = '<p class="check-msg is-bad">Aucun tableau dans la conversation. Envoyez d’abord votre demande à Claude, à gauche.</p>'; return; }
+      cells.forEach(function (t) { t.value = ""; });
+      data.forEach(function (row) { row[0] = row[1] = row[2] = ""; });
+      fill(rows, 0, 0);
+    };
+    if (EMBED) {
+      var acts = grid.closest(".box").querySelector(".box-actions") || slide.querySelector(".box-actions");
+      var imp = document.createElement("button");
+      imp.type = "button";
+      imp.className = "btn-soft btn-import";
+      imp.innerHTML = '<svg><use href="#i-copy"/></svg><span>Reprendre le tableau de Claude</span>';
+      imp.addEventListener("click", function () { tell({ type: "need-table" }); });
+      grid.closest(".box").querySelector("h3").after(imp);
+    }
 
     grid.addEventListener("input", function (e) {
       var cell = e.target;
@@ -1429,7 +1466,7 @@
     cueIdx = -2;
     showCue(-1);
 
-    if (!id) { audio.removeAttribute("src"); audio.load(); return; }
+    if (!id || EMBED) { audio.removeAttribute("src"); audio.load(); return; }
     audio.src = "assets/audio/" + id + ".mp3";
     // laisse l'écran s'installer avant que la voix ne démarre
     startTimer = setTimeout(play, 700);
@@ -1472,6 +1509,29 @@
 
   setCC(!!state.cc);
   setMute(!!state.muted);
+
+  /* ---------- Atelier : échanges avec la page parente ---------- */
+
+  if (EMBED) {
+    window.addEventListener("message", function (e) {
+      if (e.source !== window.parent || !e.data || e.data.src !== "atelier") return;
+      var d = e.data;
+      if (d.type === "table") stage.querySelectorAll("[data-edit-table]").forEach(function (g) { if (g._fromText) g._fromText(d.text); });
+      if (d.type === "voice-ended") {
+        var cta = slides[index] && slides[index].querySelector(".cta");
+        if (cta) cta.classList.add("is-ready");
+      }
+      if (d.type === "go" && typeof d.index === "number") go(d.index);
+      if (d.type === "prev") go(index - 1);
+    });
+    // « Ouvrir Claude » : Claude est déjà ouvert à gauche
+    stage.addEventListener("click", function (e) {
+      var a = e.target.closest('a[href*="claude.ai"]');
+      if (!a) return;
+      e.preventDefault();
+      tell({ type: "open-claude" });
+    }, true);
+  }
 
   /* ---------- Démarrage ---------- */
 

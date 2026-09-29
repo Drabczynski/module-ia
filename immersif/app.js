@@ -1251,6 +1251,12 @@
     }, { root: intro, threshold: 0.15 });
     $$(".rv", intro).forEach(function (el) { rv.observe(el); });
 
+    // le titre « Une réunion produit des actions » reste affiché pendant le récit
+    var tache = $("#x-tache", intro), tBlock = $("#x-tache .x-intro-block", intro);
+    var setTh = function () { tache.style.setProperty("--th", tBlock.offsetHeight + "px"); };
+    setTh();
+    if ("ResizeObserver" in window) new ResizeObserver(setTh).observe(tBlock);
+
     var stage = $(".x-stage", intro), steps = $$(".x-step", intro);
     var so = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {

@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Module 3 · Prendre en main Claude · Atelier</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 2.5 14.2 9.8 21.5 12l-7.3 2.2L12 21.5l-2.2-7.3L2.5 12l7.3-2.2Z" fill="currentColor"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5 10 17 19 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 5.5 19.5 12 13 18.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M20 12H5M11 5.5 4.5 12 11 18.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6.5 3h8L19 7.5V21H6.5z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M14.5 3v4.5H19M9.5 12h6M9.5 15h6M9.5 18h4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4ZM13.5 6.5l4 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+    <symbol id="i-side" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9.5 4.5v15" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M5 5h14a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 19 17H10l-4.5 3.5V17H5a1.5 1.5 0 0 1-1.5-1.5v-9A1.5 1.5 0 0 1 5 5Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M15.5 8.5V6a1.5 1.5 0 0 0-1.5-1.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><path d="m20 11.5-7.8 7.8a5 5 0 0 1-7.1-7.1l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4l7.8-7.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-replay" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3M4.5 4.5v4h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m16 9.5 5 5M21 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4.5h5.5V10M19.5 4.5 11 13M10 6H6a1.5 1.5 0 0 0-1.5 1.5v10.5A1.5 1.5 0 0 0 6 19.5h10.5A1.5 1.5 0 0 0 18 18v-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M5 19l1-4L15.5 5.5a2.1 2.1 0 0 1 3 3L9 18z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+
+<!-- ============ Accueil : un clic pour lancer la voix (les navigateurs l'exigent) ============ -->
+<div class="gate" data-gate>
+  <div class="gate-orb" data-gate-orb></div>
+  <p class="gate-k">Module 3 · 25 minutes</p>
+  <h1 class="gate-title">Prendre en main Claude</h1>
+  <p class="gate-lead">Votre assistant pédagogique vous guide à voix haute. Vous pratiquez directement dans Claude.</p>
+  <button type="button" class="btn-next btn-lg" data-gate-start>Démarrer<svg><use href="#i-arrow"/></svg></button>
+  <button type="button" class="gate-silent" data-gate-silent>Démarrer sans le son</button>
+</div>
+
+<!-- ============ Application : Claude à gauche, formation à droite ============ -->
+<div class="app" data-app hidden>
+  <header class="topbar">
+    <div class="tb-left">
+      <button type="button" class="tb-icon" data-side-toggle data-fn="history" aria-label="Conversations précédentes" aria-expanded="false"><svg><use href="#i-side"/></svg></button>
+      <button type="button" class="tb-icon" data-new data-fn="new" aria-label="Nouvelle conversation"><svg><use href="#i-pen"/></svg></button>
+      <span class="tb-title"><span class="tb-mark"><svg><use href="#i-spark"/></svg></span><span data-conv-title>Nouvelle conversation</span></span>
+      <span class="tb-pill">Simulation pédagogique</span>
+    </div>
+    <div class="tb-right">
+      <button type="button" class="tb-mode" data-mode>Connexion…</button>
+    </div>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" data-tab="claude" aria-selected="false">Claude <span class="tab-dot" data-tab-dot hidden></span></button>
+    <button type="button" role="tab" data-tab="story" aria-selected="true">Formation</button>
+  </div>
+
+  <div class="split" data-shell>
+    <!-- Claude (simulation de l'interface) -->
+    <section class="claude" data-panel="claude" aria-label="Claude, simulation pédagogique">
+      <nav class="side" data-side aria-label="Conversations">
+        <button type="button" class="side-new" data-side-new><svg><use href="#i-plus"/></svg>Nouvelle conversation</button>
+        <p class="side-h">Récents</p>
+        <ul class="recents" data-recents></ul>
+      </nav>
+      <div class="chat">
+        <div class="messages" data-messages aria-live="polite"></div>
+        <form class="composer" data-composer data-fn="input">
+          <div class="attach-chip" data-attach-chip hidden><svg><use href="#i-doc"/></svg><span>note-reunion-fictive.txt</span><button type="button" data-attach-remove aria-label="Retirer le fichier"><svg><use href="#i-x"/></svg></button></div>
+          <textarea data-input rows="1" placeholder="Répondre à Claude…" aria-label="Votre message à Claude"></textarea>
+          <div class="composer-foot">
+            <button type="button" class="c-icon" data-attach data-fn="attach" aria-label="Ajouter un fichier"><svg><use href="#i-plus"/></svg></button>
+            <span class="c-model">Claude</span>
+            <span class="send-wrap" data-fn="send"><button type="submit" class="send" aria-label="Envoyer"><svg><use href="#i-up"/></svg></button></span>
+          </div>
+        </form>
+        <p class="work-note" data-work-note></p>
+      </div>
+    </section>
+
+    <!-- Formation -->
+    <aside class="panel" data-panel="story" aria-label="Formation">
+      <div class="panel-head">
+        <span class="ph-t">Formation · Prendre en main Claude</span>
+        <div class="ph-actions">
+          <button type="button" class="ph-menu" data-intro-open>Introduction</button>
+          <button type="button" class="ph-menu" data-wide aria-pressed="false">Agrandir</button>
+        </div>
+      </div>
+      <div class="panel-body"><iframe data-frame title="Formation : Prendre en main Claude"></iframe></div>
+      <footer class="panel-foot">
+        <div class="narr">
+          <div class="narr-orb" data-orb></div>
+          <p class="narr-cap is-idle" data-cap aria-live="polite"></p>
+          <div class="narr-ctl">
+            <button type="button" class="nc" data-replay aria-label="Réécouter la consigne"><svg><use href="#i-replay"/></svg></button>
+            <button type="button" class="nc" data-sound aria-label="Couper le son"><svg><use href="#i-sound"/></svg></button>
+          </div>
+        </div>
+      </footer>
+    </aside>
+  </div>
+</div>
+
+<div class="toast" data-toast role="status" aria-live="polite"></div>
+<audio data-audio preload="auto"></audio>
+
+<script src="../assets/audio/sous-titres.js"></script>
+<script src="orb.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

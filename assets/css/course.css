@@ -2889,3 +2889,19 @@ html.is-flow, html.is-flow body { height: auto; overflow: auto; }
   box-shadow: var(--shadow-sm);
   padding-right: 20px;
 }
+
+
+/* ==========================================================================
+   Atelier : le module s'affiche dans le panneau de formation, à côté de Claude.
+   La voix passe par l'assistant pédagogique ; les boutons d'action sont noirs.
+   ========================================================================== */
+.is-embed .dock, .is-embed .captions { display: none; }
+.is-embed .cta { background: #141413; box-shadow: 0 1px 2px rgba(0,0,0,.2), 0 12px 26px -12px rgba(0,0,0,.55); }
+.is-embed .cta:hover { box-shadow: 0 2px 4px rgba(0,0,0,.2), 0 18px 34px -12px rgba(0,0,0,.6); }
+.is-embed .cta.is-success { background: linear-gradient(180deg, #22b26a, #1a9a5a 55%, #148a4f); }
+@keyframes breathe-dark {
+  0%, 100% { box-shadow: 0 1px 2px rgba(0,0,0,.2), 0 12px 26px -12px rgba(0,0,0,.55), 0 0 0 0 rgba(20,20,19,.28); }
+  50% { box-shadow: 0 1px 2px rgba(0,0,0,.2), 0 12px 26px -12px rgba(0,0,0,.55), 0 0 0 10px rgba(20,20,19,0); }
+}
+.is-embed .slide.is-active .cta.is-ready { animation-name: breathe-dark; }
+.is-embed .btn-import { margin: 0 0 14px; }
