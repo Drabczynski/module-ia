@@ -39,6 +39,14 @@
 
 
 
+<!-- ============ Accueil de l'assistante d'apprentissage (après l'introduction) ============ -->
+<div class="welcome" data-welcome hidden>
+  <div class="wl-slot" data-wl-slot></div>
+  <p class="wl-k">Votre assistante d’apprentissage</p>
+  <div class="wl-say" data-wl-say aria-live="polite"></div>
+  <button type="button" class="btn-next btn-lg wl-go" data-wl-go>Continuer<svg><use href="#i-arrow"/></svg></button>
+</div>
+
 <!-- ============ Application : Claude à gauche, formation à droite ============ -->
 <div class="app" data-app hidden>
   <header class="topbar">
@@ -112,6 +120,7 @@
 <audio data-audio preload="auto"></audio>
 
 <script src="../assets/audio/sous-titres.js"></script>
+<script src="../assets/audio/mots.js"></script>
 <script src="orb.js"></script>
 <script src="app.js"></script>
 </body>

@@ -92,6 +92,7 @@
     stage.toggleAttribute("data-fade", slide.hasAttribute("data-fade"));
     stage.toggleAttribute("data-back-on-photo", slide.hasAttribute("data-back-on-photo"));
     stage.toggleAttribute("data-nophoto", slide.getAttribute("data-photo") === "none");
+    stage.toggleAttribute("data-lea", /Léa/.test(slide.getAttribute("aria-label") || ""));   // atelier : la photo seulement quand on parle de Léa
     var which = slide.getAttribute("data-photo");
     for (var i = 0; i < photos.length; i++) {
       photos[i].classList.toggle("is-on", photos[i].getAttribute("data-photo") === which);
@@ -201,6 +202,8 @@
       explored.classList.toggle("is-done", n === spots.length);
       if (n === spots.length) showNote(app.closest(".content").querySelector("[data-spots-fb]"));
     }
+    // atelier : repères explorés directement sur l'interface de Claude
+    app._markAll = function () { state.spots = Object.keys(SPOTS); Tracking.save(state); refresh(); };
 
     function show(id) {
       var spot = app.querySelector('.hotspot[data-spot="' + id + '"]');
@@ -1532,6 +1535,7 @@
       if (d.type === "go" && typeof d.index === "number") go(d.index);
       // bouton « Continuer » de l'atelier : il actionne le bouton d'action de l'écran (Valider, Continuer…)
       if (d.type === "cta") { var c = activeCta(); if (c) c.click(); }
+      if (d.type === "spots-all") stage.querySelectorAll("[data-hotspots]").forEach(function (a) { if (a._markAll) a._markAll(); });
       if (d.type === "prev") go(index - 1);
     });
     // l'atelier affiche le bouton d'action dans sa barre : on lui transmet son libellé et son état

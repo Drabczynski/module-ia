@@ -134,13 +134,21 @@
   if (window.speechSynthesis) speechSynthesis.onvoiceschanged = function () { voices = speechSynthesis.getVoices(); };
 
   /* texte de la voix affiché mot à mot, au rythme de l'enregistrement */
+  // découpe en mots ; la ponctuation isolée (« : », « ! ») reste attachée au mot précédent
+  function tokens(t) {
+    var out = [];
+    (t || "").split(/\s+/).filter(Boolean).forEach(function (w) {
+      if (/^[:;!?»«.,…]+$/.test(w) && out.length) out[out.length - 1] += "\u00a0" + w; else out.push(w);
+    });
+    return out;
+  }
   function Streamer(el) {
     var words = [], text = null, shown = 0;
     return {
       set: function (t) {
         if (t === text) return;
         text = t; words = []; shown = 0; el.innerHTML = "";
-        (t || "").split(/\s+/).filter(Boolean).forEach(function (w) {
+        tokens(t).forEach(function (w) {
           var sp = document.createElement("span");
           sp.className = "sw";
           sp.textContent = w;
@@ -150,8 +158,9 @@
         });
         el.setAttribute("aria-label", t || "");
       },
-      progress: function (p) {
-        var k = Math.min(words.length, Math.ceil(words.length * Math.max(0, p)));
+      progress: function (p) { this.reveal(Math.ceil(words.length * Math.max(0, p))); },
+      reveal: function (k) {
+        k = Math.min(words.length, k);
         for (; shown < k; shown++) words[shown].classList.add("on");
       }
     };
@@ -159,6 +168,7 @@
   var capStream = Streamer(capEl), sayStream = Streamer(bigSay);
   function sayText(text) { capStream.set(text); sayStream.set(text); }
   function sayProgress(p) { capStream.progress(p); sayStream.progress(p); }
+  function sayReveal(k) { capStream.reveal(k); sayStream.reveal(k); }
   var sayTimer = null;
   function saying(on) {
     clearTimeout(sayTimer);
@@ -180,9 +190,13 @@
     var t = audio.currentTime, i = -1;
     for (var k = 0; k < cues.length; k++) if (cues[k][0] <= t + 0.05) i = k;
     if (i >= 0) {
-      var c = cues[i];
+      var c = cues[i], W = (window.COURSE_WORDS || {})[audio.dataset.id];
       sayText(c[2]);
-      sayProgress(t >= c[1] ? 1 : (t - c[0]) / Math.max(0.4, c[1] - c[0]) * 1.12);
+      if (W) {
+        var next = cues[i + 1] ? cues[i + 1][0] - 0.12 : Infinity;
+        var mine = W.filter(function (w) { return w[0] >= c[0] - 0.12 && w[0] < next; });
+        sayReveal(mine.filter(function (w) { return w[0] <= t + 0.04; }).length);
+      } else sayProgress(t >= c[1] ? 1 : (t - c[0]) / Math.max(0.4, c[1] - c[0]) * 1.12);
     }
     capRaf = requestAnimationFrame(capLoop);
   }
@@ -301,7 +315,9 @@
     narrate({ audio: d.audio, text: text });
     claudeEl.classList.toggle("is-practice", !!PRACTICE[d.code]);
     $("[data-tab-dot]").hidden = !PRACTICE[d.code];
-    spots(d.code === "3.04");
+    clearTimeout(repTimer);
+    if (d.code === "3.04") repTimer = setTimeout(startReperes, 900);
+    else endReperes(true);
   }
 
   function focusClaude() {
@@ -322,8 +338,12 @@
       if (!z) return;
       if (getComputedStyle(z).position === "static") z.style.position = "relative";
       var b = h('<button type="button" class="spot-badge" aria-label="' + esc(r[1]) + '">' + (i + 1) + "</button>");
+      if (repSeen.indexOf(i) >= 0) b.classList.add("is-seen");
       b.addEventListener("click", function (e) {
         e.preventDefault(); e.stopPropagation();
+        if (repSeen.indexOf(i) < 0) repSeen.push(i);
+        b.classList.add("is-seen");
+        paintRepCard();
         $$(".spot-badge").forEach(function (x) { x.classList.toggle("is-cur", x === b); });
         if (tipEl) tipEl.remove();
         tipEl = h('<div class="spot-tip" role="status"><b>' + esc(r[1]) + "</b>" + esc(r[2]) + "</div>");
@@ -335,6 +355,38 @@
       z.appendChild(b);
     });
   }
+  /* 3.04 : le panneau de formation se replie, les repères se font sur Claude, puis le panneau revient */
+  var repSeen = [], repCard = null, repTimer = null;
+  function paintRepCard() {
+    if (!repCard) return;
+    var n = repSeen.length;
+    repCard.querySelector(".rep-count").innerHTML = "<b>" + n + "</b> / 4 repères";
+    repCard.querySelector("p").textContent = n >= 4 ? "Tous les repères sont vus. Retrouvez les mêmes fonctions dans votre compte." : "Cliquez sur chaque pastille orange pour découvrir à quoi elle sert.";
+  }
+  function startReperes() {
+    if (repCard) return;
+    split.classList.add("panel-away");
+    showTab("claude");
+    spots(true);
+    repCard = h('<div class="rep-card" role="dialog" aria-label="Les repères dans Claude"><h3>Les repères dans Claude</h3><p></p><div class="rep-foot"><span class="rep-count"></span><button type="button" class="btn-next btn-sm">Continuer<svg><use href="#i-arrow"/></svg></button></div></div>');
+    repCard.querySelector("button").addEventListener("click", endReperes);
+    claudeEl.appendChild(repCard);
+    paintRepCard();
+    requestAnimationFrame(function () { repCard.classList.add("is-on"); });
+  }
+  function endReperes(silent) {
+    clearTimeout(repTimer);
+    if (!repCard) return;
+    var card = repCard;
+    repCard = null;
+    card.classList.remove("is-on");
+    setTimeout(function () { card.remove(); }, 400);
+    spots(false);
+    split.classList.remove("panel-away");
+    if (repSeen.length >= 4) post({ type: "spots-all" });
+    if (silent !== true) showTab("story");
+  }
+
   document.addEventListener("click", function (e) { if (tipEl && !e.target.closest(".spot-badge")) { tipEl.remove(); tipEl = null; $$(".spot-badge").forEach(function (x) { x.classList.remove("is-cur"); }); } });
 
   /* ---------- Markdown minimal ---------- */
@@ -401,17 +453,54 @@
     return el;
   }
   function renderConv() {
-    var c = conv();
+    if (inWelcome) return;
+    var c = conv(), big = !c || !c.messages.length;
+    var wasBig = app.classList.contains("has-big-orb") && bigHost.isConnected && !app.hidden;
+    var from = wasBig ? bigHost.getBoundingClientRect() : null;
     $("[data-conv-title]").textContent = c && c.messages.length ? c.title : "Nouvelle conversation";
     messagesEl.innerHTML = "";
-    if (!c || !c.messages.length) {
+    if (big) {
       messagesEl.innerHTML = '<div class="empty-state"><h2>Comment puis-je vous aider ?</h2><p>Environnement de formation · dossiers fictifs uniquement</p></div>';
       messagesEl.firstChild.insertBefore(bigSay, messagesEl.firstChild.firstChild);
       messagesEl.firstChild.insertBefore(bigHost, messagesEl.firstChild.firstChild);
     } else c.messages.forEach(function (m) { messagesEl.appendChild(msgNode(m)); });
-    app.classList.toggle("has-big-orb", !c || !c.messages.length);
+    var smallFrom = !wasBig && big && !app.hidden ? smallOrb.el.getBoundingClientRect() : null;
+    app.classList.toggle("has-big-orb", big);
     messagesEl.scrollTop = messagesEl.scrollHeight;
     renderRecents();
+    if (from && !big) flyToCorner(from);
+    else if (smallFrom && smallFrom.width) flyToCenter(smallFrom);
+  }
+
+  /* l'orbe se déplace visiblement : du centre de Claude vers la barre du panneau, et inversement */
+  var FLY = "transform .85s cubic-bezier(.65, 0, .25, 1)";
+  function centerDelta(a, b) { return [b.left + b.width / 2 - (a.left + a.width / 2), b.top + b.height / 2 - (a.top + a.height / 2)]; }
+  function flyToCorner(from) {
+    var target = smallOrb.el, to = target.getBoundingClientRect();
+    if (!to.width) return;
+    target.style.opacity = "0";
+    var h = bigHost, d = centerDelta(from, to);
+    document.body.appendChild(h);
+    ["position:fixed", "left:" + from.left + "px", "top:" + from.top + "px", "margin:0", "z-index:65", "transition:none", "transform:none"].forEach(function (r) {
+      var kv = r.split(":"); h.style.setProperty(kv[0], kv.slice(1).join(":"));
+    });
+    void h.offsetWidth;
+    h.style.transition = FLY;
+    h.style.transform = "translate(" + d[0] + "px," + d[1] + "px) scale(" + (to.width / from.width) + ")";
+    setTimeout(function () {
+      ["position", "left", "top", "margin", "z-index", "transition", "transform"].forEach(function (k) { h.style.removeProperty(k); });
+      if (h.parentNode === document.body) h.remove();
+      target.style.opacity = "";
+    }, 880);
+  }
+  function flyToCenter(from) {
+    var h = bigHost, to = h.getBoundingClientRect(), d = centerDelta(to, from);
+    h.style.transition = "none";
+    h.style.transform = "translate(" + d[0] + "px," + d[1] + "px) scale(" + (from.width / to.width) + ")";
+    void h.offsetWidth;
+    h.style.transition = FLY;
+    h.style.transform = "";
+    setTimeout(function () { h.style.removeProperty("transition"); }, 880);
   }
   function renderRecents() {
     var ul = $("[data-recents]");
@@ -627,8 +716,9 @@
     unlocked = true; unlockAudio();
     introFrame.classList.add("is-leaving");
     setTimeout(function () { introFrame.hidden = true; introFrame.removeAttribute("src"); }, 450);
+    if (first) { startWelcome(); return; }
     app.hidden = false;
-    if (first || !frame.getAttribute("src")) frame.src = MODULE_URL + "#2";   // 3.01 : l'introduction vient de la remplacer
+    if (!frame.getAttribute("src")) frame.src = MODULE_URL + "#2";   // 3.01 : l'introduction vient de la remplacer
     else if (current) narrate(current);
   }
   $("[data-intro-open]").addEventListener("click", openIntro);
@@ -638,6 +728,68 @@
     $$("[data-tab]").forEach(function (b) { b.setAttribute("aria-selected", String(b.dataset.tab === tab)); });
   }
   $$("[data-tab]").forEach(function (b) { b.addEventListener("click", function () { showTab(b.dataset.tab); }); });
+
+  /* ---------- Accueil de l'assistante d'apprentissage ---------- */
+
+  // voix « bienvenue » (enregistrement ElevenLabs) : phrases et minutage relevés sur l'enregistrement
+  var WELCOME = [
+    [0.14, 0.94, "Hey, salut !"],
+    [1.46, 3.5, "On va apprendre à utiliser l’IA ensemble."],
+    [4.06, 6.44, "Et quoi de mieux qu’une IA pour t’épauler ?"],
+    [6.96, 8.2, "Je vais te guider pas à pas."],
+    [8.94, 9.42, "Suis-moi !"]
+  ];
+  var welcomeEl = $("[data-welcome]"), wlGo = $("[data-wl-go]"), wlStream = Streamer($("[data-wl-say]"));
+  var wlRaf = 0, inWelcome = false;
+  function wlLoop() {
+    wlRaf = 0;
+    if (!inWelcome) return;
+    // le texte s'accumule : chaque phrase apparaît mot à mot pendant qu'elle est prononcée
+    var t = audio.currentTime, W = (window.COURSE_WORDS || {}).bienvenue || [];
+    wlStream.reveal(W.filter(function (w) { return w[0] <= t + 0.04; }).length);
+    if (!audio.paused) wlRaf = requestAnimationFrame(wlLoop);
+  }
+  function startWelcome() {
+    inWelcome = true;
+    stopVoice();
+    cues = [];
+    app.hidden = false;
+    app.classList.add("is-welcome");
+    welcomeEl.hidden = false;
+    $("[data-wl-slot]").appendChild(bigHost);
+    wlStream.set(WELCOME.map(function (c) { return c[2]; }).join(" "));
+    setTimeout(function () { wlGo.classList.add("is-on"); }, 1400);
+    if (!S.sound) { wlStream.progress(1); return; }
+    audio.src = "../assets/audio/bienvenue.mp3";
+    audio.dataset.id = "bienvenue";
+    loadEnvelope("bienvenue");
+    var p = audio.play();
+    if (p && p.catch) p.catch(function () { blocked = false; wlStream.progress(1); });
+    audio.addEventListener("play", function onPlay() { audio.removeEventListener("play", onPlay); if (!wlRaf) wlLoop(); });
+  }
+  wlGo.addEventListener("click", function () {
+    if (!inWelcome) return;
+    inWelcome = false;
+    audio.pause();
+    wlStream.progress(1);
+    welcomeEl.classList.add("is-leaving");
+    setTimeout(function () {
+      // l'orbe s'envole vers sa place, au centre de Claude, pendant que l'interface apparaît
+      var from = bigHost.getBoundingClientRect();
+      app.classList.remove("is-welcome");
+      renderConv();
+      var to = bigHost.getBoundingClientRect();
+      bigHost.style.transform = "translate(" + (from.left - to.left) + "px," + (from.top - to.top) + "px)";
+      void bigHost.offsetWidth;
+      bigHost.classList.add("is-flying");
+      bigHost.style.transform = "";
+      welcomeEl.hidden = true;
+      setTimeout(function () {
+        bigHost.classList.remove("is-flying");
+        frame.src = MODULE_URL + "#2";            // la formation démarre, avec sa première consigne
+      }, 1000);
+    }, 280);
+  });
 
   /* ---------- Démarrage ---------- */
 

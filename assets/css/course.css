@@ -2925,3 +2925,6 @@ html.is-flow, html.is-flow body { height: auto; overflow: auto; }
 .is-embed.is-flow .slides { padding-top: 12px; }
 .is-embed.is-flow .slide .content { padding: 30px 36px 8px; }
 .is-embed.is-flow .slide > .sim, .is-embed.is-flow .slide > .end-actions { margin: 16px 36px; }
+/* atelier : titres plus présents, photo de Léa quand l'écran parle d'elle */
+.is-embed.is-flow .h1 { font-size: clamp(40px, 4.6vw, 58px) !important; line-height: 1 !important; letter-spacing: -.045em; }
+.is-embed.is-flow .stage[data-lea] .photo { display: block !important; width: auto !important; height: 250px !important; margin: 14px 36px 0; border-radius: 18px; overflow: hidden; }

@@ -238,7 +238,7 @@ svg { display: block; }
 @keyframes nudge { 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
 
 /* texte de la voix sous la grande orbe, mot à mot */
-.orb-say { display: none; max-width: 540px; min-height: 2.9em; margin: 0 auto; padding: 0 20px; font: 500 22px/1.45 var(--text); letter-spacing: -.01em; color: var(--ink); text-align: center; text-wrap: balance; }
+.orb-say { display: none; max-width: 440px; min-height: 3em; margin: 0 auto; padding: 0 20px; font: 500 15.5px/1.5 var(--text); letter-spacing: 0; color: var(--ink-2); text-align: center; text-wrap: balance; }
 .is-saying .orb-say { display: block; }
 .is-saying .empty-state h2, .is-saying .empty-state > p { display: none; }
 .sw { display: inline-block; opacity: 0; filter: blur(5px); transform: translateY(.35em); transition: opacity .38s var(--ease), filter .38s var(--ease), transform .38s var(--ease); }
@@ -246,3 +246,34 @@ svg { display: block; }
 .narr-cap .sw { transition-duration: .3s; }
 .has-big-orb .narr-cap { visibility: hidden; }
 .narr-cap { -webkit-line-clamp: 2; }
+
+/* ---------- Accueil de l'assistante : orbe au centre, texte en flux, puis envol vers Claude ---------- */
+.welcome { position: fixed; inset: 0; z-index: 70; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; pointer-events: none; }
+.welcome > * { pointer-events: auto; }
+.wl-slot { width: 176px; height: 176px; margin-bottom: 26px; }
+.wl-k { margin: 0 0 14px; font-size: 12.5px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); opacity: 0; animation: wl-in .8s .3s var(--ease) forwards; }
+.wl-say { max-width: 520px; min-height: 4.6em; margin: 0 0 28px; font: 500 18px/1.5 var(--text); letter-spacing: -.015em; color: var(--ink); text-wrap: balance; }
+.wl-go { opacity: 0; transform: translateY(8px); transition: opacity .6s var(--ease), transform .6s var(--ease); }
+.wl-go.is-on { opacity: 1; transform: none; }
+@keyframes wl-in { to { opacity: 1; } }
+.welcome.is-leaving .wl-k, .welcome.is-leaving .wl-say, .welcome.is-leaving .wl-go { opacity: 0; transition: opacity .3s ease; animation: none; }
+
+/* pendant l'accueil, le reste de l'interface est masqué ; il apparaît en fondu ensuite */
+.app .topbar, .app .panel, .app .resizer, .app .composer, .app .work-note, .app .tabs, .app .empty-state h2, .app .empty-state > p { transition: opacity .8s var(--ease) .45s; }
+.app.is-welcome .topbar, .app.is-welcome .panel, .app.is-welcome .resizer, .app.is-welcome .composer, .app.is-welcome .work-note, .app.is-welcome .tabs, .app.is-welcome .empty-state h2, .app.is-welcome .empty-state > p { opacity: 0; transition: none; }
+.big-orb.is-flying { position: relative; z-index: 75; transition: transform .95s cubic-bezier(.65, 0, .25, 1); }
+
+/* 3.04 : le panneau se replie, les repères se font directement sur l'interface de Claude */
+.split { transition: grid-template-columns .7s cubic-bezier(.65, 0, .25, 1); }
+.panel { transition: opacity .45s var(--ease); }
+.split.panel-away { grid-template-columns: minmax(300px, 1fr) 0 0; }
+.split.panel-away .panel { opacity: 0; pointer-events: none; }
+.split.panel-away .resizer { visibility: hidden; }
+.rep-card { position: absolute; left: 50%; bottom: 128px; z-index: 30; width: min(460px, calc(100% - 32px)); padding: 16px 18px; border: 1px solid var(--line); border-radius: 16px; background: #fff; transform: translate(-50%, 12px); opacity: 0; transition: opacity .4s var(--ease), transform .4s var(--ease); }
+.rep-card.is-on { opacity: 1; transform: translate(-50%, 0); }
+.rep-card h3 { margin: 0 0 4px; font: 700 17px/1.2 var(--display); letter-spacing: -.02em; }
+.rep-card p { margin: 0 0 12px; font-size: 14px; color: var(--ink-2); }
+.rep-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.rep-count { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.rep-count b { color: var(--orange); }
+.spot-badge.is-seen { background: var(--ok); box-shadow: none; animation: none; }
