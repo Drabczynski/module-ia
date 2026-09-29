@@ -63,5 +63,113 @@ window.COURSE_CAPTIONS = {
     [2.12, 3.56, "nommez exactement l’erreur,"],
     [4.14, 5.28, "et le résultat attendu,"],
     [5.7, 6.6, "dans le même échange."]
+  ],
+  "pp-bienvenue": [
+    [0.13, 1.5, "Bonjour et bienvenue !"],
+    [1.89, 4.42, "Je serai votre assistante pour toute la durée des modules."],
+    [4.88, 8.11, "Aujourd’hui, vous allez… oui, c’est ça :"],
+    [8.49, 10.6, "écrire vos premiers messages à une IA."],
+    [11.0, 11.52, "C’est parti !"]
+  ],
+  "pp-bonjour": [
+    [0.11, 2.1, "À gauche, vous avez accès à l’IA."],
+    [2.61, 4.54, "Le champ de saisie est maintenant actif."],
+    [5.06, 7.27, "Écrivez-lui un premier message, par exemple :"],
+    [7.9, 10.1, "« Bonjour, qui es-tu ? »"],
+    [10.66, 11.56, "Puis envoyez-le !"]
+  ],
+  "pp-vraifaux": [
+    [0.07, 2.52, "Trois idées reçues sur l’intelligence artificielle."],
+    [3.18, 5.38, "Glissez la carte vers la droite si c’est vrai,"],
+    [5.84, 7.2, "vers la gauche si c’est faux."],
+    [7.78, 9.4, "Vous pouvez aussi utiliser les boutons."]
+  ],
+  "pp-acces": [
+    [0.06, 3.26, "L’IA s’utilise généralement de trois façons :"],
+    [3.9, 4.86, "dans le navigateur,"],
+    [5.28, 6.58, "sur le site web de l’IA,"],
+    [7.02, 10.22, "avec l’application pour ordinateur, sur Mac et Windows,"],
+    [10.62, 13.83, "ou avec l’application mobile, sur iOS et Android."]
+  ],
+  "pp-demander": [
+    [0.14, 2.98, "Le mieux placé pour vous dire à quoi sert l’IA, c’est l’IA."],
+    [3.58, 4.89, "La demande est prête dans son champ."],
+    [5.34, 8.43, "Cliquez sur les cases orange pour la compléter, puis envoyez."]
+  ],
+  "pp-usages": [
+    [0.2, 3.04, "L’intelligence artificielle vient de vous donner ses usages."],
+    [3.5, 3.76, "À vous !"],
+    [4.28, 7.6, "Reliez chaque situation de la vie courante à l’usage qui convient."]
+  ],
+  "pp-essayer": [
+    [0.06, 0.72, "À vous d’essayer !"],
+    [1.22, 4.47, "Choisissez une situation parmi les exemples à droite de votre écran."],
+    [5.0, 6.9, "La demande apparaîtra dans le champ de l’IA."],
+    [7.45, 9.06, "Vous n’aurez plus qu’à l’envoyer."]
+  ],
+  "pp-prompt": [
+    [0.06, 3.36, "Un prompt, c’est simplement ce que vous écrivez à l’IA."],
+    [4.01, 5.46, "Il peut être une question toute simple,"],
+    [5.85, 7.16, "ou une demande très détaillée."],
+    [7.82, 10.9, "Classez ces trois prompts, du plus simple au plus détaillé."]
+  ],
+  "pp-mail": [
+    [0.07, 0.27, "Go !"],
+    [0.69, 0.98, "OK."],
+    [1.45, 3.46, "On va jouer avec de vraies situations, cette fois."],
+    [4.11, 5.27, "Vous avez trois nouveaux mails."],
+    [5.8, 8.45, "Ouvrez celui qui parle du pot de départ de Martine."]
+  ],
+  "pp-mail-ouvert": [
+    [0.06, 0.56, "Super !"],
+    [1.06, 1.86, "C’est bien celui-là."],
+    [2.46, 4.39, "Premier conseil : commencez simple."],
+    [5.22, 8.72, "Dans l’IA, demandez des idées pour ce pot, en une phrase courte."],
+    [9.2, 9.64, "Par exemple :"],
+    [10.24, 11.9, "« Donne-moi des idées pour un pot de départ. »"]
+  ],
+  "pp-manque": [
+    [0.06, 0.56, "Voilà."],
+    [1.2, 3.6, "Regardez bien la réponse de l’IA, à gauche."],
+    [4.12, 7.14, "Elle propose un traiteur, un DJ, un voyage…"],
+    [7.68, 8.9, "Ce n’est pas vraiment adapté."],
+    [9.39, 11.82, "C’est parce que l’IA ne connaît pas votre situation."],
+    [12.36, 17.89, "Dans le mail de Karim, cliquez sur les trois informations à donner à l’IA pour mieux adapter sa réponse."]
+  ],
+  "pp-relance": [
+    [0.06, 0.94, "Deuxième conseil :"],
+    [1.44, 3.38, "être précis, puis affiner."],
+    [3.98, 5.35, "Pas besoin de tout recommencer."],
+    [5.83, 11.16, "Dans la même conversation, complétez les cases orange avec les informations du mail, puis envoyez."]
+  ],
+  "pp-avantapres": [
+    [0.07, 1.84, "Claude vous a donné deux séries d’idées."],
+    [2.36, 4.38, "Glissez chaque idée dans la bonne colonne :"],
+    [4.88, 6.64, "utilisable pour le pot de Martine,"],
+    [7.04, 8.02, "ou pas adaptée."]
+  ],
+  "pp-reperes": [
+    [0.12, 1.3, "Place aux bons gestes."],
+    [1.83, 4.2, "Cinq repères sont signalés sur l’écran de Claude."],
+    [4.75, 7.99, "Cliquez sur chaque pastille orange pour découvrir à quoi elle sert."]
+  ],
+  "pp-voisin": [
+    [0.04, 0.7, "Nouveau sujet."],
+    [1.28, 4.83, "Votre voisin Diogo a glissé un mot en portugais sous votre porte."],
+    [5.36, 7.06, "On ne le mélange pas avec le pot de départ."],
+    [7.74, 9.18, "Ouvrez une nouvelle conversation."],
+    [9.56, 10.88, "Copiez le mot en portugais,"],
+    [11.32, 12.28, "collez-le dans l’IA,"],
+    [12.68, 13.9, "et demandez-lui de le traduire."]
+  ],
+  "pp-defi": [
+    [0.07, 0.78, "Dernier défi,"],
+    [1.18, 2.1, "sans aide, cette fois."],
+    [2.74, 6.08, "Léna, votre fille, doit préparer un exposé sur les volcans."],
+    [6.6, 10.67, "Ouvrez une nouvelle conversation et demandez de l’aide à Claude, en une phrase."]
+  ],
+  "pp-resultat": [
+    [0.14, 4.09, "Tadaaa ! Voici votre résultat, activité par activité."],
+    [4.65, 7.36, "Si une activité n’est pas réussie, vous pouvez la revoir."]
   ]
 };

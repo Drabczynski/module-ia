@@ -412,9 +412,9 @@
     var t = ((users[users.length - 1] || {}).content || "").toLowerCase();
     var all = users.map(function (m) { return m.content; }).join("\n").toLowerCase();
     if (/olá|obras|barulho/.test(all)) {
-      if (/en anglais/.test(t)) return "Here is the translation:\n\n“Hello! On Saturday morning I’m going to do some work in the apartment. Sorry for the noise. Thank you! — Rui, 3rd floor”";
-      if (/en espagnol/.test(t)) return "Aquí tienes la traducción:\n\n« ¡Hola! El sábado por la mañana voy a hacer obras en el piso. Perdón por el ruido. ¡Gracias! — Rui, 3.º »";
-      if (/tradu|fran[çc]ais|que veut dire|signifie|comprends pas|explique/.test(t)) return "Voici la traduction :\n\n« Bonjour ! Samedi matin, je vais faire des travaux dans l’appartement. Je m’excuse pour le bruit. Merci ! — Rui, 3e étage »\n\nSi vous le souhaitez, je peux vous aider à lui répondre en portugais.";
+      if (/en anglais/.test(t)) return "Here is the translation:\n\n“Hello! On Saturday morning I’m going to do some work in the apartment. Sorry for the noise. Thank you! — Diogo, 3rd floor”";
+      if (/en espagnol/.test(t)) return "Aquí tienes la traducción:\n\n« ¡Hola! El sábado por la mañana voy a hacer obras en el piso. Perdón por el ruido. ¡Gracias! — Diogo, 3.º »";
+      if (/tradu|fran[çc]ais|que veut dire|signifie|comprends pas|explique/.test(t)) return "Voici la traduction :\n\n« Bonjour ! Samedi matin, je vais faire des travaux dans l’appartement. Je m’excuse pour le bruit. Merci ! — Diogo, 3e étage »\n\nSi vous le souhaitez, je peux vous aider à lui répondre en portugais.";
       return "Ce message est écrit en portugais. Que souhaitez-vous que j’en fasse : le traduire, le résumer ou y répondre ?";
     }
     if (/volcan/.test(all)) {
@@ -1298,7 +1298,7 @@
 
   /* ---------- Situations (fictives) ---------- */
 
-  var NOTE_PT = "Olá! No sábado de manhã vou fazer obras no apartamento. Peço desculpa pelo barulho. Obrigado! — Rui, 3.º andar";
+  var NOTE_PT = "Olá! No sábado de manhã vou fazer obras no apartamento. Peço desculpa pelo barulho. Obrigado! — Diogo, 3.º andar";
   var MAILS = [
     { id: "pot", from: "Karim Benali", time: "08:42", subj: "Pot de départ de Martine", prev: "Salut ! Martine part à la retraite…",
       body: ["Salut !", "Martine {part à la retraite|raison} : son pot est {vendredi à 16 h|date}. Tu peux t’en occuper ?", "On sera {une douzaine|nb}. La cagnotte a récolté {60 €|budget}, et on peut utiliser {la salle de pause|lieu}.", "Merci, tu me sauves !", "Karim"] },
@@ -1383,7 +1383,7 @@
     /* Dire bonjour ------------------------------------------------------------- */
     {
       id: "bonjour", seq: 0, pill: "À vous d’écrire", icon: "pencil", title: "Dites bonjour à Claude",
-      say: "Voici Claude, à gauche. Son champ de saisie est maintenant actif. Écrivez-lui un premier message, par exemple : bonjour, qui es-tu ? Puis envoyez-le.",
+      audio: "pp-bonjour", say: "À gauche, vous avez accès à l’IA. Le champ de saisie est maintenant actif. Écrivez-lui un premier message, par exemple : « Bonjour, qui es-tu ? » Puis envoyez-le !",
       render: function (pv) {
         var a = act("bonjour");
         lead(pv, "Claude est ouvert <b>à gauche</b>. On lui écrit comme à une personne : avec des phrases normales, pas besoin de mots-clés.");
@@ -1406,7 +1406,7 @@
     /* Vrai ou faux (cartes à glisser) ------------------------------------------- */
     extend({
       id: "vraifaux", seq: 0, pill: "Glissez les cartes · 3 points", icon: "hand", title: "Vrai ou faux ?",
-      say: "Trois idées reçues sur Claude. Glissez la carte vers la droite si c’est vrai, vers la gauche si c’est faux. Vous pouvez aussi utiliser les boutons."
+      audio: "pp-vraifaux", say: "Trois idées reçues sur l’intelligence artificielle. Glissez la carte vers la droite si c’est vrai, vers la gauche si c’est faux. Vous pouvez aussi utiliser les boutons."
     }, (function () {
       var w = swipe("vraifaux", [
         ["Claude connaît déjà mon entreprise et mes dossiers.", false, "Il ne sait que ce que vous lui écrivez ou lui donnez dans la conversation."],
@@ -1421,7 +1421,7 @@
     /* Où trouver Claude (illustration) ------------------------------------------ */
     {
       id: "acces", seq: 0, pill: "Bon à savoir", icon: "eye", title: "Où trouver Claude ?",
-      say: "Claude s’utilise de trois façons : dans le navigateur, sur le site claude.ai, avec l’application pour ordinateur, sur Mac et Windows, ou avec l’application mobile, sur iOS et Android. Il faut avoir au moins dix-huit ans.",
+      audio: "pp-acces", say: "L’IA s’utilise généralement de trois façons : dans le navigateur, sur le site web de l’IA, avec l’application pour ordinateur, sur Mac et Windows, ou avec l’application mobile, sur iOS et Android.",
       render: function (pv) {
         lead(pv, "Même Claude, trois portes d’entrée. Vos conversations vous suivent de l’une à l’autre.");
         pv.appendChild(h('<figure class="devices" aria-label="Claude dans le navigateur, sur ordinateur et sur mobile">' +
@@ -1436,7 +1436,7 @@
     /* Demander à Claude à quoi il sert ----------------------------------------- */
     {
       id: "demander", seq: 1, pill: "À vous d’écrire", icon: "pencil", title: "Demandez-lui à quoi il sert",
-      say: "Le mieux placé pour vous dire à quoi sert Claude, c’est Claude. La demande est prête dans son champ : cliquez sur les cases orange pour la compléter, puis envoyez.",
+      audio: "pp-demander", say: "Le mieux placé pour vous dire à quoi sert l’IA, c’est l’IA. La demande est prête dans son champ. Cliquez sur les cases orange pour la compléter, puis envoyez.",
       render: function (pv) {
         var a = act("demander");
         lead(pv, "Le mieux placé pour vous le dire, c’est Claude. La demande est prête dans son champ : <b>cliquez sur les cases orange</b> pour la compléter, puis envoyez.");
@@ -1462,7 +1462,7 @@
     /* Sept usages (relier) ------------------------------------------------------ */
     extend({
       id: "usages", seq: 1, pill: "Reliez · 5 points", icon: "clock", title: "Le bon usage",
-      say: "Claude vient de vous donner ses usages. À vous : reliez chaque situation de la vie courante à l’usage qui convient."
+      audio: "pp-usages", say: "L’intelligence artificielle vient de vous donner ses usages. À vous ! Reliez chaque situation de la vie courante à l’usage qui convient."
     }, (function () {
       var COLORS = { tra: "#db2777", res: "#0d9488", ide: "#d97706", app: "#2563eb", img: "#7c3aed" };
       var w = relier("usages", {
@@ -1485,7 +1485,7 @@
     /* Essayer pour de vrai ------------------------------------------------------ */
     {
       id: "essayer", seq: 1, pill: "À vous d’écrire", icon: "pencil", title: "Essayez un usage",
-      say: "À vous d’essayer. Choisissez une situation. La demande apparaît dans le champ de Claude : complétez la case orange, puis envoyez.",
+      audio: "pp-essayer", say: "À vous d’essayer ! Choisissez une situation parmi les exemples à droite de votre écran. La demande apparaîtra dans le champ de l’IA. Vous n’aurez plus qu’à l’envoyer.",
       render: function (pv) {
         var a = act("essayer");
         lead(pv, "Choisissez une situation. La demande apparaît dans Claude : <b>complétez la case orange</b>, puis envoyez.");
@@ -1515,7 +1515,7 @@
     /* C'est quoi, un prompt (ordre) --------------------------------------------- */
     extend({
       id: "prompt", seq: 2, pill: "Classez · 1 point", icon: "clock", title: "C’est quoi, un prompt ?",
-      say: "Un prompt, c’est simplement ce que vous écrivez à Claude. Il peut être une question toute simple, ou une demande très détaillée. Classez ces trois prompts, du plus simple au plus détaillé."
+      audio: "pp-prompt", say: "Un prompt, c’est simplement ce que vous écrivez à l’IA. Il peut être une question toute simple, ou une demande très détaillée. Classez ces trois prompts, du plus simple au plus détaillé."
     }, (function () {
       var w = orderUp("prompt", [
         "Des idées de dessert ?",
@@ -1530,7 +1530,7 @@
     /* Le mail de Karim, puis commencer simple ----------------------------------- */
     {
       id: "mail", seq: 2, pill: "La situation", icon: "mail", title: "Le mail de Karim", compact: true,
-      say: "Place à une vraie situation. Vous avez trois nouveaux mails. Ouvrez celui qui parle du pot de départ de Martine.",
+      audio: "pp-mail", say: "Go ! OK. On va jouer avec de vraies situations, cette fois. Vous avez trois nouveaux mails. Ouvrez celui qui parle du pot de départ de Martine.",
       render: function (pv) {
         var a = act("mail");
         var phase = a.done ? 2 : a.open === "pot" ? 1 : 0;
@@ -1545,7 +1545,7 @@
         var a = act("mail");
         if (id !== "pot" || a.started) return;
         a.started = true;
-        narrate({ text: "C’est bien celui-là. Premier conseil de l’aide de Claude : commencer simple. Dans Claude, demandez des idées pour ce pot, en une phrase courte. Par exemple : donne-moi des idées pour un pot de départ." });
+        narrate({ audio: "pp-mail-ouvert", text: "Super ! C’est bien celui-là. Premier conseil : commencez simple. Dans l’IA, demandez des idées pour ce pot, en une phrase courte. Par exemple : « Donne-moi des idées pour un pot de départ. »" });
         startSimple();
       },
       onSend: function (c, text) {
@@ -1570,12 +1570,12 @@
     /* Qu'est-ce qui manque : repérer dans le mail --------------------------------- */
     {
       id: "manque", seq: 2, pill: "Repérez · 1 point", icon: "eye", title: "Qu’est-ce qui manque ?", compact: true,
-      say: "Claude propose un traiteur, un DJ, un voyage… Ce n’est pas adapté : il ne connaît pas votre situation. Dans le mail de Karim, cliquez sur les trois informations qui changeraient ses idées.",
+      audio: "pp-manque", say: "Voilà. Regardez bien la réponse de l’IA, à gauche. Elle propose un traiteur, un DJ, un voyage… Ce n’est pas vraiment adapté. C’est parce que l’IA ne connaît pas votre situation. Dans le mail de Karim, cliquez sur les trois informations à donner à l’IA pour mieux adapter sa réponse.",
       render: function (pv) {
         var a = act("manque");
         a.found = a.found || {};
         var n = Object.keys(HUNT).filter(function (k) { return a.found[k]; }).length;
-        pv.appendChild(h('<p class="pv-task"></p>')).innerHTML = a.done ? "<b>✓ Bien vu :</b> Claude ne pouvait pas deviner ces 3 informations." : "Dans le mail, cliquez sur les <b>3 infos</b> qui changeraient ses idées. <span class='pv-count'>" + n + " / 3</span>";
+        pv.appendChild(h('<p class="pv-task"></p>')).innerHTML = a.done ? "<b>✓ Bien vu :</b> Claude ne pouvait pas deviner ces 3 informations." : "Dans le mail, cliquez sur les <b>3 infos à ajouter à votre demande</b>. <span class='pv-count'>" + n + " / 3</span>";
         mailApp(pv, "hunt");
         if (a.why && !a.done) fb(pv, "ko", esc(a.why));
       },
@@ -1587,7 +1587,7 @@
     /* Préciser et relancer -------------------------------------------------------- */
     {
       id: "relance", seq: 2, pill: "À vous d’écrire · 2 points", icon: "pencil", title: "Préciser, puis relancer", compact: true,
-      say: "Deuxième conseil : être précis, puis affiner. Pas besoin de tout recommencer. Dans la même conversation, complétez les cases orange avec les informations du mail, puis envoyez.",
+      audio: "pp-relance", say: "Deuxième conseil : être précis, puis affiner. Pas besoin de tout recommencer. Dans la même conversation, complétez les cases orange avec les informations du mail, puis envoyez.",
       render: function (pv) {
         var a = act("relance");
         pv.appendChild(h('<p class="pv-task"></p>')).innerHTML = a.done ? "<b>✓</b> Claude a adapté ses idées à votre situation." : "Dans <b>la même conversation</b>, complétez les <b>cases orange</b> avec les informations du mail, puis envoyez.";
@@ -1628,7 +1628,7 @@
     /* Trier les idées (glisser-déposer) ---------------------------------------------- */
     extend({
       id: "avantapres", seq: 2, pill: "Glissez-déposez · 6 points", icon: "hand", title: "Trier les idées de Claude",
-      say: "Claude vous a donné deux séries d’idées. Glissez chaque idée dans la bonne colonne : utilisable pour le pot de Martine, ou pas adaptée."
+      audio: "pp-avantapres", say: "Claude vous a donné deux séries d’idées. Glissez chaque idée dans la bonne colonne : utilisable pour le pot de Martine, ou pas adaptée."
     }, (function () {
       var w = dragDrop("avantapres", {
         items: [
@@ -1653,7 +1653,7 @@
     /* Les repères de l'écran ----------------------------------------------------- */
     {
       id: "reperes", seq: 3, pill: "Repérez", icon: "eye", title: "Les repères de l’écran",
-      say: "Place aux bons gestes. Cinq repères sont signalés sur l’écran de Claude. Cliquez sur chaque pastille orange pour découvrir à quoi elle sert.",
+      audio: "pp-reperes", say: "Place aux bons gestes. Cinq repères sont signalés sur l’écran de Claude. Cliquez sur chaque pastille orange pour découvrir à quoi elle sert.",
       render: function (pv) { lead(pv, "Regardez à gauche : cinq pastilles orange. Cliquez sur chacune."); },
       primary: function () { return null; },
       enter: function () {
@@ -1682,7 +1682,7 @@
     /* Un sujet, une conversation -------------------------------------------------- */
     {
       id: "voisin", seq: 3, pill: "À vous de faire", icon: "hand", title: "Un sujet, une conversation",
-      say: "Nouveau sujet : votre voisin Rui a glissé un mot en portugais sous votre porte. On ne le mélange pas avec le pot de départ. Ouvrez une nouvelle conversation, copiez le mot, collez-le dans Claude, et demandez-lui de le traduire.",
+      audio: "pp-voisin", say: "Nouveau sujet. Votre voisin Diogo a glissé un mot en portugais sous votre porte. On ne le mélange pas avec le pot de départ. Ouvrez une nouvelle conversation. Copiez le mot en portugais, collez-le dans l’IA, et demandez-lui de le traduire.",
       render: function (pv) {
         var a = act("voisin");
         var phase = a.done ? 3 : a.fresh ? 1 : 0;
@@ -1692,10 +1692,10 @@
         pv.appendChild(note);
         stepsList(pv, [
           { html: "Nouveau sujet : ouvrez une <b>nouvelle conversation</b> (bouton ✎, en haut à gauche de Claude)." },
-          { html: "<b>Copiez le mot</b> de Rui, <b>collez-le</b> dans Claude (Ctrl + V), et <b>demandez-lui de le traduire</b>." },
+          { html: "<b>Copiez le mot</b> de Diogo, <b>collez-le</b> dans Claude (Ctrl + V), et <b>demandez-lui de le traduire</b>." },
           { html: "Envoyez, puis lisez la traduction." }
         ], phase);
-        if (a.noNote) fb(pv, "ko", "Claude n’a pas le mot de Rui : <b>collez-le</b> dans votre message.");
+        if (a.noNote) fb(pv, "ko", "Claude n’a pas le mot de Diogo : <b>collez-le</b> dans votre message.");
         else if (a.vague) fb(pv, "ko", "Claude ne sait pas quoi faire du mot : dites-lui de le <b>traduire en français</b>.");
         if (a.done) fb(pv, "ok", "<b>Réussi :</b> un sujet, une conversation. Vos échanges restent faciles à retrouver, et Claude ne mélange pas les sujets.");
       },
@@ -1724,14 +1724,14 @@
         var a = act("voisin");
         if (!a.noNote && !a.vague) { a.done = true; refresh(); autoNext(5200); return; }
         refresh();
-        compose(true, a.noNote ? "Collez le mot de Rui" : "Demandez la traduction");
+        compose(true, a.noNote ? "Collez le mot de Diogo" : "Demandez la traduction");
       }
     },
 
     /* Défi final ------------------------------------------------------------------- */
     {
       id: "defi", seq: 4, pill: "Défi · 2 points", icon: "trophy", title: "Le défi : l’exposé de Léna",
-      say: "Dernier défi, sans aide. Léna, votre fille, doit préparer un exposé sur les volcans. Ouvrez une nouvelle conversation et demandez de l’aide à Claude, en une phrase. Il répondra de façon générale. Envoyez-lui ensuite un deuxième message avec les informations de Léna : sa classe, la durée de l’exposé, et les images.",
+      audio: "pp-defi", say: "Dernier défi, sans aide, cette fois. Léna, votre fille, doit préparer un exposé sur les volcans. Ouvrez une nouvelle conversation et demandez de l’aide à Claude, en une phrase.",
       render: function (pv) {
         var a = act("defi");
         var phase = a.done ? 3 : a.simple ? 2 : a.fresh ? 1 : 0;
@@ -1787,7 +1787,7 @@
     /* Résultat ----------------------------------------------------------------------- */
     {
       id: "resultat", seq: 4, title: "Votre résultat", full: true, bare: true,
-      say: "Voici votre résultat, activité par activité. Si une activité n’est pas réussie, vous pouvez la revoir.",
+      audio: "pp-resultat", say: "Tadaaa ! Voici votre résultat, activité par activité. Si une activité n’est pas réussie, vous pouvez la revoir.",
       render: function (pv) {
         var items = scoreItems(), total = items.reduce(function (s2, x) { return s2 + x.pts; }, 0), ok = total / MAX >= 0.7;
         P.validated = ok;
@@ -1967,7 +1967,7 @@
 
   /* ---------- Accueil : l'orbe au centre, le message de bienvenue mot à mot ---------- */
 
-  var WELCOME_TEXT = "Bonjour et bienvenue ! Je suis votre assistante d’apprentissage. Aujourd’hui, vous allez rencontrer Claude, une intelligence artificielle, et lui écrire vos premiers messages. Pas de théorie : on apprend en faisant. C’est parti !";
+  var WELCOME_TEXT = "Bonjour et bienvenue ! Je serai votre assistante pour toute la durée des modules. Aujourd’hui, vous allez… oui, c’est ça : écrire vos premiers messages à une IA. C’est parti !";
   var wlGo = $("[data-wl-go]");
   var inWelcome = false, wlStarted = false;
   // la synthèse vocale a besoin d'un geste : l'accueil s'ouvre sur « Commencer »
@@ -1988,6 +1988,17 @@
   function speakWelcome() {
     var once = false;
     function end() { if (once) return; once = true; speaking = false; orbMood(); sayProgress(1); setTimeout(leaveWelcome, 900); }
+    var W = (window.COURSE_WORDS || {})["pp-bienvenue"];
+    if (S.sound && W) {
+      audio.src = "../assets/audio/pp-bienvenue.mp3";
+      audio.dataset.id = "pp-bienvenue";
+      loadEnvelope("pp-bienvenue");
+      (function wl() { if (!inWelcome || audio.ended) return; sayReveal(W.filter(function (w) { return w[0] <= audio.currentTime + 0.04; }).length); requestAnimationFrame(wl); })();
+      audio.addEventListener("ended", function onEnd() { audio.removeEventListener("ended", onEnd); if (inWelcome) end(); });
+      var pl = audio.play();
+      if (pl && pl.catch) pl.catch(function () { sayProgress(1); end(); });
+      return;
+    }
     var v = S.sound ? frVoice() : null, n = tokens(WELCOME_TEXT).length;
     if (!v) {
       var k = 0;
