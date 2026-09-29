@@ -1042,3 +1042,11 @@ svg { display: block; }
 .sit-photo small { font-size: 12.5px; line-height: 1.35; color: rgba(255, 255, 255, .85); }
 .sit.sit-photo.is-on { box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--pv-orange), 0 18px 36px -24px rgba(16, 24, 56, .6); }
 .sit.sit-photo:disabled:not(.is-on) { opacity: .45; }
+/* « Avec quoi utiliser l'IA ? » : apparition en fondu */
+.pv.is-cover > * { animation: none; }
+.cover > img { animation: cover-fade 1.1s var(--ease) both, cover-zoom 14s ease-out both; }
+@keyframes cover-fade { from { opacity: 0; } }
+.cover::after { animation: cover-fade 1.1s var(--ease) both; }
+.cover-t { animation: cover-rise .9s var(--ease) .45s both; }
+.cover .devices { animation: cover-rise .9s var(--ease) .65s both; }
+@keyframes cover-rise { from { opacity: 0; transform: translateY(18px); } }

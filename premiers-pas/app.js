@@ -1064,7 +1064,7 @@
         }
         if (k) {
           var last = a.res[k - 1];
-          fbNew(pv, last.ok ? "ok" : "ko", "<b>" + (last.ok ? "Bien vu" : "Pas tout à fait") + " :</b> « " + esc(cards[k - 1][0]) + " » est " + (cards[k - 1][1] ? "vrai" : "faux") + ". " + esc(cards[k - 1][2]));
+          fbNew(pv, last.ok ? "ok" : "ko", "<b>" + (last.ok ? "Bien vu, c’est " : "Eh non, c’est ") + (cards[k - 1][1] ? "vrai" : "faux") + ".</b> " + esc(cards[k - 1][2]));
         }
         if (k === cards.length) {
           var ul = h('<ul class="sw-recap is-new"></ul>');
@@ -1433,9 +1433,9 @@
       audio: "pp-vraifaux", say: "Trois idées reçues sur l’intelligence artificielle. Glissez la carte vers la droite si c’est vrai, vers la gauche si c’est faux. Vous pouvez aussi utiliser les boutons."
     }, (function () {
       var w = swipe("vraifaux", [
-        ["L’IA connaît déjà mon entreprise et mes dossiers.", false, "Elle ne sait que ce que vous lui écrivez ou lui donnez dans la conversation."],
-        ["On peut lui écrire en français, comme à une personne.", true, "Des phrases normales suffisent. Elle comprend aussi beaucoup d’autres langues."],
-        ["Ses réponses sont toujours justes.", false, "L’IA peut se tromper : on relit, et on vérifie les faits importants."]
+        ["L’IA connaît déjà mon entreprise et mes dossiers.", false, "L’IA n’a pas accès à vos dossiers. Elle ne connaît que ce que vous lui écrivez dans la conversation."],
+        ["On peut lui écrire en français, comme à une personne.", true, "Pas besoin de mots-clés : écrivez des phrases normales. Elle comprend aussi beaucoup d’autres langues."],
+        ["Ses réponses sont toujours justes.", false, "L’IA peut se tromper, et même inventer. Relisez toujours ses réponses, et vérifiez les faits importants."]
       ]);
       var r = w.render;
       w.render = function (pv) { lead(pv, "Vrai à droite, faux à gauche. Une carte à la fois."); r(pv); };
