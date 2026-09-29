@@ -164,6 +164,7 @@
     capRaf = requestAnimationFrame(capLoop);
   }
   function stopVoice() {
+    voiceId++;
     saying(false);
     audio.pause();
     if (window.speechSynthesis) speechSynthesis.cancel();
@@ -200,19 +201,33 @@
     syncMarks(999);
     var v = frVoice();
     if (!v) { caption(item.text, true); return; }
-    var u = new SpeechSynthesisUtterance(item.text);
-    narrate.u = u;
-    u.voice = v; u.lang = v.lang; u.rate = 1.02;
-    var t0 = 0;
-    u.onstart = function () {
-      speaking = true; orbMood(); t0 = performance.now();
-      (function est() { if (!speaking) return; sayProgress((performance.now() - t0) / (item.text.length * 62)); requestAnimationFrame(est); })();
-    };
-    u.onboundary = function (ev) { if (ev.charIndex) sayProgress((ev.charIndex + (ev.charLength || 1)) / item.text.length); };
-    u.onend = ended;
-    u.onerror = function (ev) { if (ev && ev.error === "not-allowed") blocked = true; speaking = false; orbMood(); caption(item.text, true); };
     capEl.classList.remove("is-idle");
     sayText(item.text); saying(true);
+    var my = voiceId;
+    speakTTS(item.text, v, function () { return my === voiceId; }, ended, function (ev) {
+      if (ev && ev.error === "not-allowed") blocked = true;
+      speaking = false; orbMood(); caption(item.text, true);
+    });
+  }
+  // voix de synthèse : le texte avance mot à mot, même quand le navigateur n'envoie pas la position de lecture
+  var voiceId = 0;
+  function speakTTS(text, v, alive, onEnd, onErr) {
+    var u = new SpeechSynthesisUtterance(text);
+    speakTTS.u = u;                                   // garder une référence, sinon « end » peut ne jamais arriver
+    u.voice = v; u.lang = v.lang; u.rate = 1.02;
+    var t0 = 0, best = 0, done = false;
+    function prog(p) { best = Math.max(best, Math.min(1, p)); sayProgress(best); }
+    function begin() { if (!t0 && !done && alive()) { t0 = performance.now(); speaking = true; orbMood(); } }
+    (function loop() {
+      if (done || !alive()) return;
+      if (t0) prog((performance.now() - t0) / (text.length * 64));
+      requestAnimationFrame(loop);
+    })();
+    u.onstart = begin;
+    setTimeout(begin, 800);                             // certains navigateurs n'émettent pas « start »
+    u.onboundary = function (ev) { begin(); if (alive() && ev.charIndex !== undefined) prog((ev.charIndex + (ev.charLength || 1)) / text.length); };
+    u.onend = function () { if (done || !alive()) return; done = true; prog(1); onEnd(); };
+    u.onerror = function (ev) { if (done || !alive()) return; done = true; (onErr || onEnd)(ev); };
     speechSynthesis.speak(u);
   }
   audio.addEventListener("play", function () { speaking = true; orbMood(); if (!capRaf) capLoop(); });
@@ -734,10 +749,10 @@
       pv.appendChild(hero);
       side = hero.lastChild;
     }
-    side.appendChild(h('<p class="pv-seq">Séquence ' + (s.seq + 1) + "<i></i>" + esc(SEQS[s.seq]) + "</p>"));
-    if (s.pill) side.appendChild(h('<span class="pv-pill"><svg><use href="#i-' + (s.icon || "clock") + '"/></svg>' + esc(s.pill) + "</span>"));
-    side.appendChild(h('<h1 class="pv-h1">' + esc(s.title) + "</h1>"));
-    side.appendChild(h('<span class="pv-rule"></span>'));
+    if (!s.bare) {
+      side.appendChild(h('<h1 class="pv-h1">' + esc(s.title) + "</h1>"));
+      side.appendChild(h('<span class="pv-rule"></span>'));
+    }
     s.render(pv, side);
     if (!fresh) Array.prototype.forEach.call(pv.children, function (c) { c.style.animation = "none"; });
     bodyEl.appendChild(pv);
@@ -1560,13 +1575,13 @@
         var a = act("manque");
         a.found = a.found || {};
         var n = Object.keys(HUNT).filter(function (k) { return a.found[k]; }).length;
-        pv.appendChild(h('<p class="pv-task"></p>')).innerHTML = a.done ? "<b>✓</b> Les trois informations sont repérées." : "Claude a proposé <b>traiteur, DJ, voyage</b>… Dans le mail, <b>cliquez sur les 3 informations</b> qui changeraient ses idées. <span class='pv-count'>" + n + " / 3</span>";
+        pv.appendChild(h('<p class="pv-task"></p>')).innerHTML = a.done ? "<b>✓ Bien vu :</b> Claude ne pouvait pas deviner ces 3 informations." : "Dans le mail, cliquez sur les <b>3 infos</b> qui changeraient ses idées. <span class='pv-count'>" + n + " / 3</span>";
         mailApp(pv, "hunt");
-        if (a.why) fb(pv, "ko", esc(a.why));
-        if (a.done) fb(pv, "ok", "<b>Bien vu :</b> le budget, le nombre de personnes et le lieu sont dans le mail, mais Claude ne pouvait pas les deviner.");
+        if (a.why && !a.done) fb(pv, "ko", esc(a.why));
       },
       ready: function () { return !!act("manque").done; },
-      enter: function () { if (P.potConv) openConv(P.potConv); }
+      enter: function () { if (P.potConv) openConv(P.potConv); setTimeout(function () { markChat(/traiteur|DJ|karaoké|week-end|voyage|restaurant/g); }, 400); },
+      leave: function () { $$(".chat-mk", messagesEl).forEach(function (m) { m.replaceWith(document.createTextNode(m.textContent)); }); }
     },
 
     /* Préciser et relancer -------------------------------------------------------- */
@@ -1610,38 +1625,30 @@
       onTemplate: function (vals) { act("relance").vals = JSON.parse(JSON.stringify(vals)); }
     },
 
-    /* Avant / après --------------------------------------------------------------- */
-    {
-      id: "avantapres", seq: 2, pill: "À vous de choisir · 1 point", icon: "trophy", title: "Avant, après",
-      say: "Comparons vos deux demandes. Pour le pot de Martine, quelle réponse de Claude pouvez-vous utiliser telle quelle ? Cliquez dessus.",
-      render: function (pv) {
-        var a = act("avantapres"), picked = a.pick !== undefined;
-        lead(pv, "Pour le pot de Martine, <b>quelle réponse pouvez-vous utiliser telle quelle ?</b>");
-        var g = h('<div class="cmp"></div>');
-        [
-          [0, "Avant", "Votre demande courte", P.potFirst || "Donne-moi des idées pour un pot de départ.", [["Traiteur pour un buffet complet", "Trop cher pour 60 €", 0], ["Salle louée avec DJ", "Inutile : vous avez la salle de pause", 0], ["Week-end offert en cadeau", "Hors budget", 0]]],
-          [1, "Après", "Avec vos précisions", "Le budget est de 60 €, on sera 12, dans la salle de pause.", [["Buffet partagé, boissons et gâteau", "Tient dans les 60 €", 1], ["Cadeau et carte signée par l’équipe", "Adapté à 12 personnes", 1], ["Diaporama projeté pendant le pot", "Possible en salle de pause", 1]]]
-        ].forEach(function (x) {
-          var b = h('<button type="button" class="cmp-card"><span class="cmp-tag"></span><span class="cmp-q"><small></small><span></span></span><span class="cmp-l">Claude propose :</span><ul></ul></button>');
-          b.querySelector(".cmp-tag").textContent = x[1];
-          b.querySelector(".cmp-q small").textContent = x[2];
-          b.querySelector(".cmp-q span").textContent = "« " + x[3] + " »";
-          x[4].forEach(function (it) {
-            var li = h('<li><span></span><em></em></li>');
-            li.firstChild.textContent = it[0];
-            li.lastChild.textContent = it[1];
-            li.lastChild.className = it[2] ? "ok" : "ko";
-            b.querySelector("ul").appendChild(li);
-          });
-          if (picked) { b.disabled = true; b.classList.add("is-shown"); if (a.pick === x[0]) b.classList.add(x[0] === 1 ? "is-good" : "is-bad"); }
-          b.onclick = function () { a.pick = x[0]; a.best = x[0] === 1 ? 1 : 0; refresh(); if (a.best) autoNext(5200); };
-          g.appendChild(b);
-        });
-        pv.appendChild(g);
-        if (picked) fb(pv, a.best ? "ok" : "ko", a.best ? "<b>Exact :</b> avec le budget, le nombre de personnes et le lieu, Claude propose des idées réalistes. On peut s’en servir tout de suite." : "<b>Pas vraiment :</b> sans précisions, Claude a proposé un traiteur ou un voyage, hors budget. La réponse « Après » colle à la situation.");
-      },
-      ready: function () { return act("avantapres").pick !== undefined; }
-    },
+    /* Trier les idées (glisser-déposer) ---------------------------------------------- */
+    extend({
+      id: "avantapres", seq: 2, pill: "Glissez-déposez · 6 points", icon: "hand", title: "Trier les idées de Claude",
+      say: "Claude vous a donné deux séries d’idées. Glissez chaque idée dans la bonne colonne : utilisable pour le pot de Martine, ou pas adaptée."
+    }, (function () {
+      var w = dragDrop("avantapres", {
+        items: [
+          ["Un buffet partagé, boissons et gâteau", "ok"],
+          ["Un traiteur pour un buffet complet", "ko"],
+          ["Un cadeau et une carte signée par l’équipe", "ok"],
+          ["Louer une salle avec un DJ", "ko"],
+          ["Un diaporama projeté en salle de pause", "ok"],
+          ["Offrir un week-end en cadeau", "ko"]
+        ],
+        buckets: [
+          ["ok", "Utilisable", "60 €, 12 personnes, salle de pause", "check"],
+          ["ko", "Pas adaptée", "Hors budget ou inutile", "x"]
+        ],
+        after: function (pv, a) { if (a.done) fb(pv, "", "<b>Regardez d’où elles viennent :</b> les idées pas adaptées viennent toutes de votre <b>demande courte</b>. Les utilisables, de votre <b>demande précisée</b>. C’est tout l’intérêt de préciser."); }
+      });
+      var r = w.render;
+      w.render = function (pv) { lead(pv, "Glissez chaque idée dans la bonne colonne. Vous pouvez aussi cliquer sur une idée, puis sur une colonne."); r(pv); };
+      return w;
+    })()),
 
     /* Les repères de l'écran ----------------------------------------------------- */
     {
@@ -1675,19 +1682,21 @@
     /* Un sujet, une conversation -------------------------------------------------- */
     {
       id: "voisin", seq: 3, pill: "À vous de faire", icon: "hand", title: "Un sujet, une conversation",
-      say: "Nouveau sujet : votre voisin Rui a glissé un mot en portugais sous votre porte. On ne le mélange pas avec le pot de départ. Ouvrez une nouvelle conversation : la demande de traduction apparaîtra dans Claude. Choisissez la langue, puis envoyez.",
+      say: "Nouveau sujet : votre voisin Rui a glissé un mot en portugais sous votre porte. On ne le mélange pas avec le pot de départ. Ouvrez une nouvelle conversation, copiez le mot, collez-le dans Claude, et demandez-lui de le traduire.",
       render: function (pv) {
         var a = act("voisin");
-        var phase = a.done ? 3 : a.sent ? 2 : a.fresh ? 1 : 0;
-        var note = h('<div class="postit"><p></p><small>Glissé sous votre porte</small></div>');
+        var phase = a.done ? 3 : a.fresh ? 1 : 0;
+        var note = h('<div class="postit"><p></p><small>Glissé sous votre porte</small><br></div>');
         note.firstChild.textContent = NOTE_PT;
+        note.appendChild(button(a.copied ? "Mot copié" : "Copier le mot", "copy", function () { copyNote(); }));
         pv.appendChild(note);
         stepsList(pv, [
           { html: "Nouveau sujet : ouvrez une <b>nouvelle conversation</b> (bouton ✎, en haut à gauche de Claude)." },
-          { html: "La demande apparaît dans Claude, avec le mot de Rui : <b>choisissez la langue</b> dans la case orange, puis envoyez." },
-          { html: "Lisez la traduction." }
+          { html: "<b>Copiez le mot</b> de Rui, <b>collez-le</b> dans Claude (Ctrl + V), et <b>demandez-lui de le traduire</b>." },
+          { html: "Envoyez, puis lisez la traduction." }
         ], phase);
-        if (a.wrong) fb(pv, "ko", "Rui écrit en portugais : pour le comprendre, demandez une traduction <b>en français</b>.");
+        if (a.noNote) fb(pv, "ko", "Claude n’a pas le mot de Rui : <b>collez-le</b> dans votre message.");
+        else if (a.vague) fb(pv, "ko", "Claude ne sait pas quoi faire du mot : dites-lui de le <b>traduire en français</b>.");
         if (a.done) fb(pv, "ok", "<b>Réussi :</b> un sujet, une conversation. Vos échanges restent faciles à retrouver, et Claude ne mélange pas les sujets.");
       },
       ready: function () { return !!act("voisin").done; },
@@ -1695,7 +1704,7 @@
         var a = act("voisin");
         if (a.done) return;
         if (!a.fresh) { spot("new"); badge("new", "1"); }
-        else offerTranslate();
+        else compose(true, "Collez le mot, et demandez la traduction");
       },
       onNewConv: function () {
         var a = act("voisin");
@@ -1703,33 +1712,36 @@
         a.fresh = true;
         clearSpots();
         refresh();
-        offerTranslate();
+        compose(true, "Collez le mot, et demandez la traduction");
       },
-      onSend: function (c, text) { var a = act("voisin"); a.sent = true; a.text = text; compose(false); refresh(); },
+      onSend: function (c, text) {
+        var a = act("voisin");
+        a.noNote = !/olá|obras|barulho|sábado/i.test(text);
+        a.vague = !/tradu|fran[çc]ais|que veut dire|signifie|comprends pas|explique/i.test(text);
+        compose(false); refresh();
+      },
       onAnswer: function () {
         var a = act("voisin");
-        a.wrong = !/en fran[çc]ais/i.test(a.text || "");
-        if (!a.wrong) { a.done = true; refresh(); autoNext(5200); return; }
-        a.sent = false;
+        if (!a.noNote && !a.vague) { a.done = true; refresh(); autoNext(5200); return; }
         refresh();
-        offerTranslate();
+        compose(true, a.noNote ? "Collez le mot de Rui" : "Demandez la traduction");
       }
     },
 
     /* Défi final ------------------------------------------------------------------- */
     {
       id: "defi", seq: 4, pill: "Défi · 2 points", icon: "trophy", title: "Le défi : l’exposé de Léna",
-      say: "Dernier défi, cette fois sans cases à compléter. Votre fille Léna a besoin d’aide pour son exposé sur les volcans. Ouvrez une nouvelle conversation, commencez simple, puis relancez avec deux précisions de son message.",
+      say: "Dernier défi, sans aide. Léna, votre fille, doit préparer un exposé sur les volcans. Ouvrez une nouvelle conversation et demandez de l’aide à Claude, en une phrase. Il répondra de façon générale. Envoyez-lui ensuite un deuxième message avec les informations de Léna : sa classe, la durée de l’exposé, et les images.",
       render: function (pv) {
         var a = act("defi");
         var phase = a.done ? 3 : a.simple ? 2 : a.fresh ? 1 : 0;
         pv.appendChild(h('<div class="sms"><span class="sms-who">Léna</span><p>Tu peux m’aider pour mon exposé sur les volcans ? C’est pour lundi. Je suis en CM2 et je dois parler 5 minutes, avec des images 🙏</p></div>'));
         stepsList(pv, [
           { html: "Ouvrez une <b>nouvelle conversation</b>." },
-          { html: "<b>Commencez simple</b> : une demande courte sur l’exposé." },
-          { html: "<b>Relancez</b> avec au moins deux précisions du message de Léna." }
+          { html: "Écrivez une <b>première demande courte</b>. Par exemple : « Aide-moi à préparer un exposé sur les volcans. »" },
+          { html: "Claude répond de façon générale. Envoyez-lui un <b>deuxième message</b> avec les infos de Léna : <b>sa classe</b> (CM2), <b>la durée</b> (5 minutes), <b>les images</b>." }
         ], phase);
-        if (a.miss) fb(pv, "ko", "<b>Encore un effort :</b> ajoutez au moins deux précisions : la classe ou l’âge, la durée, le support.");
+        if (a.miss) fb(pv, "ko", "<b>Il manque des infos :</b> donnez au moins deux éléments du message de Léna : sa classe, la durée, les images.");
         if (a.done) fb(pv, a.best === 2 ? "ok" : "", a.best === 2 ? "<b>Défi réussi :</b> un début simple, puis des précisions. La réponse est adaptée à Léna." : "Défi terminé. Retenez : la classe, la durée et le support changent tout.");
       },
       ready: function () { return !!act("defi").done; },
@@ -1743,7 +1755,7 @@
         var a = act("defi");
         if (a.done) return;
         if (!a.fresh) { spot("new"); badge("new", "1"); }
-        else compose(true, a.simple ? "Relancez avec deux précisions" : "Commencez simple");
+        else compose(true, a.simple ? "Donnez les infos de Léna" : "Une première demande courte");
       },
       onNewConv: function () {
         var a = act("defi");
@@ -1751,7 +1763,7 @@
         a.fresh = true;
         clearSpots();
         refresh();
-        compose(true, "Commencez simple");
+        compose(true, "Une première demande courte");
       },
       onSend: function (c, text) { act("defi").last = text; compose(false); },
       onAnswer: function () {
@@ -1761,37 +1773,47 @@
           a.simple = true;
           if (volcanPrecisions(a.last) >= 2) { a.done = true; a.best = 2; refresh(); toast("Déjà précis : bravo"); autoNext(5200); return; }
           refresh();
-          compose(true, "Relancez avec deux précisions");
+          compose(true, "Donnez les infos de Léna");
           return;
         }
         a.tries = (a.tries || 0) + 1;
         if (volcanPrecisions(a.last) >= 2) { a.done = true; a.best = 2; a.miss = false; refresh(); toast("Défi réussi"); autoNext(5200); return; }
         a.miss = true;
         refresh();
-        if (a.tries < 3) compose(true, "Ajoutez deux précisions");
+        if (a.tries < 3) compose(true, "Ajoutez les infos de Léna");
       }
     },
 
     /* Résultat ----------------------------------------------------------------------- */
     {
-      id: "resultat", seq: 4, pill: "Bilan", icon: "trophy", title: "Votre résultat", full: true,
+      id: "resultat", seq: 4, title: "Votre résultat", full: true, bare: true,
       say: "Voici votre résultat, activité par activité. Si une activité n’est pas réussie, vous pouvez la revoir.",
       render: function (pv) {
-        var items = scoreItems(), total = items.reduce(function (s, x) { return s + x.pts; }, 0);
-        pv.appendChild(h('<p class="pv-score">' + fmt(total) + " <small>sur " + MAX + "</small></p>"));
-        pv.appendChild(h('<div class="pv-bar"><i style="width:' + (total / MAX * 100) + '%"></i><b style="left:70%"></b></div>'));
-        pv.appendChild(h('<p class="pv-hint">Seuil de validation : 70 % du maximum.</p>'));
-        var ul = h('<ul class="pv-acts"></ul>');
-        items.forEach(function (it) {
-          var li = h('<li><span></span><span class="pts"></span></li>');
+        var items = scoreItems(), total = items.reduce(function (s2, x) { return s2 + x.pts; }, 0), ok = total / MAX >= 0.7;
+        P.validated = ok;
+        var C = 2 * Math.PI * 74;
+        var res = h('<div class="res"><div class="res-top"><div class="res-ring' + (ok ? " is-ok" : "") + '"><svg viewBox="0 0 168 168"><circle class="bg" cx="84" cy="84" r="74"/><circle class="fg" cx="84" cy="84" r="74"/></svg><div class="res-num"><span><b>0</b><small>sur ' + MAX + '</small></span></div></div>' +
+          '<div class="res-msg"><span class="res-badge ' + (ok ? "ok" : "ko") + '">' + (ok ? "✓ Module validé" : "Seuil de validation : 70 %") + "</span><h2>" + (ok ? "Belle première rencontre !" : "Encore un petit effort") + "</h2><p>" + (ok ? "Vous savez écrire à Claude, commencer simple, puis préciser." : "Revoyez les activités indiquées, puis revenez ici.") + '</p></div></div><ul class="res-list"></ul></div>');
+        var fg = res.querySelector(".fg");
+        fg.style.strokeDasharray = C;
+        fg.style.strokeDashoffset = C;
+        var ul = res.querySelector(".res-list"), bars = [];
+        items.forEach(function (it, k) {
+          var li = h('<li><span></span><span class="res-bar"><i></i></span><span class="res-pts"></span><span class="res-act"></span></li>');
           li.firstChild.textContent = it.label;
-          li.children[1].textContent = fmt(it.pts) + " / " + it.max;
-          if (it.pts < it.max) { var b = h('<button type="button" class="pv-link">Revoir</button>'); b.onclick = function () { resetAct(it.id); go(it.idx); }; li.appendChild(b); }
+          li.querySelector(".res-pts").textContent = fmt(it.pts) + " / " + it.max;
+          li.style.animationDelay = (0.35 + k * 0.08) + "s";
+          if (it.pts < it.max) { var b = h('<button type="button" class="pv-link">Revoir</button>'); b.onclick = function () { resetAct(it.id); go(it.idx); }; li.lastChild.appendChild(b); }
+          bars.push([li.querySelector(".res-bar i"), it.pts / it.max]);
           ul.appendChild(li);
         });
-        pv.appendChild(ul);
-        P.validated = total / MAX >= 0.7;
-        fb(pv, P.validated ? "ok" : "ko", P.validated ? "<b>Seuil atteint :</b> module validé. Bravo pour cette première rencontre !" : "<b>Sous le seuil :</b> revoyez les activités indiquées, puis revenez ici.");
+        pv.appendChild(res);
+        setTimeout(function () {
+          fg.style.strokeDashoffset = C * (1 - total / MAX);
+          bars.forEach(function (x, k) { setTimeout(function () { x[0].style.width = (x[1] * 100) + "%"; if (x[1] === 1) x[0].classList.add("full"); }, 350 + k * 80); });
+          var num = res.querySelector(".res-num b"), t0 = performance.now();
+          (function count(t) { var p = Math.min(1, ((t || performance.now()) - t0) / 1400); num.textContent = fmt(Math.round(total * (1 - Math.pow(1 - p, 3)) * 2) / 2); if (p < 1) requestAnimationFrame(count); })();
+        }, 250);
       }
     },
 
@@ -1828,7 +1850,39 @@
     template(["Traduis ce mot de mon voisin en ", { k: "lang", label: "Langue", opts: ["français", "anglais", "espagnol"] }, " : « " + NOTE_PT + " »"], "Choisissez la langue, puis envoyez");
   }
 
-  var MAX = 15;
+  var MAX = 20;
+  function copyNote() {
+    var done = function () { act("voisin").copied = true; toast("Mot copié : collez-le dans Claude (Ctrl + V)"); refresh(); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(NOTE_PT).then(done, fallback); else fallback();
+    function fallback() {
+      var t = document.createElement("textarea");
+      t.value = NOTE_PT; t.style.position = "fixed"; t.style.opacity = "0";
+      document.body.appendChild(t); t.select();
+      try { document.execCommand("copy"); } catch (e) {}
+      t.remove(); done();
+    }
+  }
+  // met en évidence des mots dans la réponse de Claude affichée à gauche
+  function markChat(re) {
+    var body = $(".msg--ai .body", messagesEl);
+    if (!body) return;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT), nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(function (n) {
+      if (!re.test(n.nodeValue)) return;
+      re.lastIndex = 0;
+      var frag = document.createDocumentFragment(), last = 0, m;
+      while ((m = re.exec(n.nodeValue))) {
+        frag.appendChild(document.createTextNode(n.nodeValue.slice(last, m.index)));
+        var mk = document.createElement("mark"); mk.className = "chat-mk"; mk.textContent = m[0];
+        frag.appendChild(mk);
+        last = m.index + m[0].length;
+      }
+      frag.appendChild(document.createTextNode(n.nodeValue.slice(last)));
+      n.replaceWith(frag);
+    });
+    re.lastIndex = 0;
+  }
   function stepIdx(id) { for (var i = 0; i < STEPS.length; i++) if (STEPS[i].id === id) return i; return 0; }
   function resetAct(id) {
     var a = act(id);
@@ -1843,7 +1897,7 @@
       { id: "prompt", idx: stepIdx("prompt"), label: "C’est quoi, un prompt ?", pts: best("prompt"), max: 1 },
       { id: "manque", idx: stepIdx("manque"), label: "Qu’est-ce qui manque ?", pts: best("manque"), max: 1 },
       { id: "relance", idx: stepIdx("relance"), label: "Préciser, puis relancer", pts: best("relance"), max: 2 },
-      { id: "avantapres", idx: stepIdx("avantapres"), label: "Avant, après", pts: best("avantapres"), max: 1 },
+      { id: "avantapres", idx: stepIdx("avantapres"), label: "Trier les idées", pts: best("avantapres"), max: 6 },
       { id: "defi", idx: stepIdx("defi"), label: "Le défi : l’exposé de Léna", pts: best("defi"), max: 2 }
     ];
   }
@@ -1941,16 +1995,9 @@
       (function tick() { if (!inWelcome) return; sayReveal(++k); if (k < n) setTimeout(tick, 240); else { speaking = false; orbMood(); setTimeout(end, 1200); } })();
       return;
     }
-    var u = new SpeechSynthesisUtterance(WELCOME_TEXT);
-    speakWelcome.u = u;
-    u.voice = v; u.lang = v.lang; u.rate = 1.02;
-    u.onstart = function () { speaking = true; orbMood(); };
-    u.onboundary = function (ev) { if (ev.charIndex !== undefined) sayProgress((ev.charIndex + (ev.charLength || 1)) / WELCOME_TEXT.length); };
-    u.onend = end;
-    u.onerror = end;
-    setTimeout(end, WELCOME_TEXT.length * 95 + 4000);            // filet : certains navigateurs n'émettent pas « end »
     speechSynthesis.cancel();
-    speechSynthesis.speak(u);
+    speakTTS(WELCOME_TEXT, v, function () { return inWelcome; }, end, end);
+    setTimeout(end, WELCOME_TEXT.length * 95 + 4000);            // filet : certains navigateurs n'émettent pas « end »
   }
   function showGo(label) { wlGo.firstChild.textContent = label; wlGo.hidden = false; requestAnimationFrame(function () { wlGo.classList.add("is-on"); }); }
   wlGo.addEventListener("click", function () {
