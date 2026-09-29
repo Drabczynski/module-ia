@@ -1054,3 +1054,16 @@ svg { display: block; }
 .mm-mod.is-open:hover { background: #f7f5f0; }
 .mm-mod.is-open .mm-tx b { color: #1f1e1c; font-weight: 600; }
 .mm-mod.is-open em { padding: 5px 8px; border-radius: 99px; background: #f1eee7; color: #6b675e; }
+
+/* bulles des cases orange : choix alignés à gauche */
+.tpl-opts { flex-direction: column; align-items: stretch; }
+.tpl-opts button { text-align: left; border-radius: 12px; }
+
+/* barres de défilement discrètes (tous les modules) */
+* { scrollbar-width: thin; scrollbar-color: transparent transparent; }
+*:hover { scrollbar-color: rgba(31, 30, 28, .18) transparent; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: transparent; border-radius: 6px; }
+*:hover::-webkit-scrollbar-thumb { background: rgba(31, 30, 28, .18); }
+::-webkit-scrollbar-button { display: none; }

@@ -1297,7 +1297,7 @@
 
   var RESULT_STEP = {
       id: "resultat", seq: 4, title: "Votre résultat", full: true, bare: true,
-      audio: "pp-resultat", say: "Tadaaa ! Voici votre résultat, activité par activité. Si une activité n’est pas réussie, vous pouvez la revoir.",
+      audio: "module-2/resultat", say: "Voici votre résultat, activité par activité. Si une activité n’est pas réussie, vous pouvez la revoir.",
       render: function (pv) {
         var items = scoreItems(), total = items.reduce(function (s2, x) { return s2 + x.pts; }, 0), ok = total / MAX >= 0.7;
         P.validated = ok;
@@ -1330,7 +1330,7 @@
   var STEPS = [
     /* 1 · Le problème --------------------------------------------------------------- */
     {
-      id: "vague", seq: 0, title: "Une demande trop vague",
+      id: "vague", seq: 0, title: "Une demande trop vague", audio: "module-2/vague",
       say: "Sophie, votre responsable, vous demande de rédiger une offre d’emploi. Premier réflexe : on demande directement à l’IA. La demande est prête dans le champ : envoyez-la, et regardez ce qui revient.",
       render: function (pv) {
         var a = act("vague");
@@ -1353,7 +1353,7 @@
 
     /* 2 · Ce que l'IA a inventé (clic dans la réponse) ----------------------------------- */
     {
-      id: "invente", seq: 0, title: "Ce que l’IA a inventé",
+      id: "invente", seq: 0, title: "Ce que l’IA a inventé", audio: "module-2/invente",
       say: "L’IA ne connaît pas votre poste. Alors elle a comblé les trous. Dans sa réponse, à gauche, cliquez sur les trois informations qu’elle a inventées.",
       render: function (pv) {
         var a = act("invente");
@@ -1379,9 +1379,19 @@
       leave: function () { unhuntChat(); }
     },
 
+    /* 2 bis · Pourquoi ces inventions ? (QCM) --------------------------------------------- */
+    extend({
+      id: "pourquoi", seq: 0, title: "Pourquoi ces inventions ?", audio: "module-2/pourquoi",
+      say: "Une question pour bien comprendre. Pourquoi l’IA a-t-elle inventé une ville, un salaire et un treizième mois ?"
+    }, quiz("pourquoi", "Pourquoi l’IA a-t-elle inventé la ville, le salaire et le 13e mois ?", [
+      ["Elle se trompe à chaque fois : il ne faut pas s’en servir.", "Non : avec les bonnes informations, elle fait un travail utile. Le problème vient de la demande."],
+      ["On ne lui a donné aucun contexte : elle a comblé les trous.", "Exact : sans informations, l’IA complète avec ce qui lui semble plausible. D’où l’importance du contexte."],
+      ["Elle a copié une vraie offre trouvée sur Internet.", "Non : elle a produit un texte plausible, pas une copie. Mais les détails ne viennent pas de vous."]
+    ], 1)),
+
     /* 3 · Les cinq briques (cartes à retourner) ----------------------------------------- */
     extend({
-      id: "briques", seq: 1, title: "Les cinq briques d’un prompt",
+      id: "briques", seq: 1, title: "Les cinq briques d’un prompt", audio: "module-2/briques",
       say: "Un bon prompt se construit avec cinq briques : le rôle, la cible, l’objectif, le contexte, et le format. Retournez chaque carte pour découvrir à quoi elle sert."
     }, flipCards("briques", [
       ["R", "Rôle", "Qui l’IA doit-elle être ?", "« Tu es chargé·e de recrutement dans une PME. »"],
@@ -1393,7 +1403,7 @@
 
     /* 4 · Reconnaître les briques (relier) --------------------------------------------- */
     extend({
-      id: "relier", seq: 1, title: "Reconnaître les briques",
+      id: "relier", seq: 1, title: "Reconnaître les briques", audio: "module-2/relier",
       say: "Voici un prompt découpé en morceaux. Reliez chaque morceau à la brique qui lui correspond."
     }, (function () {
       var B = "#1f5cf0";
@@ -1416,8 +1426,8 @@
 
     /* 5 · Quelle brique manque ? ------------------------------------------------------- */
     extend({
-      id: "manque", seq: 1, title: "Quelle brique manque ?",
-      say: "Trois prompts, et à chaque fois, une brique manque. Trouvez laquelle."
+      id: "manque", seq: 1, title: "La brique oubliée", audio: "module-2/manque",
+      say: "Chacun de ces trois prompts a oublié une des cinq briques. Pour chaque prompt, cliquez sur la brique oubliée."
     }, whichMissing("manque", [
       ["Tu es assistant de direction. Rédige un mail pour l’équipe afin d’annoncer la réunion de lundi à 9 h, en salle B.", "fmt", "Aucune indication de forme : longueur, ton, objet du mail…"],
       ["Rédige une publication pour les abonnés de notre boulangerie, afin d’annoncer la nouvelle galette. En 3 phrases, ton gourmand, avec un emoji.", "role", "On ne dit pas qui l’IA doit être : un community manager, par exemple."],
@@ -1426,7 +1436,7 @@
 
     /* 6 · Le brief de Sophie, puis le prompt à construire ---------------------------------- */
     {
-      id: "construire", seq: 2, title: "Construire le prompt",
+      id: "construire", seq: 2, title: "Construire le prompt", audio: "module-2/construire",
       say: "Voici le message de Sophie. À gauche, le prompt est prêt en cinq cases : une par brique. Cliquez sur chaque case orange, choisissez la bonne réponse, ou écrivez la vôtre, puis envoyez.",
       render: function (pv) {
         var a = act("construire");
@@ -1467,7 +1477,7 @@
 
     /* 7 · Vérifier le résultat ------------------------------------------------------------ */
     extend({
-      id: "verifier", seq: 2, title: "Vérifier le résultat",
+      id: "verifier", seq: 2, title: "Vérifier le résultat", audio: "module-2/verifier",
       say: "Un prompt structuré donne un bien meilleur résultat. Mais on vérifie toujours. Comparez l’offre, à gauche, avec le message de Sophie : quelle information manque ?"
     }, (function () {
       var w = pickMany("verifier", [
@@ -1485,7 +1495,7 @@
 
     /* 8 · Compléter, sans tout recommencer --------------------------------------------------- */
     {
-      id: "completer", seq: 2, title: "Compléter la demande",
+      id: "completer", seq: 2, title: "Compléter la demande", audio: "module-2/completer",
       say: "Pas besoin de tout recommencer. Dans la même conversation, demandez à l’IA d’ajouter la date de prise de poste.",
       render: function (pv) {
         var a = act("completer");
@@ -1501,7 +1511,7 @@
 
     /* 9 · À vous, sans aide ------------------------------------------------------------------ */
     {
-      id: "seul", seq: 3, title: "À vous, sans aide",
+      id: "seul", seq: 3, title: "À vous, sans aide", audio: "module-2/seul",
       say: "Dernière étape, sans cases à compléter. La boutique sera fermée le 24 décembre. Écrivez vous-même un prompt complet, avec les cinq briques, pour prévenir les clients. Les briques s’allument à droite, au fur et à mesure que vous écrivez.",
       render: function (pv) {
         var a = act("seul");
@@ -1554,7 +1564,7 @@
 
     /* 11 · Fiche -------------------------------------------------------------------------------- */
     {
-      id: "fiche", seq: 4, title: "Ma structure de prompt", full: true,
+      id: "fiche", seq: 4, title: "Ma structure de prompt", audio: "module-2/fiche", full: true,
       say: "Voici votre structure en cinq briques. Gardez-la sous la main : elle vous servira pour tous vos prompts.",
       render: function (pv) {
         var a = act("fiche");
@@ -1570,13 +1580,14 @@
 
   function stepIdx(id) { for (var i = 0; i < STEPS.length; i++) if (STEPS[i].id === id) return i; return 0; }
   function resetAct(id) { var best = act(id).best; P.act[id] = { best: best }; }
-  var MAX = 20;
+  var MAX = 21;
   function scoreItems() {
     var best = function (id) { return (P.act[id] || {}).best || 0; };
     return [
       { id: "invente", idx: stepIdx("invente"), label: "Ce que l’IA a inventé", pts: best("invente"), max: 1 },
+      { id: "pourquoi", idx: stepIdx("pourquoi"), label: "Pourquoi ces inventions ?", pts: best("pourquoi"), max: 1 },
       { id: "relier", idx: stepIdx("relier"), label: "Reconnaître les briques", pts: best("relier"), max: 5 },
-      { id: "manque", idx: stepIdx("manque"), label: "Quelle brique manque ?", pts: best("manque"), max: 3 },
+      { id: "manque", idx: stepIdx("manque"), label: "La brique oubliée", pts: best("manque"), max: 3 },
       { id: "construire", idx: stepIdx("construire"), label: "Construire le prompt", pts: best("construire"), max: 5 },
       { id: "verifier", idx: stepIdx("verifier"), label: "Vérifier le résultat", pts: best("verifier"), max: 1 },
       { id: "seul", idx: stepIdx("seul"), label: "À vous, sans aide", pts: best("seul"), max: 5 }
@@ -1591,10 +1602,10 @@
         a.seen = a.seen || {};
         var g = h('<div class="flip-grid"></div>');
         cards.forEach(function (c, k) {
-          var b = h('<button type="button" class="flip"><span class="flip-in"><span class="flip-f"><em></em><b></b><small>Retourner</small></span><span class="flip-b"><b></b><span class="flip-q"></span><span class="flip-ex"></span></span></span></button>');
+          var b = h('<button type="button" class="flip"><span class="flip-in"><span class="flip-f"><em></em><b></b><small>Cliquer pour retourner</small></span><span class="flip-b"><em></em><span class="flip-txt"><span class="flip-q"></span><span class="flip-ex"></span></span></span></span></button>');
+          b.querySelector(".flip-b em").textContent = c[1];
           b.querySelector(".flip-f em").textContent = c[0];
           b.querySelector(".flip-f b").textContent = c[1];
-          b.querySelector(".flip-b b").textContent = c[1];
           b.querySelector(".flip-q").textContent = c[2];
           b.querySelector(".flip-ex").textContent = c[3];
           if (a.seen[k]) b.classList.add("is-on");
@@ -1615,18 +1626,20 @@
       render: function (pv) {
         var a = act(id);
         a.ans = a.ans || {};
+        lead(pv, "Chacun de ces prompts a <b>oublié une des cinq briques</b>. Pour chaque prompt, cliquez sur la brique oubliée.");
         items.forEach(function (it, k) {
-          var box = h('<div class="wm"><p class="wm-p"></p><div class="wm-opts"></div></div>');
+          var box = h('<div class="wm"><span class="wm-n"></span><p class="wm-p"></p><p class="wm-q">Quelle brique a été oubliée ?</p><div class="wm-opts"></div></div>');
+          box.querySelector(".wm-n").textContent = "Prompt " + (k + 1) + " sur " + items.length;
           box.querySelector(".wm-p").textContent = "« " + it[0] + " »";
           BRICKS.forEach(function (b) {
-            var o = document.createElement("button");
-            o.type = "button";
-            o.textContent = b.name;
+            var o = h('<button type="button" class="qo"><span class="r"></span><span></span></button>');
+            o.lastChild.textContent = b.name;
             var picked = a.ans[k];
             if (picked !== undefined) {
               o.disabled = true;
-              if (b.k === it[1]) o.className = "is-good";
-              else if (picked === b.k) o.className = "is-bad";
+              if (b.k === it[1]) o.classList.add("is-right");
+              else if (picked === b.k) o.classList.add("is-wrong");
+              else o.classList.add("is-dim");
             }
             o.onclick = function () {
               a.ans[k] = b.k;
@@ -1637,8 +1650,8 @@
             box.querySelector(".wm-opts").appendChild(o);
           });
           if (a.ans[k] !== undefined) {
-            var ok = a.ans[k] === it[1];
-            box.appendChild(h('<p class="wm-fb ' + (ok ? "ok" : "ko") + '"></p>')).textContent = (ok ? "✓ " : "✗ Il manquait le " + BRICKS.filter(function (b) { return b.k === it[1]; })[0].name.toLowerCase() + ". ") + it[2];
+            var ok = a.ans[k] === it[1], name = BRICKS.filter(function (b) { return b.k === it[1]; })[0].name.toLowerCase();
+            box.appendChild(h('<p class="wm-fb ' + (ok ? "ok" : "ko") + '"></p>')).textContent = (ok ? "✓ Bien vu, c’est le " + name + ". " : "✗ C’était le " + name + ". ") + it[2];
           }
           pv.appendChild(box);
         });
@@ -1879,11 +1892,11 @@
   function speakWelcome() {
     var once = false;
     function end() { if (once) return; once = true; speaking = false; orbMood(); sayProgress(1); setTimeout(leaveWelcome, 900); }
-    var W = (window.COURSE_WORDS || {})["sp-bienvenue"];
+    var W = (window.COURSE_WORDS || {})["module-2/bienvenue"];
     if (S.sound && W) {
-      audio.src = "../assets/audio/sp-bienvenue.mp3";
-      audio.dataset.id = "sp-bienvenue";
-      loadEnvelope("sp-bienvenue");
+      audio.src = "../assets/audio/module-2/bienvenue.mp3";
+      audio.dataset.id = "module-2/bienvenue";
+      loadEnvelope("module-2/bienvenue");
       (function wl() { if (!inWelcome || audio.ended) return; sayReveal(W.filter(function (w) { return w[0] <= audio.currentTime + 0.04; }).length); requestAnimationFrame(wl); })();
       audio.addEventListener("ended", function onEnd() { audio.removeEventListener("ended", onEnd); if (inWelcome) end(); });
       var pl = audio.play();

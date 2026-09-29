@@ -534,3 +534,10 @@ svg { display: block; }
 .end-screen { position: fixed; inset: 0; z-index: 120; display: grid; place-items: center; background: rgba(250, 249, 245, .96); text-align: center; }
 .end-screen h2 { margin: 0 0 10px; font: 800 clamp(32px, 4vw, 48px)/1.05 var(--display); letter-spacing: -.035em; }
 .end-screen p { margin: 0; color: var(--muted); font-size: 17px; }
+* { scrollbar-width: thin; scrollbar-color: transparent transparent; }
+*:hover { scrollbar-color: rgba(31, 30, 28, .18) transparent; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: transparent; border-radius: 6px; }
+*:hover::-webkit-scrollbar-thumb { background: rgba(31, 30, 28, .18); }
+::-webkit-scrollbar-button { display: none; }
