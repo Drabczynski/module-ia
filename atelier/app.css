@@ -65,7 +65,9 @@ svg { display: block; }
 .btn-primary svg, .btn-line svg { width: 16px; height: 16px; }
 
 /* ---------- Accueil ---------- */
-.gate { position: fixed; inset: 0; z-index: 80; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; background: radial-gradient(ellipse 60% 50% at 50% 42%, #f5f3ff 0%, #fff 60%); transition: opacity .5s var(--ease); }
+.gate { position: fixed; inset: 0; z-index: 80; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; background: radial-gradient(ellipse 90% 40% at 50% 108%, #f3d3ea 0%, #f7e6f0 30%, rgba(255,255,255,0) 70%), #fff; transition: opacity .5s var(--ease); }
+.intro-frame { position: fixed; inset: 0; z-index: 85; width: 100%; height: 100%; border: 0; background: #faf9f5; transition: opacity .45s var(--ease); }
+.intro-frame.is-leaving { opacity: 0; pointer-events: none; }
 .gate.is-leaving { opacity: 0; pointer-events: none; }
 .gate-orb { margin-bottom: 26px; }
 .gate-k { margin: 0 0 8px; font-size: 13px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
@@ -93,8 +95,7 @@ svg { display: block; }
 .tb-mode:hover { background: #efeee9; }
 .tabs { display: none; }
 
-.split { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(330px, 35fr) minmax(560px, 65fr); gap: 8px; padding: 0 8px 8px 0; }
-.app.is-wide .split { grid-template-columns: minmax(300px, 28fr) minmax(560px, 72fr); }
+.split { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) clamp(420px, 36vw, 600px); gap: 8px; padding: 0 8px 8px 0; }
 
 /* ---------- Claude (gauche) ---------- */
 .claude { position: relative; min-height: 0; display: flex; color: var(--c-ink); }
@@ -193,7 +194,7 @@ svg { display: block; }
 
 
 .ph-actions { display: flex; align-items: center; gap: 2px; }
-.narr-orb { width: 44px; height: 44px; }
+.narr-orb { width: 52px; height: 52px; }
 .panel-foot { padding: 10px 14px; }
 .claude.is-practice .composer { border-color: #d6cfc1; box-shadow: 0 0 0 4px rgba(217, 119, 87, .14); }
 .claude.flash .composer { animation: flash 1.2s var(--ease); }

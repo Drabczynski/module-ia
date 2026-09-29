@@ -38,7 +38,6 @@
     "3.17": "Le score montre les activités réussies. Une tâche réelle doit aussi être contrôlée.",
     "3.18": "Gardez cette fiche pour votre prochaine utilisation."
   };
-  var INTRO_SAY = { audio: "ecran-01", text: "Bienvenue dans ce troisième module. Faites défiler l’introduction, puis cliquez sur Commencer." };
   var PRACTICE = { "3.08": 1, "3.10": 1, "3.13": 1 };
   var REPERES = [
     ["new", "Nouvelle conversation", "Démarre un échange vierge pour un nouveau sujet."],
@@ -72,8 +71,8 @@
 
   /* ---------- Orbe ---------- */
 
-  var gateOrb = SiriOrb($("[data-gate-orb]"), { size: 168, colorFrom: "#14b8d6", colorTo: "#c93be0", label: "Assistant pédagogique" });
-  var orb = SiriOrb($("[data-orb]"), { size: 44, colorFrom: "#14b8d6", colorTo: "#c93be0", label: "Assistant pédagogique" });
+  var gateOrb = SiriOrb($("[data-gate-orb]"), { size: 168, label: "Assistant pédagogique" });
+  var orb = SiriOrb($("[data-orb]"), { size: 52, label: "Assistant pédagogique" });
   var speaking = false, typingTimer = null;
   function orbMood() {
     if (speaking) return orb.setState("speaking");
@@ -211,10 +210,12 @@
     msg.src = "atelier";
     try { frame.contentWindow.postMessage(msg, location.origin && location.origin !== "null" ? location.origin : "*"); } catch (e) { /* cadre indisponible */ }
   }
+  var introFrame = $("[data-intro-frame]");
   window.addEventListener("message", function (e) {
+    if (introFrame && e.source === introFrame.contentWindow && e.data && e.data.src === "atelier-intro" && e.data.type === "intro-done") { closeIntro(); return; }
     if (e.source !== frame.contentWindow || !e.data) return;
     var d = e.data;
-    if (d.src === "atelier-intro" && d.type === "intro-done") { S.introDone = true; save(); frame.src = MODULE_URL; return; }
+
     if (d.src !== "module3") return;
     if (d.type === "screen") onScreen(d);
     if (d.type === "need-table") {
@@ -508,18 +509,24 @@
 
   /* ---------- Panneau : largeur, introduction, onglets ---------- */
 
-  $("[data-wide]").addEventListener("click", function () {
-    var on = !app.classList.contains("is-wide");
-    app.classList.toggle("is-wide", on);
-    this.setAttribute("aria-pressed", String(on));
-    this.textContent = on ? "Réduire" : "Agrandir";
-  });
-  $("[data-intro-open]").addEventListener("click", function () {
-    frame.src = INTRO_URL;
-    screen = null;
-    narrate(INTRO_SAY);
-    showTab("story");
-  });
+  function openIntro() {
+    stopVoice();
+    introFrame.classList.remove("is-leaving");
+    introFrame.hidden = false;
+    introFrame.src = INTRO_URL;
+  }
+  function closeIntro() {
+    // le clic sur « Commencer » dans l'introduction autorise aussi la voix ici
+    var first = !S.introDone;
+    S.introDone = true; save();
+    unlocked = true; unlockAudio();
+    introFrame.classList.add("is-leaving");
+    setTimeout(function () { introFrame.hidden = true; introFrame.removeAttribute("src"); }, 450);
+    app.hidden = false;
+    if (first || !frame.getAttribute("src")) frame.src = MODULE_URL + (first ? "#2" : "");   // 3.01 : l'introduction vient de la remplacer
+    else if (current) narrate(current);
+  }
+  $("[data-intro-open]").addEventListener("click", openIntro);
 
   function showTab(tab) {
     split.dataset.tab = tab;
@@ -541,14 +548,13 @@
     gate.classList.add("is-leaving");
     setTimeout(function () { gate.hidden = true; }, 500);
     app.hidden = false;
-    if (!S.introDone) { frame.src = INTRO_URL; narrate(INTRO_SAY); }
-    else frame.src = MODULE_URL;           // l'écran repris déclenche sa propre consigne
+    frame.src = MODULE_URL;               // l'écran repris déclenche sa propre consigne
   }
   $("[data-gate-start]").addEventListener("click", function () { start(true); });
   $("[data-gate-silent]").addEventListener("click", function () { start(false); });
-  if (S.introDone) $("[data-gate-start]").firstChild.textContent = "Reprendre";
-  gateOrb.setState("speaking");
-  setTimeout(function () { gateOrb.setState("idle"); }, 2600);
+  // première visite : l'introduction plein écran ; ensuite, un clic pour reprendre avec la voix
+  if (S.introDone) { $("[data-gate]").hidden = false; gateOrb.setState("speaking"); setTimeout(function () { gateOrb.setState("idle"); }, 2600); }
+  else openIntro();
 
   if (!conv()) newConv();
   renderConv();

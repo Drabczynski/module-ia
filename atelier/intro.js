@@ -7,7 +7,18 @@
     if (window.parent === window) { location.href = "index.html"; return; }
     window.parent.postMessage({ src: "atelier-intro", type: type }, location.origin && location.origin !== "null" ? location.origin : "*");
   }
-  $$("[data-start]").forEach(function (b) { b.addEventListener("click", function () { tell("intro-done"); }); });
+  $$("[data-start]").forEach(function (b) { b.addEventListener("click", function () { audio.pause(); tell("intro-done"); }); });
+  var audio = $("[data-audio]"), vo = $("[data-vo]");
+  vo.addEventListener("click", function () {
+    if (!audio.paused) { audio.pause(); return; }
+    if (!audio.getAttribute("src")) audio.src = "../assets/audio/ecran-01.mp3";
+    audio.play().catch(function () { /* lecture refusée */ });
+  });
+  ["play", "pause", "ended"].forEach(function (ev) { audio.addEventListener(ev, function () {
+    var on = !audio.paused;
+    vo.querySelector("use").setAttribute("href", on ? "#i-pause" : "#i-play");
+    vo.lastChild.textContent = on ? "Pause" : "Écouter";
+  }); });
   (function scrollIntro() {
     var intro = $("[data-intro]");
     var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;

@@ -35,12 +35,15 @@
 </svg>
 
 <!-- ============ Accueil : un clic pour lancer la voix (les navigateurs l'exigent) ============ -->
-<div class="gate" data-gate>
+<!-- introduction plein écran, comme à l'origine -->
+<iframe class="intro-frame" data-intro-frame title="Introduction du module" hidden></iframe>
+
+<div class="gate" data-gate hidden>
   <div class="gate-orb" data-gate-orb></div>
   <p class="gate-k">Module 3 · 25 minutes</p>
   <h1 class="gate-title">Prendre en main Claude</h1>
-  <p class="gate-lead">Votre assistant pédagogique vous guide à voix haute. Vous pratiquez directement dans Claude.</p>
-  <button type="button" class="btn-next btn-lg" data-gate-start>Démarrer<svg><use href="#i-arrow"/></svg></button>
+  <p class="gate-lead">Votre assistant pédagogique reprend là où vous vous étiez arrêté.</p>
+  <button type="button" class="btn-next btn-lg" data-gate-start>Reprendre<svg><use href="#i-arrow"/></svg></button>
   <button type="button" class="gate-silent" data-gate-silent>Démarrer sans le son</button>
 </div>
 
@@ -92,7 +95,6 @@
         <span class="ph-t">Formation · Prendre en main Claude</span>
         <div class="ph-actions">
           <button type="button" class="ph-menu" data-intro-open>Introduction</button>
-          <button type="button" class="ph-menu" data-wide aria-pressed="false">Agrandir</button>
         </div>
       </div>
       <div class="panel-body"><iframe data-frame title="Formation : Prendre en main Claude"></iframe></div>

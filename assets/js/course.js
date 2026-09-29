@@ -53,7 +53,7 @@
   var fitEls = stage.querySelectorAll("[data-fit]");
 
   function fit() {
-    var flow = window.innerWidth < FLOW_MAX;
+    var flow = EMBED || window.innerWidth < FLOW_MAX;       // dans l'atelier : toujours en colonne
     document.documentElement.classList.toggle("is-flow", flow);
     if (!flow) {
       stage.style.setProperty("--scale", Math.min(window.innerWidth / STAGE_W, window.innerHeight / STAGE_H));

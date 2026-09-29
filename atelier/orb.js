@@ -67,7 +67,7 @@
   function blendEnergy(w, t) { var e = 0; STATES.forEach(function (k) { if (w[k] > 0) e += w[k] * stateEnergy(k, t); }); return e; }
 
   var TABLE = {
-    idle: { speed: 0.3, warp: 0.52, ridge: 0.48, sharp: 0.9, zoom: 0.94, exposure: 0.68, mute: 0.4, glow: 0.12, rim: 0.55, hear: 0, voice: 0, fade: 1 },
+    idle: { speed: 0.3, warp: 0.52, ridge: 0.5, sharp: 0.9, zoom: 0.94, exposure: 0.9, mute: 0.12, glow: 0.12, rim: 0.55, hear: 0, voice: 0, fade: 1 },
     connecting: { speed: 0.5, warp: 0.78, ridge: 0.72, sharp: 0.95, zoom: 0.97, exposure: 0.84, mute: 0.16, glow: 0.22, rim: 0.7, hear: 0, voice: 0, fade: 1 },
     listening: { speed: 0.55, warp: 0.66, ridge: 0.7, sharp: 1, zoom: 1, exposure: 1.04, mute: 0, glow: 0.3, rim: 0.85, hear: 1, voice: 0, fade: 1 },
     thinking: { speed: 1, warp: 1, ridge: 1, sharp: 1, zoom: 1, exposure: 1, mute: 0, glow: 0.28, rim: 0.8, hear: 0, voice: 0, fade: 1 },
@@ -85,10 +85,10 @@
   function muteRgb(rgb, amt) { var l = rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722; return mixRgb(rgb, [l, l, l], amt); }
   function unit(rgb) { return [rgb[0] / 255, rgb[1] / 255, rgb[2] / 255]; }
   var WHITE = [255, 255, 255];
-  function palette(from, to, mute) {
+  function palette(from, to, mute, extra) {
     var a = muteRgb(from, mute), b = muteRgb(to, mute);
-    var c = muteRgb(rotateHue(mixRgb(from, to, 0.35), -38), mute);
-    var d = muteRgb(rotateHue(mixRgb(from, to, 0.65), 42), mute);
+    var c = muteRgb(extra ? extra[0] : rotateHue(mixRgb(from, to, 0.35), -38), mute);
+    var d = muteRgb(extra ? extra[1] : rotateHue(mixRgb(from, to, 0.65), 42), mute);
     var mid = mixRgb(a, b, 0.5);
     return { a: unit(a), b: unit(b), c: unit(c), d: unit(d), hi: unit(mixRgb(mid, WHITE, 0.82)), cool: unit(mixRgb(a, WHITE, 0.15)), warm: unit(mixRgb(d, WHITE, 0.1)), glow: unit(mid) };
   }
@@ -129,10 +129,11 @@
     "col+=mix(uColA,uColB,0.3+0.3*sin(ang+t*0.6))*optical*0.3*uHear*uLevel;float spec=exp(-dot(p-vec2(-0.38,0.46),p-vec2(-0.38,0.46))*22.0);",
     "col=clamp(col*max(uExposure,0.0),0.0,1.0);",
     // recomposition claire : l'intensité des bandes teinte une sphère presque blanche
-    "float peak=max(col.r,max(col.g,col.b));vec3 hue=col/max(peak,0.0001);float inten=smoothstep(0.04,0.9,peak);",
-    "vec3 base=mix(vec3(0.972,0.974,0.985),uHi,0.18);vec3 light=mix(base,hue*0.94,inten*0.92);",
-    "light=mix(light,mix(uColA,uColB,0.5+0.5*sin(ang*1.0+t*0.4))*0.82,0.55*smoothstep(0.9,1.0,pd));",
-    "light+=vec3(1.0)*spec*0.35*uRim;light=clamp(light,0.0,1.0);",
+    "float peak=max(col.r,max(col.g,col.b));vec3 hue=col/max(peak,0.0001);float inten=smoothstep(0.06,1.0,peak);inten=inten*inten*(3.0-2.0*inten)*(1.0-smoothstep(0.62,0.95,pd));",
+    "vec3 base=vec3(0.992,0.99,0.988);vec3 tint=mix(vec3(1.0),hue,0.92);vec3 light=mix(base,tint*0.99,inten*0.95);",
+    "float ring=smoothstep(0.955,0.992,pd)*(1.0-smoothstep(0.992,1.01,pd));vec3 iri=mix(uColA,uColD,0.5+0.5*dot(n,normalize(vec2(-0.7,0.7))));",
+    "light=mix(light,mix(iri,vec3(0.72),0.35),0.55*ring);light=mix(light,vec3(1.0),0.35*(1.0-smoothstep(0.0,0.75,pd))*(1.0-inten));",
+    "light=clamp(light,0.0,1.0);",
     "float ballA=1.0-smoothstep(0.99-SOFT,1.01+SOFT,pd);float outside=smoothstep(rad-SOFT,rad+SOFT,r);",
     "float h=clamp(glowAmt*exp(-max(r-rad,0.0)*11.0)*(1.0-smoothstep(rad,0.995,r))*outside*2.2,0.0,1.0);",
     "vec3 outc=light*ballA+glowCol*h*(1.0-ballA);float a=clamp(max(ballA,h),0.0,1.0);gl_FragColor=vec4(outc,a)*uFade;}"
@@ -143,7 +144,8 @@
   window.SiriOrb = function (host, opts) {
     opts = opts || {};
     var size = opts.size || 168, speed = opts.speed == null ? 1 : opts.speed;
-    var colorFrom = opts.colorFrom || "#14b8d6", colorTo = opts.colorTo || "#c93be0";
+    var colorFrom = opts.colorFrom || "#34e0f2", colorTo = opts.colorTo || "#ff7a59";
+    var extra = opts.colorFrom ? null : [hexToRgb("#ff8fb8"), hexToRgb("#ffb23f")];   // rose et ambre
     var state = opts.state || "idle", levelFn = null;
     var reduced = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -193,16 +195,16 @@
       return function (frame, sheet) {
         var p = blend(frame.weights, TABLE), level = clamp01(frame.level), voice = p.voice * level;
         var from = mixRgb(hexToRgb(colorFrom), errF, frame.weights.error), to = mixRgb(hexToRgb(colorTo), errT, frame.weights.error);
-        var pal = palette(from, to, clamp01(p.mute));
+        var pal = palette(from, to, clamp01(p.mute), extra && frame.weights.error < 0.5 ? extra : null);
         gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
         gl.uniform1f(loc.uPhase, sheet);
         gl.uniform1f(loc.uLevel, level);
         gl.uniform1f(loc.uWarp, p.warp * 3.2 + 0.85 * voice);
         gl.uniform1f(loc.uRidge, p.ridge + 0.35 * voice + 0.25 * p.hear * level);
-        gl.uniform1f(loc.uSharp, p.sharp * 2.2);
+        gl.uniform1f(loc.uSharp, p.sharp * 0.75);
         gl.uniform1f(loc.uZoom, p.zoom);
         gl.uniform1f(loc.uExposure, p.exposure * 1.9 * (1 + 0.12 * voice + 0.1 * p.hear * level));
-        gl.uniform1f(loc.uGlow, p.glow * 0.45);
+        gl.uniform1f(loc.uGlow, p.glow * 0.22);
         gl.uniform1f(loc.uRim, p.rim);
         gl.uniform1f(loc.uHear, p.hear);
         gl.uniform1f(loc.uFade, p.fade);

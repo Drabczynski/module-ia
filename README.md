@@ -66,17 +66,16 @@ Chaque écran règle la largeur du panneau photo via `--pw` ; la photo s'anime d
 
 ## Atelier (`atelier/`)
 
-Claude à gauche (simulation de l'interface, où l'apprenant écrit), la formation à droite dans un panneau blanc.
-
-- Le panneau affiche l'introduction à faire défiler (`atelier/intro.html`), puis le module d'origine
-  (`index.html?embed=1`) avec sa mise en forme : écrans de Léa, relier, cartes, quiz. En mode intégré,
-  la barre audio est masquée, les boutons d'action sont noirs et « Ouvrir Claude » renvoie à la conversation de gauche.
+- Première visite : l'introduction à faire défiler s'affiche en plein écran (`atelier/intro.html`), sans Claude.
+- Ensuite : Claude à gauche (simulation de l'interface, où l'apprenant écrit), la formation à droite dans un panneau
+  étroit. Le panneau affiche le module d'origine (`index.html?embed=1`) en colonne, sans photo : mêmes écrans,
+  mêmes cartes, « relier » avec ses liens, quiz, bilan. Boutons d'action noirs en bas à droite, « Retour » en haut.
 - 3.08 : « Reprendre le tableau de Claude » importe le dernier tableau de la conversation dans la grille.
 - 3.04 : pastilles orange cliquables sur l'interface de Claude.
-- Assistant pédagogique en forme d'orbe (`atelier/orb.js`, WebGL, adapté au fond blanc) : il lit la consigne de
-  chaque écran dès l'arrivée (MP3 enregistrés pour 3.01 à 3.04, synthèse vocale du navigateur ailleurs),
-  s'anime avec la voix, écoute quand l'apprenant écrit, réfléchit pendant la réponse de Claude.
-- Un premier clic (« Démarrer ») est nécessaire : les navigateurs bloquent le son sans action de l'utilisateur.
+- Assistant pédagogique en forme d'orbe (`atelier/orb.js`, WebGL, sphère laiteuse aux bandes pastel) : il lit la
+  consigne de chaque écran dès l'arrivée (MP3 pour 3.01 à 3.04, synthèse vocale du navigateur ailleurs), s'anime
+  avec la voix, écoute quand l'apprenant écrit, réfléchit pendant la réponse de Claude.
+- Au retour, un écran « Reprendre » : les navigateurs exigent un clic avant de lancer le son.
 
 ## Découvrir Claude (`decouvrir/`)
 

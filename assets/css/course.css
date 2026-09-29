@@ -2905,3 +2905,17 @@ html.is-flow, html.is-flow body { height: auto; overflow: auto; }
 }
 .is-embed .slide.is-active .cta.is-ready { animation-name: breathe-dark; }
 .is-embed .btn-import { margin: 0 0 14px; }
+.is-embed .photo { display: none !important; }
+.is-embed.is-flow .slides { padding-top: 44px; }
+.is-embed.is-flow .slide > .cta { position: sticky; bottom: 14px; z-index: 15; width: fit-content !important; min-width: 190px; margin: 8px 16px 16px auto; padding: 0 26px; height: 54px; font-size: 18px; }
+.is-embed.is-flow .back { background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.08); height: 44px; font-size: 15px; }
+/* relier : deux colonnes côte à côte, avec les liens tracés */
+.is-embed.is-flow .match { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; position: relative; }
+.is-embed.is-flow .match-lines { display: block; }
+.is-embed.is-flow .match-col { padding: 14px 12px; gap: 8px; }
+.is-embed.is-flow .match-col h3 { font-size: 16px; }
+.is-embed.is-flow .m-card { height: 48px; padding: 0 12px; gap: 8px; font-size: 14.5px; line-height: 1.2; }
+/* retour en haut à gauche, à la place de la marque */
+.is-embed.is-flow .brand { visibility: hidden; }
+.is-embed.is-flow .back { top: 8px; bottom: auto; left: 8px; height: 36px; padding: 0 12px 0 8px; font-size: 14px; box-shadow: none; background: rgba(255,255,255,.92); }
+.is-embed.is-flow .back svg { width: 18px; height: 18px; }
