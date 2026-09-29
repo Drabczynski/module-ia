@@ -384,6 +384,12 @@
   function countRe(list, t) { return list.filter(function (r) { return r.test(t); }).length; }
   function potPrecisions(t) { return countRe([RE_BUDGET, RE_PEOPLE, RE_PLACE], t); }
   function volcanPrecisions(t) { return countRe([RE_AGE, RE_TIME, RE_FORMAT], t); }
+  function peopleIn(t) {
+    var m = t.match(/\d+\s*(personnes|collègues|invités|participants|convives)|une douzaine|une dizaine|une quinzaine|une vingtaine/i);
+    if (m) return m[0];
+    m = t.match(/(?:on sera|nous serons|on est|nous sommes|pour)\s*(\d+)/i);
+    return m ? m[1] + " personnes" : "";
+  }
   function grab(re, t, fallback) { var m = t.match(re); return m ? m[0] : fallback; }
 
   function simulate(c) {
@@ -391,6 +397,8 @@
     var t = ((users[users.length - 1] || {}).content || "").toLowerCase();
     var all = users.map(function (m) { return m.content; }).join("\n").toLowerCase();
     if (/olá|obras|barulho/.test(all)) {
+      if (/en anglais/.test(t)) return "Here is the translation:\n\n“Hello! On Saturday morning I’m going to do some work in the apartment. Sorry for the noise. Thank you! — Rui, 3rd floor”";
+      if (/en espagnol/.test(t)) return "Aquí tienes la traducción:\n\n« ¡Hola! El sábado por la mañana voy a hacer obras en el piso. Perdón por el ruido. ¡Gracias! — Rui, 3.º »";
       if (/tradu|fran[çc]ais|que veut dire|signifie|comprends pas|explique/.test(t)) return "Voici la traduction :\n\n« Bonjour ! Samedi matin, je vais faire des travaux dans l’appartement. Je m’excuse pour le bruit. Merci ! — Rui, 3e étage »\n\nSi vous le souhaitez, je peux vous aider à lui répondre en portugais.";
       return "Ce message est écrit en portugais. Que souhaitez-vous que j’en fasse : le traduire, le résumer ou y répondre ?";
     }
@@ -400,10 +408,14 @@
     }
     if (/\bpot\b|départ|retraite|martine/.test(all)) {
       if (potPrecisions(all) >= 2) {
-        var budget = grab(/\d+\s*(€|euros?)/i, all, "votre budget"), people = grab(/\d+\s*(personnes|collègues|invités|participants|convives)|une douzaine|une dizaine|une quinzaine|une vingtaine/i, all, "") || ((all.match(/(?:on sera|nous serons|on est|nous sommes|pour)\s*(\d+)/) || [])[1] ? all.match(/(?:on sera|nous serons|on est|nous sommes|pour)\s*(\d+)/)[1] + " personnes" : "votre équipe"), place = grab(/la salle de pause|salle de réunion|la salle|la cafétéria|la terrasse|le jardin|le bureau|l’open.?space/i, all, "le lieu prévu");
+        var budget = grab(/\d+\s*(€|euros?)/i, t, "") || grab(/\d+\s*(€|euros?)/i, all, "votre budget"), people = peopleIn(t) || peopleIn(all) || "votre équipe", place = grab(/la salle de pause|salle de réunion|un restaurant|une salle louée|la salle|la cafétéria|la terrasse|le jardin|le bureau|l’open.?space/i, t, "") || grab(/la salle de pause|salle de réunion|la salle|la cafétéria|la terrasse|le jardin|le bureau|l’open.?space/i, all, "le lieu prévu");
         return "Avec **" + budget + "**, pour **" + people + "** et **" + place + "**, voici une proposition simple :\n\n- **Buffet partagé** : chacun apporte un plat salé ou sucré ; le budget paie les boissons et un beau gâteau.\n- **Cadeau** : un bon pour une activité qu’aime Martine, avec une carte signée par toute l’équipe.\n- **Souvenirs** : un diaporama de photos, projeté pendant le pot.\n- **Déroulé** : installation 15 minutes avant, puis un petit mot d’au revoir au bout d’une demi-heure.\n\nVoulez-vous un modèle de message pour inviter l’équipe ?";
       }
       return "Voici quelques idées pour un pot de départ :\n\n- Faire appel à un traiteur pour un buffet complet\n- Louer une salle avec un DJ ou un karaoké\n- Offrir un week-end ou un voyage en cadeau\n- Organiser un repas au restaurant\n- Préparer un diaporama de souvenirs";
+    }
+    if (/à quoi tu (peux|pourrais) me servir|à quoi sers.?tu|à quoi tu sers/.test(t)) {
+      var where = /à la maison/.test(t) ? "à la maison" : /études/.test(t) ? "dans vos études" : "au travail";
+      return "Avec plaisir ! " + where.charAt(0).toUpperCase() + where.slice(1) + ", je peux vous aider à :\n\n1. **Écrire** : un mail, un message, un courrier.\n2. **Apprendre** : vous expliquer une notion, simplement.\n3. **Résumer** : un long texte ou un compte rendu.\n4. **Trouver des idées** : un nom, un cadeau, une animation.\n5. **Traduire** : un message écrit dans une autre langue.\n6. **Analyser une image** : une photo, un graphique.\n7. **Programmer** : écrire ou corriger du code.\n\nVous m’écrivez comme à une personne, et vous pouvez toujours me demander d’ajuster. Par quoi voulez-vous commencer ?";
     }
     if (/fête des voisins|voisins/.test(t) && /nom/.test(t)) return "Voici 5 idées de noms pour votre fête des voisins :\n\n1. **La Rue en fête**\n2. **Voisins & Cie**\n3. **Le Grand Apéro de la rue**\n4. **Bonjour voisin !**\n5. **La Tablée du quartier**\n\nDites-moi l’ambiance souhaitée (familiale, festive, rétro…) et j’affinerai.";
     if (/net imposable/.test(t)) return "Le **net imposable**, c’est la part de votre salaire qui sert à calculer l’impôt sur le revenu.\n\nIl est un peu plus élevé que le **net à payer** (ce que vous recevez sur votre compte), car certaines sommes prélevées, comme une partie de la CSG et la CRDS, sont quand même comptées comme un revenu.\n\nEn bref : le net à payer, c’est ce que vous touchez ; le net imposable, c’est ce que l’administration fiscale prend en compte.";
@@ -483,7 +495,7 @@
   function paintComposer() {
     var on = composeOn && !busy;
     input.disabled = !on;
-    sendBtn.disabled = !on;
+    sendBtn.disabled = !on || !!(tpl && !tplDone());
     claudeEl.classList.toggle("is-locked", !composeOn);
     input.placeholder = composeOn ? "Répondre à Claude…" : "Le champ s’activera quand ce sera à vous d’écrire.";
   }
@@ -509,8 +521,10 @@
   function autosize() { input.style.height = "auto"; input.style.height = Math.min(input.scrollHeight, 220) + "px"; }
   composer.addEventListener("submit", function (e) {
     e.preventDefault();
-    var text = input.value.trim();
+    if (tpl && !tplDone()) { openSlot(null); return; }
+    var text = tpl ? tplText().trim() : input.value.trim();
     if (!text || busy || !composeOn) return;
+    clearTemplate();
     if (st().send) { input.value = ""; autosize(); if (composeTip) { composeTip.remove(); composeTip = null; } st().send(text); return; }
     var c = conv();
     if (!c || c.kind === "demo") c = newConv();
@@ -524,6 +538,86 @@
     hook("onSend", c, text);
     ask(c);
   });
+  /* demande à compléter : des cases orange à remplir au clic, dans le champ de Claude */
+  var tpl = null, tplPop = null;
+  function tplText() { return tpl.parts.map(function (p) { return typeof p === "string" ? p : (tpl.vals[p.k] || ""); }).join(""); }
+  function tplDone() { return tpl.parts.every(function (p) { return typeof p === "string" || tpl.vals[p.k]; }); }
+  function template(parts, tip) {
+    clearTemplate();
+    tpl = { parts: parts, vals: {} };
+    tpl.el = h('<div class="tpl" aria-label="Demande à compléter"></div>');
+    composer.insertBefore(tpl.el, input);
+    composer.classList.add("has-tpl");
+    compose(true, tip);
+    paintTemplate();
+    setTimeout(function () { if (tpl) openSlot(null); }, 700);
+  }
+  function paintTemplate() {
+    var box = tpl.el;
+    box.innerHTML = "";
+    tpl.parts.forEach(function (p) {
+      if (typeof p === "string") { box.appendChild(document.createTextNode(p)); return; }
+      var b = h('<button type="button" class="tpl-slot"></button>');
+      b.textContent = tpl.vals[p.k] || p.label;
+      b.dataset.k = p.k;
+      b.classList.toggle("is-set", !!tpl.vals[p.k]);
+      b.onclick = function (e) { e.preventDefault(); e.stopPropagation(); openSlot(p); };
+      box.appendChild(b);
+    });
+    input.value = tplDone() ? tplText() : "";
+    paintComposer();
+    hook("onTemplate", tpl.vals, tplDone());
+  }
+  function closeSlot() { if (composeTip) composeTip.style.visibility = ""; if (tplPop) { tplPop.remove(); tplPop = null; } $$(".tpl-slot.is-open").forEach(function (b) { b.classList.remove("is-open"); }); }
+  // ouvre la case demandée, ou la première case vide
+  function openSlot(p) {
+    closeSlot();
+    if (!tpl || !composeOn || busy) return;
+    if (!p) p = tpl.parts.filter(function (x) { return typeof x !== "string" && !tpl.vals[x.k]; })[0];
+    if (!p) return;
+    var b = tpl.el.querySelector('.tpl-slot[data-k="' + p.k + '"]');
+    if (!b) return;
+    b.classList.add("is-open");
+    if (composeTip) composeTip.style.visibility = "hidden";
+    tplPop = h('<div class="tpl-pop" role="dialog"><p class="tpl-t"></p><div class="tpl-opts"></div><form class="tpl-own"><input type="text" maxlength="60" placeholder="Ou écrivez votre réponse…"><button type="submit">OK</button></form></div>');
+    tplPop.querySelector(".tpl-t").textContent = p.label;
+    p.opts.forEach(function (o) {
+      var c = document.createElement("button");
+      c.type = "button";
+      c.textContent = o;
+      if (tpl.vals[p.k] === o) c.className = "is-on";
+      c.onclick = function () { choose(p, o); };
+      tplPop.querySelector(".tpl-opts").appendChild(c);
+    });
+    tplPop.querySelector("form").onsubmit = function (e) { e.preventDefault(); var v = this.querySelector("input").value.trim(); if (v) choose(p, v); };
+    document.body.appendChild(tplPop);
+    var r = b.getBoundingClientRect();
+    tplPop.style.left = Math.max(8, Math.min(window.innerWidth - tplPop.offsetWidth - 8, r.left + r.width / 2 - tplPop.offsetWidth / 2)) + "px";
+    tplPop.style.top = Math.max(8, r.top - tplPop.offsetHeight - 12) + "px";
+  }
+  function choose(p, v) {
+    tpl.vals[p.k] = v;
+    closeSlot();
+    paintTemplate();
+    var nextEmpty = tpl.parts.filter(function (x) { return typeof x !== "string" && !tpl.vals[x.k]; })[0];
+    if (nextEmpty) setTimeout(function () { openSlot(nextEmpty); }, 160);
+    else if (composeTip) composeTip.textContent = "Tout est prêt : envoyez (flèche ou Entrée)";
+  }
+  function clearTemplate() {
+    closeSlot();
+    if (tpl) tpl.el.remove();
+    tpl = null;
+    composer.classList.remove("has-tpl");
+    paintComposer();
+  }
+  document.addEventListener("pointerdown", function (e) { if (tplPop && !e.target.closest(".tpl-pop, .tpl-slot")) closeSlot(); });
+  document.addEventListener("keydown", function (e) {
+    if (!tpl || !composeOn || e.target.closest(".tpl-pop")) return;
+    if (e.target.closest("button, input, textarea, select, a") && !e.target.closest(".composer")) return;
+    if (e.key === "Escape") closeSlot();
+    if (e.key === "Enter" && tplDone() && !busy) { e.preventDefault(); composer.requestSubmit(); }
+  });
+
   input.addEventListener("keydown", function (e) {
     if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); composer.requestSubmit(); }
   });
@@ -613,6 +707,7 @@
     if (cur && cur.leave) cur.leave();
     clearTimeout(autoTimer);
     clearSpots();
+    clearTemplate();
     compose(false);
     attachBtn.disabled = true;
     P.i = Math.max(0, Math.min(STEPS.length - 1, i));
@@ -631,7 +726,7 @@
     var s = st();
     var y = bodyEl.scrollTop;
     bodyEl.innerHTML = "";
-    var pv = h('<div class="pv"></div>'), side = pv;
+    var pv = h('<div class="pv' + (s.compact ? " is-compact" : "") + '"></div>'), side = pv;
     if (s.portrait) {
       var hero = h('<div class="pv-hero"><img class="pv-hero-img" alt=""><div class="pv-hero-main"></div></div>');
       hero.firstChild.src = s.portrait[0];
@@ -910,11 +1005,11 @@
         var k = a.res.length;
         var stack = h('<div class="sw-stack"></div>');
         if (k < cards.length) {
-          for (var j = Math.min(cards.length - 1, k + 1); j >= k; j--) {
-            var c = h('<div class="sw-card"><span class="sw-n"></span><p></p><span class="sw-lab no">Faux</span><span class="sw-lab yes">Vrai</span></div>');
-            c.querySelector(".sw-n").textContent = "Carte " + (j + 1) + " sur " + cards.length;
-            c.querySelector("p").textContent = "« " + cards[j][0] + " »";
-            if (j === k) c.classList.add("is-top"); else c.classList.add("is-under");
+          for (var j = Math.min(cards.length - 1, k + 2); j >= k; j--) {
+            var c = h('<div class="sw-card"><div class="sw-head"><span class="sw-q">“</span><span class="sw-n"></span></div><p></p><div class="sw-foot"><span>← Faux</span><span>Vrai →</span></div><span class="sw-lab no"><svg><use href="#i-x"/></svg>Faux</span><span class="sw-lab yes"><svg><use href="#i-check"/></svg>Vrai</span></div>');
+            c.querySelector(".sw-n").textContent = (j + 1) + " / " + cards.length;
+            c.querySelector("p").textContent = cards[j][0];
+            if (j === k) c.classList.add("is-top"); else c.classList.add("is-under", "u" + (j - k));
             stack.appendChild(c);
           }
           pv.appendChild(stack);
@@ -928,6 +1023,8 @@
               top.style.transform = "translateX(" + dx + "px) rotate(" + dx / 18 + "deg)";
               top.querySelector(".yes").style.opacity = Math.max(0, Math.min(1, dx / 90));
               top.querySelector(".no").style.opacity = Math.max(0, Math.min(1, -dx / 90));
+              top.style.setProperty("--tint", dx > 0 ? "26, 154, 90" : "217, 54, 54");
+              top.style.setProperty("--ta", Math.min(.14, Math.abs(dx) / 900));
             }
             function up() {
               top.removeEventListener("pointermove", move);
@@ -936,6 +1033,7 @@
               if (Math.abs(dx) > 90) { decide(dx > 0); return; }
               top.style.transition = "transform .3s var(--ease)";
               top.style.transform = "";
+              top.style.setProperty("--ta", 0);
               $$(".sw-lab", top).forEach(function (l) { l.style.opacity = ""; });
             }
             top.addEventListener("pointermove", move);
@@ -1188,21 +1286,86 @@
   var NOTE_PT = "Olá! No sábado de manhã vou fazer obras no apartamento. Peço desculpa pelo barulho. Obrigado! — Rui, 3.º andar";
   var MAILS = [
     { id: "pot", from: "Karim Benali", time: "08:42", subj: "Pot de départ de Martine", prev: "Salut ! Martine part à la retraite…",
-      body: ["Salut !", "Martine part à la retraite : son pot est vendredi à 16 h. Tu peux t’en occuper ?", "On sera une douzaine. La cagnotte a récolté 60 €, et on peut utiliser la salle de pause.", "Merci, tu me sauves !", "Karim"] },
+      body: ["Salut !", "Martine {part à la retraite|raison} : son pot est {vendredi à 16 h|date}. Tu peux t’en occuper ?", "On sera {une douzaine|nb}. La cagnotte a récolté {60 €|budget}, et on peut utiliser {la salle de pause|lieu}.", "Merci, tu me sauves !", "Karim"] },
     { id: "rh", from: "Service RH", time: "08:15", subj: "Rappel : entretiens annuels", prev: "Les entretiens annuels commencent lundi…" },
     { id: "lettre", from: "La lettre du quartier", time: "Hier", subj: "Fête des voisins : on cherche un nom !", prev: "Cette année, la fête aura lieu le 6 juin…" }
   ];
+  var HUNT = { nb: "Le nombre de personnes", budget: "Le budget", lieu: "Le lieu" };
+  var HUNT_WHY = { raison: "C’est le contexte : il ne change pas les idées proposées.", date: "Utile pour le jour J, mais il ne change pas les idées proposées." };
   var ESSAIS = [
-    { k: "idees", icon: "bulb", title: "Trouver des idées", sub: "Un nom pour la fête des voisins", start: "Propose 5 noms pour la fête des voisins de notre rue. L’ambiance : " },
-    { k: "apprendre", icon: "eye", title: "Apprendre", sub: "Une ligne de votre fiche de paie", start: "Explique-moi simplement ce que veut dire « net imposable » sur une fiche de paie. Je suis " },
-    { k: "resumer", icon: "doc", title: "Résumer", sub: "Le compte rendu du conseil", start: "Résume en 3 points ce compte rendu : « Le conseil a voté la rénovation du gymnase, avec des travaux de mars à juin. La cantine passera au bio deux jours par semaine. Une réunion publique aura lieu le 14 à 18 h. » C’est pour " }
+    { k: "idees", icon: "bulb", title: "Trouver des idées", sub: "Un nom pour la fête des voisins",
+      tpl: ["Propose 5 noms pour la fête des voisins de notre rue. Ambiance : ", { k: "amb", label: "Ambiance", opts: ["familiale", "festive", "rétro", "chic"] }, "."] },
+    { k: "apprendre", icon: "eye", title: "Apprendre", sub: "Une ligne de votre fiche de paie",
+      tpl: ["Explique-moi simplement ce que veut dire « net imposable » sur une fiche de paie. Je suis ", { k: "niv", label: "Votre niveau", opts: ["débutant", "à l’aise avec les chiffres", "pressé : en 3 lignes"] }, "."] },
+    { k: "resumer", icon: "doc", title: "Résumer", sub: "Le compte rendu du conseil",
+      tpl: ["Résume en 3 points ce compte rendu, pour ", { k: "pub", label: "Pour qui ?", opts: ["mes voisins", "mon équipe", "un enfant de 10 ans"] }, " : « Le conseil a voté la rénovation du gymnase, avec des travaux de mars à juin. La cantine passera au bio deux jours par semaine. Une réunion publique aura lieu le 14 à 18 h. »"] }
   ];
   function isPotConv(c) { return c && c.kind === "pot"; }
+
+  // la boîte mail occupe le panneau ; le mail de Karim reste ouvert pendant tout le scénario
+  function mailApp(pv, mode) {
+    var a = act("mail"), hunt = act("manque");
+    hunt.found = hunt.found || {};
+    var box = h('<div class="inbox is-big"><div class="ib-list"><p class="ib-folder">Boîte de réception</p></div><div class="ib-read"></div></div>');
+    MAILS.forEach(function (m) {
+      var b = h('<button type="button" class="ib-item"><span class="ib-av"></span><span class="ib-tx"><span class="ib-top"><b></b><time></time></span><span class="ib-subj"></span><span class="ib-prev"></span></span></button>');
+      b.querySelector(".ib-av").textContent = m.from.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2);
+      b.querySelector("b").textContent = m.from;
+      b.querySelector("time").textContent = m.time;
+      b.querySelector(".ib-subj").textContent = m.subj;
+      b.querySelector(".ib-prev").textContent = m.prev;
+      if (a.open === m.id) b.classList.add("is-on");
+      if (a.opened && a.opened[m.id]) b.classList.add("is-read");
+      b.disabled = mode !== "open";
+      b.onclick = function () {
+        a.open = m.id; a.opened = a.opened || {}; a.opened[m.id] = true;
+        refresh();
+        hook("onMailOpen", m.id);
+      };
+      box.firstChild.appendChild(b);
+    });
+    var cur = MAILS.filter(function (m) { return m.id === a.open; })[0], rd = box.lastChild;
+    if (!cur) rd.appendChild(h('<div class="ib-empty"><svg><use href="#i-mail"/></svg><p>Cliquez sur un mail, à gauche, pour le lire.</p></div>'));
+    else if (!cur.body) { var e = h('<div class="ib-empty"><svg><use href="#i-mail"/></svg><p></p></div>'); e.lastChild.textContent = "« " + cur.subj + " » : ce n’est pas celui-là. Cherchez le mail du pot de départ."; rd.appendChild(e); }
+    else {
+      rd.appendChild(h('<div class="ib-h"><b></b><span></span></div>'));
+      rd.querySelector(".ib-h b").textContent = cur.subj;
+      rd.querySelector(".ib-h span").textContent = "De : " + cur.from + " · À : vous · " + cur.time;
+      cur.body.forEach(function (line) {
+        var p = document.createElement("p");
+        line.split(/(\{[^}]+\})/).forEach(function (part) {
+          var m = part.match(/^\{([^|]+)\|([a-z]+)\}$/);
+          if (!m) { p.appendChild(document.createTextNode(part)); return; }
+          var sp = h('<span class="mk"></span>');
+          sp.textContent = m[1];
+          if (HUNT[m[2]] && hunt.found[m[2]] && mode !== "open") sp.classList.add("is-found");
+          if (mode === "hunt" && !hunt.done) {
+            sp.classList.add("is-hunt");
+            sp.setAttribute("role", "button");
+            sp.tabIndex = 0;
+            sp.onclick = function () {
+              if (HUNT[m[2]]) { hunt.found[m[2]] = true; hunt.why = null; }
+              else { hunt.miss = (hunt.miss || 0) + 1; hunt.why = "« " + m[1] + " » : " + HUNT_WHY[m[2]]; }
+              if (Object.keys(HUNT).every(function (k) { return hunt.found[k]; })) {
+                hunt.done = true;
+                hunt.best = (hunt.miss || 0) <= 1 ? 1 : 0;
+                autoNext(4200);
+              }
+              refresh();
+            };
+          }
+          p.appendChild(sp);
+        });
+        rd.appendChild(p);
+      });
+    }
+    pv.appendChild(box);
+  }
 
   /* ---------- Les étapes ---------- */
 
   var STEPS = [
-    /* 1.2 · Dire bonjour ------------------------------------------------------ */
+    /* Dire bonjour ------------------------------------------------------------- */
     {
       id: "bonjour", seq: 0, pill: "À vous d’écrire", icon: "pencil", title: "Dites bonjour à Claude",
       say: "Voici Claude, à gauche. Son champ de saisie est maintenant actif. Écrivez-lui un premier message, par exemple : bonjour, qui es-tu ? Puis envoyez-le.",
@@ -1225,11 +1388,10 @@
       onAnswer: function () { act("bonjour").done = true; refresh(); autoNext(5200); }
     },
 
-    /* 1.3 · Vrai ou faux (swipe) ------------------------------------------------ */
+    /* Vrai ou faux (cartes à glisser) ------------------------------------------- */
     extend({
       id: "vraifaux", seq: 0, pill: "Glissez les cartes · 3 points", icon: "hand", title: "Vrai ou faux ?",
-      say: "Trois idées reçues sur Claude. Glissez la carte vers la droite si c’est vrai, vers la gauche si c’est faux. Vous pouvez aussi utiliser les boutons.",
-      render: null
+      say: "Trois idées reçues sur Claude. Glissez la carte vers la droite si c’est vrai, vers la gauche si c’est faux. Vous pouvez aussi utiliser les boutons."
     }, (function () {
       var w = swipe("vraifaux", [
         ["Claude connaît déjà mon entreprise et mes dossiers.", false, "Il ne sait que ce que vous lui écrivez ou lui donnez dans la conversation."],
@@ -1241,33 +1403,51 @@
       return w;
     })()),
 
-    /* 1.4 · Où le trouver (glisser-déposer) ------------------------------------ */
-    extend({
-      id: "acces", seq: 0, pill: "Glissez-déposez · 3 points", icon: "hand", title: "Où trouver Claude ?",
-      say: "Claude s’utilise de trois façons : dans le navigateur, avec l’application pour ordinateur, ou avec l’application mobile. Glissez chaque situation dans la bonne zone."
-    }, (function () {
-      var w = dragDrop("acces", {
-        items: [
-          ["Dans le train, sur votre téléphone", "mobile"],
-          ["Sur l’ordinateur d’un collègue, sans rien installer", "web"],
-          ["Dans sa propre fenêtre, sur votre Mac ou votre PC", "desktop"]
-        ],
-        buckets: [
-          ["web", "Navigateur", "Le site claude.ai", "globe"],
-          ["desktop", "Application ordinateur", "Mac et Windows", "laptop"],
-          ["mobile", "Application mobile", "iOS et Android", "phone"]
-        ],
-        after: function (pv, a) { if (a.done) fb(pv, "", "Pour utiliser Claude, il faut avoir <b>au moins 18 ans</b> et se trouver dans une région où le service est proposé."); }
-      });
-      var r = w.render;
-      w.render = function (pv) { lead(pv, "Glissez chaque carte dans la bonne zone. Vous pouvez aussi cliquer sur une carte, puis sur une zone."); r(pv); };
-      return w;
-    })()),
+    /* Où trouver Claude (illustration) ------------------------------------------ */
+    {
+      id: "acces", seq: 0, pill: "Bon à savoir", icon: "eye", title: "Où trouver Claude ?",
+      say: "Claude s’utilise de trois façons : dans le navigateur, sur le site claude.ai, avec l’application pour ordinateur, sur Mac et Windows, ou avec l’application mobile, sur iOS et Android. Il faut avoir au moins dix-huit ans.",
+      render: function (pv) {
+        lead(pv, "Même Claude, trois portes d’entrée. Vos conversations vous suivent de l’une à l’autre.");
+        pv.appendChild(h('<figure class="devices" aria-label="Claude dans le navigateur, sur ordinateur et sur mobile">' +
+          '<div class="dev dev-web"><div class="dv-bar"><i></i><i></i><i></i><span>claude.ai</span></div><div class="dv-screen">' + MINI + '</div><figcaption><b>Navigateur</b>Le site claude.ai</figcaption></div>' +
+          '<div class="dev dev-laptop"><div class="dv-lid"><div class="dv-screen">' + MINI + '</div></div><div class="dv-base"></div><figcaption><b>Application ordinateur</b>Mac et Windows</figcaption></div>' +
+          '<div class="dev dev-phone"><div class="dv-screen">' + MINI + '</div><figcaption><b>Application mobile</b>iOS et Android</figcaption></div>' +
+          "</figure>"));
+        fb(pv, "", "Pour utiliser Claude, il faut avoir <b>au moins 18 ans</b> et se trouver dans une région où le service est proposé.");
+      }
+    },
 
-    /* 2.1 · Sept usages (relier) ------------------------------------------------ */
+    /* Demander à Claude à quoi il sert ----------------------------------------- */
+    {
+      id: "demander", seq: 1, pill: "À vous d’écrire", icon: "pencil", title: "Demandez-lui à quoi il sert",
+      say: "Le mieux placé pour vous dire à quoi sert Claude, c’est Claude. La demande est prête dans son champ : cliquez sur les cases orange pour la compléter, puis envoyez.",
+      render: function (pv) {
+        var a = act("demander");
+        lead(pv, "Le mieux placé pour vous le dire, c’est Claude. La demande est prête dans son champ : <b>cliquez sur les cases orange</b> pour la compléter, puis envoyez.");
+        stepsList(pv, [
+          { html: "Complétez les <b>cases orange</b>, dans le champ de Claude." },
+          { html: "Envoyez la demande." },
+          { html: "Lisez la réponse : Claude liste ce qu’il sait faire." }
+        ], a.done ? 3 : a.sent ? 2 : a.filled ? 1 : 0);
+        if (a.done) fb(pv, "ok", "<b>Voilà ses usages :</b> écrire, apprendre, résumer, trouver des idées, traduire, analyser une image, programmer. Gardez-les en tête pour l’activité suivante.");
+      },
+      ready: function () { return !!act("demander").done; },
+      enter: function () {
+        var a = act("demander");
+        if (a.done) return;
+        newConv(); renderConv();
+        template(["Explique-moi en quelques lignes à quoi tu peux me servir ", { k: "ctx", label: "Où ?", opts: ["au travail", "à la maison", "dans mes études"] }, ". Je suis ", { k: "niv", label: "Votre niveau", opts: ["débutant", "un peu curieux", "déjà à l’aise"] }, "."], "Cliquez sur les cases orange, puis envoyez");
+      },
+      onTemplate: function (vals, done) { var a = act("demander"); if (done && !a.filled) { a.filled = true; refresh(); } },
+      onSend: function () { act("demander").sent = true; compose(false); refresh(); },
+      onAnswer: function () { act("demander").done = true; refresh(); autoNext(7000); }
+    },
+
+    /* Sept usages (relier) ------------------------------------------------------ */
     extend({
-      id: "usages", seq: 1, pill: "Reliez · 5 points", icon: "clock", title: "À quoi sert Claude ?",
-      say: "L’aide de Claude cite sept usages : écrire, apprendre, résumer, trouver des idées, traduire, analyser une image, et programmer. Reliez chaque situation de la vie courante à l’usage qui convient."
+      id: "usages", seq: 1, pill: "Reliez · 5 points", icon: "clock", title: "Le bon usage",
+      say: "Claude vient de vous donner ses usages. À vous : reliez chaque situation de la vie courante à l’usage qui convient."
     }, (function () {
       var COLORS = { tra: "#db2777", res: "#0d9488", ide: "#d97706", app: "#2563eb", img: "#7c3aed" };
       var w = relier("usages", {
@@ -1283,25 +1463,17 @@
         colors: COLORS
       });
       var r = w.render;
-      w.render = function (pv) {
-        var u = h('<div class="usages"></div>');
-        [["pencil", "Écrire"], ["eye", "Apprendre"], ["doc", "Résumer"], ["bulb", "Trouver des idées"], ["globe", "Traduire"], ["image", "Analyser une image"], ["code", "Programmer"]].forEach(function (x) {
-          u.appendChild(h('<span class="usage"><svg><use href="#i-' + x[0] + '"/></svg>' + x[1] + "</span>"));
-        });
-        pv.appendChild(u);
-        lead(pv, "Cliquez sur une situation, puis sur l’usage qui convient.");
-        r(pv);
-      };
+      w.render = function (pv) { lead(pv, "Claude vient de vous répondre, à gauche. <b>Cliquez sur une situation, puis sur l’usage</b> qui convient."); r(pv); };
       return w;
     })()),
 
-    /* 2.2 · Essayer pour de vrai ------------------------------------------------ */
+    /* Essayer pour de vrai ------------------------------------------------------ */
     {
       id: "essayer", seq: 1, pill: "À vous d’écrire", icon: "pencil", title: "Essayez un usage",
-      say: "À vous d’essayer. Choisissez une situation. Le début de la demande se place dans le champ de Claude : terminez la phrase avec vos mots, puis envoyez.",
+      say: "À vous d’essayer. Choisissez une situation. La demande apparaît dans le champ de Claude : complétez la case orange, puis envoyez.",
       render: function (pv) {
         var a = act("essayer");
-        lead(pv, "Choisissez une situation. Le début de la demande se place dans Claude : <b>terminez la phrase</b> avec vos mots, puis envoyez.");
+        lead(pv, "Choisissez une situation. La demande apparaît dans Claude : <b>complétez la case orange</b>, puis envoyez.");
         var g = h('<div class="sit-grid"></div>');
         ESSAIS.forEach(function (e) {
           var b = h('<button type="button" class="sit"><span class="ic"><svg><use href="#i-' + e.icon + '"/></svg></span><b></b><small></small></button>');
@@ -1311,16 +1483,13 @@
           b.disabled = !!a.sent;
           b.onclick = function () {
             a.pick = e.k;
-            newConv();
-            renderConv();
-            compose(true, "Terminez la phrase, puis envoyez");
-            insert(e.start);
+            newConv(); renderConv();
+            template(e.tpl, "Complétez la case orange, puis envoyez");
             refresh();
           };
           g.appendChild(b);
         });
         pv.appendChild(g);
-        if (a.pick && !a.sent) fb(pv, "", "Le début est dans le champ de Claude. Complétez-le (par exemple : « familiale et festive »), puis envoyez.");
         if (a.done) fb(pv, "ok", "<b>C’est aussi simple que ça.</b> Une situation réelle, une phrase claire : Claude s’occupe du reste. Pensez à relire sa réponse.");
       },
       ready: function () { return !!act("essayer").done; },
@@ -1328,7 +1497,7 @@
       onAnswer: function () { act("essayer").done = true; refresh(); autoNext(6000); }
     },
 
-    /* 3.1 · C'est quoi, un prompt (ordre) --------------------------------------- */
+    /* C'est quoi, un prompt (ordre) --------------------------------------------- */
     extend({
       id: "prompt", seq: 2, pill: "Classez · 1 point", icon: "clock", title: "C’est quoi, un prompt ?",
       say: "Un prompt, c’est simplement ce que vous écrivez à Claude. Il peut être une question toute simple, ou une demande très détaillée. Classez ces trois prompts, du plus simple au plus détaillé."
@@ -1343,174 +1512,138 @@
       return w;
     })()),
 
-    /* 3.2 · La situation : la boîte mail ---------------------------------------- */
+    /* Le mail de Karim, puis commencer simple ----------------------------------- */
     {
-      id: "mail", seq: 2, pill: "La situation", icon: "eye", title: "Un mail ce matin",
+      id: "mail", seq: 2, pill: "La situation", icon: "mail", title: "Le mail de Karim", compact: true,
       say: "Place à une vraie situation. Vous avez trois nouveaux mails. Ouvrez celui qui parle du pot de départ de Martine.",
       render: function (pv) {
         var a = act("mail");
-        lead(pv, "Trois nouveaux mails ce matin. <b>Ouvrez celui du pot de départ.</b>");
-        var box = h('<div class="inbox"><div class="ib-list"></div><div class="ib-read"></div></div>');
-        MAILS.forEach(function (m) {
-          var b = h('<button type="button" class="ib-item"><span class="ib-av"></span><span class="ib-tx"><span class="ib-top"><b></b><time></time></span><span class="ib-subj"></span><span class="ib-prev"></span></span></button>');
-          b.querySelector(".ib-av").textContent = m.from.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2);
-          b.querySelector("b").textContent = m.from;
-          b.querySelector("time").textContent = m.time;
-          b.querySelector(".ib-subj").textContent = m.subj;
-          b.querySelector(".ib-prev").textContent = m.prev;
-          if (a.open === m.id) b.classList.add("is-on");
-          if (a.opened && a.opened[m.id]) b.classList.add("is-read");
-          b.onclick = function () { a.open = m.id; a.opened = a.opened || {}; a.opened[m.id] = true; refresh(); };
-          box.firstChild.appendChild(b);
-        });
-        var cur = MAILS.filter(function (m) { return m.id === a.open; })[0];
-        var rd = box.lastChild;
-        if (!cur) rd.appendChild(h('<p class="ib-empty">Sélectionnez un mail pour le lire.</p>'));
-        else if (!cur.body) { rd.appendChild(h('<p class="ib-empty"></p>')); rd.firstChild.textContent = "« " + cur.subj + " » : ce n’est pas celui-là. Cherchez le mail du pot de départ."; }
-        else {
-          rd.appendChild(h('<div class="ib-h"><b></b><span></span></div>'));
-          rd.querySelector(".ib-h b").textContent = cur.subj;
-          rd.querySelector(".ib-h span").textContent = "De : " + cur.from + " · " + cur.time;
-          cur.body.forEach(function (p) { var e = document.createElement("p"); e.textContent = p; rd.appendChild(e); });
-        }
-        pv.appendChild(box);
-        if (a.open === "pot") fb(pv, "", "Votre mission : organiser ce pot avec l’aide de Claude. On commence simple.");
-      },
-      ready: function () { return act("mail").open === "pot"; }
-    },
-
-    /* 3.3 · Commencer simple --------------------------------------------------- */
-    {
-      id: "simple", seq: 2, pill: "À vous d’écrire", icon: "pencil", title: "Commencer simple",
-      say: "Premier conseil de l’aide de Claude : commencer simple. Écrivez une demande courte sur le pot de départ, sans chercher la perfection. Par exemple : donne-moi des idées pour un pot de départ.",
-      render: function (pv) {
-        var a = act("simple");
-        lead(pv, "Premier conseil : <b>commencer simple</b>. Une phrase courte suffit pour démarrer.");
-        pv.appendChild(h('<div class="pv-card is-peach"><span class="pv-tag"><i><svg><use href="#i-bulb"/></svg></i>Exemple</span><p>« Donne-moi des idées pour un pot de départ. »</p></div>'));
+        var phase = a.done ? 2 : a.open === "pot" ? 1 : 0;
+        pv.appendChild(h('<p class="pv-task"></p>')).innerHTML = phase === 0 ? "<b>1.</b> Ouvrez le mail du pot de départ." : phase === 1 ? "<b>2.</b> Commencez simple : dans Claude, demandez <b>des idées pour ce pot</b>, en une phrase courte." : "<b>✓</b> Claude a répondu. Ses idées sont-elles adaptées à ce pot ?";
+        mailApp(pv, phase === 0 ? "open" : "show");
         if (a.off) fb(pv, "ko", "Parlez à Claude du <b>pot de départ</b> : c’est notre situation.");
         if (a.long) fb(pv, "", "Votre demande est déjà détaillée : très bien ! On va quand même voir ce que donne une demande courte.");
-        if (a.done) fb(pv, "ok", "<b>C’est parti.</b> Regardez la réponse de Claude, à gauche : est-elle adaptée à votre pot ?");
       },
-      ready: function () { return !!act("simple").done; },
-      enter: function () {
-        var a = act("simple");
-        if (a.done) return;
-        var c = newConv("pot"); c.title = "Pot de départ";
-        renderConv();
-        compose(true, "Une demande courte sur le pot de départ");
+      ready: function () { return !!act("mail").done; },
+      enter: function () { var a = act("mail"); if (a.open === "pot" && !a.done) startSimple(); },
+      onMailOpen: function (id) {
+        var a = act("mail");
+        if (id !== "pot" || a.started) return;
+        a.started = true;
+        narrate({ text: "C’est bien celui-là. Premier conseil de l’aide de Claude : commencer simple. Dans Claude, demandez des idées pour ce pot, en une phrase courte. Par exemple : donne-moi des idées pour un pot de départ." });
+        startSimple();
       },
       onSend: function (c, text) {
-        var a = act("simple");
-        c.kind = "pot";
+        var a = act("mail");
+        c.kind = "pot"; c.title = "Pot de départ";
         a.off = !/\bpot\b|départ|retraite|martine|fête|au revoir/i.test(text);
         a.long = text.split(/\s+/).length > 25;
+        compose(false);
         refresh();
       },
       onAnswer: function (c) {
-        var a = act("simple");
+        var a = act("mail");
         if (a.off) { compose(true, "Parlez du pot de départ"); refresh(); return; }
         a.done = true;
         P.potConv = c.id;
-        compose(false);
+        P.potFirst = (c.messages.filter(function (m) { return m.role === "user"; })[0] || {}).content;
         refresh();
         autoNext(5200);
       }
     },
 
-    /* 3.4 · Qu'est-ce qui manque (étiquettes) ---------------------------------- */
-    extend({
-      id: "manque", seq: 2, pill: "Cochez · 1 point", icon: "clock", title: "Qu’est-ce qui manque ?",
-      say: "Claude propose un traiteur, un DJ, un voyage… Ce n’est pas adapté, car il ne connaît pas votre situation. Cochez les informations qu’il ne pouvait pas deviner, et qui changent tout."
-    }, (function () {
-      var w = pickMany("manque", [
-        ["Le budget : 60 € de cagnotte", true],
-        ["Le nombre de personnes : une douzaine", true],
-        ["Le lieu : la salle de pause", true],
-        ["La couleur préférée de Martine", false],
-        ["La météo de vendredi", false]
-      ], "<b>Réussi :</b> budget, nombre de personnes et lieu. Ces trois informations sont dans le mail de Karim, mais Claude ne peut pas les deviner.");
-      var r = w.render;
-      w.render = function (pv) { lead(pv, "La réponse de Claude est générique : <b>traiteur, DJ, voyage…</b> Cochez les informations qu’il ne pouvait pas deviner, et qui changent vraiment la réponse."); r(pv); };
-      w.enter = function () { if (P.potConv) openConv(P.potConv); };
-      return w;
-    })()),
-
-    /* 3.5 · Préciser et relancer ------------------------------------------------ */
+    /* Qu'est-ce qui manque : repérer dans le mail --------------------------------- */
     {
-      id: "relance", seq: 2, pill: "À vous d’écrire · 2 points", icon: "pencil", title: "Préciser, puis relancer",
-      say: "Deuxième conseil : être précis, puis affiner. Pas besoin de tout recommencer : dans la même conversation, écrivez une relance avec au moins deux précisions. Le budget, le nombre de personnes ou le lieu.",
+      id: "manque", seq: 2, pill: "Repérez · 1 point", icon: "eye", title: "Qu’est-ce qui manque ?", compact: true,
+      say: "Claude propose un traiteur, un DJ, un voyage… Ce n’est pas adapté : il ne connaît pas votre situation. Dans le mail de Karim, cliquez sur les trois informations qui changeraient ses idées.",
+      render: function (pv) {
+        var a = act("manque");
+        a.found = a.found || {};
+        var n = Object.keys(HUNT).filter(function (k) { return a.found[k]; }).length;
+        pv.appendChild(h('<p class="pv-task"></p>')).innerHTML = a.done ? "<b>✓</b> Les trois informations sont repérées." : "Claude a proposé <b>traiteur, DJ, voyage</b>… Dans le mail, <b>cliquez sur les 3 informations</b> qui changeraient ses idées. <span class='pv-count'>" + n + " / 3</span>";
+        mailApp(pv, "hunt");
+        if (a.why) fb(pv, "ko", esc(a.why));
+        if (a.done) fb(pv, "ok", "<b>Bien vu :</b> le budget, le nombre de personnes et le lieu sont dans le mail, mais Claude ne pouvait pas les deviner.");
+      },
+      ready: function () { return !!act("manque").done; },
+      enter: function () { if (P.potConv) openConv(P.potConv); }
+    },
+
+    /* Préciser et relancer -------------------------------------------------------- */
+    {
+      id: "relance", seq: 2, pill: "À vous d’écrire · 2 points", icon: "pencil", title: "Préciser, puis relancer", compact: true,
+      say: "Deuxième conseil : être précis, puis affiner. Pas besoin de tout recommencer. Dans la même conversation, complétez les cases orange avec les informations du mail, puis envoyez.",
       render: function (pv) {
         var a = act("relance");
-        a.subs = a.subs || [];
-        lead(pv, "Dans <b>la même conversation</b>, donnez à Claude au moins <b>deux précisions</b> du mail de Karim.");
-        var chips = h('<div class="need-chips"></div>');
-        [["€", "Budget : 60 €", RE_BUDGET], ["👥", "12 personnes", RE_PEOPLE], ["📍", "Salle de pause", RE_PLACE]].forEach(function (x) {
-          var on = a.last && x[2].test(a.last);
-          chips.appendChild(h('<span class="need' + (on ? " is-on" : "") + '"><i>' + x[0] + "</i>" + x[1] + "</span>"));
-        });
-        pv.appendChild(chips);
-        pv.appendChild(h('<p class="pv-hint">Exemple : « Le budget est de 60 €, on sera 12, dans la salle de pause. »</p>'));
-        if (a.subs.length && !a.done) fb(pv, "ko", "<b>Encore un effort :</b> " + a.subs[a.subs.length - 1] + " précision" + (a.subs[a.subs.length - 1] > 1 ? "s" : "") + " sur 2. Ajoutez le budget, le nombre de personnes ou le lieu, puis renvoyez.");
-        if (a.done) fb(pv, "ok", "<b>Réussi :</b> avec vos précisions, la réponse de Claude colle à votre situation. Vous avez affiné, sans recommencer.");
-        if (a.shown) fb(pv, "", "<b>Correction :</b> « Le budget est de 60 €, on sera 12, dans la salle de pause. »");
-        if (!a.done) pv.appendChild(h('<p class="pv-tries">2 points · essai ' + Math.min(a.subs.length + 1, 3) + " sur 3</p>"));
+        pv.appendChild(h('<p class="pv-task"></p>')).innerHTML = a.done ? "<b>✓</b> Claude a adapté ses idées à votre situation." : "Dans <b>la même conversation</b>, complétez les <b>cases orange</b> avec les informations du mail, puis envoyez.";
+        mailApp(pv, "show");
+        if (a.wrong && !a.done) fb(pv, "ko", "<b>À vérifier :</b> " + esc(a.wrong) + " ne correspond pas au mail de Karim. Corrigez la case, puis renvoyez.");
+        if (a.done) fb(pv, "ok", "<b>Réussi :</b> avec vos précisions, la réponse colle à votre situation. Vous avez affiné, sans recommencer.");
       },
-      primary: function () {
-        var a = act("relance");
-        if (a.done || a.shown) return { label: "Continuer", run: next, success: a.best === 2 };
-        return { label: "Continuer", disabled: true, run: next };
-      },
+      ready: function () { return !!act("relance").done; },
       enter: function () {
         var a = act("relance");
         if (P.potConv) openConv(P.potConv);
-        if (!a.done && !a.shown) compose(true, "Ajoutez deux précisions, puis envoyez");
+        if (!a.done) offerRelance();
       },
-      onSend: function (c, text) { var a = act("relance"); a.last = text; compose(false); refresh(); },
+      onSend: function (c, text) { act("relance").last = text; compose(false); refresh(); },
       onAnswer: function (c) {
-        var a = act("relance");
-        a.subs = a.subs || [];
-        var n = potPrecisions(a.last || "");
-        if (n >= 2) {
-          a.done = true;
-          a.best = a.subs.length === 0 ? 2 : 1;
+        var a = act("relance"), v = a.vals || {};
+        var bad = [];
+        if (v.budget !== "60 €") bad.push("le budget");
+        if (v.nb !== "12") bad.push("le nombre de personnes");
+        if (v.lieu !== "la salle de pause") bad.push("le lieu");
+        a.tries = (a.tries || 0) + 1;
+        if (!bad.length) {
+          a.done = true; a.wrong = null;
+          a.best = a.tries === 1 ? 2 : 1;
           P.potBetter = c.id;
           refresh();
-          toast("Deux précisions : réponse adaptée");
+          toast("Réponse adaptée à votre situation");
           autoNext(5200);
           return;
         }
-        a.subs.push(n);
-        if (a.subs.length >= 3) { a.shown = true; a.best = 0; refresh(); return; }
+        a.wrong = bad.join(", ");
         refresh();
-        compose(true, "Ajoutez une précision, puis renvoyez");
-      }
+        offerRelance();
+      },
+      onTemplate: function (vals) { act("relance").vals = JSON.parse(JSON.stringify(vals)); }
     },
 
-    /* 3.6 · Avant / après ------------------------------------------------------- */
+    /* Avant / après --------------------------------------------------------------- */
     {
       id: "avantapres", seq: 2, pill: "À vous de choisir · 1 point", icon: "trophy", title: "Avant, après",
-      say: "Voici vos deux réponses, côte à côte. Laquelle utiliseriez-vous vraiment pour le pot de Martine ? Cliquez dessus.",
+      say: "Comparons vos deux demandes. Pour le pot de Martine, quelle réponse de Claude pouvez-vous utiliser telle quelle ? Cliquez dessus.",
       render: function (pv) {
-        var a = act("avantapres");
-        var c = conv(P.potConv), ai = (c ? c.messages : []).filter(function (m) { return m.role === "assistant"; });
-        var first = ai[0] ? ai[0].content : "", last = ai.length > 1 ? ai[ai.length - 1].content : "";
-        lead(pv, "Laquelle utiliseriez-vous vraiment ? <b>Cliquez sur une réponse.</b>");
+        var a = act("avantapres"), picked = a.pick !== undefined;
+        lead(pv, "Pour le pot de Martine, <b>quelle réponse pouvez-vous utiliser telle quelle ?</b>");
         var g = h('<div class="cmp"></div>');
-        [[0, "Demande courte", first], [1, "Avec vos précisions", last]].forEach(function (x) {
-          var b = h('<button type="button" class="cmp-card"><span class="cmp-tag"></span><div class="cmp-body"></div></button>');
+        [
+          [0, "Avant", "Votre demande courte", P.potFirst || "Donne-moi des idées pour un pot de départ.", [["Traiteur pour un buffet complet", "Trop cher pour 60 €", 0], ["Salle louée avec DJ", "Inutile : vous avez la salle de pause", 0], ["Week-end offert en cadeau", "Hors budget", 0]]],
+          [1, "Après", "Avec vos précisions", "Le budget est de 60 €, on sera 12, dans la salle de pause.", [["Buffet partagé, boissons et gâteau", "Tient dans les 60 €", 1], ["Cadeau et carte signée par l’équipe", "Adapté à 12 personnes", 1], ["Diaporama projeté pendant le pot", "Possible en salle de pause", 1]]]
+        ].forEach(function (x) {
+          var b = h('<button type="button" class="cmp-card"><span class="cmp-tag"></span><span class="cmp-q"><small></small><span></span></span><span class="cmp-l">Claude propose :</span><ul></ul></button>');
           b.querySelector(".cmp-tag").textContent = x[1];
-          b.querySelector(".cmp-body").innerHTML = markdown(x[2] || "(pas de réponse)");
-          if (a.pick !== undefined) { b.disabled = true; if (a.pick === x[0]) b.classList.add(x[0] === 1 ? "is-good" : "is-bad"); if (x[0] === 1) b.classList.add("is-right"); }
-          b.onclick = function () { a.pick = x[0]; a.best = x[0] === 1 ? 1 : 0; refresh(); if (a.best) autoNext(4200); };
+          b.querySelector(".cmp-q small").textContent = x[2];
+          b.querySelector(".cmp-q span").textContent = "« " + x[3] + " »";
+          x[4].forEach(function (it) {
+            var li = h('<li><span></span><em></em></li>');
+            li.firstChild.textContent = it[0];
+            li.lastChild.textContent = it[1];
+            li.lastChild.className = it[2] ? "ok" : "ko";
+            b.querySelector("ul").appendChild(li);
+          });
+          if (picked) { b.disabled = true; b.classList.add("is-shown"); if (a.pick === x[0]) b.classList.add(x[0] === 1 ? "is-good" : "is-bad"); }
+          b.onclick = function () { a.pick = x[0]; a.best = x[0] === 1 ? 1 : 0; refresh(); if (a.best) autoNext(5200); };
           g.appendChild(b);
         });
         pv.appendChild(g);
-        if (a.pick !== undefined) fb(pv, a.best ? "ok" : "ko", a.best ? "<b>Exact :</b> la seconde réponse tient compte du budget, du nombre de personnes et du lieu. On peut s’en servir tout de suite." : "<b>Pas vraiment :</b> la première réponse propose un traiteur ou un voyage, hors budget. La seconde, elle, colle à la situation.");
+        if (picked) fb(pv, a.best ? "ok" : "ko", a.best ? "<b>Exact :</b> avec le budget, le nombre de personnes et le lieu, Claude propose des idées réalistes. On peut s’en servir tout de suite." : "<b>Pas vraiment :</b> sans précisions, Claude a proposé un traiteur ou un voyage, hors budget. La réponse « Après » colle à la situation.");
       },
       ready: function () { return act("avantapres").pick !== undefined; }
     },
 
-    /* 4.1 · Les repères de l'écran --------------------------------------------- */
+    /* Les repères de l'écran ----------------------------------------------------- */
     {
       id: "reperes", seq: 3, pill: "Repérez", icon: "eye", title: "Les repères de l’écran",
       say: "Place aux bons gestes. Cinq repères sont signalés sur l’écran de Claude. Cliquez sur chaque pastille orange pour découvrir à quoi elle sert.",
@@ -1539,10 +1672,10 @@
       leave: function () { split.classList.remove("panel-away"); showTab("story"); }
     },
 
-    /* 4.2 · Un sujet, une conversation ------------------------------------------ */
+    /* Un sujet, une conversation -------------------------------------------------- */
     {
       id: "voisin", seq: 3, pill: "À vous de faire", icon: "hand", title: "Un sujet, une conversation",
-      say: "Nouveau sujet : votre voisin Rui vous a laissé un mot en portugais. On ne le mélange pas avec le pot de départ. Ouvrez une nouvelle conversation, placez le mot dans le champ, et dites à Claude ce que vous voulez.",
+      say: "Nouveau sujet : votre voisin Rui a glissé un mot en portugais sous votre porte. On ne le mélange pas avec le pot de départ. Ouvrez une nouvelle conversation : la demande de traduction apparaîtra dans Claude. Choisissez la langue, puis envoyez.",
       render: function (pv) {
         var a = act("voisin");
         var phase = a.done ? 3 : a.sent ? 2 : a.fresh ? 1 : 0;
@@ -1550,21 +1683,19 @@
         note.firstChild.textContent = NOTE_PT;
         pv.appendChild(note);
         stepsList(pv, [
-          { html: "Ouvrez une <b>nouvelle conversation</b> : bouton ✎ en haut à gauche." },
-          { html: "Placez le mot dans le champ, puis <b>dites à Claude ce que vous voulez</b>.", act: function (el) {
-            el.appendChild(button(a.placed ? "Mot placé dans le champ" : "Placer le mot dans le champ", "copy", function () { a.placed = true; insert("« " + NOTE_PT + " »\n\n"); input.setSelectionRange(0, 0); refresh(); }));
-          } },
-          { html: "Envoyez, puis lisez la traduction." }
+          { html: "Nouveau sujet : ouvrez une <b>nouvelle conversation</b> (bouton ✎, en haut à gauche de Claude)." },
+          { html: "La demande apparaît dans Claude, avec le mot de Rui : <b>choisissez la langue</b> dans la case orange, puis envoyez." },
+          { html: "Lisez la traduction." }
         ], phase);
-        if (a.vague) fb(pv, "ko", "Claude vous demande ce que vous voulez en faire. Précisez-le : « Traduis ce mot en français. »");
-        if (a.done) fb(pv, "ok", "<b>Réussi :</b> un sujet, une conversation. Retrouver vos échanges sera plus simple, et Claude ne mélange pas les contextes.");
+        if (a.wrong) fb(pv, "ko", "Rui écrit en portugais : pour le comprendre, demandez une traduction <b>en français</b>.");
+        if (a.done) fb(pv, "ok", "<b>Réussi :</b> un sujet, une conversation. Vos échanges restent faciles à retrouver, et Claude ne mélange pas les sujets.");
       },
       ready: function () { return !!act("voisin").done; },
       enter: function () {
         var a = act("voisin");
         if (a.done) return;
         if (!a.fresh) { spot("new"); badge("new", "1"); }
-        else compose(true, "Placez le mot, puis dites ce que vous voulez");
+        else offerTranslate();
       },
       onNewConv: function () {
         var a = act("voisin");
@@ -1572,33 +1703,27 @@
         a.fresh = true;
         clearSpots();
         refresh();
-        compose(true, "Placez le mot, puis dites ce que vous voulez");
+        offerTranslate();
       },
-      onSend: function (c, text) {
+      onSend: function (c, text) { var a = act("voisin"); a.sent = true; a.text = text; compose(false); refresh(); },
+      onAnswer: function () {
         var a = act("voisin");
-        if (!a.fresh || isPotConv(c)) { toast("Ouvrez d’abord une nouvelle conversation."); }
-        a.sent = true; a.text = text; compose(false); refresh();
-      },
-      onAnswer: function (c) {
-        var a = act("voisin");
-        var ok = /olá|obras|barulho/i.test(a.text) && /tradu|fran[çc]ais|que veut dire|signifie|comprends pas|explique/i.test(a.text);
-        a.vague = !ok;
-        if (ok && !isPotConv(c)) { a.done = true; refresh(); autoNext(5200); return; }
+        a.wrong = !/en fran[çc]ais/i.test(a.text || "");
+        if (!a.wrong) { a.done = true; refresh(); autoNext(5200); return; }
         a.sent = false;
         refresh();
-        compose(true, "Dites à Claude ce que vous voulez");
+        offerTranslate();
       }
     },
 
-    /* 5.1 · Défi final ---------------------------------------------------------- */
+    /* Défi final ------------------------------------------------------------------- */
     {
       id: "defi", seq: 4, pill: "Défi · 2 points", icon: "trophy", title: "Le défi : l’exposé de Léna",
-      say: "Dernier défi, sans aide. Votre fille Léna a besoin d’aide pour son exposé sur les volcans. Ouvrez une nouvelle conversation, commencez simple, puis relancez avec deux précisions.",
+      say: "Dernier défi, cette fois sans cases à compléter. Votre fille Léna a besoin d’aide pour son exposé sur les volcans. Ouvrez une nouvelle conversation, commencez simple, puis relancez avec deux précisions de son message.",
       render: function (pv) {
         var a = act("defi");
         var phase = a.done ? 3 : a.simple ? 2 : a.fresh ? 1 : 0;
-        var sms = h('<div class="sms"><span class="sms-who">Léna</span><p>Tu peux m’aider pour mon exposé sur les volcans ? C’est pour lundi. Je suis en CM2 et je dois parler 5 minutes, avec des images 🙏</p></div>');
-        pv.appendChild(sms);
+        pv.appendChild(h('<div class="sms"><span class="sms-who">Léna</span><p>Tu peux m’aider pour mon exposé sur les volcans ? C’est pour lundi. Je suis en CM2 et je dois parler 5 minutes, avec des images 🙏</p></div>'));
         stepsList(pv, [
           { html: "Ouvrez une <b>nouvelle conversation</b>." },
           { html: "<b>Commencez simple</b> : une demande courte sur l’exposé." },
@@ -1629,7 +1754,7 @@
         compose(true, "Commencez simple");
       },
       onSend: function (c, text) { act("defi").last = text; compose(false); },
-      onAnswer: function (c) {
+      onAnswer: function () {
         var a = act("defi");
         if (!/volcan/i.test(a.last) && !a.simple) { refresh(); compose(true, "Parlez de l’exposé sur les volcans"); return; }
         if (!a.simple) {
@@ -1647,7 +1772,7 @@
       }
     },
 
-    /* 5.2 · Résultat ------------------------------------------------------------ */
+    /* Résultat ----------------------------------------------------------------------- */
     {
       id: "resultat", seq: 4, pill: "Bilan", icon: "trophy", title: "Votre résultat", full: true,
       say: "Voici votre résultat, activité par activité. Si une activité n’est pas réussie, vous pouvez la revoir.",
@@ -1670,7 +1795,7 @@
       }
     },
 
-    /* 5.3 · Fiche --------------------------------------------------------------- */
+    /* Fiche -------------------------------------------------------------------------- */
     {
       id: "fiche", seq: 4, pill: "À garder", icon: "check", title: "Mes premiers réflexes", full: true,
       say: "Voici vos quatre premiers réflexes. Gardez cette fiche : elle vous servira dès votre prochaine conversation avec Claude.",
@@ -1686,7 +1811,24 @@
     }
   ];
 
-  var MAX = 18;
+  var MINI = '<span class="mini"><i class="mini-s"></i><i class="mini-l"></i><i class="mini-l s"></i><i class="mini-in"></i></span>';
+  function startSimple() {
+    var c = conv(P.potConv);
+    if (!c) { c = newConv("pot", "Pot de départ"); P.potConv = c.id; }
+    openConv(c.id);
+    compose(true, "Commencez simple : une phrase courte");
+  }
+  function offerRelance() {
+    var prev = act("relance").vals || {}, good = { budget: "60 €", nb: "12", lieu: "la salle de pause" };
+    template(["Le budget est de ", { k: "budget", label: "Budget", opts: ["60 €", "150 €", "500 €"] }, ", on sera ", { k: "nb", label: "Nombre de personnes", opts: ["12", "30", "50"] }, ", dans ", { k: "lieu", label: "Lieu", opts: ["la salle de pause", "un restaurant", "une salle louée"] }, ". Adapte tes idées."], "Complétez les cases avec le mail, puis envoyez");
+    Object.keys(good).forEach(function (k) { if (prev[k] === good[k]) tpl.vals[k] = prev[k]; });      // on garde les bonnes cases
+    paintTemplate();
+  }
+  function offerTranslate() {
+    template(["Traduis ce mot de mon voisin en ", { k: "lang", label: "Langue", opts: ["français", "anglais", "espagnol"] }, " : « " + NOTE_PT + " »"], "Choisissez la langue, puis envoyez");
+  }
+
+  var MAX = 15;
   function stepIdx(id) { for (var i = 0; i < STEPS.length; i++) if (STEPS[i].id === id) return i; return 0; }
   function resetAct(id) {
     var a = act(id);
@@ -1697,8 +1839,7 @@
     var best = function (id) { return (P.act[id] || {}).best || 0; };
     return [
       { id: "vraifaux", idx: stepIdx("vraifaux"), label: "Vrai ou faux ?", pts: best("vraifaux"), max: 3 },
-      { id: "acces", idx: stepIdx("acces"), label: "Où trouver Claude ?", pts: best("acces"), max: 3 },
-      { id: "usages", idx: stepIdx("usages"), label: "À quoi sert Claude ?", pts: best("usages"), max: 5 },
+      { id: "usages", idx: stepIdx("usages"), label: "Le bon usage", pts: best("usages"), max: 5 },
       { id: "prompt", idx: stepIdx("prompt"), label: "C’est quoi, un prompt ?", pts: best("prompt"), max: 1 },
       { id: "manque", idx: stepIdx("manque"), label: "Qu’est-ce qui manque ?", pts: best("manque"), max: 1 },
       { id: "relance", idx: stepIdx("relance"), label: "Préciser, puis relancer", pts: best("relance"), max: 2 },

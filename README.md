@@ -90,7 +90,7 @@ Storyboard : `premiers-pas/STORYBOARD.md`.
   pot de départ, mot d'un voisin en portugais, exposé scolaire.
 - Activités variées : écrire dans Claude, cartes à glisser (vrai/faux), glisser-déposer, relier, classer dans l'ordre,
   étiquettes à cocher, boîte mail simulée, choisir entre deux réponses, pastilles sur l'interface, défi final.
-- Barème : 18 points, seuil 70 %. Bilan et fiche en plein écran, bouton Quitter (SCORM si présent).
+- Barème : 15 points, seuil 70 %. Quand il faut écrire, la demande arrive dans Claude avec des cases orange à compléter au clic. Bilan et fiche en plein écran, bouton Quitter (SCORM si présent).
 - Voix de synthèse du navigateur en attendant les enregistrements ; l'accueil démarre au clic sur « Commencer ».
 - Fonction `api/chat.ts`, identifiant `premiers-pas` ; mode simulé automatique sans clé.
 
