@@ -64,18 +64,6 @@ svg { display: block; }
 .btn-line:disabled { opacity: .45; cursor: not-allowed; }
 .btn-primary svg, .btn-line svg { width: 16px; height: 16px; }
 
-/* ---------- Accueil ---------- */
-.gate { position: fixed; inset: 0; z-index: 80; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; background: radial-gradient(ellipse 90% 40% at 50% 108%, #f3d3ea 0%, #f7e6f0 30%, rgba(255,255,255,0) 70%), #fff; transition: opacity .5s var(--ease); }
-.intro-frame { position: fixed; inset: 0; z-index: 85; width: 100%; height: 100%; border: 0; background: #faf9f5; transition: opacity .45s var(--ease); }
-.intro-frame.is-leaving { opacity: 0; pointer-events: none; }
-.gate.is-leaving { opacity: 0; pointer-events: none; }
-.gate-orb { margin-bottom: 26px; }
-.gate-k { margin: 0 0 8px; font-size: 13px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
-.gate-title { margin: 0 0 12px; font: 800 clamp(34px, 5vw, 56px)/1.02 var(--display); letter-spacing: -.04em; }
-.gate-lead { margin: 0 0 30px; max-width: 30em; font-size: 17px; color: var(--ink-2); }
-.gate-silent { margin-top: 14px; border: 0; background: none; font-size: 13.5px; color: var(--muted); }
-.gate-silent:hover { color: var(--ink); }
-
 /* ---------- Coque de l'application ---------- */
 .app { height: 100vh; display: flex; flex-direction: column; }
 .topbar { flex: none; height: 48px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 12px; }
@@ -95,7 +83,13 @@ svg { display: block; }
 .tb-mode:hover { background: #efeee9; }
 .tabs { display: none; }
 
-.split { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) clamp(420px, 36vw, 600px); gap: 8px; padding: 0 8px 8px 0; }
+.split { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(300px, 1fr) 12px var(--panel-w, clamp(480px, 46vw, 860px)); padding: 0 8px 8px 0; }
+.resizer { position: relative; cursor: col-resize; touch-action: none; }
+.resizer::after { content: ""; position: absolute; top: 50%; left: 50%; width: 4px; height: 44px; border-radius: 2px; background: #d9d6ce; transform: translate(-50%, -50%); transition: background .15s, height .2s; }
+.resizer:hover::after, .resizer:focus-visible::after, .split.is-resizing .resizer::after { background: #9e9a90; height: 72px; }
+.resizer:focus-visible { outline: none; }
+.split.is-resizing, .split.is-resizing * { cursor: col-resize; user-select: none; }
+.split.is-resizing iframe { pointer-events: none; }
 
 /* ---------- Claude (gauche) ---------- */
 .claude { position: relative; min-height: 0; display: flex; color: var(--c-ink); }
@@ -216,6 +210,7 @@ svg { display: block; }
   .tabs button[aria-selected="true"] { background: #fff; color: var(--ink); border: 1px solid var(--line); }
   .tab-dot { position: absolute; top: 9px; margin-left: 4px; width: 7px; height: 7px; border-radius: 50%; background: var(--orange); }
   .split { display: block; padding: 0 8px 8px; }
+  .resizer { display: none; }
   .split > * { height: 100%; }
   .split[data-tab="story"] .claude, .split[data-tab="claude"] .panel { display: none; }
   .claude.side-open .side { position: absolute; z-index: 5; inset: 0 auto 0 0; background: var(--bg); }
@@ -228,3 +223,7 @@ svg { display: block; }
 /* grande orbe au centre de Claude ; la petite (panneau) n'apparaît qu'une fois la conversation lancée */
 .big-orb { margin: 0 auto 22px; }
 .has-big-orb .narr-orb { display: none; }
+
+/* introduction plein écran */
+.intro-frame { position: fixed; inset: 0; z-index: 85; width: 100%; height: 100%; border: 0; background: #faf9f5; transition: opacity .45s var(--ease); }
+.intro-frame.is-leaving { opacity: 0; pointer-events: none; }

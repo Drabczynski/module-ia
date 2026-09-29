@@ -132,7 +132,7 @@
     "float peak=max(col.r,max(col.g,col.b));vec3 hue=col/max(peak,0.0001);float inten=smoothstep(0.06,1.0,peak);inten=inten*inten*(3.0-2.0*inten)*(1.0-smoothstep(0.62,0.95,pd));",
     "vec3 base=vec3(0.992,0.99,0.988);vec3 tint=mix(vec3(1.0),hue,0.92);vec3 light=mix(base,tint*0.99,inten*0.95);",
     "float ring=smoothstep(0.955,0.992,pd)*(1.0-smoothstep(0.992,1.01,pd));vec3 iri=mix(uColA,uColD,0.5+0.5*dot(n,normalize(vec2(-0.7,0.7))));",
-    "light=mix(light,mix(iri,vec3(0.72),0.35),0.55*ring);light=mix(light,vec3(1.0),0.35*(1.0-smoothstep(0.0,0.75,pd))*(1.0-inten));",
+    "light=mix(light,iri,0.45*ring);light=mix(light,vec3(1.0),0.35*(1.0-smoothstep(0.0,0.75,pd))*(1.0-inten));",
     "light=clamp(light,0.0,1.0);",
     "float ballA=1.0-smoothstep(0.99-SOFT,1.01+SOFT,pd);float outside=smoothstep(rad-SOFT,rad+SOFT,r);",
     "float h=clamp(glowAmt*exp(-max(r-rad,0.0)*11.0)*(1.0-smoothstep(rad,0.995,r))*outside*2.2,0.0,1.0);",
@@ -204,7 +204,7 @@
         gl.uniform1f(loc.uSharp, p.sharp * 0.75);
         gl.uniform1f(loc.uZoom, p.zoom);
         gl.uniform1f(loc.uExposure, p.exposure * 1.9 * (1 + 0.12 * voice + 0.1 * p.hear * level));
-        gl.uniform1f(loc.uGlow, p.glow * 0.22);
+        gl.uniform1f(loc.uGlow, 0.0);                 // pas de halo autour de la sphère
         gl.uniform1f(loc.uRim, p.rim);
         gl.uniform1f(loc.uHear, p.hear);
         gl.uniform1f(loc.uFade, p.fade);

@@ -34,18 +34,10 @@
   </defs>
 </svg>
 
-<!-- ============ Accueil : un clic pour lancer la voix (les navigateurs l'exigent) ============ -->
 <!-- introduction plein écran, comme à l'origine -->
 <iframe class="intro-frame" data-intro-frame title="Introduction du module" hidden></iframe>
 
-<div class="gate" data-gate hidden>
-  <div class="gate-orb" data-gate-orb></div>
-  <p class="gate-k">Module 3 · 25 minutes</p>
-  <h1 class="gate-title">Prendre en main Claude</h1>
-  <p class="gate-lead">Votre assistant pédagogique reprend là où vous vous étiez arrêté.</p>
-  <button type="button" class="btn-next btn-lg" data-gate-start>Reprendre<svg><use href="#i-arrow"/></svg></button>
-  <button type="button" class="gate-silent" data-gate-silent>Démarrer sans le son</button>
-</div>
+
 
 <!-- ============ Application : Claude à gauche, formation à droite ============ -->
 <div class="app" data-app hidden>
@@ -88,6 +80,9 @@
         <p class="work-note" data-work-note></p>
       </div>
     </section>
+
+    <!-- poignée : largeur du panneau de formation, au choix de l'apprenant -->
+    <div class="resizer" data-resizer role="separator" aria-orientation="vertical" tabindex="0" aria-label="Largeur du panneau de formation (flèches gauche et droite)"></div>
 
     <!-- Formation -->
     <aside class="panel" data-panel="story" aria-label="Formation">

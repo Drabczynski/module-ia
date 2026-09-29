@@ -42,6 +42,12 @@
     try { window.parent.postMessage(msg, location.origin && location.origin !== "null" ? location.origin : "*"); } catch (e) { /* parent indisponible */ }
   }
 
+  // atelier : chaque ouverture repart de zéro (exercices vierges), sans toucher au suivi de la version diapositives
+  if (EMBED) {
+    Tracking.key = "module3-atelier-session";
+    Tracking.load = function () { return {}; };
+  }
+
   var state = Tracking.load();
   state.visited = state.visited || [];
   state.spots = state.spots || [];

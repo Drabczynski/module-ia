@@ -75,7 +75,10 @@ Chaque écran règle la largeur du panneau photo via `--pw` ; la photo s'anime d
 - Assistant pédagogique en forme d'orbe (`atelier/orb.js`, WebGL, sphère laiteuse aux bandes pastel) : il lit la
   consigne de chaque écran dès l'arrivée (MP3 pour 3.01 à 3.04, synthèse vocale du navigateur ailleurs), s'anime
   avec la voix, écoute quand l'apprenant écrit, réfléchit pendant la réponse de Claude.
-- Au retour, un écran « Reprendre » : les navigateurs exigent un clic avant de lancer le son.
+- Largeur du panneau réglable : poignée entre Claude et la formation (glisser, flèches du clavier, double-clic pour
+  revenir au réglage par défaut) ; la largeur est mémorisée.
+- Chaque ouverture repart de zéro : exercices vierges, reprise à l'écran 3.02 (le suivi de la version diapositives
+  n'est pas touché). Au retour, pas d'écran d'accueil : si le navigateur bloque la voix, elle démarre au premier clic.
 
 ## Découvrir Claude (`decouvrir/`)
 

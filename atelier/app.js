@@ -71,7 +71,6 @@
 
   /* ---------- Orbe ---------- */
 
-  var gateOrb = SiriOrb($("[data-gate-orb]"), { size: 168, label: "Assistant pédagogique" });
   var smallOrb = SiriOrb($("[data-orb]"), { size: 52, label: "Assistant pédagogique" });
   // grande orbe au centre de Claude, à la place de l'étoile, tant que la conversation est vide
   var bigHost = document.createElement("div");
@@ -170,7 +169,7 @@
     stopVoice();
     cues = []; cueIdx = -1;
     if (!item) return;
-    if (!S.sound || !unlocked) { caption(item.text, true); return; }
+    if (!S.sound) { caption(item.text, true); return; }
     var capts = (window.COURSE_CAPTIONS || {})[item.audio];
     if (item.audio && capts) {
       cues = capts;
@@ -178,7 +177,7 @@
       audio.currentTime = 0;
       caption(cues[0][2]);
       var p = audio.play();
-      if (p && p.catch) p.catch(function () { caption(item.text, true); });
+      if (p && p.catch) p.catch(function () { blocked = true; caption(item.text, true); });
       return;
     }
     var v = frVoice();
@@ -187,7 +186,7 @@
     u.voice = v; u.lang = v.lang; u.rate = 1.02;
     u.onstart = function () { speaking = true; orbMood(); };
     u.onend = ended;
-    u.onerror = function () { speaking = false; orbMood(); caption(item.text, true); };
+    u.onerror = function (ev) { if (ev && ev.error === "not-allowed") blocked = true; speaking = false; orbMood(); caption(item.text, true); };
     caption(item.text);
     speechSynthesis.speak(u);
   }
@@ -519,6 +518,40 @@
 
   /* ---------- Panneau : largeur, introduction, onglets ---------- */
 
+  /* largeur du panneau de formation : poignée à glisser, flèches du clavier, double-clic pour revenir au réglage par défaut */
+  var resizer = $("[data-resizer]");
+  function setPanelW(w, keep) {
+    if (w == null) { split.style.removeProperty("--panel-w"); if (keep) { delete S.panelW; save(); } return; }
+    var max = split.clientWidth ? split.clientWidth - 320 - 20 : Infinity;   // interface encore masquée : pas de borne
+    w = Math.round(Math.max(380, Math.min(max, w)));
+    split.style.setProperty("--panel-w", w + "px");
+    if (keep) { S.panelW = w; save(); }
+  }
+  if (S.panelW) setPanelW(S.panelW);
+  resizer.addEventListener("pointerdown", function (e) {
+    e.preventDefault();
+    resizer.setPointerCapture(e.pointerId);
+    split.classList.add("is-resizing");
+    var right = split.getBoundingClientRect().right - 8;
+    function move(ev) { setPanelW(right - ev.clientX - 6); }
+    function up() {
+      split.classList.remove("is-resizing");
+      resizer.removeEventListener("pointermove", move);
+      resizer.removeEventListener("pointerup", up);
+      setPanelW($(".panel").getBoundingClientRect().width, true);
+    }
+    resizer.addEventListener("pointermove", move);
+    resizer.addEventListener("pointerup", up);
+  });
+  resizer.addEventListener("dblclick", function () { setPanelW(null, true); });
+  resizer.addEventListener("keydown", function (e) {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    e.preventDefault();
+    var w = $(".panel").getBoundingClientRect().width;
+    setPanelW(w + (e.key === "ArrowLeft" ? 32 : -32), true);
+  });
+  window.addEventListener("resize", function () { if (S.panelW) setPanelW(S.panelW); });
+
   function openIntro() {
     stopVoice();
     introFrame.classList.remove("is-leaving");
@@ -533,7 +566,7 @@
     introFrame.classList.add("is-leaving");
     setTimeout(function () { introFrame.hidden = true; introFrame.removeAttribute("src"); }, 450);
     app.hidden = false;
-    if (first || !frame.getAttribute("src")) frame.src = MODULE_URL + (first ? "#2" : "");   // 3.01 : l'introduction vient de la remplacer
+    if (first || !frame.getAttribute("src")) frame.src = MODULE_URL + "#2";   // 3.01 : l'introduction vient de la remplacer
     else if (current) narrate(current);
   }
   $("[data-intro-open]").addEventListener("click", openIntro);
@@ -544,26 +577,18 @@
   }
   $$("[data-tab]").forEach(function (b) { b.addEventListener("click", function () { showTab(b.dataset.tab); }); });
 
-  /* ---------- Démarrage : un clic lance la voix ---------- */
+  /* ---------- Démarrage ---------- */
 
-  var unlocked = false;
-  function start(withSound) {
+  // le navigateur n'autorise le son qu'après un clic : si la voix a été bloquée, elle part au premier clic
+  var unlocked = false, blocked = false;
+  function firstGesture() {
     unlocked = true;
-    S.sound = withSound;
-    save();
-    paintSound();
     unlockAudio();
-    if (withSound && window.speechSynthesis) { try { speechSynthesis.speak(new SpeechSynthesisUtterance("")); } catch (e) { /* rien */ } }
-    var gate = $("[data-gate]");
-    gate.classList.add("is-leaving");
-    setTimeout(function () { gate.hidden = true; }, 500);
-    app.hidden = false;
-    frame.src = MODULE_URL;               // l'écran repris déclenche sa propre consigne
+    if (blocked && current) { blocked = false; narrate(current); }
   }
-  $("[data-gate-start]").addEventListener("click", function () { start(true); });
-  $("[data-gate-silent]").addEventListener("click", function () { start(false); });
-  // première visite : l'introduction plein écran ; ensuite, un clic pour reprendre avec la voix
-  if (S.introDone) { $("[data-gate]").hidden = false; gateOrb.setState("speaking"); setTimeout(function () { gateOrb.setState("idle"); }, 2600); }
+  ["pointerdown", "keydown"].forEach(function (ev) { window.addEventListener(ev, firstGesture, true); });
+
+  if (S.introDone) { app.hidden = false; frame.src = MODULE_URL + "#2"; }   // retour : directement dans le module, exercices vierges
   else openIntro();
 
   if (!conv()) newConv();

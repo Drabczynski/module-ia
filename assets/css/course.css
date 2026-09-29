@@ -2919,3 +2919,4 @@ html.is-flow, html.is-flow body { height: auto; overflow: auto; }
 .is-embed.is-flow .brand { visibility: hidden; }
 .is-embed.is-flow .back { top: 8px; bottom: auto; left: 8px; height: 36px; padding: 0 12px 0 8px; font-size: 14px; box-shadow: none; background: rgba(255,255,255,.92); }
 .is-embed.is-flow .back svg { width: 18px; height: 18px; }
+.is-embed .menu-btn { display: none; }
