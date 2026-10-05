@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Atelier IA · Apprendre l’IA en la pratiquant</title>
+  <meta name="description" content="Une formation à l’IA générative où l’on pratique : 15 modules courts, une IA simulée, des cas réels. Aligné sur le référentiel RS6776, prêt pour votre LMS (SCORM).">
+  <link rel="preload" href="../assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/inter-tight.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 2.5 14.2 9.8 21.5 12l-7.3 2.2L12 21.5l-2.2-7.3L2.5 12l7.3-2.2Z" fill="currentColor"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5 10 17 19 7" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 5.5 19.5 12 13 18.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M20 12H5M11 5.5 4.5 12 11 18.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4ZM13.5 6.5l4 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+    <symbol id="i-side" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9.5 4.5v15" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="i-replay" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3M4.5 4.5v4h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 11v6M12 7.5v.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 26"><path d="M8 11.5V5.8a1.5 1.5 0 0 1 3 0V11m0-4.5a1.5 1.5 0 0 1 3 0V11m0-3.5a1.5 1.5 0 0 1 3 0v5.5c0 4-2.5 7-6.5 7-3 0-4.5-1.5-6-4l-1.6-2.8a1.4 1.4 0 0 1 2.4-1.4L8 13.5" fill="#fff" stroke="#141413" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5z M3.5 7.5 12 12l8.5-4.5M12 12v9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.5 3.2 8 7.5 9.5 4.3-1.5 7.5-5 7.5-9.5V6z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m8.5 12 2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-wave" viewBox="0 0 24 24"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20h16M7 16v-5M12 16V7M17 16v-8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-hand2" viewBox="0 0 24 24"><path d="M8 11.5V5.8a1.5 1.5 0 0 1 3 0V11m0-4.5a1.5 1.5 0 0 1 3 0V11m0-3.5a1.5 1.5 0 0 1 3 0v5.5c0 4-2.5 7-6.5 7-3 0-4.5-1.5-6-4l-1.6-2.8a1.4 1.4 0 0 1 2.4-1.4L8 13.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-cc" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M10.5 10.2a2.4 2.4 0 1 0 0 3.6M17 10.2a2.4 2.4 0 1 0 0 3.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  </defs>
+</svg>
+
+<header class="nav" data-nav>
+  <a class="brand" href="#top"><span class="brand-dot"></span>Atelier IA</a>
+  <nav class="nav-links">
+    <a href="#modules">Les modules</a>
+    <a href="#atouts">Pourquoi nous</a>
+    <a href="#formules">Formules</a>
+    <a class="btn btn-sm" href="#contact">Demander une démo</a>
+  </nav>
+</header>
+
+<main id="top">
+  <!-- ===================== Le récit au défilement ===================== -->
+  <section class="story" data-story aria-label="Démonstration de l’interactivité">
+    <div class="stage" data-stage>
+      <canvas class="cloud" data-cloud aria-hidden="true"></canvas>
+
+      <div class="hero" data-hero>
+        <p class="hero-k"><i></i>Formation à l’IA générative</p>
+        <h1>Apprendre l’IA<br>en la pratiquant.</h1>
+        <p class="hero-sub">15 modules courts où l’apprenant écrit, repère, complète et tranche. Une IA simulée, des cas réels, aucune donnée exposée.</p>
+        <div class="hero-cta">
+          <a class="btn" href="#contact">Demander une démo<svg><use href="#i-arrow"/></svg></a>
+          <a class="btn btn-line" href="#modules">Voir les modules</a>
+        </div>
+      </div>
+
+      <p class="say" data-say>Bonjour. Je suis votre assistant de formation. Ici, on n’écoute pas un cours&nbsp;: on le fait. Entrons dans un module.</p>
+      <div class="hint" data-hint>Faites défiler<i></i></div>
+
+      <div class="win-area" data-area>
+        <div class="win" data-win>
+          <div class="w-top">
+            <div class="w-tl">
+              <span class="w-ic"><svg><use href="#i-side"/></svg></span>
+              <span class="w-ic"><svg><use href="#i-pen"/></svg></span>
+              <span class="w-title"><svg><use href="#i-spark"/></svg><span data-wtitle>Nouvelle conversation</span></span>
+              <span class="w-pill">Simulation pédagogique</span>
+            </div>
+            <span class="w-mode"><i></i>Mode simulé</span>
+          </div>
+          <div class="w-step" data-wstep><b data-wstepn>1</b><span data-wstept>L’apprenant écrit à l’IA</span><span class="dots"><i></i><i></i><i></i><i></i></span></div>
+
+          <div class="w-left">
+            <div class="w-orbslot" data-slot-win></div>
+            <p class="w-say" data-wsay></p>
+            <div class="w-chat" data-chat>
+              <div class="m-user" data-u1>Écris une offre d’emploi pour un poste d’assistant administratif.</div>
+              <div class="m-ai" data-ai>
+                <svg><use href="#i-spark"/></svg>
+                <div class="m-body" data-aibody>
+                  <p><b>Assistant administratif H/F</b></p>
+                  <p>Rejoignez une entreprise dynamique&nbsp;! Nous recherchons un assistant administratif motivé pour renforcer notre équipe à <mark data-m="0">Paris</mark>.</p>
+                  <p>Vos missions&nbsp;: gestion du courrier, accueil téléphonique, classement et suivi administratif.</p>
+                  <p>Rémunération&nbsp;: <mark data-m="1">3 500 € brut par mois</mark>, avec un <mark data-m="2">13e mois</mark>.</p>
+                </div>
+                <span class="m-sim">Réponse simulée</span>
+              </div>
+            </div>
+            <div class="w-comp" data-comp>
+              <div class="w-in" data-in><span class="ph">Le champ s’activera quand ce sera à vous d’écrire.</span></div>
+              <div class="tpl" data-tpl>Tu es <span class="slot" data-s="0">Rôle</span>. Rédige une offre d’emploi pour <span class="slot" data-s="1">Cible</span>, afin de <span class="slot" data-s="2">Objectif</span>. Contexte&nbsp;: <span class="slot" data-s="3">Contexte</span>. Format&nbsp;: <span class="slot" data-s="4">Format</span>.</div>
+              <div class="w-cf"><span class="w-plus"><svg><use href="#i-plus"/></svg></span><span class="w-ai">Assistant IA</span><b class="w-send" data-send><svg><use href="#i-up"/></svg></b></div>
+            </div>
+            <div class="pop" data-pop><p class="pop-t" data-popt>Rôle</p><div data-popo></div></div>
+            <p class="w-note">Interface et réponses simulées pour la formation. Ce n’est pas l’interface réelle d’un outil d’IA.</p>
+          </div>
+
+          <div class="w-panel">
+            <div class="p-head">Module 2 · La structure d’un prompt<i data-prog></i></div>
+            <div class="p-body">
+              <div class="view" data-view="vague">
+                <h2 class="pv-h1">Une demande trop vague</h2><span class="pv-rule"></span>
+                <p class="pv-lead">Sophie vous demande de rédiger une <b>offre d’emploi</b>. Premier réflexe&nbsp;: on demande directement à l’IA.</p>
+                <div class="task" data-t="0"><span class="n">1</span><span>La demande est prête dans le champ, à gauche&nbsp;: <b>envoyez-la</b>.</span></div>
+                <div class="task" data-t="1"><span class="n">2</span><span>Lisez la réponse de l’IA.</span></div>
+                <div class="fb" data-fb="vague"><svg><use href="#i-info"/></svg><span>L’offre a l’air correcte… Mais d’où viennent la ville, le salaire et le 13e mois&nbsp;? Vous ne les avez jamais donnés.</span></div>
+              </div>
+              <div class="view" data-view="hunt">
+                <h2 class="pv-h1">Ce que l’IA a inventé</h2><span class="pv-rule"></span>
+                <p class="pv-lead">Dans la réponse, à gauche, <b>cliquez sur les trois informations</b> que vous ne lui avez jamais données.</p>
+                <div class="found"><span data-f="0"><i></i>La ville</span><span data-f="1"><i></i>Le salaire</span><span data-f="2"><i></i>Le 13e mois</span></div>
+                <div class="fb ok" data-fb="hunt"><svg><use href="#i-check"/></svg><span>Trouvé&nbsp;! Sans contexte, l’IA comble les trous avec des valeurs plausibles. À vérifier, toujours.</span></div>
+              </div>
+              <div class="view" data-view="build">
+                <h2 class="pv-h1">Construire le prompt</h2><span class="pv-rule"></span>
+                <div class="brief">
+                  <div class="brief-h"><span class="brief-av">S</span><span><b>Sophie Laurent</b><small>Responsable · aujourd’hui, 09:12</small></span></div>
+                  <p>Peux-tu préparer l’offre d’emploi pour le poste d’assistant·e administratif·ve&nbsp;?</p>
+                  <p>CDI, 35 h. Bureaux à Lyon 7e, télétravail 1 jour par semaine.</p>
+                  <p>Salaire&nbsp;: 24 à 26 k€ brut par an. Prise de poste le 3 mars.</p>
+                </div>
+                <div class="bk-row"><span class="bk" data-b="0"><i></i>Rôle</span><span class="bk" data-b="1"><i></i>Cible</span><span class="bk" data-b="2"><i></i>Objectif</span><span class="bk" data-b="3"><i></i>Contexte</span><span class="bk" data-b="4"><i></i>Format</span></div>
+              </div>
+              <div class="view" data-view="swipe">
+                <h2 class="pv-h1">Vrai ou faux&nbsp;?</h2><span class="pv-rule"></span>
+                <p class="pv-lead">Vrai à droite, faux à gauche. Une carte à la fois.</p>
+                <div class="sw-zone">
+                  <div class="sw-card" data-card2><span class="sw-q">“</span><span class="sw-n">2 / 3</span><p class="sw-t">L’IA peut se tromper avec beaucoup d’assurance.</p><div class="sw-f"><span>← FAUX</span><span>VRAI →</span></div></div>
+                  <div class="sw-card" data-card1><span class="sw-q">“</span><span class="sw-n">1 / 3</span><p class="sw-t">L’IA connaît déjà mon entreprise et mes dossiers.</p><div class="sw-f"><span>← FAUX</span><span>VRAI →</span></div><span class="sw-stamp" data-stamp>FAUX</span></div>
+                  <div class="sw-btns"><b data-bfaux>← Faux</b><span>ou glissez la carte</span><b>Vrai →</b></div>
+                </div>
+              </div>
+            </div>
+            <div class="p-foot">
+              <div class="w-mini" data-slot-mini></div>
+              <span class="p-say" data-psay></span>
+              <span class="p-ic"><svg><use href="#i-replay"/></svg><svg><use href="#i-sound"/></svg></span>
+              <span class="p-back"><svg><use href="#i-back"/></svg>Retour</span>
+              <span class="p-next" data-next>Continuer<svg><use href="#i-arrow"/></svg></span>
+            </div>
+          </div>
+
+          <div class="w-res" data-res>
+            <div class="res-top">
+              <div class="ring"><svg viewBox="0 0 120 120"><circle class="bg" cx="60" cy="60" r="52"/><circle class="fg" data-ring cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="326.7"/></svg><div><strong data-score>0</strong><small>sur 20</small></div></div>
+              <div><span class="res-badge">SEUIL DE VALIDATION&nbsp;: 70&nbsp;%</span><h3 class="res-h">Module validé</h3><p class="res-p">Vous savez construire un prompt complet, et vérifier ce que l’IA invente.</p></div>
+            </div>
+            <div class="res-rows">
+              <div class="res-row"><span>Ce que l’IA a inventé</span><i style="--w:100%"></i><b>3 / 3</b></div>
+              <div class="res-row"><span>Reconnaître les briques</span><i style="--w:100%"></i><b>5 / 5</b></div>
+              <div class="res-row"><span>Construire le prompt</span><i style="--w:80%"></i><b>4 / 5</b></div>
+              <div class="res-row"><span>Vrai ou faux</span><i style="--w:67%"></i><b>2 / 3</b></div>
+              <div class="res-row"><span>À vous, sans aide</span><i style="--w:75%"></i><b>3 / 4</b></div>
+            </div>
+          </div>
+
+          <div class="cursor" data-cursor><svg viewBox="0 0 26 30"><path d="M3 2 L3 24 L9 18.5 L13 27.5 L17 25.8 L13 17 L21 17 Z" fill="#141413" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
+        </div>
+      </div>
+
+      <div class="orb-host" data-orb></div>
+    </div>
+  </section>
+
+  <!-- ===================== Les modules ===================== -->
+  <section class="sec" id="modules">
+    <p class="sec-k">Le parcours</p>
+    <h2>15 modules courts, du premier prompt au plan d’intégration.</h2>
+    <p class="sec-lead">Chaque module tient en un quart d’heure environ et suit le même principe&nbsp;: une consigne courte, puis l’apprenant agit dans une conversation simulée.</p>
+    <div class="mods" data-mods></div>
+    <p class="note"><span class="star">*</span> Modules qui comportent aussi des notions à apprendre (cadre légal, accessibilité, outils).</p>
+  </section>
+
+  <!-- ===================== Atouts ===================== -->
+  <section class="sec" id="atouts">
+    <p class="sec-k">Pourquoi ça marche</p>
+    <h2>On retient ce qu’on a fait soi-même.</h2>
+    <p class="sec-lead">Pas de vidéo à subir ni de diaporama à cliquer. L’apprenant manipule une IA, se trompe sans risque, et corrige.</p>
+    <div class="grid3">
+      <article class="feat"><span class="feat-i"><svg><use href="#i-hand2"/></svg></span><h3>Faire, pas écouter</h3><p>Écrire, glisser, relier, compléter&nbsp;: une interaction nouvelle à chaque écran, avec un retour immédiat.</p></article>
+      <article class="feat"><span class="feat-i"><svg><use href="#i-shield"/></svg></span><h3>Une IA simulée, sans risque</h3><p>Les réponses sont simulées et les données sont fictives. Aucun compte à créer, aucune information de l’entreprise exposée.</p></article>
+      <article class="feat"><span class="feat-i"><svg><use href="#i-wave"/></svg></span><h3>Une voix qui guide</h3><p>Chaque consigne est lue à voix haute, le texte s’affiche au fil de la phrase. On peut couper le son et tout relire.</p></article>
+      <article class="feat"><span class="feat-i"><svg><use href="#i-box"/></svg></span><h3>Prêt pour votre LMS</h3><p>Chaque module s’exporte au format SCORM&nbsp;: score, réussite et progression remontent dans votre plateforme.</p></article>
+      <article class="feat"><span class="feat-i"><svg><use href="#i-chart"/></svg></span><h3>Un score qui a du sens</h3><p>Des corrections déterministes, un seuil de validation, et le détail par activité pour revoir ce qui coince.</p></article>
+      <article class="feat"><span class="feat-i"><svg><use href="#i-cc"/></svg></span><h3>Neutre et accessible</h3><p>Aucune marque d’IA mise en avant. Sous-titres, contrastes soignés et navigation au clavier.</p></article>
+    </div>
+  </section>
+
+  <!-- ===================== Référentiel ===================== -->
+  <section class="sec">
+    <div class="align">
+      <div>
+        <p class="sec-k">Référentiel</p>
+        <h2>Aligné sur le référentiel RS6776.</h2>
+        <p class="sec-lead">Le parcours couvre les six compétences du référentiel «&nbsp;Utiliser l’IA générative&nbsp;» et entraîne aux mises en situation de l’évaluation.</p>
+        <a class="btn" href="#contact">Recevoir le programme détaillé<svg><use href="#i-arrow"/></svg></a>
+      </div>
+      <ul class="comp">
+        <li><b>C1</b><span>Intégrer l’IA générative à son poste de travail</span></li>
+        <li><b>C2</b><span>Rédiger des prompts efficaces, pour le texte et l’image</span></li>
+        <li><b>C3</b><span>Améliorer et optimiser des contenus existants</span></li>
+        <li><b>C4</b><span>Protéger les données et respecter le cadre légal</span></li>
+        <li><b>C5</b><span>Produire des contenus accessibles à tous</span></li>
+        <li><b>C6</b><span>Assurer une veille et analyser les biais</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== Formules ===================== -->
+  <section class="sec" id="formules">
+    <p class="sec-k">Formules</p>
+    <h2>Pour une équipe ou tout un catalogue.</h2>
+    <p class="sec-lead">Hébergé chez nous ou déposé dans votre LMS. Le tarif dépend du nombre d’apprenants et des modules choisis.</p>
+    <div class="plans">
+      <article class="plan"><h3>Équipe</h3><p class="for">Pour former un service ou une PME.</p><p class="price">Sur devis</p><ul><li>Les 15 modules en ligne</li><li>Suivi des scores par apprenant</li><li>Accès pendant 12 mois</li></ul><a class="btn btn-line" href="#contact">Nous contacter</a></article>
+      <article class="plan hl"><h3>Organisme de formation</h3><p class="for">Pour intégrer le parcours à votre offre.</p><p class="price">Sur devis</p><ul><li>Paquets SCORM pour votre LMS</li><li>Entraînement aux mises en situation</li><li>Mises à jour des contenus incluses</li></ul><a class="btn" href="#contact">Demander une démo</a></article>
+      <article class="plan"><h3>Sur mesure</h3><p class="for">Pour vos propres cas métier.</p><p class="price">Sur devis</p><ul><li>Situations adaptées à votre secteur</li><li>Votre charte graphique</li><li>Voix et textes personnalisés</li></ul><a class="btn btn-line" href="#contact">En parler</a></article>
+    </div>
+  </section>
+
+  <!-- ===================== FAQ ===================== -->
+  <section class="sec faq">
+    <p class="sec-k">Questions</p>
+    <h2>Ce qu’on nous demande souvent.</h2>
+    <details><summary>Faut-il un compte sur un outil d’IA&nbsp;?</summary><p>Non. Les modules utilisent une IA simulée&nbsp;: l’apprenant pratique dans une interface réaliste, sans créer de compte et sans envoyer de données.</p></details>
+    <details><summary>Combien de temps dure le parcours&nbsp;?</summary><p>Chaque module dure un quart d’heure environ. Les 15 modules se suivent dans l’ordre ou à la carte.</p></details>
+    <details><summary>Est-ce compatible avec notre LMS&nbsp;?</summary><p>Oui, chaque module s’exporte au format SCORM. Le score et la réussite remontent dans votre plateforme.</p></details>
+    <details><summary>Le parcours prépare-t-il à la certification&nbsp;?</summary><p>Il est aligné sur le référentiel RS6776 et propose des entraînements au format des mises en situation. L’évaluation elle-même reste organisée par le certificateur.</p></details>
+  </section>
+
+  <section class="final" id="contact">
+    <h2>Voyez-le en vrai, en quinze minutes.</h2>
+    <p>On vous montre un module en direct, puis on parle de votre public et de votre LMS.</p>
+    <a class="btn" href="mailto:contact@exemple.fr?subject=Demande%20de%20d%C3%A9mo">Demander une démo<svg><use href="#i-arrow"/></svg></a>
+  </section>
+</main>
+
+<footer class="foot"><span>© Atelier IA</span><span>Interfaces et réponses simulées à des fins de formation.</span></footer>
+
+<script src="../premiers-pas/orb.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

@@ -100,6 +100,16 @@ Compétence C2 de la certification RS6776 : Rôle, Cible, Objectif, Contexte, Fo
 Même moteur que le module 1 (styles et orbe partagés avec `premiers-pas/`). Storyboard et textes à enregistrer : `structure-prompt/STORYBOARD.md`.
 Fonction `api/chat.ts`, identifiant `structure-prompt`. Le menu « Les modules » relie les modules déjà construits.
 
+## Site vitrine (`site/`)
+
+Page de présentation commerciale. Le défilement pilote une démonstration du module 2 :
+le titre, puis l’orbe qui monte et parle (texte révélé au défilement), son entrée dans le
+module presque plein écran, et quatre actions de l’apprenant (écrire à l’IA, repérer les
+inventions, compléter les cases, trancher une carte) avant le score. Suivent les modules,
+les atouts, le référentiel, les formules et la FAQ. Réutilise `premiers-pas/orb.js` et les
+polices de `assets/fonts`. Nom « Atelier IA », formules « Sur devis » et adresse de contact
+à remplacer.
+
 ## Découvrir Claude (`decouvrir/`)
 
 Module autonome de découverte : une journée fictive chez Lumen, six missions et un bilan.
