@@ -195,9 +195,9 @@
       s = Math.min(fw / 770, fh / 400); var h = fh / s;
       return { x: (fw - 770 * s) / 2, y: name === "colTop" ? -40 * s : -(H - h) * s, s: s };
     }
-    if (name === "panel") {
-      s = Math.min(fw / 669, fh / 820);
-      return { x: -771 * s + (fw - 669 * s) / 2, y: -40 * s + (fh - 820 * s) / 2, s: s };
+    if (name === "panel") {                                     // même écran, la caméra glisse à droite sur le panneau
+      s = Math.min(fh / 830, fw / 669);
+      return { x: fw - (W - 2) * s, y: (fh - 830 * s) / 2 - 36 * s, s: s };
     }
     s = Math.min(fw / W, fh / H);
     return { x: (fw - W * s) / 2, y: (fh - H * s) / 2, s: s };
@@ -300,7 +300,7 @@
     frame.style.opacity = String(fIn);
     frame.style.transform = "translateY(" + (40 * (1 - fIn)) + "px) scale(" + (.94 + .06 * fIn) + ")";
     frame.style.visibility = fIn <= 0 ? "hidden" : "visible";
-    fwS.t = ch === "more" ? Math.min(F.w, F.h * 669 / 820) : F.w;
+    fwS.t = F.w;
     if (!fwInit) { fwS.v = fwS.t; fwInit = true; }
     var fw = fwS.step(dt);
     frame.style.width = fw + "px"; frame.style.left = (F.x + (F.w - fw) / 2) + "px";
@@ -329,13 +329,13 @@
     show(U < START.spot ? "vague" : U < START.build ? "hunt" : U < START.more ? "build" : "more");
     var sent = tw >= .62 && !inBuild;
     // les orbes du module
-    setClass(slotWin, "on", (tO >= .8 && !sent && !inBuild) || (inBuild && tb > .06));
+    setClass(slotWin, "on", (tO >= .8 && !sent && !inBuild) || (inBuild && tb > .06 && U < START.more));
     setClass(slotMini, "on", sent || U >= START.more);
     if (orbIn) orbIn.setState(U >= START.write && tw > .12 && tw < .62 ? "listening" : "speaking");
     // ÉTAPE 1 · écrire
     if (!inBuild) { setWsay("Sophie vous demande une offre d’emploi."); reveal(wsayW, seg(tO, .78, 1)); }
     else { setWsay("Complétez chaque case orange."); reveal(wsayW, seg(tb, .06, .14)); }
-    wsay.style.opacity = String(inBuild ? 1 : 1 - seg(tw, .6, .64));
+    wsay.style.opacity = String(U >= START.more ? 0 : inBuild ? 1 : 1 - seg(tw, .6, .64));
     setClass(comp, "on", (tw >= .1 && !sent && !inBuild) || (inBuild && U < START.more));
     var inMore = U >= START.more;
     setClass(comp, "is-tpl", inBuild && !inMore);
