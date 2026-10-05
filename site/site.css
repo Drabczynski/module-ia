@@ -534,7 +534,7 @@ main, .foot { position: relative; z-index: 1; }
 .hero-pill:hover { background: rgba(255,255,255,.14); }
 .hp-new { padding: 6px 10px; border-radius: 99px; background: linear-gradient(90deg, #ff9a62, #ff6fa5); color: #fff; font-weight: 600; font-size: 12px; }
 .hero-pill svg { width: 14px; height: 14px; opacity: .7; }
-.hero.on-film h1 { font-size: clamp(44px, 7vw, 104px); line-height: .98; letter-spacing: -.045em; }
+.hero.on-film h1 { font-size: clamp(36px, 4.8vw, 70px); line-height: 1.04; letter-spacing: -.035em; }
 .hero.on-film .hw.g { color: transparent; background: linear-gradient(95deg, #ffd2b8 0%, #ff9a72 30%, #ff7eb0 60%, #b9a8ff 100%); -webkit-background-clip: text; background-clip: text; }
 .hero.on-film .hw.g.lit { background-position: 0 0; }
 .hero.on-film .hero-sub { max-width: 620px; font-size: clamp(16px, 1.35vw, 19px); }
