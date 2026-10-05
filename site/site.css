@@ -591,34 +591,20 @@ main, .foot { position: relative; z-index: 1; }
 .film-dim { position: absolute; inset: 0; background: rgba(5,9,18,.38); opacity: 0; transition: opacity .6s; pointer-events: none; }
 .film-dim.on { opacity: 1; }
 
-/* ---------- Le voyage 3D ---------- */
-.voyage { position: relative; z-index: 2; height: 1100vh; }
-.vg-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; background: var(--bg); }
+/* ---------- La galaxie des compétences ---------- */
+.voyage { position: relative; z-index: 2; height: 800vh; }
+.vg-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
 .vg-cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.vg-flash { position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, #fff, #eaf3ff 60%, #fff); opacity: 0; pointer-events: none; }
-.vg-beige { background: var(--bg); }
 .vg-caps { position: absolute; inset: 0; pointer-events: none; }
-.vg-cap { position: absolute; max-width: min(620px, 86vw); }
-.vg-cap > * { opacity: 0; transform: translateY(24px); filter: blur(8px); transition: opacity .4s, transform .4s, filter .4s; }
-.vg-cap.on > * { opacity: 1; transform: none; filter: none; transition: opacity .8s var(--spring), transform 1s var(--spring), filter .8s; }
-.vg-cap.on > :nth-child(2) { transition-delay: .1s; } .vg-cap.on > :nth-child(3) { transition-delay: .2s; }
-.c-c { left: 50%; bottom: 11vh; translate: -50% 0; text-align: center; }
-.c-l { left: clamp(20px, 6vw, 110px); bottom: 14vh; }
-.c-r { right: clamp(20px, 6vw, 110px); bottom: 14vh; text-align: right; }
-.vg-k { margin: 0 0 12px; font: 600 12.5px/1 var(--text); letter-spacing: .16em; text-transform: uppercase; color: var(--orange); }
-.vg-cap h2 { margin: 0; font: 400 clamp(26px, 3vw, 44px)/1.14 var(--display); letter-spacing: -.015em; color: var(--ink); text-wrap: balance; }
-.vg-s { margin: 14px 0 0; font-size: 17px; line-height: 1.5; color: var(--ink-2); }
-.voyage.is-dark .vg-cap h2 { color: #fff; text-shadow: 0 2px 24px rgba(0,0,0,.6); }
-.voyage.is-dark .vg-k { color: #ffb38a; }
-.voyage.is-dark .vg-s { color: rgba(255,255,255,.8); }
+.vg-cap { position: absolute; left: clamp(20px, 7vw, 120px); top: 50%; translate: 0 -50%; max-width: min(460px, 86vw); padding: 30px 32px; border-radius: 24px; background: rgba(255,255,255,.82); backdrop-filter: blur(14px); box-shadow: 0 0 0 1px var(--line), 0 30px 60px -40px rgba(16,24,56,.4); opacity: 0; transform: translateY(16px); transition: opacity .35s, transform .35s; }
+.vg-cap.on { opacity: 1; transform: none; transition: opacity .7s var(--ease), transform .9s var(--spring); }
+.vg-k { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; font: 600 12.5px/1 var(--text); letter-spacing: .14em; text-transform: uppercase; color: var(--orange); }
+.vg-k b { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--orange); color: #fff; letter-spacing: 0; font-size: 12px; }
+.vg-cap h2 { margin: 0; font: 400 clamp(26px, 2.6vw, 38px)/1.14 var(--display); letter-spacing: -.015em; color: var(--ink); text-wrap: balance; }
+.vg-s { margin: 12px 0 0; font-size: 16.5px; line-height: 1.5; color: var(--ink-2); }
+.vg-m { display: inline-block; margin-top: 18px; padding: 6px 12px; border-radius: 99px; background: #f2f0ea; font: 600 12.5px/1 var(--text); color: var(--ink-2); }
 .voyage.no-gl { height: auto; }
-.voyage.no-gl .vg-stage { position: static; height: auto; padding: 80px 0; }
-.voyage.no-gl .vg-cap { position: static; translate: none; margin: 0 auto 40px; text-align: center; }
-.voyage.no-gl .vg-cap > * { opacity: 1; transform: none; filter: none; }
-@media (max-width: 600px) { .c-l, .c-r { left: 20px; right: 20px; text-align: left; } }
-.c-ml { left: clamp(20px, 6vw, 110px); top: 50%; translate: 0 -50%; }
-.c-ml::before, .c-c::before, .c-l::before, .c-r::before { content: ""; position: absolute; inset: -30% -20%; z-index: -1; border-radius: 50%; background: radial-gradient(closest-side, rgba(250,249,245,.92), rgba(250,249,245,0)); opacity: 0; transition: opacity .5s; }
-.vg-cap { isolation: isolate; }
-.vg-cap.on::before { opacity: 1; }
-.voyage.is-dark .vg-cap::before { background: radial-gradient(closest-side, rgba(4,7,15,.8), rgba(4,7,15,0)); }
-@media (max-width: 800px) { .c-ml { top: auto; bottom: 10vh; translate: none; } }
+.voyage.no-gl .vg-stage { position: static; height: auto; padding: 80px 20px; display: grid; gap: 16px; }
+.voyage.no-gl .vg-caps { position: static; display: grid; gap: 16px; }
+.voyage.no-gl .vg-cap { position: static; translate: none; opacity: 1; transform: none; margin: 0 auto; }
+@media (max-width: 800px) { .vg-cap { top: auto; bottom: 18px; left: 16px; right: 16px; translate: none; max-width: none; padding: 22px; } }
