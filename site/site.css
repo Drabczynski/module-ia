@@ -546,3 +546,21 @@ main, .foot { position: relative; z-index: 1; }
 @media (max-width: 600px) { .hero-trust { flex-direction: column; align-items: center; gap: 6px; } .hero-pill span:nth-child(2) { font-size: 12.5px; } }
 .hp-s { display: none; }
 @media (max-width: 600px) { .hp-l { display: none; } .hp-s { display: inline; } }
+
+/* hero sans dégradé ni bouton : un indicateur de défilement */
+.hp-new { background: rgba(255,255,255,.16); }
+.hero-pill { box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
+.scroll-cue { display: inline-flex; flex-direction: column; align-items: center; gap: 10px; margin: 34px 0 0; font: 500 13px/1 var(--text); letter-spacing: .02em; color: rgba(255,255,255,.75); }
+.mouse { position: relative; width: 24px; height: 36px; border-radius: 12px; box-shadow: inset 0 0 0 1.6px rgba(255,255,255,.7); }
+.mouse i { position: absolute; left: 50%; top: 7px; width: 3px; height: 7px; margin-left: -1.5px; border-radius: 2px; background: #fff; animation: wheel 1.8s var(--ease) infinite; }
+@keyframes wheel { 0% { opacity: 0; transform: translateY(-3px); } 30% { opacity: 1; } 70% { opacity: 0; transform: translateY(9px); } 100% { opacity: 0; } }
+/* compétences : une icône, un titre, une phrase */
+.lc { width: clamp(260px, 22vw, 320px); padding: 28px 26px 30px; }
+.lc > p { display: block; min-height: 0; margin: 0; }
+.lc h3 { margin-bottom: 8px; }
+.lc-ic { display: grid; place-items: center; width: 52px; height: 52px; margin-bottom: 26px; border-radius: 16px; background: #fff1e6; color: #c94a08; }
+.lc-ic svg { width: 26px; height: 26px; }
+.lc:nth-child(3n+2) .lc-ic { background: #e9f0fd; color: #1f5cf0; }
+.lc:nth-child(3n) .lc-ic { background: #e7f6ee; color: #15803d; }
+/* parcours : noms des modules plus petits */
+.pm-t b { font-size: 15.5px; }

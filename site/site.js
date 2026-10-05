@@ -293,9 +293,7 @@
   var tintSecs = $$("[data-tint]");
   window.addEventListener("scroll", function () {
     var r = story.getBoundingClientRect(); inStory = r.bottom > innerHeight * .5;
-    if (inStory) return;
-    var mid = innerHeight * .5;
-    tintSecs.forEach(function (sec) { var b = sec.getBoundingClientRect(); if (b.top < mid && b.bottom > mid) tintTo(+sec.dataset.tint); });
+    if (!inStory) tintTo(0);                                  // après la démonstration : fond uni
   }, { passive: true });
 
   /* =====================================================================
@@ -579,12 +577,12 @@
   /* =====================================================================
      Ce qu'on apprend : la bande défile à l'horizontale
      ===================================================================== */
-  var learn = $("[data-learn]"), track = $("[data-learn-track]"), lprog = $("[data-learn-prog]"), lx = new Spring(0, 120, 22);
+  var learn = $("[data-learn]"), track = $("[data-learn-track]"), lx = new Spring(0, 120, 22);
   (function learnLoop() {
     if (learn && innerWidth > 800) {
       var r = learn.getBoundingClientRect(), p = clamp(-r.top / (r.height - innerHeight), 0, 1);
       lx.t = -(track.scrollWidth - innerWidth) * p; lx.step(1 / 60);
-      track.style.transform = "translateX(" + lx.v.toFixed(1) + "px)"; lprog.style.width = (p * 100) + "%";
+      track.style.transform = "translateX(" + lx.v.toFixed(1) + "px)";
     } else if (track) track.style.transform = "";
     requestAnimationFrame(learnLoop);
   })();
