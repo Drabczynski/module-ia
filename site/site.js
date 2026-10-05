@@ -3,7 +3,7 @@
    hero   le titre
    sphere une sphère de particules se forme, tourne, éclate ; l'orbe naît et parle
    open   le module s'ouvre dans un écran, l'orbe y entre
-   write · spot · build · swipe   quatre gestes de l'apprenant ; une caméra
+   write · spot · build · more   quatre temps de l'apprenant ; une caméra
           cadre la zone utile, les étapes et leurs arguments sont à gauche
    Tous les mouvements passent par des ressorts (effet « Framer »).
    ========================================================================== */
@@ -27,7 +27,7 @@
   };
 
   /* ---------- chapitres (longueurs en hauteurs d'écran) ---------- */
-  var CH = [["hero", .6], ["sphere", 2.6], ["open", 1.2], ["write", 1.9], ["spot", 1.8], ["build", 2.4], ["swipe", 1.4]];
+  var CH = [["hero", .6], ["sphere", 2.6], ["open", 1.2], ["write", 1.9], ["spot", 1.8], ["build", 2.4], ["more", 4]];
   var START = {}, LEN = {}, TOTAL = 0;
   CH.forEach(function (c) { START[c[0]] = TOTAL; LEN[c[0]] = c[1]; TOTAL += c[1]; });
   var story = $("[data-story]"), stage = $("[data-stage]");
@@ -42,6 +42,7 @@
   var shader = (function () {
     var cv = $("[data-shader]"), gl = null;
     var none = { draw: function () {}, size: function () {} };
+    if (!cv) return none;                                    // fond uni : le shader est retiré de la page
     try { gl = cv.getContext("webgl", { antialias: false, premultipliedAlpha: false }); } catch (e) { gl = null; }
     if (!gl) { cv.remove(); return none; }
     var VS = "attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}";
@@ -89,7 +90,7 @@
   var mouse = { x: -9999, y: -9999 };
   window.addEventListener("pointermove", function (e) { mouse.x = e.clientX; mouse.y = e.clientY; }, { passive: true });
   var sphere = (function () {
-    var cv = $("[data-galaxy]"), ctx = cv.getContext("2d"), dpr = Math.min(2, window.devicePixelRatio || 1), pts = [], N = 1100, GA = Math.PI * (3 - Math.sqrt(5));
+    var cv = $("[data-galaxy]"), ctx = cv.getContext("2d"), dpr = Math.min(2, window.devicePixelRatio || 1), pts = [], N = 1700, GA = Math.PI * (3 - Math.sqrt(5));
     for (var i = 0; i < N; i++) {                           // sphère de Fibonacci : des points régulièrement espacés
       var y = 1 - (i / (N - 1)) * 2, r = Math.sqrt(1 - y * y), th = GA * i;
       var sx = Math.random() * 2 - 1, sy = Math.random() * 2 - 1, sz = Math.random() * 2 - 1;
@@ -113,7 +114,7 @@
           var persp = 1 / (1.9 - z * .55), px = cx + x * R * persp * 1.4, py = cy + y * R * persp * 1.4;
           var al = (.12 + .78 * (z + 1) / 2) * alpha * (f * .85 + .15) * (1 - burst * .9);
           if (al < .01) continue;
-          var sz = (1 + (z + 1) * .7) * (1 - burst * .3);
+          var sz = (.42 + (z + 1) * .3) * (1 - burst * .3);
           ctx.fillStyle = "rgba(31, 30, 28," + al.toFixed(3) + ")";
           ctx.beginPath(); ctx.arc(px, py, sz, 0, 6.2832); ctx.fill();
         }
@@ -187,19 +188,28 @@
     frame.style.left = F.x + "px"; frame.style.top = F.y + "px"; frame.style.width = F.w + "px"; frame.style.height = F.h + "px";
     steps.classList.toggle("is-stacked", stacked);
   }
-  var FOCUS = {                                                // zones cadrées, en coordonnées de l'interface
-    full: [0, 0, 1440, 860], left: [0, 40, 770, 820], reply: [10, 50, 760, 470],
-    tpl: [0, 210, 770, 650], panel: [771, 40, 669, 820]
-  };
-  var CAM_OF = { hero: "full", sphere: "full", open: "full", write: "left", spot: "reply", build: "tpl", swipe: "panel" };
-  function camFor(name) {
-    var r = FOCUS[name], s = Math.min(F.w / r[2], F.h / r[3]);
-    var x = F.w / 2 - (r[0] + r[2] / 2) * s, y = F.h / 2 - (r[1] + r[3] / 2) * s;
-    x = clamp(x, F.w - W * s, 0); y = clamp(y, F.h - H * s, 0);   // ne jamais montrer au-delà de l'interface
-    if (W * s < F.w) x = (F.w - W * s) / 2;
-    if (H * s < F.h) y = (F.h - H * s) / 2;
-    return { x: x, y: y, s: s };
+  // cadrages : jamais de colonne tranchée ; « panel » resserre l'écran au format du panneau
+  function camFor(name, fw, fh) {
+    var s, x, y;
+    if (name === "colTop" || name === "colBot") {              // toute la largeur de la conversation, en haut ou en bas
+      s = Math.min(fw / 770, fh / 400); var h = fh / s;
+      return { x: (fw - 770 * s) / 2, y: name === "colTop" ? -40 * s : -(H - h) * s, s: s };
+    }
+    if (name === "panel") {
+      s = Math.min(fw / 669, fh / 820);
+      return { x: -771 * s + (fw - 669 * s) / 2, y: -40 * s + (fh - 820 * s) / 2, s: s };
+    }
+    s = Math.min(fw / W, fh / H);
+    return { x: (fw - W * s) / 2, y: (fh - H * s) / 2, s: s };
   }
+  function camName(ch) {
+    if (ch === "write") return L("write") < .64 ? "colBot" : "colTop";
+    if (ch === "spot") return "colTop";
+    if (ch === "build") return "colBot";
+    if (ch === "more") return "panel";
+    return "full";
+  }
+  var fwS = new Spring(0, 120, 20), fwInit = false;
   var cam = { x: new Spring(0, 90, 19), y: new Spring(0, 90, 19), s: new Spring(.5, 90, 19) }, camInit = false;
 
   function centerOf(el) { var r = el.getBoundingClientRect(), s = stage.getBoundingClientRect(); return { x: r.left + r.width / 2 - s.left, y: r.top + r.height / 2 - s.top, w: r.width }; }
@@ -218,6 +228,9 @@
   var pop = $("[data-pop]"), popT = $("[data-popt]"), popO = $("[data-popo]"), cursor = $("[data-cursor]");
   var card1 = $("[data-card1]"), card2 = $("[data-card2]"), stamp = $("[data-stamp]"), bfaux = $("[data-bfaux]");
   var next = $("[data-next]"), psay = $("[data-psay]"), prog = $("[data-prog]"), wtitle = $("[data-wtitle]");
+  var gxs = $$("[data-gx]"), gbs = $$("[data-gb]"), qos = $$("[data-qo]"), wheel = $("[data-wheel]"), wbtn = $("[data-wbtn]"), wres = $("[data-wres]");
+  var genTxt = $("[data-gen-txt]"), genBtn = $("[data-gen-btn]"), genImg = $("[data-gen-img]"), genBar = $("[data-gen-bar]"), genCap = $("[data-gen-cap]");
+  var GEN = "Une affiche aquarelle pour la fête du quartier, plan large, couleurs chaudes, format carré.";
   var stItems = $$("[data-st]"), tags = {}; $$("[data-tag]").forEach(function (t) { tags[t.dataset.tag] = t; });
   var TYPED = "Écris une offre d’emploi pour un poste d’assistant administratif.";
   var SLOTS = [
@@ -226,7 +239,7 @@
   ];
   // deux cases, chacune avec du temps : ouverture, choix, validation
   var SLOT_AT = function (i) { return .14 + i * .4; }, SLOT_LEN = .34, OPT_AT = .16, SET_AT = .26;
-  var STEP_IDS = ["open", "write", "spot", "build", "swipe"];
+  var STEP_IDS = ["open", "write", "spot", "build", "more"];
   function setClass(el, c, on) { if (el.classList.contains(c) !== !!on) el.classList.toggle(c, !!on); }
   function show(name) { Object.keys(views).forEach(function (k) { setClass(views[k], "on", k === name); }); }
 
@@ -287,12 +300,15 @@
     frame.style.opacity = String(fIn);
     frame.style.transform = "translateY(" + (40 * (1 - fIn)) + "px) scale(" + (.94 + .06 * fIn) + ")";
     frame.style.visibility = fIn <= 0 ? "hidden" : "visible";
-    var c = camFor(CAM_OF[ch]);
+    fwS.t = ch === "more" ? Math.min(F.w, F.h * 669 / 820) : F.w;
+    if (!fwInit) { fwS.v = fwS.t; fwInit = true; }
+    var fw = fwS.step(dt);
+    frame.style.width = fw + "px"; frame.style.left = (F.x + (F.w - fw) / 2) + "px";
+    var c = camFor(camName(ch), fw, F.h);
     if (!camInit) { cam.x.v = c.x; cam.y.v = c.y; cam.s.v = c.s; camInit = true; }
     cam.x.t = c.x; cam.y.t = c.y; cam.s.t = c.s;
     var cx = cam.x.step(dt), cy = cam.y.step(dt), cs = cam.s.step(dt);
     win.style.transform = "translate(" + cx + "px," + cy + "px) scale(" + cs + ")";
-    setClass(veil, "on", CAM_OF[ch] !== "full");
 
     /* --- les étapes, à gauche --- */
     var si = STEP_IDS.indexOf(ch);
@@ -306,20 +322,24 @@
     }
 
     /* =========== le module, geste par geste =========== */
-    var tw = L("write"), tsp = L("spot"), tb = L("build"), tsw = L("swipe");
+    var tw = L("write"), tsp = L("spot"), tb = L("build"), tm = L("more");
+    var gk = U < START.more ? -1 : Math.min(3, Math.floor(tm * 4)), gu = gk < 0 ? 0 : clamp(tm * 4 - gk, 0, 1);
+    var tsw = gk < 0 ? 0 : gk > 0 ? 1 : gu;
     var inBuild = U >= START.build;
-    show(U < START.spot ? "vague" : U < START.build ? "hunt" : U < START.swipe ? "build" : "swipe");
+    show(U < START.spot ? "vague" : U < START.build ? "hunt" : U < START.more ? "build" : "more");
     var sent = tw >= .62 && !inBuild;
     // les orbes du module
     setClass(slotWin, "on", (tO >= .8 && !sent && !inBuild) || (inBuild && tb > .06));
-    setClass(slotMini, "on", sent || U >= START.swipe);
+    setClass(slotMini, "on", sent || U >= START.more);
     if (orbIn) orbIn.setState(U >= START.write && tw > .12 && tw < .62 ? "listening" : "speaking");
     // ÉTAPE 1 · écrire
     if (!inBuild) { setWsay("Sophie vous demande une offre d’emploi."); reveal(wsayW, seg(tO, .78, 1)); }
     else { setWsay("Complétez chaque case orange."); reveal(wsayW, seg(tb, .06, .14)); }
     wsay.style.opacity = String(inBuild ? 1 : 1 - seg(tw, .6, .64));
-    setClass(comp, "on", (tw >= .1 && !sent && !inBuild) || (inBuild && U < START.swipe));
-    setClass(comp, "is-tpl", inBuild);
+    setClass(comp, "on", (tw >= .1 && !sent && !inBuild) || (inBuild && U < START.more));
+    var inMore = U >= START.more;
+    setClass(comp, "is-tpl", inBuild && !inMore);
+    comp.style.opacity = inMore ? "0" : "1";
     var typed = seg(tw, .14, .5);
     if (!inBuild) {
       if (tw < .1 || sent) { if (!inp.querySelector(".ph")) inp.innerHTML = '<span class="ph">Le champ s’activera quand ce sera à vous d’écrire.</span>'; }
@@ -352,7 +372,7 @@
     var openI = -1;
     slots.forEach(function (s, i) {
       var t0 = SLOT_AT(i), set = tb >= t0 + SET_AT;
-      if (tb >= t0 && tb < t0 + SET_AT + .02 && U < START.swipe) openI = i;
+      if (tb >= t0 && tb < t0 + SET_AT + .02 && U < START.more) openI = i;
       setClass(s, "set", set); setClass(s, "open", openI === i && !set);
       var txt = set ? SLOTS[i][1][0] : SLOTS[i][0]; if (s.textContent !== txt) s.textContent = txt;
       setClass(bks[i], "on", set);
@@ -365,7 +385,30 @@
       $$(".pop-o", popO).forEach(function (b, j) { setClass(b, "on", j === 0 && tb >= SLOT_AT(openI) + OPT_AT); });
     }
     setClass(pop, "on", openI >= 0);
-    // ÉTAPE 4 · trancher
+    // ÉTAPE 4 · varier : glisser, QCM, roue, image
+    gxs.forEach(function (g, i) { setClass(g, "on", i === Math.max(0, gk)); });
+    gbs.forEach(function (g, i) { setClass(g, "cur", i === gk); });
+    // QCM
+    var q = gk === 1 ? gu : gk > 1 ? 1 : 0;
+    qos.forEach(function (o, i) { setClass(o, "sel", i === 1 && q >= .4 && q < .62); setClass(o, "ok", i === 1 && q >= .62); });
+    setClass($('[data-fb="qcm"]'), "on", q >= .66);
+    clickAt("qcm", gk === 1 && q >= .4);
+    // roue
+    var w = gk === 2 ? gu : gk > 2 ? 1 : 0, spin = ease(seg(w, .2, .78));
+    wheel.style.transform = "rotate(" + (spin * (360 * 3 + 330)) + "deg)";
+    setClass(wbtn, "press", w >= .14 && w < .2); clickAt("wheel", gk === 2 && w >= .14);
+    setClass(wres, "on", w >= .8);
+    // image
+    var g = gk === 3 ? gu : 0, gtxt = GEN.slice(0, Math.round(GEN.length * seg(g, .04, .32)));
+    if (genTxt.textContent !== gtxt) genTxt.textContent = gtxt;
+    setClass(genBtn, "press", g >= .36 && g < .42); clickAt("gen", gk === 3 && g >= .36);
+    var gr = seg(g, .42, .9);
+    genImg.style.opacity = String(seg(g, .42, .5));
+    genImg.style.filter = "blur(" + (26 * (1 - ease(gr))).toFixed(1) + "px) saturate(" + (.4 + .6 * gr).toFixed(2) + ")";
+    genBar.style.width = (100 * gr) + "%";
+    genBar.parentNode.style.opacity = gr >= 1 ? "0" : "1";
+    genCap.textContent = gr >= 1 ? "affiche_fete_quartier.png" : g >= .42 ? "Génération… " + Math.round(gr * 100) + " %" : "";
+    // la carte à glisser
     var swp = ease(seg(tsw, .4, .75));
     card1.style.transform = "translateX(" + (-640 * swp) + "px) rotate(" + (-22 * swp) + "deg)";
     card1.style.opacity = String(1 - seg(tsw, .65, .8));
@@ -374,18 +417,18 @@
     card2.style.transform = "scale(" + (.94 + .06 * swp) + ") translateY(" + (14 * (1 - swp)) + "px)";
     setClass(bfaux, "press", tsw >= .3 && tsw < .75); clickAt("faux", tsw >= .3);
     // pied du panneau
-    var ps = U < START.spot ? (sent ? "Lisez la réponse de l’IA." : "Envoyez-la, et regardez le résultat.") : U < START.build ? "Trouvez les trois inventions." : U < START.swipe ? "Complétez les cases orange." : "Glissez la carte.";
+    var ps = U < START.spot ? (sent ? "Lisez la réponse de l’IA." : "Envoyez-la, et regardez le résultat.") : U < START.build ? "Trouvez les trois inventions." : U < START.more ? "Complétez les cases orange." : ["Glissez la carte.", "Choisissez la bonne réponse.", "Tournez la roue.", "Générez l’image."][Math.max(0, gk)];
     if (psay.textContent !== ps) psay.textContent = ps;
-    setClass(next, "on", (ch === "write" && tw >= .94) || (ch === "spot" && tsp >= .8) || (ch === "build" && tb >= .92) || (ch === "swipe" && tsw >= .8));
-    prog.style.width = (8 + 85 * seg(U, START.write, START.swipe + LEN.swipe)) + "%";
+    setClass(next, "on", (ch === "write" && tw >= .94) || (ch === "spot" && tsp >= .8) || (ch === "build" && tb >= .92) || (ch === "more" && gu >= .85));
+    prog.style.width = (8 + 85 * seg(U, START.write, START.more + LEN.more)) + "%";
     // curseur de démonstration
-    var cp = cursorAt(tw, tsp, tb, tsw, ch);
+    var cp = cursorAt(tw, tsp, tb, tsw, ch, gk, gu);
     cursor.style.opacity = cp ? "1" : "0";
     if (cp) cursor.style.transform = "translate(" + cp.x + "px," + cp.y + "px)";
     clickAt("send", tw >= .6 && !sent && ch === "write");
   }
 
-  function cursorAt(tw, tsp, tb, tsw, ch) {
+  function cursorAt(tw, tsp, tb, tsw, ch, gk, gu) {
     function mv(a, b, t) { t = ease(t); return { x: lerp(a.x, b.x, t), y: lerp(a.y, b.y, t) }; }
     if (ch === "write" && tw >= .5 && tw < .7) { var s = inWin(send); return mv({ x: s.x - 180, y: s.y - 100 }, s, seg(tw, .5, .6)); }
     if (ch === "spot" && tsp >= .1 && tsp < .85) {
@@ -407,7 +450,12 @@
       }
       return null;
     }
-    if (ch === "swipe" && tsw >= .08 && tsw < .8) { var b = inWin(bfaux); return mv({ x: b.x + 160, y: b.y - 140 }, b, seg(tsw, .08, .28)); }
+    if (ch === "more") {
+      if (gk === 0 && gu >= .08 && gu < .8) { var b = inWin(bfaux); return mv({ x: b.x + 160, y: b.y - 140 }, b, seg(gu, .08, .28)); }
+      if (gk === 1 && gu >= .1 && gu < .9) { var o = inWin(qos[1]); return mv({ x: o.x + 180, y: o.y + 140 }, { x: o.x + 60, y: o.y }, seg(gu, .1, .36)); }
+      if (gk === 2 && gu < .4) { var wb = inWin(wbtn); return mv({ x: wb.x - 120, y: wb.y + 120 }, wb, seg(gu, .0, .13)); }
+      if (gk === 3 && gu >= .3 && gu < .6) { var gb = inWin(genBtn); return mv({ x: gb.x - 160, y: gb.y + 90 }, gb, seg(gu, .3, .35)); }
+    }
     return null;
   }
 
@@ -426,6 +474,19 @@
   window.addEventListener("resize", resize);
   resize(); scrollS.v = target(); U = scrollS.v;
   requestAnimationFrame(loop);
+
+  /* =====================================================================
+     Ce qu'on apprend : la bande défile à l'horizontale
+     ===================================================================== */
+  var learn = $("[data-learn]"), track = $("[data-learn-track]"), lprog = $("[data-learn-prog]"), lx = new Spring(0, 120, 22);
+  (function learnLoop() {
+    if (learn && innerWidth > 800) {
+      var r = learn.getBoundingClientRect(), p = clamp(-r.top / (r.height - innerHeight), 0, 1);
+      lx.t = -(track.scrollWidth - innerWidth) * p; lx.step(1 / 60);
+      track.style.transform = "translateX(" + lx.v.toFixed(1) + "px)"; lprog.style.width = (p * 100) + "%";
+    } else if (track) track.style.transform = "";
+    requestAnimationFrame(learnLoop);
+  })();
 
   /* =====================================================================
      Sections : apparitions en cascade

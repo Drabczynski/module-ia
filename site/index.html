@@ -44,7 +44,6 @@
   </nav>
 </header>
 
-<canvas class="bg-shader" data-shader aria-hidden="true"></canvas>
 <main id="top">
   <!-- ===================== Le récit au défilement ===================== -->
   <section class="story" data-story aria-label="Démonstration de l’interactivité">
@@ -69,7 +68,7 @@
         <li class="st" data-st="write"><span class="st-n">01</span><div class="st-b"><p class="st-name">Écrire</p><div class="st-more"><div><h3>Il tape, l’IA répond.</h3><p>Saisie libre dans un vrai champ de conversation. L’apprenant formule sa demande et découvre la réponse en direct.</p><span class="badge"><svg><use href="#i-pen"/></svg>Saisie libre</span></div></div></div></li>
         <li class="st" data-st="spot"><span class="st-n">02</span><div class="st-b"><p class="st-name">Repérer</p><div class="st-more"><div><h3>Il clique sur les erreurs.</h3><p>L’IA a inventé ce qu’on ne lui a jamais dit. L’apprenant le repère en cliquant directement dans sa réponse.</p><span class="badge"><svg><use href="#i-hand2"/></svg>Clic dans le texte</span></div></div></div></li>
         <li class="st" data-st="build"><span class="st-n">03</span><div class="st-b"><p class="st-name">Construire</p><div class="st-more"><div><h3>Il complète les cases.</h3><p>Chaque case orange ouvre un choix. Le prompt se construit au fil des clics et les briques s’allument une à une.</p><span class="badge"><svg><use href="#i-box"/></svg>Cases à compléter</span></div></div></div></li>
-        <li class="st" data-st="swipe"><span class="st-n">04</span><div class="st-b"><p class="st-name">Trancher</p><div class="st-more"><div><h3>Il glisse la carte.</h3><p>Vrai à droite, faux à gauche, comme sur un téléphone. La correction tombe au même instant.</p><span class="badge"><svg><use href="#i-hand2"/></svg>Glisser, vrai ou faux</span></div></div></div></li>
+        <li class="st" data-st="more"><span class="st-n">04</span><div class="st-b"><p class="st-name">Varier</p><div class="st-more"><div><h3>Un geste différent à chaque écran.</h3><p>Glisser une carte, répondre à un QCM, faire tourner une roue, générer une image&nbsp;: l’attention ne retombe jamais.</p><span class="badges"><span class="badge" data-gb="0"><svg><use href="#i-hand2"/></svg>Glisser</span><span class="badge" data-gb="1"><svg><use href="#i-check"/></svg>QCM</span><span class="badge" data-gb="2"><svg><use href="#i-replay"/></svg>Roue</span><span class="badge" data-gb="3"><svg><use href="#i-spark"/></svg>Image</span></span></div></div></div></li>
       </ol>
       <div class="frame" data-frame>
         <div class="win" data-win>
@@ -134,13 +133,37 @@
                 </div>
                 <div class="bk-row"><span class="bk on"><i></i>Rôle</span><span class="bk" data-b="0"><i></i>Cible</span><span class="bk on"><i></i>Objectif</span><span class="bk" data-b="1"><i></i>Contexte</span><span class="bk on"><i></i>Format</span></div>
               </div>
-              <div class="view" data-view="swipe">
+              <div class="view" data-view="more">
+              <div class="gx" data-gx="0">
                 <h2 class="pv-h1">Vrai ou faux&nbsp;?</h2><span class="pv-rule"></span>
                 <p class="pv-lead">Vrai à droite, faux à gauche. Une carte à la fois.</p>
                 <div class="sw-zone">
                   <div class="sw-card" data-card2><span class="sw-q">“</span><span class="sw-n">2 / 3</span><p class="sw-t">L’IA peut se tromper avec beaucoup d’assurance.</p><div class="sw-f"><span>← FAUX</span><span>VRAI →</span></div></div>
                   <div class="sw-card" data-card1><span class="sw-q">“</span><span class="sw-n">1 / 3</span><p class="sw-t">L’IA connaît déjà mon entreprise et mes dossiers.</p><div class="sw-f"><span>← FAUX</span><span>VRAI →</span></div><span class="sw-stamp" data-stamp>FAUX</span></div>
                   <div class="sw-btns"><b data-bfaux>← Faux</b><span>ou glissez la carte</span><b>Vrai →</b></div>
+                </div>
+              </div>
+                <div class="gx" data-gx="1">
+                  <h2 class="pv-h1">Une question</h2><span class="pv-rule"></span>
+                  <p class="pv-q">Pourquoi l’IA a-t-elle inventé le salaire&nbsp;?</p>
+                  <div class="qcm">
+                    <div class="qo" data-qo="0"><i></i><span><b>A.</b> Elle se trompe à chaque fois.</span></div>
+                    <div class="qo" data-qo="1"><i></i><span><b>B.</b> On ne lui a donné aucun contexte.</span></div>
+                    <div class="qo" data-qo="2"><i></i><span><b>C.</b> Elle a copié une vraie offre.</span></div>
+                  </div>
+                  <div class="fb ok" data-fb="qcm"><svg><use href="#i-check"/></svg><span>Exact&nbsp;: sans contexte, elle comble les trous. <b class="pts">+1 point</b></span></div>
+                </div>
+                <div class="gx" data-gx="2">
+                  <h2 class="pv-h1">La roue des situations</h2><span class="pv-rule"></span>
+                  <p class="pv-lead">Tournez la roue&nbsp;: écrivez le prompt de la situation tirée.</p>
+                  <div class="wheel"><span class="wheel-pin"></span><svg viewBox="0 0 300 300"><g data-wheel><path d="M150 150 L150.0 10.0 A140 140 0 0 1 271.2 80.0 Z" fill="#ffd9bf" stroke="#fff" stroke-width="3"/><path d="M150 150 L271.2 80.0 A140 140 0 0 1 271.2 220.0 Z" fill="#d9e6ff" stroke="#fff" stroke-width="3"/><path d="M150 150 L271.2 220.0 A140 140 0 0 1 150.0 290.0 Z" fill="#ffe1ec" stroke="#fff" stroke-width="3"/><path d="M150 150 L150.0 290.0 A140 140 0 0 1 28.8 220.0 Z" fill="#dff5e6" stroke="#fff" stroke-width="3"/><path d="M150 150 L28.8 220.0 A140 140 0 0 1 28.8 80.0 Z" fill="#fff1c7" stroke="#fff" stroke-width="3"/><path d="M150 150 L28.8 80.0 A140 140 0 0 1 150.0 10.0 Z" fill="#e9e2ff" stroke="#fff" stroke-width="3"/><g font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#1b2547"><text transform="rotate(30 150 150)" x="150" y="52" text-anchor="middle">Compte rendu</text><text transform="rotate(90 150 150)" x="150" y="52" text-anchor="middle">Mail client</text><text transform="rotate(150 150 150)" x="150" y="52" text-anchor="middle">Post réseaux</text><text transform="rotate(210 150 150)" x="150" y="52" text-anchor="middle">Affiche</text><text transform="rotate(270 150 150)" x="150" y="52" text-anchor="middle">Résumé</text><text transform="rotate(330 150 150)" x="150" y="52" text-anchor="middle">Traduction</text></g></g><circle cx="150" cy="150" r="26" fill="#fff" stroke="#e7e5de" stroke-width="2"/><circle cx="150" cy="150" r="6" fill="#141413"/></svg></div>
+                  <div class="wheel-res" data-wres>À vous&nbsp;: un <b>compte rendu</b> de réunion.</div>
+                  <span class="wheel-btn" data-wbtn>Tourner la roue</span>
+                </div>
+                <div class="gx" data-gx="3">
+                  <h2 class="pv-h1">Générer une image</h2><span class="pv-rule"></span>
+                  <div class="gen-in"><span data-gen-txt></span><span class="gen-btn" data-gen-btn>Générer</span></div>
+                  <div class="gen-out"><div class="gen-img" data-gen-img><svg viewBox="0 0 300 300" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd2b0"/><stop offset=".6" stop-color="#ffe9d6"/><stop offset="1" stop-color="#fdf3e7"/></linearGradient></defs><rect width="300" height="300" fill="url(#sk)"/><circle cx="222" cy="78" r="34" fill="#ff9e6b" opacity=".85"/><path d="M0 210 Q75 170 150 200 T300 190 V300 H0Z" fill="#c9dcb4"/><path d="M0 240 Q90 215 170 238 T300 232 V300 H0Z" fill="#a9c99a"/><g><rect x="44" y="150" width="58" height="62" rx="4" fill="#fffaf3"/><path d="M38 152 L73 122 L108 152Z" fill="#e2622b"/><rect x="66" y="180" width="14" height="32" rx="3" fill="#8a5a3c"/><rect x="180" y="140" width="70" height="74" rx="4" fill="#fff6ea"/><path d="M174 142 L215 108 L256 142Z" fill="#c94a08"/><rect x="190" y="160" width="16" height="16" rx="3" fill="#ffe2a8"/><rect x="224" y="160" width="16" height="16" rx="3" fill="#ffe2a8"/></g><path d="M20 110 Q150 150 280 100" fill="none" stroke="#7a5c48" stroke-width="1.5"/><g><path d="M40 116 l8 16 l8 -13z" fill="#ff8fb8"/><path d="M80 126 l8 16 l8 -12z" fill="#34c3f2"/><path d="M120 133 l8 16 l8 -11z" fill="#ffb23f"/><path d="M160 135 l8 16 l8 -11z" fill="#7c3aed"/><path d="M200 130 l8 16 l8 -12z" fill="#1a9a5a"/><path d="M240 120 l8 16 l8 -13z" fill="#ff8fb8"/></g><g fill="#8a5a3c"><circle cx="128" cy="222" r="6"/><circle cx="146" cy="226" r="5"/><circle cx="268" cy="226" r="6"/></g><g><ellipse cx="128" cy="244" rx="9" ry="14" fill="#ff8fb8"/><ellipse cx="146" cy="246" rx="7" ry="11" fill="#34c3f2"/><ellipse cx="268" cy="246" rx="9" ry="14" fill="#ffb23f"/></g></svg></div><div class="gen-bar"><i data-gen-bar></i></div><span class="gen-cap" data-gen-cap>Génération…</span></div>
                 </div>
               </div>
             </div>
@@ -160,6 +183,17 @@
       </div>
 
       <div class="orb-host" data-orb></div>
+    </div>
+  </section>
+
+  <!-- ===================== Ce qu’on apprend (défilement horizontal) ===================== -->
+  <section class="learn" data-learn>
+    <div class="learn-stage">
+      <div class="learn-head"><p class="sec-k">Ce qu’on apprend</p><h2>Des compétences concrètes, module après module.</h2></div>
+      <div class="learn-track" data-learn-track>
+        <article class="lc"><span class="lc-n">Module 1</span><h3>Démarrer</h3><p>Ce que l’IA sait faire, et ce qu’elle ne sait pas.</p><div class="lc-ex"><span class="lc-k">Exemple</span><div class="lc-u">Trouve un nom pour la fête des voisins.</div><div class="lc-ai"><svg><use href="#i-spark"/></svg><span>« La Grande Tablée », « Voisins en fête », « L’Apéro de la rue »…</span></div></div></article><article class="lc"><span class="lc-n">Modules 2 et 3</span><h3>Rédiger des prompts</h3><p>Rôle, cible, objectif, contexte, format&nbsp;: la demande complète.</p><div class="lc-ex"><span class="lc-k">Exemple</span><div class="lc-u">Tu es chargé·e de recrutement. Rédige une offre pour des débutants, 150 mots, ton chaleureux.</div><div class="lc-ai"><svg><use href="#i-spark"/></svg><span>Une offre prête à publier, sans rien inventer.</span></div></div></article><article class="lc"><span class="lc-n">Module 3</span><h3>Des prompts pour les images</h3><p>Décrire un visuel&nbsp;: style, cadrage, usage.</p><div class="lc-ex"><span class="lc-k">Exemple</span><div class="lc-u">Une affiche aquarelle, plan large, format carré, pour la fête du quartier.</div><div class="lc-ai lc-img"><span class="lc-art"></span></div></div></article><article class="lc"><span class="lc-n">Modules 4 et 5</span><h3>Améliorer un contenu</h3><p>Affiner sans tout recommencer, changer de ton ou de format.</p><div class="lc-ex"><span class="lc-k">Exemple</span><div class="lc-u">Plus court, et ajoute la date limite du 15 février.</div><div class="lc-ai"><svg><use href="#i-spark"/></svg><span>C’est fait&nbsp;: 90 mots, date limite ajoutée.</span></div></div></article><article class="lc"><span class="lc-n">Module 6</span><h3>Protéger les données</h3><p>Ce qu’on ne colle jamais dans une IA, et comment anonymiser.</p><div class="lc-ex"><span class="lc-k">Exemple</span><div class="lc-u">Mme Martin, 12 rue des Lilas, a appelé pour sa facture.</div><div class="lc-ai"><svg><use href="#i-spark"/></svg><span>[La cliente], [adresse], a appelé pour sa facture.</span></div></div></article><article class="lc"><span class="lc-n">Modules 7 et 8</span><h3>Des contenus pour tous</h3><p>Des textes clairs, des images décrites, des vidéos sous-titrées.</p><div class="lc-ex"><span class="lc-k">Exemple</span><div class="lc-u">Réécris en phrases courtes, un verbe par phrase.</div><div class="lc-ai"><svg><use href="#i-spark"/></svg><span>Le rendez-vous est lundi. Venez à 9 h. Apportez votre carte.</span></div></div></article><article class="lc"><span class="lc-n">Modules 9 à 11</span><h3>Le cadre et les biais</h3><p>RGPD, règlement européen sur l’IA, biais&nbsp;: l’essentiel au poste de travail.</p><div class="lc-ex"><span class="lc-k">Exemple</span><div class="lc-u">Pourquoi l’image d’un « médecin » montre-t-elle toujours un homme&nbsp;?</div><div class="lc-ai"><svg><use href="#i-spark"/></svg><span>Un biais des données d’entraînement. Précisez ce que vous voulez voir.</span></div></div></article><article class="lc"><span class="lc-n">Modules 12 à 15</span><h3>Intégrer l’IA à son poste</h3><p>Repérer ce que l’IA peut alléger, choisir ses outils, bâtir son plan.</p><div class="lc-ex"><span class="lc-k">Exemple</span><div class="lc-u">Liste mes tâches répétitives de la semaine.</div><div class="lc-ai"><svg><use href="#i-spark"/></svg><span>Comptes rendus, relances, tri des mails&nbsp;: trois pistes à tester.</span></div></div></article>
+      </div>
+      <div class="learn-prog"><i data-learn-prog></i></div>
     </div>
   </section>
 
