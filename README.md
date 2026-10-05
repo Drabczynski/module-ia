@@ -110,7 +110,8 @@ construire, varier : glisser, QCM, roue, génération d’image) et, à gauche, 
 d’interaction. Des étiquettes expliquent les clics de la démonstration. Une bande horizontale présente
 ensuite ce qu’on apprend, thème par thème, avec un exemple à chaque fois. Mouvements à ressorts. Suivent les modules,
 les atouts, le référentiel, les formules et la FAQ. Réutilise `premiers-pas/orb.js` et les
-polices de `assets/fonts`. Nom « Atelier IA », formules « Sur devis » et adresse de contact
+polices de `assets/fonts`. Photo de paysage : Liang Zhao sur Unsplash (licence Unsplash), chargée
+depuis images.unsplash.com. Nom « Atelier IA », formules « Sur devis » et adresse de contact
 à remplacer.
 
 ## Découvrir Claude (`decouvrir/`)

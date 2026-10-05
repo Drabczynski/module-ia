@@ -206,7 +206,7 @@
     if (ch === "write") return L("write") < .64 ? "colBot" : "colTop";
     if (ch === "spot") return "colTop";
     if (ch === "build") return "colBot";
-    if (ch === "more") return "panel";
+    if (ch === "more") return "full";                          // tout le module : la conversation à gauche, la consigne à droite
     return "full";
   }
   var fwS = new Spring(0, 120, 20), fwInit = false;
@@ -229,8 +229,9 @@
   var card1 = $("[data-card1]"), card2 = $("[data-card2]"), stamp = $("[data-stamp]"), bfaux = $("[data-bfaux]");
   var next = $("[data-next]"), psay = $("[data-psay]"), prog = $("[data-prog]"), wtitle = $("[data-wtitle]");
   var gxs = $$("[data-gx]"), gbs = $$("[data-gb]"), qos = $$("[data-qo]"), wheel = $("[data-wheel]"), wbtn = $("[data-wbtn]"), wres = $("[data-wres]");
-  var genTxt = $("[data-gen-txt]"), genBtn = $("[data-gen-btn]"), genImg = $("[data-gen-img]"), genBar = $("[data-gen-bar]"), genCap = $("[data-gen-cap]");
-  var GEN = "Une affiche aquarelle pour la fête du quartier, plan large, couleurs chaudes, format carré.";
+  var genImg = $("[data-gen-img]"), genBar = $("[data-gen-bar]"), genCap = $("[data-gen-cap]"), hello = $("[data-hello]");
+  var u2 = $("[data-u2]"), ai2 = $("[data-ai2]"), msim2 = $("[data-ai2] .m-sim"), gts = $$("[data-gt]");
+  var GEN = u2.textContent.replace(/\u00a0/g, " ");
   var stItems = $$("[data-st]"), tags = {}; $$("[data-tag]").forEach(function (t) { tags[t.dataset.tag] = t; });
   var TYPED = "Écris une offre d’emploi pour un poste d’assistant administratif.";
   var SLOTS = [
@@ -339,7 +340,7 @@
     setClass(comp, "on", (tw >= .1 && !sent && !inBuild) || (inBuild && U < START.more));
     var inMore = U >= START.more;
     setClass(comp, "is-tpl", inBuild && !inMore);
-    comp.style.opacity = inMore ? "0" : "1";
+    comp.style.opacity = "1";
     var typed = seg(tw, .14, .5);
     if (!inBuild) {
       if (tw < .1 || sent) { if (!inp.querySelector(".ph")) inp.innerHTML = '<span class="ph">Le champ s’activera quand ce sera à vous d’écrire.</span>'; }
@@ -398,16 +399,33 @@
     wheel.style.transform = "rotate(" + (spin * (360 * 3 + 330)) + "deg)";
     setClass(wbtn, "press", w >= .14 && w < .2); clickAt("wheel", gk === 2 && w >= .14);
     setClass(wres, "on", w >= .8);
-    // image
-    var g = gk === 3 ? gu : 0, gtxt = GEN.slice(0, Math.round(GEN.length * seg(g, .04, .32)));
-    if (genTxt.textContent !== gtxt) genTxt.textContent = gtxt;
-    setClass(genBtn, "press", g >= .36 && g < .42); clickAt("gen", gk === 3 && g >= .36);
-    var gr = seg(g, .42, .9);
-    genImg.style.opacity = String(seg(g, .42, .5));
-    genImg.style.filter = "blur(" + (26 * (1 - ease(gr))).toFixed(1) + "px) saturate(" + (.4 + .6 * gr).toFixed(2) + ")";
+    // image : la consigne à droite, la demande et l'image à gauche, dans la conversation
+    var g = gk === 3 ? gu : 0, sent2 = gk === 3 && g >= .42, typed2 = seg(g, .05, .34);
+    if (inMore) {
+      if (gk < 3 || typed2 <= 0 || sent2) { if (inp.textContent !== "Écrire à l’IA…") inp.innerHTML = '<span class="ph">Écrire à l’IA…</span>'; }
+      else inp.innerHTML = GEN.slice(0, Math.round(GEN.length * typed2)) + '<span class="caret"></span>';
+      setClass(comp, "on", !sent2);
+      setClass(send, "on", gk === 3 && typed2 >= 1 && !sent2);
+      setClass(send, "press", gk === 3 && g >= .38 && g < .44);
+      clickAt("send2", gk === 3 && g >= .4);
+      setClass(slotWin, "on", !sent2);
+      setClass(slotMini, "on", sent2);
+      var wt2 = sent2 ? GEN : "Nouvelle conversation"; if (wtitle.textContent !== wt2) wtitle.textContent = wt2;
+    }
+    setClass(hello, "on", inMore && !(gk === 3 && g >= .4));
+    setClass(u2, "on", inMore && sent2);
+    setClass(ai2, "on", inMore && gk === 3 && g >= .47);
+    var gr = seg(g, .5, .9);
+    genImg.style.opacity = String(seg(g, .5, .56));
+    genImg.style.filter = "blur(" + (24 * (1 - ease(gr))).toFixed(1) + "px) saturate(" + (.35 + .65 * gr).toFixed(2) + ")";
     genBar.style.width = (100 * gr) + "%";
-    genBar.parentNode.style.opacity = gr >= 1 ? "0" : "1";
-    genCap.textContent = gr >= 1 ? "affiche_fete_quartier.png" : g >= .42 ? "Génération… " + Math.round(gr * 100) + " %" : "";
+    genBar.parentNode.style.opacity = gr >= 1 || g < .5 ? "0" : "1";
+    genCap.textContent = gr >= 1 ? "" : g >= .5 ? "Génération… " + Math.round(gr * 100) + " %" : "";
+    msim2.style.opacity = gr >= 1 ? "1" : "0";
+    setClass(gts[0], "cur", gk === 3 && !sent2); setClass(gts[0], "done", sent2);
+    setClass(gts[1], "cur", sent2 && gr < 1); setClass(gts[1], "done", gr >= 1);
+    gts.forEach(function (t, i) { var h = t.classList.contains("done") ? '<svg><use href="#i-check"/></svg>' : String(i + 1); if (t.firstChild.innerHTML !== h) t.firstChild.innerHTML = h; });
+    setClass($('[data-fb="gen"]'), "on", gr >= 1);
     // la carte à glisser
     var swp = ease(seg(tsw, .4, .75));
     card1.style.transform = "translateX(" + (-640 * swp) + "px) rotate(" + (-22 * swp) + "deg)";
@@ -454,7 +472,7 @@
       if (gk === 0 && gu >= .08 && gu < .8) { var b = inWin(bfaux); return mv({ x: b.x + 160, y: b.y - 140 }, b, seg(gu, .08, .28)); }
       if (gk === 1 && gu >= .1 && gu < .9) { var o = inWin(qos[1]); return mv({ x: o.x + 180, y: o.y + 140 }, { x: o.x + 60, y: o.y }, seg(gu, .1, .36)); }
       if (gk === 2 && gu < .4) { var wb = inWin(wbtn); return mv({ x: wb.x - 120, y: wb.y + 120 }, wb, seg(gu, .0, .13)); }
-      if (gk === 3 && gu >= .3 && gu < .6) { var gb = inWin(genBtn); return mv({ x: gb.x - 160, y: gb.y + 90 }, gb, seg(gu, .3, .35)); }
+      if (gk === 3 && gu >= .3 && gu < .5) { var sb = inWin(send); return mv({ x: sb.x - 180, y: sb.y - 100 }, sb, seg(gu, .3, .4)); }
     }
     return null;
   }
