@@ -2,7 +2,7 @@
    Site vitrine : le défilement raconte un module, chapitre par chapitre.
    film   le hero, puis la vidéo du bureau défile image par image, avec les messages
    dive   la caméra plonge dans l'écran ; la sphère de la vidéo devient la nôtre
-   sphere la sphère tourne, éclate ; l'orbe naît et parle
+   sphere l'orbe surgit de l'écran et parle
    open   le module s'ouvre dans un écran, l'orbe y entre
    write · spot · build · more   quatre temps de l'apprenant ; une caméra
           cadre la zone utile, les étapes et leurs arguments sont à gauche
@@ -28,7 +28,7 @@
   };
 
   /* ---------- chapitres (longueurs en hauteurs d'écran) ---------- */
-  var CH = [["film", 10], ["dive", 1.4], ["sphere", 2.2], ["open", 1.2], ["write", 1.9], ["spot", 1.8], ["build", 2.4], ["more", 7.5]];
+  var CH = [["film", 10], ["dive", 1.4], ["sphere", 1.8], ["open", 1.2], ["write", 1.9], ["spot", 1.8], ["build", 2.4], ["more", 7.5]];
   var START = {}, LEN = {}, TOTAL = 0;
   CH.forEach(function (c) { START[c[0]] = TOTAL; LEN[c[0]] = c[1]; TOTAL += c[1]; });
   var story = $("[data-story]"), stage = $("[data-stage]");
@@ -316,10 +316,10 @@
     /* --- 3. notre sphère prend le relais, tourne, éclate --- */
     var burst = ease(seg(tS, .3, .56));
     var rot = time * .25 + U * 1.6;
-    sphere.draw(cx0, cy0, R, 1, burst, rot, seg(tD, .7, .95) * (1 - seg(tS, .56, .62)));
+    sphere.draw(cx0, cy0, R, 1, burst, rot, 0);                // plus de sphère : on entre directement dans l'assistant
 
     /* --- 3. l'orbe naît de l'éclatement, puis entre dans l'écran --- */
-    appear.t = tS > .36 ? 1 : 0;
+    appear.t = tD > .72 ? 1 : 0;                               // l'orbe surgit de l'écran blanc
     var a = appear.step(dt);
     var p1 = { x: vw / 2, y: vh * .4, s: Math.min(1, vw / 520) };
     var slotC = centerOf(slotWin), p2 = { x: slotC.x, y: slotC.y, s: (150 * cam.s.v) / ORB };
@@ -333,12 +333,12 @@
     orbEl.style.transform = "translate(" + (ox - ORB / 2) + "px," + (oy - ORB / 2) + "px) scale(" + Math.max(.001, os * a) + ")";
     orbEl.style.opacity = String(1 - handOff);
     orbEl.style.visibility = handOff >= 1 || a < .002 ? "hidden" : "visible";
-    if (orb) orb.setState(tS > .45 && tO < .9 ? "speaking" : "idle");
+    if (orb) orb.setState(tD > .85 && tO < .9 ? "speaking" : "idle");
 
     /* --- sa phrase --- */
     say.style.top = (vh * .4 + Math.min(150, vh * .17) * (vw < 600 ? .8 : 1)) + "px";
-    say.style.opacity = String(seg(tS, .44, .52) * (1 - seg(tO, .05, .25)));
-    reveal(sayW, seg(tS, .48, .96));
+    say.style.opacity = String(seg(tD, .85, 1) * (1 - seg(tO, .05, .25)));
+    reveal(sayW, seg(tS, .02, .9));
 
     /* --- le fond --- */
     shaderI.t = ch === "film" ? 1 : ch === "sphere" ? 1.15 : window.scrollY > story.offsetTop + story.offsetHeight - innerHeight ? .45 : .65;
