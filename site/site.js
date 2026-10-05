@@ -28,7 +28,7 @@
   };
 
   /* ---------- chapitres (longueurs en hauteurs d'écran) ---------- */
-  var CH = [["film", 6.5], ["dive", 1.4], ["sphere", 2.2], ["open", 1.2], ["write", 1.9], ["spot", 1.8], ["build", 2.4], ["more", 7.5]];
+  var CH = [["film", 10], ["dive", 1.4], ["sphere", 2.2], ["open", 1.2], ["write", 1.9], ["spot", 1.8], ["build", 2.4], ["more", 7.5]];
   var START = {}, LEN = {}, TOTAL = 0;
   CH.forEach(function (c) { START[c[0]] = TOTAL; LEN[c[0]] = c[1]; TOTAL += c[1]; });
   var story = $("[data-story]"), stage = $("[data-stage]");
@@ -149,7 +149,7 @@
     };
   })();
   var filmShade = $("[data-film-shade]"), filmFlash = $("[data-film-flash]"), msgs = $$("[data-msg]");
-  var MSG = [[.14, .29], [.31, .46], [.48, .62], [.64, .77], [.79, .9], [.93, 1.01]];
+  var MSG = [[.1, .3], [.27, .47], [.44, .63], [.6, .78], [.75, .92], [.9, 1.01]];
 
   /* =====================================================================
      Hero : le titre se pose mot à mot, l'orbe apparaît au survol
@@ -297,7 +297,11 @@
     hint.style.opacity = String(1 - seg(tF, 0, .04));
     film.draw(seg(tF, .08, .985) * (film.N - 1));
     filmShade.style.opacity = String(1 - .45 * seg(tF, .1, .2) - .5 * seg(tD, 0, .4));
-    msgs.forEach(function (m, i) { setClass(m, "on", U < START.dive + .3 && tF >= MSG[i][0] && tF < MSG[i][1] && !(i === 5 && tD > .25)); });
+    msgs.forEach(function (m, i) {                            // chaque message traverse l'écran pendant sa fenêtre
+      var w = MSG[i], on = U < START.dive + .3 && tF >= w[0] && tF < w[1] && !(i === 5 && tD > .25), t = seg(tF, w[0], w[1]);
+      setClass(m, "on", on);
+      m.style.transform = "translateY(" + ((.5 - t) * vh * .28).toFixed(1) + "px)";
+    });
 
     /* --- 2. la plongée dans l'écran : la sphère de la vidéo grossit jusqu'à la taille de la nôtre --- */
     var R = Math.min(vw, vh) * .27, cx0 = vw / 2, cy0 = vh * .4;
