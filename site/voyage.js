@@ -1,7 +1,7 @@
 /* ==========================================================================
-   L'immeuble : une entreprise en maquette 3D, à la tombée de la nuit.
-   Un immeuble de bureaux au coin d'un îlot (façade vitrée, hall d'accueil,
-   toit technique, réverbères, arbres). On en fait le tour au défilement ; à
+   L'immeuble : une entreprise en maquette 3D, seule sur fond beige.
+   Un immeuble de bureaux (façade vitrée, hall d'accueil, toit technique)
+   et son ombre portée. On en fait le tour au défilement ; à
    chaque étage, les bureaux du service s'allument et une carte montre un
    usage concret de l'IA. Derrière chaque vitre, une vraie pièce en
    perspective (interior mapping) : plafonds lumineux, postes, écrans,
@@ -33,22 +33,22 @@ function start() {
   catch (e) { sec.classList.add("no-gl"); return; }
   renderer.setPixelRatio(Math.min(small ? 1.5 : 2, window.devicePixelRatio || 1));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.9;
+  renderer.toneMapping = THREE.NoToneMapping;   // le beige du fond reste exactement celui de la page
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-  const NIGHT = new THREE.Color("#1b1e2b");
+  const BEIGE = new THREE.Color("#efe7da");
   const scene = new THREE.Scene();
-  scene.background = NIGHT;
-  scene.fog = new THREE.Fog(NIGHT, 80, 220);
+  scene.background = BEIGE;
+  scene.fog = new THREE.Fog(BEIGE, 80, 220);
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
   scene.environmentIntensity = 0.12;
 
   const FOV = small ? 26 : 22;
   const camera = new THREE.PerspectiveCamera(FOV, 1, 1, 600);
-  scene.add(new THREE.HemisphereLight(0x7d8cc4, 0x2b2530, 0.5));
-  const moon = new THREE.DirectionalLight(0xaebdff, 0.75);
+  scene.add(new THREE.HemisphereLight(0xfffaf2, 0xd8ccb6, 1.0));
+  const moon = new THREE.DirectionalLight(0xfff0dc, 1.3);
   moon.position.set(-30, 52, 26); moon.castShadow = true;
   moon.shadow.mapSize.set(small ? 1024 : 2048, small ? 1024 : 2048); moon.shadow.bias = -0.0005; moon.shadow.normalBias = 0.02; moon.shadow.radius = 4;
   Object.assign(moon.shadow.camera, { left: -30, right: 30, top: 30, bottom: -22, near: 1, far: 140 });
@@ -61,28 +61,9 @@ function start() {
     if (repeat) t.wrapS = t.wrapT = THREE.RepeatWrapping;
     return t;
   };
-  const tileTex = canvasTex(256, 256, (g, w, h) => {
-    g.fillStyle = "#8a8780"; g.fillRect(0, 0, w, h);
-    for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) { g.fillStyle = `hsl(40,5%,${48 + rnd() * 6}%)`; g.fillRect(i * 64 + 2, j * 64 + 2, 60, 60); }
-  }, true);
-  const asphaltTex = canvasTex(256, 256, (g, w, h) => {
-    g.fillStyle = "#34363d"; g.fillRect(0, 0, w, h);
-    for (let i = 0; i < 2200; i++) { g.fillStyle = `rgba(${rnd() < 0.5 ? "255,255,255" : "0,0,0"},${rnd() * 0.06})`; g.fillRect(rnd() * w, rnd() * h, 2, 2); }
-  }, true);
   const solarTex = canvasTex(128, 128, (g, w, h) => {
     g.fillStyle = "#1d2a4a"; g.fillRect(0, 0, w, h); g.strokeStyle = "#7f93c2"; g.lineWidth = 2;
     for (let i = 0; i <= 4; i++) { g.beginPath(); g.moveTo(i * 32, 0); g.lineTo(i * 32, h); g.stroke(); g.beginPath(); g.moveTo(0, i * 32); g.lineTo(w, i * 32); g.stroke(); }
-  });
-  const poolTex = canvasTex(128, 128, (g) => {
-    const r = g.createRadialGradient(64, 64, 0, 64, 64, 64);
-    r.addColorStop(0, "rgba(255,190,120,.32)"); r.addColorStop(0.45, "rgba(255,160,90,.1)"); r.addColorStop(1, "rgba(255,150,80,0)");
-    g.fillStyle = r; g.fillRect(0, 0, 128, 128);
-  });
-  const facadeTex = canvasTex(256, 512, (g, w, h) => {      // les immeubles voisins, flous au loin
-    g.fillStyle = "#5d5f68"; g.fillRect(0, 0, w, h);
-    for (let y = 16; y < h - 20; y += 40) for (let x = 14; x < w - 20; x += 40) {
-      const on = rnd() < 0.28; g.fillStyle = on ? `hsl(${30 + rnd() * 12},90%,${62 + rnd() * 14}%)` : "#262934"; g.fillRect(x, y, 22, 26);
-    }
   });
 
   /* ---------- outils ---------- */
@@ -99,46 +80,13 @@ function start() {
   };
   const planeUV = (w, h, tile) => { const g = new THREE.PlaneGeometry(w, h); const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * w / tile, uv.getY(i) * h / tile); return g; };
 
-  /* ---------- la rue ---------- */
-  const SW = 34, SD = 26, CURB = 0.3, ROAD = 12;
-  asphaltTex.repeat.set(60, 60);
-  const road = mesh(new THREE.PlaneGeometry(600, 600), mat(0xffffff, { map: asphaltTex, roughness: 0.92 }), 0, 0, 0, { cast: false });
-  road.rotation.x = -Math.PI / 2;
-  const curbMat = mat(0x8d8a84);
-  tileTex.repeat.set(SW / 4, SD / 4);
-  const walkMat = mat(0xffffff, { map: tileTex, roughness: 0.9 });
-  const blocks = [];
-  for (const bx of [-1, 0, 1]) for (const bz of [-1, 0, 1]) {
-    const cx = bx * (SW + ROAD), cz = bz * (SD + ROAD); blocks.push([cx, cz]);
-    mesh(new THREE.PlaneGeometry(SW, SD), walkMat, cx, CURB + 0.001, cz, { cast: false }).rotation.x = -Math.PI / 2;
-    mesh(box, curbMat, cx, CURB / 2, cz, { sx: SW + 0.3, sy: CURB, sz: SD + 0.3, cast: false });
-  }
-
-  // marquages : pointillés et passages piétons
-  const marks = [];
-  const RX = SW / 2 + ROAD / 2, RZ = SD / 2 + ROAD / 2;
-  for (let x = -70; x <= 70; x += 4) for (const z of [RZ, -RZ]) if (Math.abs(Math.abs(x) - RX) > 7) marks.push([x, 0.02, z, 0, 2, 0.04, 0.22]);
-  for (let z = -60; z <= 60; z += 4) for (const x of [RX, -RX]) if (Math.abs(Math.abs(z) - RZ) > 7) marks.push([x, 0.02, z, 0, 0.22, 0.04, 2]);
-  for (const sx of [-1, 1]) for (const sz of [-1, 1]) for (let k = 0; k < 9; k++) {
-    marks.push([sx * (SW / 2 - 2.6), 0.02, sz * (SD / 2 + 1.2 + k * 1.2), 0, 3.4, 0.04, 0.6]);
-    marks.push([sx * (SW / 2 + 1.2 + k * 1.2), 0.02, sz * (SD / 2 - 2.6), 0, 0.6, 0.04, 3.4]);
-  }
-  inst(box, mat(0xe9e6dc, { roughness: 0.7 }), marks, { cast: false });
-
-  // les voisins, simples volumes aux fenêtres allumées (le flou les estompe)
-  const neighMat = mat(0xffffff, { map: facadeTex, emissiveMap: facadeTex, emissive: new THREE.Color(1.6, 1.2, 0.8), emissiveIntensity: 0.3, roughness: 0.9 });
-  const neighRoof = mat(0x4a4b52), neighBox = mat(0x9ea1a8);
-  blocks.forEach(([cx, cz]) => {
-    if (!cx && !cz) return;
-    const n = 2 + Math.floor(rnd() * 2);
-    for (let k = 0; k < n; k++) {
-      const w = 9 + rnd() * 6, d = 8 + rnd() * 6, h = 5 + rnd() * 9;
-      const x = cx + (k - (n - 1) / 2) * (SW / n), z = cz + (rnd() - 0.5) * 6;
-      mesh(box, neighMat, x, CURB + h / 2, z, { sx: w, sy: h, sz: d });
-      mesh(box, neighRoof, x, CURB + h + 0.25, z, { sx: w + 0.4, sy: 0.5, sz: d + 0.4 });
-      if (rnd() < 0.6) mesh(box, neighBox, x + (rnd() - 0.5) * w * 0.5, CURB + h + 1, z + (rnd() - 0.5) * d * 0.5, { sx: 1.6, sy: 1, sz: 1.2 });
-    }
-  });
+  /* ---------- le sol : rien que l'ombre portée ---------- */
+  const CURB = 0;
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), new THREE.ShadowMaterial({ color: 0x5a4a35, opacity: 0.18 }));
+  ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+  const blobTex = canvasTex(256, 256, (g) => { const r = g.createRadialGradient(128, 128, 30, 128, 128, 128); r.addColorStop(0, "rgba(90,74,53,.28)"); r.addColorStop(1, "rgba(90,74,53,0)"); g.fillStyle = r; g.fillRect(0, 0, 256, 256); });
+  const blob = new THREE.Mesh(new THREE.PlaneGeometry(40, 32), new THREE.MeshBasicMaterial({ map: blobTex, transparent: true, depthWrite: false }));
+  blob.rotation.x = -Math.PI / 2; blob.position.y = 0.01; scene.add(blob);
 
   /* ---------- l'immeuble de bureaux ---------- */
   const FLOORS = 6, GH = 4.6, FH = 3.6, W = 18, D = 12, H = GH + (FLOORS - 1) * FH, BAY = 1.5;
@@ -193,7 +141,7 @@ function start() {
           float seed = floor(vB.w * 997.) / 997., hw = vA.w * .5, y0 = vB.x, y1 = vB.y, dep = vB.z;
           vec3 o = vP + vec3(vA.z, 0., 0.), d = normalize(vP - vE);
           float on = max(lit, uAll), roomOn = lobby ? 1. : step(.28, h1(seed * 91.7 + vC.x));
-          float L = max(roomOn * .8, on);
+          float L = max(mix(.32, .8, roomOn), on);
           vec3 lc = mix(vec3(1.,.95,.86), vec3(2.3,1.35,.6), on) * L;          // blanc froid le soir, chaud quand l'IA s'allume
           // le rayon traverse la pièce : murs, sol, plafond
           float tx = ((d.x > 0. ? hw : -hw) - o.x) / d.x, ty = ((d.y > 0. ? y1 : y0) - o.y) / d.y, tz = (-dep - o.z) / d.z;
@@ -240,7 +188,7 @@ function start() {
           }
           // le verre : reflet du ciel nocturne, montants fins
           float fres = .06 + .55 * pow(1. - abs(d.z), 4.);
-          c = mix(c, mix(vec3(.05,.06,.1), vec3(.14,.16,.24), vP.y / vA.y + .5), fres);
+          c = mix(c, mix(vec3(.42,.45,.5), vec3(.7,.71,.72), vP.y / vA.y + .5), fres);
           vec2 e = abs(vP.xy) - vA.xy * .5;
           if (max(e.x, e.y) > -.035) c = vec3(.09,.1,.12);
           gl_FragColor = vec4(c, 1.);
@@ -336,36 +284,6 @@ function start() {
   halo.rotation.x = Math.PI / 2; halo.position.set(3.6, R0 + 0.55, 2.8); B.add(halo);
   const orbLight = new THREE.PointLight(0xffc9a0, 18, 9, 1.6); orbLight.position.set(3.6, ORB_Y, 2.8); B.add(orbLight);
 
-  /* ---------- le trottoir : réverbères, arbres, bancs ---------- */
-  const lampBulbs = [], poles = [];
-  const lamps = [[-14.8, 11.8], [-5, 11.8], [5, 11.8], [14.8, 11.8], [16.2, 3.5], [16.2, -6], [-16.2, 3.5], [-16.2, -6], [-6, -11.8], [8, -11.8]];
-  const poolMat = new THREE.MeshBasicMaterial({ map: poolTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
-  lamps.forEach(([x, z]) => {
-    poles.push([x, CURB + 2.3, z, 0, 0.14, 4.6, 0.14], [x, CURB + 4.65, z, 0, 0.42, 0.12, 0.42]);
-    lampBulbs.push([x, CURB + 4.45, z, 0, 0.2, 0.2, 0.2]);
-    mesh(new THREE.PlaneGeometry(9, 9), poolMat, x, CURB + 0.02, z, { cast: false, recv: false }).rotation.x = -Math.PI / 2;
-  });
-  inst(box, dark, poles);
-  inst(bulb, new THREE.MeshBasicMaterial({ color: new THREE.Color(9, 6, 3) }), lampBulbs, { cast: false });
-  for (const x of [-5, 5]) { const l = new THREE.PointLight(0xffb27a, 30, 14, 1.5); l.position.set(x, CURB + 4.2, 11.6); scene.add(l); }   // deux vraies lumières devant l'entrée
-
-  const leaf = [mat(0x4f7d3f, { flatShading: true }), mat(0x6a9a4c, { flatShading: true }), mat(0x3f6a37, { flatShading: true })];
-  const ico = new THREE.IcosahedronGeometry(1, 0), trunk = new THREE.CylinderGeometry(0.13, 0.18, 2.2, 8), bark = mat(0x5a3f2c);
-  for (const [x, z] of [[-10.5, 10], [10.5, 10], [-11.5, -9.5], [12, -9.5], [14.5, -1.5], [-14.5, -1.5]]) {
-    mesh(box, stone, x, CURB + 0.25, z, { sx: 1.5, sy: 0.5, sz: 1.5 });
-    mesh(trunk, bark, x, CURB + 1.4, z);
-    const k = Math.floor(rnd() * 3);
-    mesh(ico, leaf[k], x, CURB + 3.1, z, { sx: 1.5, sy: 1.6, sz: 1.5 }).rotation.set(rnd(), rnd(), 0);
-    mesh(ico, leaf[(k + 1) % 3], x + 0.5, CURB + 3.9, z - 0.3, { sx: 1.0, sy: 1.1, sz: 1.0 }).rotation.set(rnd(), rnd(), 0);
-  }
-  const wood = mat(0x8a5f3c);
-  for (const x of [-8, 8]) {
-    mesh(box, wood, x, CURB + 0.5, 9.4, { sx: 2.2, sy: 0.1, sz: 0.6 }); mesh(box, wood, x, CURB + 0.85, 9.68, { sx: 2.2, sy: 0.5, sz: 0.08 });
-    for (const s of [-1, 1]) mesh(box, dark, x + s * 0.9, CURB + 0.25, 9.4, { sx: 0.08, sy: 0.5, sz: 0.5 });
-  }
-  mesh(new THREE.CylinderGeometry(0.18, 0.2, 0.75, 12), mat(0xb8382c, { roughness: 0.5 }), -16.2, CURB + 0.37, 7.5);
-  for (const x of [-4.6, 4.6]) { mesh(new THREE.CylinderGeometry(0.42, 0.34, 0.75, 14), stone, x, CURB + 0.37, 10.6); mesh(ico, leaf[1], x, CURB + 1.0, 10.6, { sx: 0.5, sy: 0.4, sz: 0.5 }); }
-
   /* ---------- lucioles : elles s'échappent des fenêtres de l'étage éclairé ---------- */
   const N = small ? 900 : 2200;
   const motes = (() => {
@@ -377,14 +295,14 @@ function start() {
     g.setAttribute("position", new THREE.BufferAttribute(new Float32Array(N * 3), 3));
     g.setAttribute("a", new THREE.BufferAttribute(a, 4)); g.setAttribute("b", new THREE.BufferAttribute(b, 4));
     const m = new THREE.ShaderMaterial({
-      uniforms: { uT: { value: 0 }, uLit: { value: floorLit }, uScale: { value: 800 } }, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      uniforms: { uT: { value: 0 }, uLit: { value: floorLit }, uScale: { value: 800 } }, transparent: true, depthWrite: false,
       vertexShader: `attribute vec4 a; attribute vec4 b; uniform float uT; uniform float uScale; uniform float uLit[${FLOORS}]; varying float vA;
         void main(){ float lit = 0.; for (int k = 0; k < ${FLOORS}; k++) if (float(k) == a.w) lit = uLit[k];
           float t = fract(uT * .12 * b.w + b.z);
           vec3 p = a.xyz + vec3(b.x, 0., b.y) * (t * 2.6) + vec3(sin(t * 6. + b.z * 30.) * .3, t * 3.2, cos(t * 5. + b.z * 20.) * .3);
           vA = lit * sin(t * 3.1416);
           vec4 mv = modelViewMatrix * vec4(p, 1.); gl_PointSize = .2 * uScale / -mv.z; gl_Position = projectionMatrix * mv; }`,
-      fragmentShader: `varying float vA; void main(){ float r = length(gl_PointCoord - .5); if (r > .5) discard; gl_FragColor = vec4(vec3(3.2,2.1,1.1) * vA * smoothstep(.5,.0,r), 1.); }`
+      fragmentShader: `varying float vA; void main(){ float r = length(gl_PointCoord - .5); if (r > .5) discard; gl_FragColor = vec4(vec3(1.6,.62,.25), vA * smoothstep(.5,.1,r)); }`
     });
     const pts = new THREE.Points(g, m); pts.frustumCulled = false; scene.add(pts); return m;
   })();
@@ -406,7 +324,7 @@ function start() {
         vec2 q = vUv - .5; c.rgb *= 1. - uVig * dot(q, q) * 1.5;
         gl_FragColor = c; }`
   });
-  const tiltH = tilt([1, 0], 0), tiltV = tilt([0, 1], 0.55);
+  const tiltH = tilt([1, 0], 0), tiltV = tilt([0, 1], 0);
   composer.addPass(tiltH); composer.addPass(tiltV);
   composer.addPass(new OutputPass());
 
@@ -414,8 +332,8 @@ function start() {
   const caps = Array.from(sec.querySelectorAll("[data-cap]"));
   const STEPS = FLOORS + 2;                          // vue d'ensemble, six étages, le toit
   function shotOf(k) {                               // az : angle autour de l'immeuble ; e : pente du regard ; need : largeur à garder visible
-    if (k <= 0) return { az: -0.8, r: 112, e: 0.6, ty: 8, need: 48 };
-    if (k >= STEPS - 1) return { az: 5.55, r: 104, e: 0.72, ty: 12, need: 46 };
+    if (k <= 0) return { az: -0.8, r: 96, e: 0.5, ty: 11, need: 34 };
+    if (k >= STEPS - 1) return { az: 5.55, r: 96, e: 0.62, ty: 12, need: 34 };
     const i = k - 1; return { az: -0.45 + i * 0.74, r: 78, e: 0.4, ty: CURB + floorY(i) + floorH(i) / 2, need: 30 };
   }
   let fitK = 1;
@@ -452,7 +370,7 @@ function start() {
     const A = shotOf(k), Bs = shotOf(k + 1), mix = (p) => A[p] + (Bs[p] - A[p]) * m;
     const az = mix("az") + Math.sin(time * 0.15) * 0.03, ty = mix("ty"), r = Math.max(mix("r"), mix("need") / 2 / fitK), y = ty + r * mix("e");
     camera.position.set(Math.sin(az) * r, y, Math.cos(az) * r); camera.lookAt(0, ty, 0);
-    const dist = camera.position.length(); scene.fog.near = dist * 0.9; scene.fog.far = dist * 2.4;
+    const dist = camera.position.length(); scene.fog.near = dist * 1.4; scene.fog.far = dist * 3;
 
     const active = f < 0.55 ? k : (f > 0.9 ? k + 1 : -1), shown = f < 0.7 ? k : k + 1;
     const ease4 = 1 - Math.exp(-dt * 4);
