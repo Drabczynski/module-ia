@@ -148,7 +148,7 @@
       }
     };
   })();
-  var filmShade = $("[data-film-shade]"), filmFlash = $("[data-film-flash]"), msgs = $$("[data-msg]");
+  var filmDim = $("[data-film-dim]"), filmShade = $("[data-film-shade]"), filmFlash = $("[data-film-flash]"), msgs = $$("[data-msg]");
   var MSG = [[.1, .3], [.28, .5], [.47, .68], [.65, .84], [.81, .99]];
 
   /* =====================================================================
@@ -169,7 +169,7 @@
     var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), n;
     while ((n = w.nextNode())) { var t = n.nodeValue, u = t; do { t = u; u = t.replace(SHORT, "$1$2\u00a0"); } while (u !== t); if (u !== n.nodeValue) n.nodeValue = u; }
   }
-  $$(".msg, .st-more, .hero-sub, .sec h2, .sec-lead, .feat p, .lc p, .lc h3, .learn-head h2, .final h2, .final p, .pm-t small, .pv-lead, .faq p, .plan li, .comp li, .say").forEach(glue);
+  $$(".msg, .st-more, .hero-sub, .sec h2, .sec-lead, .feat p, .lc p, .lc h3, .learn-head h2, .final h2, .final p, .pm-t small, .pv-lead, .faq p, .pc-list li, .comp li, .say").forEach(glue);
 
   /* ---------- mots révélés un à un ---------- */
   function words(el, text) {
@@ -315,11 +315,13 @@
     hint.style.opacity = String(1 - seg(tF, 0, .04));
     film.draw(seg(tF, .08, .985) * (film.N - 1));
     filmShade.style.opacity = String(1 - .7 * seg(tF, .08, .16) - .3 * seg(tD, 0, .4));
+    var anyMsg = false;
     msgs.forEach(function (m, i) {                            // chaque message traverse l'écran pendant sa fenêtre
       var w = MSG[i], on = U < START.dive + .3 && tF >= w[0] && tF < w[1], t = seg(tF, w[0], w[1]);
-      setClass(m, "on", on);
+      setClass(m, "on", on); if (on) anyMsg = true;
       m.style.transform = "translateY(" + ((.5 - t) * vh * .28).toFixed(1) + "px)";
     });
+    setClass(filmDim, "on", anyMsg);
 
     /* --- 2. la plongée dans l'écran : la sphère de la vidéo grossit jusqu'à la taille de la nôtre --- */
     var R = Math.min(vw, vh) * .27, cx0 = vw / 2, cy0 = vh * .4;

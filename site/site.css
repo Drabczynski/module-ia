@@ -564,3 +564,29 @@ main, .foot { position: relative; z-index: 1; }
 .lc:nth-child(3n) .lc-ic { background: #e7f6ee; color: #15803d; }
 /* parcours : noms des modules plus petits */
 .pm-t b { font-size: 15.5px; }
+
+/* ---------- Tarif unique ---------- */
+.price-card { display: grid; grid-template-columns: minmax(280px, 380px) 1fr; border-radius: 28px; background: #fff; box-shadow: 0 0 0 1px var(--line), 0 40px 70px -50px rgba(16,24,56,.4); overflow: hidden; }
+.pc-left { padding: 40px; background: var(--ink); color: #fff; display: flex; flex-direction: column; align-items: flex-start; }
+.pc-name { margin: 0 0 18px; font: 600 12.5px/1 var(--text); letter-spacing: .14em; text-transform: uppercase; color: #ffb38a; }
+.pc-price { display: flex; align-items: baseline; gap: 10px; margin: 0 0 12px; }
+.pc-price b { font: 400 72px/1 var(--display); letter-spacing: -.03em; }
+.pc-price span { font-size: 15px; color: rgba(255,255,255,.7); }
+.pc-for { margin: 0 0 30px; font-size: 15.5px; line-height: 1.5; color: rgba(255,255,255,.75); }
+.pc-left .btn { margin-top: auto; background: #fff; color: var(--ink); }
+.pc-link { margin-top: 16px; font-size: 14px; color: rgba(255,255,255,.75); text-decoration: underline; text-underline-offset: 3px; }
+.pc-list { list-style: none; margin: 0; padding: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px 28px; align-content: center; font-size: 15.5px; color: var(--ink-2); }
+.pc-list li { display: flex; gap: 12px; align-items: flex-start; }
+.pc-list li::before { content: ""; flex: none; width: 20px; height: 20px; margin-top: 1px; border-radius: 50%; background: var(--ok-50) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6.5 12.5 10.5 16 17.5 8.5' fill='none' stroke='%231a9a5a' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/14px no-repeat; }
+@media (max-width: 900px) { .price-card { grid-template-columns: 1fr; } .pc-list { grid-template-columns: 1fr; padding: 28px; } .pc-left { padding: 28px; } }
+
+/* lisibilité des messages sur la vidéo : un voile sombre derrière chaque texte */
+.msg::before { content: ""; position: absolute; inset: -18% -14%; z-index: -1; border-radius: 50%; background: radial-gradient(closest-side, rgba(5,9,18,.88), rgba(5,9,18,.7) 50%, rgba(5,9,18,0)); opacity: 0; transition: opacity .6s; pointer-events: none; }
+.msg.on::before { opacity: 1; }
+.msg h2 { text-shadow: 0 2px 4px rgba(0,0,0,.5), 0 4px 30px rgba(0,0,0,.6); }
+.msg-chips span { background: rgba(10,16,30,.45); }
+.hero.on-film .hero-sub, .hero-trust, .scroll-cue { text-shadow: 0 1px 3px rgba(0,0,0,.6), 0 2px 18px rgba(0,0,0,.5); }
+.msg { isolation: isolate; }
+.msg h2 { font-weight: 500; }
+.film-dim { position: absolute; inset: 0; background: rgba(5,9,18,.38); opacity: 0; transition: opacity .6s; pointer-events: none; }
+.film-dim.on { opacity: 1; }
