@@ -27,7 +27,7 @@
   };
 
   /* ---------- chapitres (longueurs en hauteurs d'écran) ---------- */
-  var CH = [["hero", .9], ["burst", 1.4], ["open", 1.2], ["write", 1.9], ["spot", 1.4], ["build", 2], ["swipe", 1.3], ["score", 1.3]];
+  var CH = [["hero", .9], ["burst", 1.4], ["open", 1.2], ["write", 1.9], ["spot", 1.5], ["build", 2.4], ["swipe", 1.4]];
   var START = {}, LEN = {}, TOTAL = 0;
   CH.forEach(function (c) { START[c[0]] = TOTAL; LEN[c[0]] = c[1]; TOTAL += c[1]; });
   var story = $("[data-story]"), stage = $("[data-stage]");
@@ -183,33 +183,31 @@
   /* =====================================================================
      L'écran et sa caméra
      ===================================================================== */
-  var veil = $("[data-veil]"), frame = $("[data-frame]"), win = $("[data-win]"), sideL = $("[data-side-l]"), sideR = $("[data-side-r]"), rail = $("[data-rail]"), railPill = $("[data-rail-pill]");
+  var veil = $("[data-veil]"), frame = $("[data-frame]"), win = $("[data-win]"), sideL = $("[data-side-l]"), rail = $("[data-rail]"), railPill = $("[data-rail-pill]");
   var W = 1440, H = 860, F = { x: 0, y: 0, w: 0, h: 0 }, stacked = false;
   function layout() {
     var vw = innerWidth, vh = innerHeight, top = 76, bottom = 70;
     stacked = vw < 1100;
     if (!stacked) {
-      var side = clamp(vw * .19, 230, 340), gap = clamp(vw * .03, 24, 56), m = 28;
-      F.w = vw - 2 * (side + gap + m); F.h = Math.min(vh - top - bottom, F.w * .68);
-      F.x = (vw - F.w) / 2; F.y = top + (vh - top - bottom - F.h) / 2;
+      var side = clamp(vw * .24, 280, 420), gap = clamp(vw * .035, 28, 64), m = clamp(vw * .03, 28, 64);
+      F.w = vw - side - gap - 2 * m; F.h = Math.min(vh - top - bottom, F.w * .64);
+      F.x = m + side + gap; F.y = top + (vh - top - bottom - F.h) / 2;
       sideL.style.cssText = "left:" + m + "px;width:" + side + "px;top:" + F.y + "px;height:" + F.h + "px";
-      sideR.style.cssText = "right:" + m + "px;width:" + side + "px;top:" + F.y + "px;height:" + F.h + "px";
     } else {
-      var mm = vw < 600 ? 14 : 28, copyH = vw < 600 ? 150 : 140;
-      F.w = vw - 2 * mm; F.h = Math.min(vh - top - copyH - 70 - 120, F.w * .72);
+      var mm = vw < 600 ? 14 : 28, copyH = vw < 600 ? 200 : 170;
+      F.w = vw - 2 * mm; F.h = Math.min(vh - top - copyH - 90, F.w * .8);
       F.x = mm; F.y = top + copyH;
       sideL.style.cssText = "left:" + mm + "px;right:" + mm + "px;top:" + top + "px;height:" + copyH + "px";
-      sideR.style.cssText = "left:" + mm + "px;right:" + mm + "px;top:" + (F.y + F.h + 8) + "px;height:" + Math.max(60, vh - F.y - F.h - 72) + "px";
     }
     frame.style.left = F.x + "px"; frame.style.top = F.y + "px"; frame.style.width = F.w + "px"; frame.style.height = F.h + "px";
     rail.style.top = (vh - 54) + "px";
-    sideL.classList.toggle("is-stacked", stacked); sideR.classList.toggle("is-stacked", stacked);
+    sideL.classList.toggle("is-stacked", stacked);
   }
   var FOCUS = {                                                // zones cadrées, en coordonnées de l'interface
     full: [0, 0, 1440, 860], left: [0, 40, 770, 820], reply: [20, 110, 740, 380],
     tpl: [0, 210, 770, 650], panel: [771, 40, 669, 820]
   };
-  var CAM_OF = { hero: "full", burst: "full", open: "full", write: "left", spot: "reply", build: "tpl", swipe: "panel", score: "full" };
+  var CAM_OF = { hero: "full", burst: "full", open: "full", write: "left", spot: "reply", build: "tpl", swipe: "panel" };
   function camFor(name) {
     var r = FOCUS[name], s = Math.min(F.w / r[2], F.h / r[3]);
     var x = F.w / 2 - (r[0] + r[2] / 2) * s, y = F.h / 2 - (r[1] + r[3] / 2) * s;
@@ -235,19 +233,16 @@
   var marks = $$("[data-m]"), found = $$("[data-f]"), tasks = $$("[data-t]"), slots = $$("[data-s]"), bks = $$("[data-b]");
   var pop = $("[data-pop]"), popT = $("[data-popt]"), popO = $("[data-popo]"), cursor = $("[data-cursor]");
   var card1 = $("[data-card1]"), card2 = $("[data-card2]"), stamp = $("[data-stamp]"), bfaux = $("[data-bfaux]");
-  var res = $("[data-res]"), ring = $("[data-ring]"), score = $("[data-score]"), rows = $$(".res-row");
   var next = $("[data-next]"), psay = $("[data-psay]"), prog = $("[data-prog]"), wtitle = $("[data-wtitle]");
   var copies = $$("[data-copy]"), railItems = $$("span", rail);
   var TYPED = "Écris une offre d’emploi pour un poste d’assistant administratif.";
   var SLOTS = [
-    ["Rôle", ["chargé·e de recrutement dans une PME", "poète", "avocat·e en droit du travail"]],
     ["Cible", ["des candidats débutants", "des experts en finance", "tout le monde"]],
-    ["Objectif", ["donner envie de postuler", "décourager les candidats", "remplir une page"]],
-    ["Contexte", ["CDI 35 h à Lyon 7e, prise de poste le 3 mars", "à Paris, 3 500 € par mois", "aucun"]],
-    ["Format", ["150 mots, ton chaleureux", "un poème", "trois pages"]]
+    ["Contexte", ["CDI 35 h à Lyon 7e, prise de poste le 3 mars", "à Paris, 3 500 € par mois", "aucun"]]
   ];
-  var SLOT_AT = function (i) { return .16 + i * .15; };
-  var STEP_IDS = ["write", "spot", "build", "swipe", "score"];
+  // deux cases, chacune avec du temps : ouverture, choix, validation
+  var SLOT_AT = function (i) { return .14 + i * .4; }, SLOT_LEN = .34, OPT_AT = .16, SET_AT = .26;
+  var STEP_IDS = ["write", "spot", "build", "swipe"];
   function setClass(el, c, on) { if (el.classList.contains(c) !== !!on) el.classList.toggle(c, !!on); }
   function show(name) { Object.keys(views).forEach(function (k) { setClass(views[k], "on", k === name); }); }
 
@@ -331,13 +326,13 @@
     }
 
     /* =========== le module, geste par geste =========== */
-    var tw = L("write"), tsp = L("spot"), tb = L("build"), tsw = L("swipe"), tr = L("score");
+    var tw = L("write"), tsp = L("spot"), tb = L("build"), tsw = L("swipe");
     var inBuild = U >= START.build;
     show(U < START.spot ? "vague" : U < START.build ? "hunt" : U < START.swipe ? "build" : "swipe");
     var sent = tw >= .62 && !inBuild;
     // les orbes du module
-    setClass(slotWin, "on", (tO >= .8 && !sent && !inBuild) || (inBuild && tb > .06 && U < START.score));
-    setClass(slotMini, "on", sent || (U >= START.swipe && U < START.score));
+    setClass(slotWin, "on", (tO >= .8 && !sent && !inBuild) || (inBuild && tb > .06));
+    setClass(slotMini, "on", sent || U >= START.swipe);
     if (orbIn) orbIn.setState(U >= START.write && tw > .12 && tw < .62 ? "listening" : "speaking");
     // ÉTAPE 1 · écrire
     if (!inBuild) { setWsay("Sophie vous demande une offre d’emploi."); reveal(wsayW, seg(tO, .78, 1)); }
@@ -368,18 +363,18 @@
     // ÉTAPE 3 · construire
     var openI = -1;
     slots.forEach(function (s, i) {
-      var t0 = SLOT_AT(i), set = tb >= t0 + .11;
-      if (tb >= t0 && tb < t0 + .12 && U < START.swipe) openI = i;
+      var t0 = SLOT_AT(i), set = tb >= t0 + SET_AT;
+      if (tb >= t0 && tb < t0 + SET_AT + .02 && U < START.swipe) openI = i;
       setClass(s, "set", set); setClass(s, "open", openI === i && !set);
       var txt = set ? SLOTS[i][1][0] : SLOTS[i][0]; if (s.textContent !== txt) s.textContent = txt;
       setClass(bks[i], "on", set);
-      clickAt("s" + i, tb >= t0 + .02 && tb < t0 + .12); clickAt("o" + i, tb >= t0 + .075 && tb < t0 + .12);
+      clickAt("s" + i, tb >= t0 + .04 && tb < t0 + SET_AT); clickAt("o" + i, tb >= t0 + OPT_AT + .04 && tb < t0 + SET_AT + .02);
     });
     if (openI >= 0) {
       if (popT.textContent !== SLOTS[openI][0]) { popT.textContent = SLOTS[openI][0]; popO.innerHTML = SLOTS[openI][1].map(function (o) { return '<span class="pop-o">' + o + "</span>"; }).join(""); }
       var sr = inWin(slots[openI]), left = clamp(sr.x - 150, 8, 770 - 308);
       pop.style.left = left + "px"; pop.style.top = (sr.t - 48 - pop.offsetHeight - 14) + "px"; pop.style.setProperty("--ax", (sr.x - left) + "px");
-      $$(".pop-o", popO).forEach(function (b, j) { setClass(b, "on", j === 0 && tb >= SLOT_AT(openI) + .07); });
+      $$(".pop-o", popO).forEach(function (b, j) { setClass(b, "on", j === 0 && tb >= SLOT_AT(openI) + OPT_AT); });
     }
     setClass(pop, "on", openI >= 0);
     // ÉTAPE 4 · trancher
@@ -389,18 +384,12 @@
     stamp.style.opacity = String(seg(tsw, .22, .36));
     stamp.style.transform = "rotate(12deg) scale(" + (1.6 - .6 * ease(seg(tsw, .22, .36))) + ")";
     card2.style.transform = "scale(" + (.94 + .06 * swp) + ") translateY(" + (14 * (1 - swp)) + "px)";
-    setClass(bfaux, "press", tsw >= .3 && tsw < .75); clickAt("faux", tsw >= .3 && U < START.score);
+    setClass(bfaux, "press", tsw >= .3 && tsw < .75); clickAt("faux", tsw >= .3);
     // pied du panneau
     var ps = U < START.spot ? (sent ? "Lisez la réponse de l’IA." : "Envoyez-la, et regardez le résultat.") : U < START.build ? "Trouvez les trois inventions." : U < START.swipe ? "Complétez les cases orange." : "Glissez la carte.";
     if (psay.textContent !== ps) psay.textContent = ps;
     setClass(next, "on", (ch === "write" && tw >= .94) || (ch === "spot" && tsp >= .8) || (ch === "build" && tb >= .92) || (ch === "swipe" && tsw >= .8));
-    prog.style.width = (8 + 85 * seg(U, START.write, START.score)) + "%";
-    // RÉSULTAT
-    setClass(res, "on", tr >= .04);
-    var rt = ease(seg(tr, .1, .55));
-    ring.style.strokeDashoffset = String(326.7 * (1 - .85 * rt));
-    score.textContent = String(Math.round(17 * rt));
-    rows.forEach(function (r, i) { setClass(r, "on", tr >= .18 + i * .07); });
+    prog.style.width = (8 + 85 * seg(U, START.write, START.swipe + LEN.swipe)) + "%";
     // curseur de démonstration
     var cp = cursorAt(tw, tsp, tb, tsw, ch);
     cursor.style.opacity = cp ? "1" : "0";
@@ -417,15 +406,15 @@
       if (tsp < .48) return mv(pts[0], pts[1], seg(tsp, .3, .42));
       return mv(pts[1], pts[2], seg(tsp, .48, .6));
     }
-    if (ch === "build" && tb >= .12 && tb < .92) {
+    if (ch === "build" && tb >= .08 && tb < .92) {
       for (var i = 0; i < slots.length; i++) {
         var t0 = SLOT_AT(i);
-        if (tb < t0 + .15) {
-          var sl = inWin(slots[i]), prev = i > 0 ? inWin(slots[i - 1]) : { x: sl.x + 140, y: sl.y + 90 };
-          if (tb < t0 + .02) return mv(prev, sl, seg(tb, t0 - .03, t0 + .015));
+        if (tb < t0 + SLOT_LEN) {
+          var sl = inWin(slots[i]), prev = i > 0 ? inWin(slots[i - 1]) : { x: sl.x + 160, y: sl.y + 100 };
+          if (tb < t0 + .04) return mv(prev, sl, seg(tb, t0 - .06, t0 + .03));
           var opt = $(".pop-o", popO), oc = opt && pop.classList.contains("on") ? inWin(opt) : sl;
-          if (tb < t0 + .12) return mv(sl, oc, seg(tb, t0 + .03, t0 + .07));
-          return mv(oc, sl, seg(tb, t0 + .12, t0 + .15));
+          if (tb < t0 + SET_AT + .02) return mv(sl, oc, seg(tb, t0 + .07, t0 + OPT_AT));
+          return mv(oc, sl, seg(tb, t0 + SET_AT + .02, t0 + SLOT_LEN));
         }
       }
       return null;
