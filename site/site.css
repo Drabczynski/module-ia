@@ -592,7 +592,7 @@ main, .foot { position: relative; z-index: 1; }
 .film-dim.on { opacity: 1; }
 
 /* ---------- La galaxie des compétences ---------- */
-.voyage { position: relative; z-index: 2; height: 800vh; }
+.voyage { position: relative; z-index: 2; height: 900vh; }
 .vg-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
 .vg-cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .vg-caps { position: absolute; inset: 0; pointer-events: none; }
@@ -608,3 +608,5 @@ main, .foot { position: relative; z-index: 1; }
 .voyage.no-gl .vg-caps { position: static; display: grid; gap: 16px; }
 .voyage.no-gl .vg-cap { position: static; translate: none; opacity: 1; transform: none; margin: 0 auto; }
 @media (max-width: 800px) { .vg-cap { top: auto; bottom: 18px; left: 16px; right: 16px; translate: none; max-width: none; padding: 22px; } }
+.vg-s strong { color: var(--ink); font-weight: 600; }
+.vg-k b { width: auto; min-width: 28px; padding: 0 8px; border-radius: 99px; }
