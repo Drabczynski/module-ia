@@ -27,7 +27,7 @@
   };
 
   /* ---------- chapitres (longueurs en hauteurs d'écran) ---------- */
-  var CH = [["hero", .6], ["sphere", 2.6], ["open", 1.2], ["write", 1.9], ["spot", 1.8], ["build", 2.4], ["more", 4]];
+  var CH = [["hero", .6], ["sphere", 2.6], ["open", 1.2], ["write", 1.9], ["spot", 1.8], ["build", 2.4], ["more", 7.5]];
   var START = {}, LEN = {}, TOTAL = 0;
   CH.forEach(function (c) { START[c[0]] = TOTAL; LEN[c[0]] = c[1]; TOTAL += c[1]; });
   var story = $("[data-story]"), stage = $("[data-stage]");
@@ -231,6 +231,8 @@
   var gxs = $$("[data-gx]"), gbs = $$("[data-gb]"), qos = $$("[data-qo]"), wheel = $("[data-wheel]"), wbtn = $("[data-wbtn]"), wres = $("[data-wres]");
   var genImg = $("[data-gen-img]"), genBar = $("[data-gen-bar]"), genCap = $("[data-gen-cap]"), hello = $("[data-hello]");
   var u2 = $("[data-u2]"), ai2 = $("[data-ai2]"), msim2 = $("[data-ai2] .m-sim"), gts = $$("[data-gt]");
+  var u3 = $("[data-u3]"), ai3 = $("[data-ai3]"), msim3 = $("[data-ai3] .m-sim"), dts = $$("[data-dt]"), docLines = $$("[data-doc-page] .dl"), docMeta = $("[data-doc-meta]"), docDl = $("[data-doc-dl]");
+  var DOC = u3.textContent.replace(/\u00a0/g, " ");
   var GEN = u2.textContent.replace(/\u00a0/g, " ");
   var stItems = $$("[data-st]"), tags = {}; $$("[data-tag]").forEach(function (t) { tags[t.dataset.tag] = t; });
   var TYPED = "Écris une offre d’emploi pour un poste d’assistant administratif.";
@@ -324,7 +326,9 @@
 
     /* =========== le module, geste par geste =========== */
     var tw = L("write"), tsp = L("spot"), tb = L("build"), tm = L("more");
-    var gk = U < START.more ? -1 : Math.min(3, Math.floor(tm * 4)), gu = gk < 0 ? 0 : clamp(tm * 4 - gk, 0, 1);
+    // cinq gestes ; l'image et le document ont plus de temps
+    var GW = [1, 1, 1, 2.2, 2.3], gsum = 7.5, gk = -1, gu = 0;
+    if (U >= START.more) { var acc = 0, pos = tm * gsum; for (var gi = 0; gi < GW.length; gi++) { if (pos < acc + GW[gi] || gi === GW.length - 1) { gk = gi; gu = clamp((pos - acc) / GW[gi], 0, 1); break; } acc += GW[gi]; } }
     var tsw = gk < 0 ? 0 : gk > 0 ? 1 : gu;
     var inBuild = U >= START.build;
     show(U < START.spot ? "vague" : U < START.build ? "hunt" : U < START.more ? "build" : "more");
@@ -399,33 +403,49 @@
     wheel.style.transform = "rotate(" + (spin * (360 * 3 + 330)) + "deg)";
     setClass(wbtn, "press", w >= .14 && w < .2); clickAt("wheel", gk === 2 && w >= .14);
     setClass(wres, "on", w >= .8);
-    // image : la consigne à droite, la demande et l'image à gauche, dans la conversation
-    var g = gk === 3 ? gu : 0, sent2 = gk === 3 && g >= .42, typed2 = seg(g, .05, .34);
+    // image et document : la consigne à droite, la demande et le résultat à gauche, dans la conversation
+    var conv = gk === 3 || gk === 4, g = conv ? gu : 0, TXT = gk === 4 ? DOC : GEN;
+    var typedC = seg(g, .04, .26), sentC = conv && g >= .32;
     if (inMore) {
-      if (gk < 3 || typed2 <= 0 || sent2) { if (inp.textContent !== "Écrire à l’IA…") inp.innerHTML = '<span class="ph">Écrire à l’IA…</span>'; }
-      else inp.innerHTML = GEN.slice(0, Math.round(GEN.length * typed2)) + '<span class="caret"></span>';
-      setClass(comp, "on", !sent2);
-      setClass(send, "on", gk === 3 && typed2 >= 1 && !sent2);
-      setClass(send, "press", gk === 3 && g >= .38 && g < .44);
-      clickAt("send2", gk === 3 && g >= .4);
-      setClass(slotWin, "on", !sent2);
-      setClass(slotMini, "on", sent2);
-      var wt2 = sent2 ? GEN : "Nouvelle conversation"; if (wtitle.textContent !== wt2) wtitle.textContent = wt2;
+      if (!conv || typedC <= 0 || sentC) { if (inp.textContent !== "Écrire à l’IA…") inp.innerHTML = '<span class="ph">Écrire à l’IA…</span>'; }
+      else inp.innerHTML = TXT.slice(0, Math.round(TXT.length * typedC)) + '<span class="caret"></span>';
+      setClass(comp, "on", !sentC);
+      setClass(send, "on", conv && typedC >= 1 && !sentC);
+      setClass(send, "press", conv && g >= .29 && g < .33);
+      clickAt("send" + gk, conv && g >= .3);
+      setClass(slotWin, "on", !sentC);
+      setClass(slotMini, "on", sentC);
+      var wt2 = sentC ? TXT : "Nouvelle conversation"; if (wtitle.textContent !== wt2) wtitle.textContent = wt2;
     }
-    setClass(hello, "on", inMore && !(gk === 3 && g >= .4));
-    setClass(u2, "on", inMore && sent2);
-    setClass(ai2, "on", inMore && gk === 3 && g >= .47);
-    var gr = seg(g, .5, .9);
-    genImg.style.opacity = String(seg(g, .5, .56));
+    setClass(hello, "on", inMore && !(conv && g >= .3));
+    // l'image
+    var gI = gk === 3 ? gu : 0;
+    setClass(u2, "on", gk === 3 && sentC);
+    setClass(ai2, "on", gk === 3 && gI >= .36);
+    var gr = seg(gI, .4, .88);
+    genImg.style.opacity = String(seg(gI, .4, .46));
     genImg.style.filter = "blur(" + (24 * (1 - ease(gr))).toFixed(1) + "px) saturate(" + (.35 + .65 * gr).toFixed(2) + ")";
     genBar.style.width = (100 * gr) + "%";
-    genBar.parentNode.style.opacity = gr >= 1 || g < .5 ? "0" : "1";
-    genCap.textContent = gr >= 1 ? "" : g >= .5 ? "Génération… " + Math.round(gr * 100) + " %" : "";
+    genBar.parentNode.style.opacity = gr >= 1 || gI < .4 ? "0" : "1";
+    genCap.textContent = gr >= 1 ? "" : gI >= .4 ? "Génération… " + Math.round(gr * 100) + " %" : "";
     msim2.style.opacity = gr >= 1 ? "1" : "0";
-    setClass(gts[0], "cur", gk === 3 && !sent2); setClass(gts[0], "done", sent2);
-    setClass(gts[1], "cur", sent2 && gr < 1); setClass(gts[1], "done", gr >= 1);
-    gts.forEach(function (t, i) { var h = t.classList.contains("done") ? '<svg><use href="#i-check"/></svg>' : String(i + 1); if (t.firstChild.innerHTML !== h) t.firstChild.innerHTML = h; });
+    setClass(gts[0], "cur", gk === 3 && !sentC); setClass(gts[0], "done", gk === 3 && sentC);
+    setClass(gts[1], "cur", gk === 3 && sentC && gr < 1); setClass(gts[1], "done", gr >= 1);
     setClass($('[data-fb="gen"]'), "on", gr >= 1);
+    // le document Word
+    var gD = gk === 4 ? gu : 0, dr = seg(gD, .4, .82);
+    setClass(u3, "on", gk === 4 && sentC);
+    setClass(ai3, "on", gk === 4 && gD >= .36);
+    var nl = Math.round(docLines.length * dr);
+    docLines.forEach(function (l, i) { setClass(l, "on", i < nl); });
+    var meta = dr >= 1 ? "Document Word · 1 page · 18 Ko" : gD >= .4 ? "Rédaction du document… " + Math.round(dr * 100) + " %" : "Génération du document…";
+    if (docMeta.textContent !== meta) docMeta.textContent = meta;
+    setClass(docDl, "on", dr >= 1); setClass(docDl, "press", gD >= .9 && gD < .95); clickAt("dl", gk === 4 && gD >= .9);
+    msim3.style.opacity = dr >= 1 ? "1" : "0";
+    setClass(dts[0], "cur", gk === 4 && !sentC); setClass(dts[0], "done", gk === 4 && sentC);
+    setClass(dts[1], "cur", gk === 4 && sentC && dr < 1); setClass(dts[1], "done", dr >= 1);
+    setClass($('[data-fb="doc"]'), "on", dr >= 1);
+    gts.concat(dts).forEach(function (t, i) { var h = t.classList.contains("done") ? '<svg><use href="#i-check"/></svg>' : String(t.dataset.gt != null ? +t.dataset.gt + 1 : +t.dataset.dt + 1); if (t.firstChild.innerHTML !== h) t.firstChild.innerHTML = h; });
     // la carte à glisser
     var swp = ease(seg(tsw, .4, .75));
     card1.style.transform = "translateX(" + (-640 * swp) + "px) rotate(" + (-22 * swp) + "deg)";
@@ -435,7 +455,7 @@
     card2.style.transform = "scale(" + (.94 + .06 * swp) + ") translateY(" + (14 * (1 - swp)) + "px)";
     setClass(bfaux, "press", tsw >= .3 && tsw < .75); clickAt("faux", tsw >= .3);
     // pied du panneau
-    var ps = U < START.spot ? (sent ? "Lisez la réponse de l’IA." : "Envoyez-la, et regardez le résultat.") : U < START.build ? "Trouvez les trois inventions." : U < START.more ? "Complétez les cases orange." : ["Glissez la carte.", "Choisissez la bonne réponse.", "Tournez la roue.", "Générez l’image."][Math.max(0, gk)];
+    var ps = U < START.spot ? (sent ? "Lisez la réponse de l’IA." : "Envoyez-la, et regardez le résultat.") : U < START.build ? "Trouvez les trois inventions." : U < START.more ? "Complétez les cases orange." : ["Glissez la carte.", "Choisissez la bonne réponse.", "Tournez la roue.", "Générez l’image.", "Demandez le document."][Math.max(0, gk)];
     if (psay.textContent !== ps) psay.textContent = ps;
     setClass(next, "on", (ch === "write" && tw >= .94) || (ch === "spot" && tsp >= .8) || (ch === "build" && tb >= .92) || (ch === "more" && gu >= .85));
     prog.style.width = (8 + 85 * seg(U, START.write, START.more + LEN.more)) + "%";
@@ -472,7 +492,8 @@
       if (gk === 0 && gu >= .08 && gu < .8) { var b = inWin(bfaux); return mv({ x: b.x + 160, y: b.y - 140 }, b, seg(gu, .08, .28)); }
       if (gk === 1 && gu >= .1 && gu < .9) { var o = inWin(qos[1]); return mv({ x: o.x + 180, y: o.y + 140 }, { x: o.x + 60, y: o.y }, seg(gu, .1, .36)); }
       if (gk === 2 && gu < .4) { var wb = inWin(wbtn); return mv({ x: wb.x - 120, y: wb.y + 120 }, wb, seg(gu, .0, .13)); }
-      if (gk === 3 && gu >= .3 && gu < .5) { var sb = inWin(send); return mv({ x: sb.x - 180, y: sb.y - 100 }, sb, seg(gu, .3, .4)); }
+      if ((gk === 3 || gk === 4) && gu >= .2 && gu < .36) { var sb = inWin(send); return mv({ x: sb.x - 180, y: sb.y - 100 }, sb, seg(gu, .2, .29)); }
+      if (gk === 4 && gu >= .84 && gu < .99) { var db = inWin(docDl); return mv({ x: db.x - 160, y: db.y + 120 }, db, seg(gu, .84, .9)); }
     }
     return null;
   }

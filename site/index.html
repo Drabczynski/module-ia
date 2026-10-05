@@ -19,6 +19,7 @@
     <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5 10 17 19 7" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 5.5 19.5 12 13 18.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-back" viewBox="0 0 24 24"><path d="M20 12H5M11 5.5 4.5 12 11 18.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6.5 3h8L19 7.5V21H6.5z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M14.5 3v4.5H19M9.5 12h6M9.5 15h6M9.5 18h4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
     <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4ZM13.5 6.5l4 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
     <symbol id="i-side" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9.5 4.5v15" stroke="currentColor" stroke-width="1.6"/></symbol>
     <symbol id="i-replay" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3M4.5 4.5v4h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
@@ -68,7 +69,7 @@
         <li class="st" data-st="write"><span class="st-n">01</span><div class="st-b"><p class="st-name">Écrire</p><div class="st-more"><div><h3>Il tape, l’IA répond.</h3><p>Saisie libre dans un vrai champ de conversation. L’apprenant formule sa demande et découvre la réponse en direct.</p><span class="badge"><svg><use href="#i-pen"/></svg>Saisie libre</span></div></div></div></li>
         <li class="st" data-st="spot"><span class="st-n">02</span><div class="st-b"><p class="st-name">Repérer</p><div class="st-more"><div><h3>Il clique sur les erreurs.</h3><p>L’IA a inventé ce qu’on ne lui a jamais dit. L’apprenant le repère en cliquant directement dans sa réponse.</p><span class="badge"><svg><use href="#i-hand2"/></svg>Clic dans le texte</span></div></div></div></li>
         <li class="st" data-st="build"><span class="st-n">03</span><div class="st-b"><p class="st-name">Construire</p><div class="st-more"><div><h3>Il complète les cases.</h3><p>Chaque case orange ouvre un choix. Le prompt se construit au fil des clics et les briques s’allument une à une.</p><span class="badge"><svg><use href="#i-box"/></svg>Cases à compléter</span></div></div></div></li>
-        <li class="st" data-st="more"><span class="st-n">04</span><div class="st-b"><p class="st-name">Varier</p><div class="st-more"><div><h3>Un geste différent à chaque écran.</h3><p>Glisser une carte, répondre à un QCM, faire tourner une roue, générer une image&nbsp;: l’attention ne retombe jamais.</p><span class="badges"><span class="badge" data-gb="0"><svg><use href="#i-hand2"/></svg>Glisser</span><span class="badge" data-gb="1"><svg><use href="#i-check"/></svg>QCM</span><span class="badge" data-gb="2"><svg><use href="#i-replay"/></svg>Roue</span><span class="badge" data-gb="3"><svg><use href="#i-spark"/></svg>Image</span></span></div></div></div></li>
+        <li class="st" data-st="more"><span class="st-n">04</span><div class="st-b"><p class="st-name">Varier</p><div class="st-more"><div><h3>Un geste différent à chaque écran.</h3><p>Glisser une carte, répondre à un QCM, faire tourner une roue, générer une image ou un document Word&nbsp;: l’attention ne retombe jamais.</p><span class="badges"><span class="badge" data-gb="0"><svg><use href="#i-hand2"/></svg>Glisser</span><span class="badge" data-gb="1"><svg><use href="#i-check"/></svg>QCM</span><span class="badge" data-gb="2"><svg><use href="#i-replay"/></svg>Roue</span><span class="badge" data-gb="3"><svg><use href="#i-spark"/></svg>Image</span><span class="badge" data-gb="4"><svg><use href="#i-doc"/></svg>Document Word</span></span></div></div></div></li>
       </ol>
       <div class="frame" data-frame>
         <div class="win" data-win>
@@ -107,6 +108,28 @@
                   <div class="m-img"><img data-gen-img src="https://images.unsplash.com/photo-1785680073372-8b52e6ba20bb?crop=entropy&amp;cs=tinysrgb&amp;fit=crop&amp;fm=jpg&amp;w=720&amp;h=720&amp;q=80" alt="Champ doré traversé par une rivière, montagnes enneigées au loin" loading="lazy" referrerpolicy="no-referrer"><div class="gen-bar"><i data-gen-bar></i></div><span class="gen-cap" data-gen-cap></span></div>
                 </div>
                 <span class="m-sim">Photo&nbsp;: Liang Zhao, Unsplash · Réponse simulée</span>
+              </div>
+            </div>
+            <div class="w-chat" data-chat3>
+              <div class="m-user" data-u3>Rédige le compte rendu de la réunion d’équipe du 12 mars au format Word&nbsp;: participants, décisions, prochaines étapes. Une page.</div>
+              <div class="m-ai" data-ai3>
+                <svg><use href="#i-spark"/></svg>
+                <div class="m-body"><p>Voici le compte rendu, prêt à partager.</p>
+                  <div class="docx">
+                    <div class="docx-file"><span class="docx-ic">DOCX</span><span><b>Compte-rendu_reunion_12-mars.docx</b><small data-doc-meta>Génération du document…</small></span><span class="docx-dl" data-doc-dl>Télécharger</span></div>
+                    <div class="docx-page" data-doc-page>
+                      <p class="dl dl-t">Compte rendu · réunion d’équipe du 12 mars</p>
+                      <p class="dl dl-m">Participants&nbsp;: Sophie L., Karim B., Inès D., Paul R.</p>
+                      <p class="dl dl-h">Décisions</p>
+                      <p class="dl">• Lancement du recrutement de l’assistant·e administratif·ve.</p>
+                      <p class="dl">• Nouvelle permanence d’accueil le jeudi matin.</p>
+                      <p class="dl dl-h">Prochaines étapes</p>
+                      <p class="dl">• Publier l’offre d’emploi avant le 15 mars (Sophie).</p>
+                      <p class="dl">• Préparer le planning d’accueil (Inès).</p>
+                    </div>
+                  </div>
+                </div>
+                <span class="m-sim">Réponse simulée</span>
               </div>
             </div>
             <div class="w-comp" data-comp>
@@ -177,6 +200,13 @@
                   <div class="task" data-gt="0"><span class="n">1</span><span>Écrivez la demande dans le champ, à gauche.</span></div>
                   <div class="task" data-gt="1"><span class="n">2</span><span>Regardez l’image se générer.</span></div>
                   <div class="fb ok" data-fb="gen"><svg><use href="#i-check"/></svg><span>Une demande précise donne une image utilisable du premier coup.</span></div>
+                </div>
+                <div class="gx" data-gx="4">
+                  <h2 class="pv-h1">Produire un document</h2><span class="pv-rule"></span>
+                  <p class="pv-lead">Sophie veut le compte rendu de la réunion au format Word. Demandez-le à l’IA en précisant <b>les rubriques et la longueur</b>.</p>
+                  <div class="task" data-dt="0"><span class="n">1</span><span>Écrivez la demande dans le champ, à gauche.</span></div>
+                  <div class="task" data-dt="1"><span class="n">2</span><span>Vérifiez le document avant de le partager.</span></div>
+                  <div class="fb ok" data-fb="doc"><svg><use href="#i-check"/></svg><span>Un document structuré en quelques secondes. Reste à relire&nbsp;: c’est vous qui signez.</span></div>
                 </div>
               </div>
             </div>
