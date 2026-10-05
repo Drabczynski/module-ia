@@ -432,3 +432,41 @@ main, .foot { position: relative; z-index: 1; }
 .dl-t { font: 600 15px/1.3 var(--text); color: var(--ink); margin-bottom: 4px; }
 .dl-m { color: var(--muted); font-size: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--line-2); }
 .dl-h { margin-top: 12px; font-weight: 600; color: #2b5797; font-size: 13px; }
+
+/* ---------- Ouverture : la vidéo qui défile au scroll ---------- */
+.film { position: absolute; inset: 0; z-index: 2; background: #0b1220; will-change: transform, opacity; }
+.film canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.film-shade { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 70% at 50% 45%, rgba(6,10,20,.15), rgba(6,10,20,.6)), linear-gradient(180deg, rgba(6,10,20,.55), rgba(6,10,20,0) 28%, rgba(6,10,20,0) 70%, rgba(6,10,20,.6)); }
+.film-flash { position: absolute; inset: 0; background: radial-gradient(circle at 50% 44%, #fff, #e9f2ff 55%, #faf9f5); opacity: 0; }
+.on-film { color: #fff; }
+.hero.on-film .hero-k { background: rgba(255,255,255,.1); color: rgba(255,255,255,.88); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); backdrop-filter: blur(10px); }
+.hero.on-film h1 { color: #fff; text-shadow: 0 2px 30px rgba(0,0,0,.35); }
+.hero.on-film .hw { background-image: linear-gradient(100deg, #fff 0 40%, #ffb38a 50%, #c9b8ff 60%, #fff 70% 100%); }
+.hero.on-film .hero-sub { color: rgba(255,255,255,.82); text-shadow: 0 1px 14px rgba(0,0,0,.45); }
+.btn-light { background: #fff; color: var(--ink); }
+.btn-light:hover { background: #f1efe9; }
+.btn-glass { background: rgba(255,255,255,.1); color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.25); backdrop-filter: blur(10px); }
+.btn-glass:hover { background: rgba(255,255,255,.18); }
+.hover-hint.on-film { background: rgba(255,255,255,.1); color: rgba(255,255,255,.85); box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); }
+.nav.on-dark:not(.is-solid) .brand, .nav.on-dark:not(.is-solid) .nav-links a:not(.btn) { color: #fff; }
+.nav.on-dark.is-solid { background: rgba(10,16,30,.45); box-shadow: 0 1px 0 rgba(255,255,255,.08); }
+.nav.on-dark.is-solid .brand, .nav.on-dark.is-solid .nav-links a:not(.btn) { color: #fff; }
+.nav.on-dark .nav-links a:not(.btn):hover { background: rgba(255,255,255,.1); }
+.nav.on-dark .nav-links a.btn { background: #fff; color: var(--ink); }
+.msgs { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
+.msg { position: absolute; max-width: min(560px, 86vw); color: #fff; }
+.msg > * { opacity: 0; transform: translateY(28px); filter: blur(10px); transition: opacity .35s, transform .35s, filter .35s; }
+.msg.on > * { opacity: 1; transform: none; filter: none; transition: opacity .8s var(--spring), transform 1s var(--spring), filter .8s; }
+.msg.on > :nth-child(2) { transition-delay: .1s; } .msg.on > :nth-child(3) { transition-delay: .2s; }
+.m-l { left: clamp(20px, 7vw, 120px); bottom: 16vh; }
+.m-r { right: clamp(20px, 7vw, 120px); top: 24vh; text-align: right; }
+.m-r .msg-chips { justify-content: flex-end; }
+.m-c { left: 50%; top: 50%; translate: -50% -50%; text-align: center; max-width: min(860px, 90vw); }
+.m-low { top: auto; bottom: 14vh; translate: -50% 0; }
+.msg-k { margin: 0 0 12px; font: 600 12.5px/1 var(--text); letter-spacing: .16em; text-transform: uppercase; color: #ffb38a; }
+.msg h2 { margin: 0; font: 400 clamp(26px, 3.2vw, 46px)/1.14 var(--display); letter-spacing: -.015em; text-shadow: 0 2px 24px rgba(0,0,0,.45); text-wrap: balance; }
+.m-c h2 { font-size: clamp(30px, 4.2vw, 62px); }
+.msg-sub { margin: 14px 0 0; font: 400 clamp(20px, 2.2vw, 30px)/1.25 var(--display); color: rgba(255,255,255,.8); text-shadow: 0 2px 20px rgba(0,0,0,.45); }
+.msg-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.msg-chips span { padding: 7px 13px; border-radius: 99px; background: rgba(255,255,255,.1); box-shadow: inset 0 0 0 1px rgba(255,255,255,.22); backdrop-filter: blur(10px); font: 500 13.5px/1 var(--text); color: #fff; }
+@media (max-width: 600px) { .m-l, .m-r { left: 20px; right: 20px; text-align: left; } .m-r { top: 18vh; } .m-r .msg-chips { justify-content: flex-start; } }

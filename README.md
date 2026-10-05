@@ -102,7 +102,10 @@ Fonction `api/chat.ts`, identifiant `structure-prompt`. Le menu « Les modules �
 
 ## Site vitrine (`site/`)
 
-Page de présentation commerciale. Le défilement
+Page de présentation commerciale. Elle s’ouvre sur la vidéo du bureau
+(`assets/Photorealistic-cinematic-16-9-opening-fr.mp4`, découpée en 169 images dans
+`assets/video/bureau/`) qui avance au défilement, avec des messages sur l’IA au travail, puis
+plonge dans l’écran. Ensuite, le défilement
 raconte un module par chapitres : le titre, puis une sphère de particules qui se forme,
 tourne et éclate pour laisser place à l’orbe qui parle, puis le module dans un écran
 dont une caméra cadre la zone utile, avec cinq gestes de l’apprenant (écrire, repérer,

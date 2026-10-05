@@ -1,7 +1,8 @@
 /* ==========================================================================
    Site vitrine : le défilement raconte un module, chapitre par chapitre.
-   hero   le titre
-   sphere une sphère de particules se forme, tourne, éclate ; l'orbe naît et parle
+   film   le hero, puis la vidéo du bureau défile image par image, avec les messages
+   dive   la caméra plonge dans l'écran ; la sphère de la vidéo devient la nôtre
+   sphere la sphère tourne, éclate ; l'orbe naît et parle
    open   le module s'ouvre dans un écran, l'orbe y entre
    write · spot · build · more   quatre temps de l'apprenant ; une caméra
           cadre la zone utile, les étapes et leurs arguments sont à gauche
@@ -27,7 +28,7 @@
   };
 
   /* ---------- chapitres (longueurs en hauteurs d'écran) ---------- */
-  var CH = [["hero", .6], ["sphere", 2.6], ["open", 1.2], ["write", 1.9], ["spot", 1.8], ["build", 2.4], ["more", 7.5]];
+  var CH = [["film", 6.5], ["dive", 1.4], ["sphere", 2.2], ["open", 1.2], ["write", 1.9], ["spot", 1.8], ["build", 2.4], ["more", 7.5]];
   var START = {}, LEN = {}, TOTAL = 0;
   CH.forEach(function (c) { START[c[0]] = TOTAL; LEN[c[0]] = c[1]; TOTAL += c[1]; });
   var story = $("[data-story]"), stage = $("[data-stage]");
@@ -121,6 +122,34 @@
       }
     };
   })();
+
+  /* =====================================================================
+     La vidéo d'ouverture : 169 images dessinées au fil du défilement
+     ===================================================================== */
+  var film = (function () {
+    var N = 169, el = $("[data-film]"), cv = $("[data-film-cv]"), ctx = cv.getContext("2d"), imgs = new Array(N), loaded = new Array(N), last = -1, lastW = 0;
+    var SPHERE = { x: .4865, y: .485, r: .029 };                // la sphère, dans la dernière image (proportions de l'image)
+    function load(i) { if (imgs[i]) return; var im = new Image(); im.decoding = "async"; im.onload = function () { loaded[i] = true; if (i === 0) last = -1; }; im.src = "../assets/video/bureau/" + String(i).padStart(3, "0") + ".jpg"; imgs[i] = im; }
+    load(0); load(N - 1);
+    var order = []; for (var step = 32; step >= 1; step = step >> 1) for (var j = 0; j < N; j += step) order.push(j);   // d'abord une image sur 32, puis on affine
+    var qi = 0; (function pump() { var k = 0; while (qi < order.length && k < 6) { load(order[qi++]); k++; } if (qi < order.length) setTimeout(pump, 60); })();
+    function cover() { var w = cv.clientWidth, h = cv.clientHeight, s = Math.max(w / 1280, h / 720); return { s: s, x: (w - 1280 * s) / 2, y: (h - 720 * s) / 2, w: w, h: h }; }
+    return {
+      el: el, N: N, SPHERE: SPHERE, cover: cover,
+      draw: function (f) {
+        var i = clamp(Math.round(f), 0, N - 1);
+        if (!loaded[i]) { for (var d = 1; d < N; d++) { if (loaded[i - d]) { i = i - d; break; } if (loaded[i + d]) { i = i + d; break; } } }
+        if (!loaded[i]) return;
+        var dpr = Math.min(1.5, window.devicePixelRatio || 1), w = cv.clientWidth;
+        if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(cv.clientHeight * dpr); last = -1; }
+        if (i === last) return; last = i;
+        var c = cover(); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.drawImage(imgs[i], c.x, c.y, 1280 * c.s, 720 * c.s);
+      }
+    };
+  })();
+  var filmShade = $("[data-film-shade]"), filmFlash = $("[data-film-flash]"), msgs = $$("[data-msg]");
+  var MSG = [[.14, .29], [.31, .46], [.48, .62], [.64, .77], [.79, .9], [.93, 1.01]];
 
   /* =====================================================================
      Hero : le titre se pose mot à mot, l'orbe apparaît au survol
@@ -257,23 +286,36 @@
   function render(dt, time) {
     var vw = stage.clientWidth, vh = stage.clientHeight, ch = current();
     setClass(nav, "is-solid", window.scrollY > 10);
-    var tH = L("hero"), tS = L("sphere"), tO = L("open");
+    var tF = L("film"), tD = L("dive"), tS = L("sphere"), tO = L("open");
+    setClass(nav, "on-dark", U < START.dive + LEN.dive * .6);
 
-    /* --- 1. le titre s'efface au premier défilement --- */
-    var heroOut = ease(seg(U, .05, START.sphere + .35));
+    /* --- 1. le hero sur la première image, puis la vidéo défile --- */
+    var heroOut = ease(seg(tF, .03, .1));
     hero.style.opacity = String(1 - heroOut);
     hero.style.transform = "translateY(" + (-70 * heroOut) + "px) scale(" + (1 - .05 * heroOut) + ")";
     hero.style.visibility = heroOut >= 1 ? "hidden" : "visible";
-    hint.style.opacity = String(1 - seg(U, 0, .3));
+    hint.style.opacity = String(1 - seg(tF, 0, .04));
+    film.draw(seg(tF, .08, .985) * (film.N - 1));
+    filmShade.style.opacity = String(1 - .45 * seg(tF, .1, .2) - .5 * seg(tD, 0, .4));
+    msgs.forEach(function (m, i) { setClass(m, "on", U < START.dive + .3 && tF >= MSG[i][0] && tF < MSG[i][1] && !(i === 5 && tD > .25)); });
 
-    /* --- 2. la sphère se forme, tourne, éclate --- */
-    var form = seg(tS, .02, .3), burst = ease(seg(tS, .5, .74));
-    var R = Math.min(vw, vh) * .27;
-    var rot = time * .25 + U * 1.6;                           // elle tourne d'elle-même, et plus vite quand on défile
-    sphere.draw(vw / 2, vh * .44, R, form, burst, rot, seg(tS, 0, .1) * (1 - seg(tS, .74, .8)));
+    /* --- 2. la plongée dans l'écran : la sphère de la vidéo grossit jusqu'à la taille de la nôtre --- */
+    var R = Math.min(vw, vh) * .27, cx0 = vw / 2, cy0 = vh * .4;
+    var fc = film.cover(), sx = fc.x + film.SPHERE.x * 1280 * fc.s, sy = fc.y + film.SPHERE.y * 720 * fc.s, r0 = film.SPHERE.r * 1280 * fc.s;
+    var kEnd = Math.max(1, R * 1.05 / r0), z = ease(seg(tD, 0, .78)), k = Math.pow(kEnd, z);
+    film.el.style.transformOrigin = sx + "px " + sy + "px";
+    film.el.style.transform = "translate(" + ((cx0 - sx) * z) + "px," + ((cy0 - sy) * z) + "px) scale(" + k + ")";
+    filmFlash.style.opacity = String(seg(tD, .45, .78));
+    film.el.style.opacity = String(1 - seg(tD, .78, .96));
+    film.el.style.visibility = tD >= .97 ? "hidden" : "visible";
+
+    /* --- 3. notre sphère prend le relais, tourne, éclate --- */
+    var burst = ease(seg(tS, .3, .56));
+    var rot = time * .25 + U * 1.6;
+    sphere.draw(cx0, cy0, R, 1, burst, rot, seg(tD, .7, .95) * (1 - seg(tS, .56, .62)));
 
     /* --- 3. l'orbe naît de l'éclatement, puis entre dans l'écran --- */
-    appear.t = tS > .54 ? 1 : 0;
+    appear.t = tS > .36 ? 1 : 0;
     var a = appear.step(dt);
     var p1 = { x: vw / 2, y: vh * .4, s: Math.min(1, vw / 520) };
     var slotC = centerOf(slotWin), p2 = { x: slotC.x, y: slotC.y, s: (150 * cam.s.v) / ORB };
@@ -287,15 +329,15 @@
     orbEl.style.transform = "translate(" + (ox - ORB / 2) + "px," + (oy - ORB / 2) + "px) scale(" + Math.max(.001, os * a) + ")";
     orbEl.style.opacity = String(1 - handOff);
     orbEl.style.visibility = handOff >= 1 || a < .002 ? "hidden" : "visible";
-    if (orb) orb.setState(tS > .6 && tO < .9 ? "speaking" : "idle");
+    if (orb) orb.setState(tS > .45 && tO < .9 ? "speaking" : "idle");
 
     /* --- sa phrase --- */
     say.style.top = (vh * .4 + Math.min(150, vh * .17) * (vw < 600 ? .8 : 1)) + "px";
-    say.style.opacity = String(seg(tS, .6, .68) * (1 - seg(tO, .05, .25)));
-    reveal(sayW, seg(tS, .64, .97));
+    say.style.opacity = String(seg(tS, .44, .52) * (1 - seg(tO, .05, .25)));
+    reveal(sayW, seg(tS, .48, .96));
 
     /* --- le fond --- */
-    shaderI.t = ch === "hero" ? 1 : ch === "sphere" ? 1.15 : window.scrollY > story.offsetTop + story.offsetHeight - innerHeight ? .45 : .65;
+    shaderI.t = ch === "film" ? 1 : ch === "sphere" ? 1.15 : window.scrollY > story.offsetTop + story.offsetHeight - innerHeight ? .45 : .65;
     shader.draw(time, shaderI.step(dt), ch === "sphere" ? 1 : .4, mouse.x < -999 ? innerWidth / 2 : mouse.x, mouse.y < -999 ? innerHeight / 2 : mouse.y);
 
     /* --- l'écran --- */
