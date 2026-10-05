@@ -28,7 +28,7 @@
   };
 
   /* ---------- chapitres (longueurs en hauteurs d'écran) ---------- */
-  var CH = [["film", 10], ["dive", 1.4], ["sphere", 1.8], ["open", 1.2], ["write", 1.9], ["spot", 1.8], ["build", 2.4], ["more", 7.5]];
+  var CH = [["film", 10], ["dive", 1.4], ["sphere", 1.8], ["open", 1.2], ["write", 1.9], ["spot", 1.8], ["build", 2.4], ["more", 6.5]];
   var START = {}, LEN = {}, TOTAL = 0;
   CH.forEach(function (c) { START[c[0]] = TOTAL; LEN[c[0]] = c[1]; TOTAL += c[1]; });
   var story = $("[data-story]"), stage = $("[data-stage]");
@@ -257,7 +257,7 @@
   var pop = $("[data-pop]"), popT = $("[data-popt]"), popO = $("[data-popo]"), cursor = $("[data-cursor]");
   var card1 = $("[data-card1]"), card2 = $("[data-card2]"), stamp = $("[data-stamp]"), bfaux = $("[data-bfaux]");
   var next = $("[data-next]"), psay = $("[data-psay]"), prog = $("[data-prog]"), wtitle = $("[data-wtitle]");
-  var gxs = $$("[data-gx]"), gbs = $$("[data-gb]"), qos = $$("[data-qo]"), wheel = $("[data-wheel]"), wbtn = $("[data-wbtn]"), wres = $("[data-wres]");
+  var gxs = $$("[data-gx]"), gbs = $$("[data-gb]"), qos = $$("[data-qo]");
   var genImg = $("[data-gen-img]"), genBar = $("[data-gen-bar]"), genCap = $("[data-gen-cap]"), hello = $("[data-hello]");
   var u2 = $("[data-u2]"), ai2 = $("[data-ai2]"), msim2 = $("[data-ai2] .m-sim"), gts = $$("[data-gt]");
   var u3 = $("[data-u3]"), ai3 = $("[data-ai3]"), msim3 = $("[data-ai3] .m-sim"), dts = $$("[data-dt]"), docLines = $$("[data-doc-page] .dl"), docMeta = $("[data-doc-meta]"), docDl = $("[data-doc-dl]");
@@ -270,6 +270,7 @@
     ["Contexte", ["CDI 35 h à Lyon 7e, prise de poste le 3 mars", "à Paris, 3 500 € par mois", "aucun"]]
   ];
   // deux cases, chacune avec du temps : ouverture, choix, validation
+  var IMGK = 2, DOCK = 3;
   var SLOT_AT = function (i) { return .14 + i * .4; }, SLOT_LEN = .34, OPT_AT = .16, SET_AT = .26;
   var STEP_IDS = ["open", "write", "spot", "build", "more"];
   function setClass(el, c, on) { if (el.classList.contains(c) !== !!on) el.classList.toggle(c, !!on); }
@@ -373,7 +374,7 @@
     /* =========== le module, geste par geste =========== */
     var tw = L("write"), tsp = L("spot"), tb = L("build"), tm = L("more");
     // cinq gestes ; l'image et le document ont plus de temps
-    var GW = [1, 1, 1, 2.2, 2.3], gsum = 7.5, gk = -1, gu = 0;
+    var GW = [1, 1, 2.2, 2.3], gsum = 6.5, gk = -1, gu = 0;
     if (U >= START.more) { var acc = 0, pos = tm * gsum; for (var gi = 0; gi < GW.length; gi++) { if (pos < acc + GW[gi] || gi === GW.length - 1) { gk = gi; gu = clamp((pos - acc) / GW[gi], 0, 1); break; } acc += GW[gi]; } }
     var tsw = gk < 0 ? 0 : gk > 0 ? 1 : gu;
     var inBuild = U >= START.build;
@@ -398,18 +399,19 @@
     }
     setClass(send, "on", typed >= 1 && !sent && !inBuild);
     setClass(send, "press", tw >= .6 && tw < .64);
-    setClass(u1, "on", sent);
-    setClass(ai, "on", tw >= .68 && !inBuild);
-    reveal(aiWords, seg(tw, .68, .92));
-    msim.style.opacity = tw >= .93 ? "1" : "0";
-    chat.style.opacity = String(1 - seg(tb, 0, .06));
+    var keepChat = U >= START.more && gk >= 0 && gk <= 1;   // carte et QCM : la réponse de l'IA reste à gauche
+    setClass(u1, "on", sent || keepChat);
+    setClass(ai, "on", (tw >= .68 && !inBuild) || keepChat);
+    reveal(aiWords, keepChat ? 1 : seg(tw, .68, .92));
+    msim.style.opacity = tw >= .93 || keepChat ? "1" : "0";
+    chat.style.opacity = keepChat ? "1" : String(1 - seg(tb, 0, .06));
     var wt = sent ? TYPED : "Nouvelle conversation"; if (wtitle.textContent !== wt) wtitle.textContent = wt;
     setClass(tasks[0], "cur", !sent && !inBuild && U < START.spot); setClass(tasks[0], "done", sent || U >= START.spot);
     setClass(tasks[1], "cur", sent && tw < .93); setClass(tasks[1], "done", tw >= .93);
     tasks.forEach(function (t, i) { var h = t.classList.contains("done") ? '<svg><use href="#i-check"/></svg>' : String(i + 1); if (t.firstChild.innerHTML !== h) t.firstChild.innerHTML = h; });
     setClass($('[data-fb="vague"]'), "on", tw >= .94);
     // ÉTAPE 2 · repérer
-    marks.forEach(function (m, i) { var on = tsp >= .25 + i * .18 && !inBuild; setClass(m, "on", on); setClass(found[i], "on", on); clickAt("m" + i, on); });
+    marks.forEach(function (m, i) { var on = tsp >= .25 + i * .18 && !inBuild; setClass(m, "on", on || (keepChat && gk === 1 && i === 1)); setClass(found[i], "on", on); clickAt("m" + i, on); });
     setClass($('[data-fb="hunt"]'), "on", tsp >= .8);
     var spotOn = ch === "spot";
     setClass(tags.q, "on", spotOn && tsp >= .04 && tsp < .3);
@@ -437,37 +439,32 @@
     }
     setClass(pop, "on", openI >= 0);
     // ÉTAPE 4 · varier : glisser, QCM, roue, image
-    gxs.forEach(function (g, i) { setClass(g, "on", i === Math.max(0, gk)); });
-    gbs.forEach(function (g, i) { setClass(g, "cur", i === gk); });
+    gxs.forEach(function (g) { setClass(g, "on", +g.dataset.gx === Math.max(0, gk)); });
+    gbs.forEach(function (g) { setClass(g, "cur", +g.dataset.gb === gk); });
     // QCM
     var q = gk === 1 ? gu : gk > 1 ? 1 : 0;
     qos.forEach(function (o, i) { setClass(o, "sel", i === 1 && q >= .4 && q < .62); setClass(o, "ok", i === 1 && q >= .62); });
     setClass($('[data-fb="qcm"]'), "on", q >= .66);
     clickAt("qcm", gk === 1 && q >= .4);
-    // roue
-    var w = gk === 2 ? gu : gk > 2 ? 1 : 0, spin = ease(seg(w, .2, .78));
-    wheel.style.transform = "rotate(" + (spin * (360 * 3 + 330)) + "deg)";
-    setClass(wbtn, "press", w >= .14 && w < .2); clickAt("wheel", gk === 2 && w >= .14);
-    setClass(wres, "on", w >= .8);
     // image et document : la consigne à droite, la demande et le résultat à gauche, dans la conversation
-    var conv = gk === 3 || gk === 4, g = conv ? gu : 0, TXT = gk === 4 ? DOC : GEN;
+    var conv = gk === IMGK || gk === DOCK, g = conv ? gu : 0, TXT = gk === DOCK ? DOC : GEN;
     var typedC = seg(g, .04, .26), sentC = conv && g >= .32;
     if (inMore) {
       if (!conv || typedC <= 0 || sentC) { if (inp.textContent !== "Écrire à l’IA…") inp.innerHTML = '<span class="ph">Écrire à l’IA…</span>'; }
       else inp.innerHTML = TXT.slice(0, Math.round(TXT.length * typedC)) + '<span class="caret"></span>';
-      setClass(comp, "on", !sentC);
+      setClass(comp, "on", conv && !sentC);
       setClass(send, "on", conv && typedC >= 1 && !sentC);
       setClass(send, "press", conv && g >= .29 && g < .33);
       clickAt("send" + gk, conv && g >= .3);
-      setClass(slotWin, "on", !sentC);
-      setClass(slotMini, "on", sentC);
-      var wt2 = sentC ? TXT : "Nouvelle conversation"; if (wtitle.textContent !== wt2) wtitle.textContent = wt2;
+      setClass(slotWin, "on", conv && !sentC);
+      setClass(slotMini, "on", !conv || sentC);
+      var wt2 = !conv ? TYPED : sentC ? TXT : "Nouvelle conversation"; if (wtitle.textContent !== wt2) wtitle.textContent = wt2;
     }
-    setClass(hello, "on", inMore && !(conv && g >= .3));
+    setClass(hello, "on", inMore && conv && g < .3);
     // l'image
-    var gI = gk === 3 ? gu : 0;
-    setClass(u2, "on", gk === 3 && sentC);
-    setClass(ai2, "on", gk === 3 && gI >= .36);
+    var gI = gk === IMGK ? gu : 0;
+    setClass(u2, "on", gk === IMGK && sentC);
+    setClass(ai2, "on", gk === IMGK && gI >= .36);
     var gr = seg(gI, .4, .88);
     genImg.style.opacity = String(seg(gI, .4, .46));
     genImg.style.filter = "blur(" + (24 * (1 - ease(gr))).toFixed(1) + "px) saturate(" + (.35 + .65 * gr).toFixed(2) + ")";
@@ -475,21 +472,21 @@
     genBar.parentNode.style.opacity = gr >= 1 || gI < .4 ? "0" : "1";
     genCap.textContent = gr >= 1 ? "" : gI >= .4 ? "Génération… " + Math.round(gr * 100) + " %" : "";
     msim2.style.opacity = gr >= 1 ? "1" : "0";
-    setClass(gts[0], "cur", gk === 3 && !sentC); setClass(gts[0], "done", gk === 3 && sentC);
-    setClass(gts[1], "cur", gk === 3 && sentC && gr < 1); setClass(gts[1], "done", gr >= 1);
+    setClass(gts[0], "cur", gk === IMGK && !sentC); setClass(gts[0], "done", gk === IMGK && sentC);
+    setClass(gts[1], "cur", gk === IMGK && sentC && gr < 1); setClass(gts[1], "done", gr >= 1);
     setClass($('[data-fb="gen"]'), "on", gr >= 1);
     // le document Word
-    var gD = gk === 4 ? gu : 0, dr = seg(gD, .4, .82);
-    setClass(u3, "on", gk === 4 && sentC);
-    setClass(ai3, "on", gk === 4 && gD >= .36);
+    var gD = gk === DOCK ? gu : 0, dr = seg(gD, .4, .82);
+    setClass(u3, "on", gk === DOCK && sentC);
+    setClass(ai3, "on", gk === DOCK && gD >= .36);
     var nl = Math.round(docLines.length * dr);
     docLines.forEach(function (l, i) { setClass(l, "on", i < nl); });
     var meta = dr >= 1 ? "Document Word · 1 page · 18 Ko" : gD >= .4 ? "Rédaction du document… " + Math.round(dr * 100) + " %" : "Génération du document…";
     if (docMeta.textContent !== meta) docMeta.textContent = meta;
-    setClass(docDl, "on", dr >= 1); setClass(docDl, "press", gD >= .9 && gD < .95); clickAt("dl", gk === 4 && gD >= .9);
+    setClass(docDl, "on", dr >= 1); setClass(docDl, "press", gD >= .9 && gD < .95); clickAt("dl", gk === DOCK && gD >= .9);
     msim3.style.opacity = dr >= 1 ? "1" : "0";
-    setClass(dts[0], "cur", gk === 4 && !sentC); setClass(dts[0], "done", gk === 4 && sentC);
-    setClass(dts[1], "cur", gk === 4 && sentC && dr < 1); setClass(dts[1], "done", dr >= 1);
+    setClass(dts[0], "cur", gk === DOCK && !sentC); setClass(dts[0], "done", gk === DOCK && sentC);
+    setClass(dts[1], "cur", gk === DOCK && sentC && dr < 1); setClass(dts[1], "done", dr >= 1);
     setClass($('[data-fb="doc"]'), "on", dr >= 1);
     gts.concat(dts).forEach(function (t, i) { var h = t.classList.contains("done") ? '<svg><use href="#i-check"/></svg>' : String(t.dataset.gt != null ? +t.dataset.gt + 1 : +t.dataset.dt + 1); if (t.firstChild.innerHTML !== h) t.firstChild.innerHTML = h; });
     // la carte à glisser
@@ -501,7 +498,7 @@
     card2.style.transform = "scale(" + (.94 + .06 * swp) + ") translateY(" + (14 * (1 - swp)) + "px)";
     setClass(bfaux, "press", tsw >= .3 && tsw < .75); clickAt("faux", tsw >= .3);
     // pied du panneau
-    var ps = U < START.spot ? (sent ? "Lisez la réponse de l’IA." : "Envoyez-la, et regardez le résultat.") : U < START.build ? "Trouvez les trois inventions." : U < START.more ? "Complétez les cases orange." : ["Glissez la carte.", "Choisissez la bonne réponse.", "Tournez la roue.", "Générez l’image.", "Demandez le document."][Math.max(0, gk)];
+    var ps = U < START.spot ? (sent ? "Lisez la réponse de l’IA." : "Envoyez-la, et regardez le résultat.") : U < START.build ? "Trouvez les trois inventions." : U < START.more ? "Complétez les cases orange." : ["Glissez la carte.", "Choisissez la bonne réponse.", "Générez l’image.", "Demandez le document."][Math.max(0, gk)];
     if (psay.textContent !== ps) psay.textContent = ps;
     setClass(next, "on", (ch === "write" && tw >= .94) || (ch === "spot" && tsp >= .8) || (ch === "build" && tb >= .92) || (ch === "more" && gu >= .85));
     prog.style.width = (8 + 85 * seg(U, START.write, START.more + LEN.more)) + "%";
@@ -537,9 +534,8 @@
     if (ch === "more") {
       if (gk === 0 && gu >= .08 && gu < .8) { var b = inWin(bfaux); return mv({ x: b.x + 160, y: b.y - 140 }, b, seg(gu, .08, .28)); }
       if (gk === 1 && gu >= .1 && gu < .9) { var o = inWin(qos[1]); return mv({ x: o.x + 180, y: o.y + 140 }, { x: o.x + 60, y: o.y }, seg(gu, .1, .36)); }
-      if (gk === 2 && gu < .4) { var wb = inWin(wbtn); return mv({ x: wb.x - 120, y: wb.y + 120 }, wb, seg(gu, .0, .13)); }
-      if ((gk === 3 || gk === 4) && gu >= .2 && gu < .36) { var sb = inWin(send); return mv({ x: sb.x - 180, y: sb.y - 100 }, sb, seg(gu, .2, .29)); }
-      if (gk === 4 && gu >= .84 && gu < .99) { var db = inWin(docDl); return mv({ x: db.x - 160, y: db.y + 120 }, db, seg(gu, .84, .9)); }
+      if ((gk === IMGK || gk === DOCK) && gu >= .2 && gu < .36) { var sb = inWin(send); return mv({ x: sb.x - 180, y: sb.y - 100 }, sb, seg(gu, .2, .29)); }
+      if (gk === DOCK && gu >= .84 && gu < .99) { var db = inWin(docDl); return mv({ x: db.x - 160, y: db.y + 120 }, db, seg(gu, .84, .9)); }
     }
     return null;
   }
@@ -593,20 +589,28 @@
     ["Intégrer l’IA à son poste", [["Cartographier son poste", "Repérer les tâches que l’IA peut optimiser."], ["Choisir ses outils", "Comparer les outils, estimer un budget.", 1], ["Son plan d’intégration", "Rédiger la stratégie, sans oublier le handicap."]]],
     ["Se préparer", [["Préparer la certification", "Entraînements au format des mises en situation."]]]
   ];
-  var mods = $("[data-mods]"), n = 0;
-  if (mods) PARCOURS.forEach(function (part) {
-    var el = document.createElement("section"); el.className = "part";
-    el.innerHTML = "<h3></h3><ol></ol>"; el.firstChild.textContent = part[0];
+  var mods = $("[data-mods]"), n = 0, READY = { 1: 1, 2: 1 };
+  if (mods) PARCOURS.forEach(function (part, pi) {
+    var el = document.createElement("section"); el.className = "pc";
+    el.innerHTML = '<header class="pc-h"><span class="pc-i"></span><h3></h3><span class="pc-c"></span></header><ol></ol>';
+    el.querySelector(".pc-i").textContent = String(pi + 1).padStart(2, "0");
+    el.querySelector("h3").textContent = part[0];
+    el.querySelector(".pc-c").textContent = part[1].length + (part[1].length > 1 ? " modules" : " module");
     part[1].forEach(function (m) {
       n++;
-      var li = document.createElement("li");
-      li.innerHTML = "<span></span><div><b></b><small></small></div>";
-      li.firstChild.textContent = String(n).padStart(2, "0");
+      var li = document.createElement("li"); li.className = "pm";
+      li.innerHTML = '<span class="pm-n"></span><div class="pm-t"><b></b><small></small></div><span class="tg"></span>';
+      li.querySelector(".pm-n").textContent = String(n).padStart(2, "0");
       li.querySelector("b").textContent = m[0];
-      if (m[2]) { var s = document.createElement("span"); s.className = "star"; s.textContent = "*"; li.querySelector("b").appendChild(s); }
       li.querySelector("small").textContent = m[1];
+      var tg = li.querySelector(".tg"); tg.textContent = m[2] ? "+ notions" : "Pratique"; if (m[2]) tg.classList.add("tg-n");
+      if (READY[n]) { var d = document.createElement("span"); d.className = "pm-ok"; d.textContent = "Disponible"; li.querySelector(".pm-t").appendChild(d); }
       el.lastChild.appendChild(li);
     });
     mods.appendChild(el);
   });
+  if ("IntersectionObserver" in window) {                       // chaque étape apparaît en entrant à l'écran
+    var io2 = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io2.unobserve(e.target); } }); }, { threshold: .2 });
+    $$(".pc").forEach(function (p) { io2.observe(p); });
+  } else $$(".pc").forEach(function (p) { p.classList.add("in"); });
 })();

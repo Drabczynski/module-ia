@@ -76,11 +76,11 @@
       <p class="say" data-say>Bonjour. Je suis votre assistant de formation. Ici, on n’écoute pas un cours&nbsp;: on le fait.</p>
 
       <ol class="steps" data-side-l><li class="st-line" aria-hidden="true"><i data-st-line></i></li>
-        <li class="st" data-st="open"><span class="st-n">00</span><div class="st-b"><p class="st-name">Le principe</p><div class="st-more"><div><h3>Un module, c’est une conversation.</h3><p>L’apprenant n’écoute pas un cours&nbsp;: il échange avec une IA simulée, guidé pas à pas par une voix.</p><span class="badge"><svg><use href="#i-wave"/></svg>Voix et conversation</span></div></div></div></li>
-        <li class="st" data-st="write"><span class="st-n">01</span><div class="st-b"><p class="st-name">Écrire</p><div class="st-more"><div><h3>Il tape, l’IA répond.</h3><p>Saisie libre dans un vrai champ de conversation. L’apprenant formule sa demande et découvre la réponse en direct.</p><span class="badge"><svg><use href="#i-pen"/></svg>Saisie libre</span></div></div></div></li>
-        <li class="st" data-st="spot"><span class="st-n">02</span><div class="st-b"><p class="st-name">Repérer</p><div class="st-more"><div><h3>Il clique sur les erreurs.</h3><p>L’IA a inventé ce qu’on ne lui a jamais dit. L’apprenant le repère en cliquant directement dans sa réponse.</p><span class="badge"><svg><use href="#i-hand2"/></svg>Clic dans le texte</span></div></div></div></li>
-        <li class="st" data-st="build"><span class="st-n">03</span><div class="st-b"><p class="st-name">Construire</p><div class="st-more"><div><h3>Il complète les cases.</h3><p>Chaque case orange ouvre un choix. Le prompt se construit au fil des clics et les briques s’allument une à une.</p><span class="badge"><svg><use href="#i-box"/></svg>Cases à compléter</span></div></div></div></li>
-        <li class="st" data-st="more"><span class="st-n">04</span><div class="st-b"><p class="st-name">Varier</p><div class="st-more"><div><h3>Un geste différent à chaque écran.</h3><p>Glisser une carte, répondre à un QCM, faire tourner une roue, générer une image ou un document Word&nbsp;: l’attention ne retombe jamais.</p><span class="badges"><span class="badge" data-gb="0"><svg><use href="#i-hand2"/></svg>Glisser</span><span class="badge" data-gb="1"><svg><use href="#i-check"/></svg>QCM</span><span class="badge" data-gb="2"><svg><use href="#i-replay"/></svg>Roue</span><span class="badge" data-gb="3"><svg><use href="#i-spark"/></svg>Image</span><span class="badge" data-gb="4"><svg><use href="#i-doc"/></svg>Document Word</span></span></div></div></div></li>
+        <li class="st" data-st="open"><span class="st-n">00</span><div class="st-b"><p class="st-name">Le principe</p><div class="st-more"><div><h3>Une conversation guidée.</h3><p>Chaque module se joue dans une IA simulée, avec une voix qui guide pas à pas. Rien à installer, aucune donnée exposée.</p><span class="badge"><svg><use href="#i-wave"/></svg>Voix et conversation</span></div></div></div></li>
+        <li class="st" data-st="write"><span class="st-n">01</span><div class="st-b"><p class="st-name">Écrire</p><div class="st-more"><div><h3>On apprend en écrivant.</h3><p>L’apprenant rédige lui-même ses demandes dans un vrai champ de saisie, et voit la réponse arriver.</p><span class="badge"><svg><use href="#i-pen"/></svg>Saisie libre</span></div></div></div></li>
+        <li class="st" data-st="spot"><span class="st-n">02</span><div class="st-b"><p class="st-name">Vérifier</p><div class="st-more"><div><h3>Garder l’œil critique.</h3><p>Une IA peut affirmer une chose fausse avec aplomb. L’apprenant s’exerce à le repérer, directement dans la réponse.</p><span class="badge"><svg><use href="#i-hand2"/></svg>Vérification</span></div></div></div></li>
+        <li class="st" data-st="build"><span class="st-n">03</span><div class="st-b"><p class="st-name">Construire</p><div class="st-more"><div><h3>Une méthode, pas des recettes.</h3><p>Rôle, cible, contexte, format&nbsp;: la demande s’assemble pièce par pièce, et l’on voit ce que chacune change.</p><span class="badge"><svg><use href="#i-box"/></svg>Cases à compléter</span></div></div></div></li>
+        <li class="st" data-st="more"><span class="st-n">04</span><div class="st-b"><p class="st-name">Varier</p><div class="st-more"><div><h3>Un geste différent à chaque écran.</h3><p>Glisser une carte, répondre à un QCM, générer une image ou un document Word&nbsp;: on reste actif du début à la fin.</p><span class="badges"><span class="badge" data-gb="0"><svg><use href="#i-hand2"/></svg>Glisser</span><span class="badge" data-gb="1"><svg><use href="#i-check"/></svg>QCM</span><span class="badge" data-gb="2"><svg><use href="#i-spark"/></svg>Image</span><span class="badge" data-gb="3"><svg><use href="#i-doc"/></svg>Document Word</span></span></div></div></div></li>
       </ol>
       <div class="frame" data-frame>
         <div class="win" data-win>
@@ -199,20 +199,13 @@
                   <div class="fb ok" data-fb="qcm"><svg><use href="#i-check"/></svg><span>Exact&nbsp;: sans contexte, elle comble les trous. <b class="pts">+1 point</b></span></div>
                 </div>
                 <div class="gx" data-gx="2">
-                  <h2 class="pv-h1">La roue des situations</h2><span class="pv-rule"></span>
-                  <p class="pv-lead">Tournez la roue&nbsp;: écrivez le prompt de la situation tirée.</p>
-                  <div class="wheel"><span class="wheel-pin"></span><svg viewBox="0 0 300 300"><g data-wheel><path d="M150 150 L150.0 10.0 A140 140 0 0 1 271.2 80.0 Z" fill="#ffd9bf" stroke="#fff" stroke-width="3"/><path d="M150 150 L271.2 80.0 A140 140 0 0 1 271.2 220.0 Z" fill="#d9e6ff" stroke="#fff" stroke-width="3"/><path d="M150 150 L271.2 220.0 A140 140 0 0 1 150.0 290.0 Z" fill="#ffe1ec" stroke="#fff" stroke-width="3"/><path d="M150 150 L150.0 290.0 A140 140 0 0 1 28.8 220.0 Z" fill="#dff5e6" stroke="#fff" stroke-width="3"/><path d="M150 150 L28.8 220.0 A140 140 0 0 1 28.8 80.0 Z" fill="#fff1c7" stroke="#fff" stroke-width="3"/><path d="M150 150 L28.8 80.0 A140 140 0 0 1 150.0 10.0 Z" fill="#e9e2ff" stroke="#fff" stroke-width="3"/><g font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#1b2547"><text transform="rotate(30 150 150)" x="150" y="52" text-anchor="middle">Compte rendu</text><text transform="rotate(90 150 150)" x="150" y="52" text-anchor="middle">Mail client</text><text transform="rotate(150 150 150)" x="150" y="52" text-anchor="middle">Post réseaux</text><text transform="rotate(210 150 150)" x="150" y="52" text-anchor="middle">Affiche</text><text transform="rotate(270 150 150)" x="150" y="52" text-anchor="middle">Résumé</text><text transform="rotate(330 150 150)" x="150" y="52" text-anchor="middle">Traduction</text></g></g><circle cx="150" cy="150" r="26" fill="#fff" stroke="#e7e5de" stroke-width="2"/><circle cx="150" cy="150" r="6" fill="#141413"/></svg></div>
-                  <div class="wheel-res" data-wres>À vous&nbsp;: un <b>compte rendu</b> de réunion.</div>
-                  <span class="wheel-btn" data-wbtn>Tourner la roue</span>
-                </div>
-                <div class="gx" data-gx="3">
                   <h2 class="pv-h1">Générer une image</h2><span class="pv-rule"></span>
                   <p class="pv-lead">La couverture du rapport annuel attend son image. Décrivez-la à l’IA&nbsp;: <b>sujet, lumière, cadrage, format</b>.</p>
                   <div class="task" data-gt="0"><span class="n">1</span><span>Écrivez la demande dans le champ, à gauche.</span></div>
                   <div class="task" data-gt="1"><span class="n">2</span><span>Regardez l’image se générer.</span></div>
                   <div class="fb ok" data-fb="gen"><svg><use href="#i-check"/></svg><span>Une demande précise donne une image utilisable du premier coup.</span></div>
                 </div>
-                <div class="gx" data-gx="4">
+                <div class="gx" data-gx="3">
                   <h2 class="pv-h1">Produire un document</h2><span class="pv-rule"></span>
                   <p class="pv-lead">Sophie veut le compte rendu de la réunion au format Word. Demandez-le à l’IA en précisant <b>les rubriques et la longueur</b>.</p>
                   <div class="task" data-dt="0"><span class="n">1</span><span>Écrivez la demande dans le champ, à gauche.</span></div>
@@ -252,12 +245,20 @@
   </section>
 
   <!-- ===================== Les modules ===================== -->
-  <section class="sec" id="modules" data-reveal>
-    <p class="sec-k">Le parcours</p>
-    <h2>15 modules courts, du premier prompt au plan d’intégration.</h2>
-    <p class="sec-lead">Chaque module tient en un quart d’heure environ et suit le même principe&nbsp;: une consigne courte, puis l’apprenant agit dans une conversation simulée.</p>
-    <div class="mods" data-mods></div>
-    <p class="note"><span class="star">*</span> Modules qui comportent aussi des notions à apprendre (cadre légal, accessibilité, outils).</p>
+  <section class="sec parc" id="modules">
+    <div class="parc-side">
+      <p class="sec-k">Le parcours</p>
+      <h2>15 modules courts, du premier prompt au plan d’intégration.</h2>
+      <p class="sec-lead">Une progression en huit étapes. Chaque module tient en un quart d’heure environ et se suit seul ou dans l’ordre.</p>
+      <dl class="parc-stats">
+        <div><dt>15</dt><dd>modules</dd></div>
+        <div><dt>≈ 15 min</dt><dd>par module</dd></div>
+        <div><dt>6</dt><dd>compétences du RS6776</dd></div>
+        <div><dt>SCORM</dt><dd>pour votre LMS</dd></div>
+      </dl>
+      <p class="parc-legend"><span><span class="tg">Pratique</span> on apprend en faisant</span><span><span class="tg tg-n">+ notions</span> avec un contenu à retenir</span></p>
+    </div>
+    <div class="parc-list" data-mods></div>
   </section>
 
   <!-- ===================== Atouts ===================== -->
