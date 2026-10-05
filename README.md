@@ -105,7 +105,9 @@ Fonction `api/chat.ts`, identifiant `structure-prompt`. Le menu « Les modules �
 Page de présentation commerciale. Elle s’ouvre sur la vidéo du bureau
 (`assets/Photorealistic-cinematic-16-9-opening-fr.mp4`, découpée en 169 images dans
 `assets/video/bureau/`) qui avance au défilement, avec des messages sur l’IA au travail, puis
-plonge dans l’écran, d’où surgit directement l’orbe. Ensuite, le défilement
+plonge dans l’écran, d’où surgit directement l’orbe. Après la démonstration, un voyage en 3D (`site/voyage.js`, three.js embarqué dans
+`site/vendor/`) : l’orbe réapparaît, les 15 modules gravitent autour, la caméra plonge
+dans l’orbe et traverse un tunnel de données avec cinq points de vue. Ensuite, le défilement
 raconte un module par chapitres : le titre, puis une sphère de particules qui se forme,
 tourne et éclate pour laisser place à l’orbe qui parle, puis le module dans un écran
 dont une caméra cadre la zone utile, avec cinq gestes de l’apprenant (écrire, repérer,
