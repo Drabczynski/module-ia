@@ -28,7 +28,7 @@
   };
 
   /* ---------- chapitres (longueurs en hauteurs d'écran) ---------- */
-  var CH = [["film", 10], ["dive", 1.4], ["sphere", 1.8], ["open", 1.2], ["write", 1.9], ["spot", 1.8], ["build", 2.4], ["more", 6.5]];
+  var CH = [["film", 10], ["dive", 1.4], ["sphere", 1.8], ["open", 2.8], ["write", 2.2], ["spot", .0001], ["build", .0001], ["more", 6.5]];   // repérer et construire : retirés du récit
   var START = {}, LEN = {}, TOTAL = 0;
   CH.forEach(function (c) { START[c[0]] = TOTAL; LEN[c[0]] = c[1]; TOTAL += c[1]; });
   var story = $("[data-story]"), stage = $("[data-stage]");
@@ -149,7 +149,7 @@
     };
   })();
   var filmShade = $("[data-film-shade]"), filmFlash = $("[data-film-flash]"), msgs = $$("[data-msg]");
-  var MSG = [[.1, .3], [.27, .47], [.44, .63], [.6, .78], [.75, .92], [.9, 1.01]];
+  var MSG = [[.1, .3], [.28, .5], [.47, .68], [.65, .84], [.81, .99]];
 
   /* =====================================================================
      Hero : le titre se pose mot à mot, l'orbe apparaît au survol
@@ -162,6 +162,14 @@
     w.addEventListener("pointerenter", function () { w.classList.add("lit"); setTimeout(function () { w.classList.remove("lit"); }, 900); });
   });
   var appear = new Spring(0, 150, 13);
+
+  /* ---------- typographie : jamais un petit mot seul en fin de ligne ---------- */
+  var SHORT = /(^|[\s(«\u00a0])(à|au|aux|de|des|du|d’|en|et|la|le|les|l’|un|une|ou|où|sa|son|ses|ce|ces|cet|on|il|elle|y|par|pour|sur|dans|avec|sans|mais|que|qui|ne|se|vos|nos|votre|notre|leur|tout|plus|pas|est|a) (?=\S)/gi;
+  function glue(root) {
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), n;
+    while ((n = w.nextNode())) { var t = n.nodeValue, u = t; do { t = u; u = t.replace(SHORT, "$1$2\u00a0"); } while (u !== t); if (u !== n.nodeValue) n.nodeValue = u; }
+  }
+  $$(".msg, .st-more, .hero-sub, .sec h2, .sec-lead, .feat p, .lc p, .lc h3, .learn-head h2, .final h2, .final p, .pm-t small, .pv-lead, .faq p, .plan li, .comp li, .say").forEach(glue);
 
   /* ---------- mots révélés un à un ---------- */
   function words(el, text) {
@@ -272,7 +280,7 @@
   // deux cases, chacune avec du temps : ouverture, choix, validation
   var IMGK = 2, DOCK = 3;
   var SLOT_AT = function (i) { return .14 + i * .4; }, SLOT_LEN = .34, OPT_AT = .16, SET_AT = .26;
-  var STEP_IDS = ["open", "write", "spot", "build", "more"];
+  var STEP_IDS = ["open", "write", "more"];
   function setClass(el, c, on) { if (el.classList.contains(c) !== !!on) el.classList.toggle(c, !!on); }
   function show(name) { Object.keys(views).forEach(function (k) { setClass(views[k], "on", k === name); }); }
 
@@ -299,7 +307,7 @@
     film.draw(seg(tF, .08, .985) * (film.N - 1));
     filmShade.style.opacity = String(1 - .45 * seg(tF, .1, .2) - .5 * seg(tD, 0, .4));
     msgs.forEach(function (m, i) {                            // chaque message traverse l'écran pendant sa fenêtre
-      var w = MSG[i], on = U < START.dive + .3 && tF >= w[0] && tF < w[1] && !(i === 5 && tD > .25), t = seg(tF, w[0], w[1]);
+      var w = MSG[i], on = U < START.dive + .3 && tF >= w[0] && tF < w[1], t = seg(tF, w[0], w[1]);
       setClass(m, "on", on);
       m.style.transform = "translateY(" + ((.5 - t) * vh * .28).toFixed(1) + "px)";
     });

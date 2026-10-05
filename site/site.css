@@ -502,3 +502,4 @@ main, .foot { position: relative; z-index: 1; }
 .pm-ok::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 3px rgba(26,154,90,.15); }
 @media (max-width: 900px) { .parc { grid-template-columns: 1fr; } .parc-side { position: static; } .pm { grid-template-columns: 40px 1fr; } .pm .tg { grid-column: 2; justify-self: start; } .pm-n { font-size: 26px; } }
 .parc-legend > span { display: flex; align-items: center; gap: 10px; }
+.nw { white-space: nowrap; }
