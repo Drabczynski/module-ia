@@ -37,7 +37,7 @@ function start() {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-  const BEIGE = new THREE.Color("#efe7da");
+  const BEIGE = new THREE.Color("#faf9f5");   // exactement le fond du site (--bg)
   const scene = new THREE.Scene();
   scene.background = BEIGE;
   scene.fog = new THREE.Fog(BEIGE, 80, 220);

@@ -110,7 +110,8 @@ three.js embarqué dans `site/vendor/`) : la caméra fait le tour du bâtiment e
 chaque étage (accueil, RH, communication, finance, juridique, direction), dont les bureaux
 s’allument pour montrer l’IA au travail et la compétence qu’on y apprend. Derrière chaque
 vitre, une pièce en perspective calculée par le shader (plafonds lumineux, postes, écrans,
-collaborateurs), avec un flou de bascule façon maquette. Ensuite, le défilement
+collaborateurs), avec un flou de bascule façon maquette. Chaque encart affiche une photo Unsplash liée à l’étape
+(chargée depuis images.unsplash.com, avec le crédit du photographe). Ensuite, le défilement
 raconte un module par chapitres : le titre, puis une sphère de particules qui se forme,
 tourne et éclate pour laisser place à l’orbe qui parle, puis le module dans un écran
 dont une caméra cadre la zone utile, avec cinq gestes de l’apprenant (écrire, repérer,

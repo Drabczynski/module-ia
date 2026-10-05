@@ -593,7 +593,7 @@ main, .foot { position: relative; z-index: 1; }
 
 /* ---------- L’immeuble : l’IA à tous les étages ---------- */
 .voyage { position: relative; z-index: 2; height: 900vh; }
-.vg-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; background: #efe7da; }
+.vg-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; background: var(--bg); }
 .vg-cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .vg-caps { position: absolute; inset: 0; pointer-events: none; }
 .vg-cap { position: absolute; left: clamp(20px, 7vw, 120px); top: 50%; translate: 0 -50%; max-width: min(460px, 86vw); padding: 30px 32px; border-radius: 24px; background: rgba(255,255,255,.82); backdrop-filter: blur(14px); box-shadow: 0 0 0 1px var(--line), 0 30px 60px -40px rgba(16,24,56,.4); opacity: 0; transform: translateY(16px); transition: opacity .35s, transform .35s; }
@@ -610,3 +610,10 @@ main, .foot { position: relative; z-index: 1; }
 @media (max-width: 800px) { .vg-cap { top: auto; bottom: 18px; left: 16px; right: 16px; translate: none; max-width: none; padding: 22px; } }
 .vg-s strong { color: var(--ink); font-weight: 600; }
 .vg-k b { width: auto; min-width: 28px; padding: 0 8px; border-radius: 99px; }
+/* la photo de chaque étape, en tête de l'encart */
+.vg-ph { position: relative; margin: -14px -16px 20px; border-radius: 16px; overflow: hidden; aspect-ratio: 2 / 1; background: #ece6da; }
+.vg-ph img { display: block; width: 100%; height: 100%; object-fit: cover; color: transparent; }   /* pas de texte alternatif visible si la photo ne charge pas */
+.vg-ph figcaption { position: absolute; right: 8px; bottom: 8px; padding: 3px 8px; border-radius: 99px; background: rgba(20,18,15,.55); backdrop-filter: blur(6px); font: 500 10.5px/1.3 var(--text); color: rgba(255,255,255,.88); }
+.vg-ph figcaption a { color: inherit; text-decoration: none; }
+.vg-cap.on .vg-ph figcaption { pointer-events: auto; }
+@media (max-width: 800px) { .vg-ph { margin: -8px -8px 14px; aspect-ratio: 3 / 1; border-radius: 14px; } }
