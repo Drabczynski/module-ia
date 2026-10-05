@@ -1,10 +1,10 @@
 /* ==========================================================================
    Site vitrine : le défilement raconte un module, chapitre par chapitre.
-   hero   le titre ; l'orbe apparaît quand on survole les mots
-   burst  la galaxie de données éclate, l'orbe parle
+   hero   le titre
+   sphere une sphère de particules se forme, tourne, éclate ; l'orbe naît et parle
    open   le module s'ouvre dans un écran, l'orbe y entre
-   write · spot · build · swipe · score   cinq gestes de l'apprenant,
-          une caméra cadre la zone utile, les arguments s'affichent autour
+   write · spot · build · swipe   quatre gestes de l'apprenant ; une caméra
+          cadre la zone utile, les étapes et leurs arguments sont à gauche
    Tous les mouvements passent par des ressorts (effet « Framer »).
    ========================================================================== */
 (function () {
@@ -27,7 +27,7 @@
   };
 
   /* ---------- chapitres (longueurs en hauteurs d'écran) ---------- */
-  var CH = [["hero", .9], ["burst", 1.4], ["open", 1.2], ["write", 1.9], ["spot", 1.5], ["build", 2.4], ["swipe", 1.4]];
+  var CH = [["hero", .6], ["sphere", 2.6], ["open", 1.2], ["write", 1.9], ["spot", 1.8], ["build", 2.4], ["swipe", 1.4]];
   var START = {}, LEN = {}, TOTAL = 0;
   CH.forEach(function (c) { START[c[0]] = TOTAL; LEN[c[0]] = c[1]; TOTAL += c[1]; });
   var story = $("[data-story]"), stage = $("[data-stage]");
@@ -84,46 +84,38 @@
   })();
 
   /* =====================================================================
-     Galaxie de données : points et petits symboles, qui éclatent
+     Sphère de particules : se forme en ordre, tourne, puis éclate
      ===================================================================== */
   var mouse = { x: -9999, y: -9999 };
   window.addEventListener("pointermove", function (e) { mouse.x = e.clientX; mouse.y = e.clientY; }, { passive: true });
-  var galaxy = (function () {
-    var cv = $("[data-galaxy]"), ctx = cv.getContext("2d"), dpr = Math.min(2, window.devicePixelRatio || 1), pts = [], rot = 0;
-    var TOK = ["01", "{ }", "IA", "</>", "prompt", "λ", "∑", "#", "→", "✦", "texte", "image", "10", "?"];
-    for (var i = 0; i < 2600; i++) {
-      var u = Math.random() * 2 - 1, th = Math.random() * Math.PI * 2, r = .45 + .55 * Math.pow(Math.random(), .4), q = Math.sqrt(1 - u * u);
-      pts.push({ x: q * Math.cos(th) * r, y: u * r, z: q * Math.sin(th) * r, ox: 0, oy: 0, s: Math.random() < .08 ? 2 : 1.1, v: .6 + Math.random() * 2.6, tok: Math.random() < .022 ? TOK[(Math.random() * TOK.length) | 0] : null, hue: Math.random() });
+  var sphere = (function () {
+    var cv = $("[data-galaxy]"), ctx = cv.getContext("2d"), dpr = Math.min(2, window.devicePixelRatio || 1), pts = [], N = 1100, GA = Math.PI * (3 - Math.sqrt(5));
+    for (var i = 0; i < N; i++) {                           // sphère de Fibonacci : des points régulièrement espacés
+      var y = 1 - (i / (N - 1)) * 2, r = Math.sqrt(1 - y * y), th = GA * i;
+      var sx = Math.random() * 2 - 1, sy = Math.random() * 2 - 1, sz = Math.random() * 2 - 1;
+      pts.push({ x: Math.cos(th) * r, y: y, z: Math.sin(th) * r, sx: sx * 2.6, sy: sy * 1.8, sz: sz, d: Math.random(), v: .8 + Math.random() * 2.4, jx: Math.random() - .5, jy: Math.random() - .5 });
     }
     function size() { var b = cv.getBoundingClientRect(); cv.width = b.width * dpr; cv.height = b.height * dpr; }
     return {
       size: size,
-      draw: function (cx, cy, R, A, burst, spin) {
+      // form : 0 → points épars, 1 → sphère ; burst : 0 → intacte, 1 → éclatée ; rot : angle
+      draw: function (cx, cy, R, form, burst, rot, alpha) {
         var b = cv.getBoundingClientRect();
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, b.width, b.height);
-        if (A < .01) return;
-        rot += reduced ? 0 : .0016 + spin;
-        var cs = Math.cos(rot), sn = Math.sin(rot), cT = Math.cos(.35), sT = Math.sin(.35);
-        var mx = mouse.x - b.left, my = mouse.y - b.top;
-        ctx.font = "500 10px Inter, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        if (alpha < .01) return;
+        var cs = Math.cos(rot), sn = Math.sin(rot), tilt = .42, cT = Math.cos(tilt), sT = Math.sin(tilt);
         for (var k = 0; k < pts.length; k++) {
-          var p = pts[k];
-          var x = p.x * cs - p.z * sn, z = p.x * sn + p.z * cs, y = p.y * cT - z * sT; z = p.y * sT + z * cT;
-          var e = 1 + burst * p.v * 2.4 + burst * burst * p.v * 1.6;          // l'éclatement : chaque point a sa vitesse
-          var px = cx + x * R * e, py = cy + y * R * e;
-          var dx = px + p.ox - mx, dy = py + p.oy - my, d = Math.sqrt(dx * dx + dy * dy);
-          if (d < 160 && d > .5) { var f = 1 - d / 160; p.ox += (-dy / d * 3.2 + dx / d * 1.1) * f * f * 6; p.oy += (dx / d * 3.2 + dy / d * 1.1) * f * f * 6; }
-          p.ox *= .93; p.oy *= .93;
-          var al = (.16 + .55 * (z + 1) / 2) * A * (1 - .55 * burst);
+          var p = pts[k], f = ease(clamp((form - p.d * .45) / .55, 0, 1));
+          var x0 = p.x * cs - p.z * sn, z0 = p.x * sn + p.z * cs, y0 = p.y * cT - z0 * sT; z0 = p.y * sT + z0 * cT;
+          var x = lerp(p.sx, x0, f), y = lerp(p.sy, y0, f), z = lerp(p.sz, z0, f);
+          var e = burst * p.v * 2.2 + burst * burst * p.v * 3;  // éclatement : chaque point part à sa vitesse
+          x = x * (1 + e) + p.jx * burst * .6; y = y * (1 + e) + p.jy * burst * .6;
+          var persp = 1 / (1.9 - z * .55), px = cx + x * R * persp * 1.4, py = cy + y * R * persp * 1.4;
+          var al = (.12 + .78 * (z + 1) / 2) * alpha * (f * .85 + .15) * (1 - burst * .9);
           if (al < .01) continue;
-          if (p.tok) {
-            var col = p.hue < .33 ? "226, 98, 43" : p.hue < .66 ? "31, 92, 240" : "31, 30, 28";
-            ctx.fillStyle = "rgba(" + col + "," + Math.min(1, al * 1.3).toFixed(3) + ")";
-            ctx.fillText(p.tok, px + p.ox, py + p.oy);
-          } else {
-            ctx.fillStyle = "rgba(31, 30, 28," + al.toFixed(3) + ")";
-            ctx.fillRect(px + p.ox, py + p.oy, p.s, p.s);
-          }
+          var sz = (1 + (z + 1) * .7) * (1 - burst * .3);
+          ctx.fillStyle = "rgba(31, 30, 28," + al.toFixed(3) + ")";
+          ctx.beginPath(); ctx.arc(px, py, sz, 0, 6.2832); ctx.fill();
         }
       }
     };
@@ -136,18 +128,10 @@
   requestAnimationFrame(function () { requestAnimationFrame(function () { document.body.classList.add("is-ready"); }); });
   var orbEl = $("[data-orb]"), ORB = 240;
   var orb = window.SiriOrb ? window.SiriOrb(orbEl, { size: ORB, state: "idle" }) : null;
-  var appear = new Spring(0, 140, 14), awake = false, hoverEnergy = 0, lastMove = { x: 0, y: 0, t: 0 };
-  var hintText = hint.lastChild;
-  function wake() { if (!awake) { awake = true; appear.t = 1; hintText.textContent = "Faites défiler"; } }
-  $$(".hw", title).forEach(function (w) {
-    w.addEventListener("pointerenter", function () { wake(); w.classList.add("lit"); hoverEnergy = 1; setTimeout(function () { w.classList.remove("lit"); }, 900); });
+  $$(".hw", title).forEach(function (w) {                  // les mots s'illuminent au survol
+    w.addEventListener("pointerenter", function () { w.classList.add("lit"); setTimeout(function () { w.classList.remove("lit"); }, 900); });
   });
-  title.addEventListener("pointermove", function (e) {
-    var dt = Math.max(1, e.timeStamp - lastMove.t), v = Math.hypot(e.clientX - lastMove.x, e.clientY - lastMove.y) / dt;
-    hoverEnergy = Math.min(1, hoverEnergy + v * .25); lastMove = { x: e.clientX, y: e.clientY, t: e.timeStamp };
-  });
-  setTimeout(wake, matchMedia("(hover: none)").matches ? 900 : 4500);   // sans souris, elle vient d'elle-même
-  if (orb) orb.setLevel(function () { return hoverEnergy > .02 ? .25 + hoverEnergy * .75 : -1; });
+  var appear = new Spring(0, 150, 13);
 
   /* ---------- mots révélés un à un ---------- */
   function words(el, text) {
@@ -183,31 +167,31 @@
   /* =====================================================================
      L'écran et sa caméra
      ===================================================================== */
-  var veil = $("[data-veil]"), frame = $("[data-frame]"), win = $("[data-win]"), sideL = $("[data-side-l]"), rail = $("[data-rail]"), railPill = $("[data-rail-pill]");
+  var veil = $("[data-veil]"), frame = $("[data-frame]"), win = $("[data-win]"), steps = $("[data-side-l]"), stLine = $("[data-st-line]");
   var W = 1440, H = 860, F = { x: 0, y: 0, w: 0, h: 0 }, stacked = false;
   function layout() {
-    var vw = innerWidth, vh = innerHeight, top = 76, bottom = 70;
+    var vw = innerWidth, vh = innerHeight, top = 80, bottom = 40;
     stacked = vw < 1100;
     if (!stacked) {
-      var side = clamp(vw * .24, 280, 420), gap = clamp(vw * .035, 28, 64), m = clamp(vw * .03, 28, 64);
-      F.w = vw - side - gap - 2 * m; F.h = Math.min(vh - top - bottom, F.w * .64);
-      F.x = m + side + gap; F.y = top + (vh - top - bottom - F.h) / 2;
-      sideL.style.cssText = "left:" + m + "px;width:" + side + "px;top:" + F.y + "px;height:" + F.h + "px";
+      var side = clamp(vw * .27, 330, 440), gap = clamp(vw * .05, 48, 96);
+      F.w = Math.min(vw * .54, vw - side - gap - 96, 1060); F.h = Math.min(vh - top - bottom - 40, F.w * .62);
+      var x0 = (vw - side - gap - F.w) / 2;
+      F.x = x0 + side + gap; F.y = top + (vh - top - bottom - F.h) / 2;
+      steps.style.cssText = "left:" + x0 + "px;width:" + side + "px;top:" + top + "px;height:" + (vh - top - bottom) + "px";
     } else {
-      var mm = vw < 600 ? 14 : 28, copyH = vw < 600 ? 200 : 170;
-      F.w = vw - 2 * mm; F.h = Math.min(vh - top - copyH - 90, F.w * .8);
+      var mm = vw < 600 ? 16 : 28, copyH = vw < 600 ? 190 : 170;
+      F.w = vw - 2 * mm; F.h = Math.min(vh - top - copyH - 40, F.w * .8);
       F.x = mm; F.y = top + copyH;
-      sideL.style.cssText = "left:" + mm + "px;right:" + mm + "px;top:" + top + "px;height:" + copyH + "px";
+      steps.style.cssText = "left:" + mm + "px;right:" + mm + "px;top:" + top + "px;height:" + copyH + "px";
     }
     frame.style.left = F.x + "px"; frame.style.top = F.y + "px"; frame.style.width = F.w + "px"; frame.style.height = F.h + "px";
-    rail.style.top = (vh - 54) + "px";
-    sideL.classList.toggle("is-stacked", stacked);
+    steps.classList.toggle("is-stacked", stacked);
   }
   var FOCUS = {                                                // zones cadrées, en coordonnées de l'interface
-    full: [0, 0, 1440, 860], left: [0, 40, 770, 820], reply: [20, 110, 740, 380],
+    full: [0, 0, 1440, 860], left: [0, 40, 770, 820], reply: [10, 50, 760, 470],
     tpl: [0, 210, 770, 650], panel: [771, 40, 669, 820]
   };
-  var CAM_OF = { hero: "full", burst: "full", open: "full", write: "left", spot: "reply", build: "tpl", swipe: "panel" };
+  var CAM_OF = { hero: "full", sphere: "full", open: "full", write: "left", spot: "reply", build: "tpl", swipe: "panel" };
   function camFor(name) {
     var r = FOCUS[name], s = Math.min(F.w / r[2], F.h / r[3]);
     var x = F.w / 2 - (r[0] + r[2] / 2) * s, y = F.h / 2 - (r[1] + r[3] / 2) * s;
@@ -234,7 +218,7 @@
   var pop = $("[data-pop]"), popT = $("[data-popt]"), popO = $("[data-popo]"), cursor = $("[data-cursor]");
   var card1 = $("[data-card1]"), card2 = $("[data-card2]"), stamp = $("[data-stamp]"), bfaux = $("[data-bfaux]");
   var next = $("[data-next]"), psay = $("[data-psay]"), prog = $("[data-prog]"), wtitle = $("[data-wtitle]");
-  var copies = $$("[data-copy]"), railItems = $$("span", rail);
+  var stItems = $$("[data-st]"), tags = {}; $$("[data-tag]").forEach(function (t) { tags[t.dataset.tag] = t; });
   var TYPED = "Écris une offre d’emploi pour un poste d’assistant administratif.";
   var SLOTS = [
     ["Cible", ["des candidats débutants", "des experts en finance", "tout le monde"]],
@@ -242,7 +226,7 @@
   ];
   // deux cases, chacune avec du temps : ouverture, choix, validation
   var SLOT_AT = function (i) { return .14 + i * .4; }, SLOT_LEN = .34, OPT_AT = .16, SET_AT = .26;
-  var STEP_IDS = ["write", "spot", "build", "swipe"];
+  var STEP_IDS = ["open", "write", "spot", "build", "swipe"];
   function setClass(el, c, on) { if (el.classList.contains(c) !== !!on) el.classList.toggle(c, !!on); }
   function show(name) { Object.keys(views).forEach(function (k) { setClass(views[k], "on", k === name); }); }
 
@@ -257,49 +241,46 @@
   function render(dt, time) {
     var vw = stage.clientWidth, vh = stage.clientHeight, ch = current();
     setClass(nav, "is-solid", window.scrollY > 10);
-    var tH = L("hero"), tB = L("burst"), tO = L("open");
+    var tH = L("hero"), tS = L("sphere"), tO = L("open");
 
-    /* --- hero --- */
-    var heroOut = ease(seg(tB, 0, .3));
+    /* --- 1. le titre s'efface au premier défilement --- */
+    var heroOut = ease(seg(U, .05, START.sphere + .35));
     hero.style.opacity = String(1 - heroOut);
-    hero.style.transform = "translateY(" + (-80 * heroOut) + "px) scale(" + (1 - .04 * heroOut) + ")";
+    hero.style.transform = "translateY(" + (-70 * heroOut) + "px) scale(" + (1 - .05 * heroOut) + ")";
     hero.style.visibility = heroOut >= 1 ? "hidden" : "visible";
-    hint.style.opacity = String((1 - seg(tH, 0, .25)) * (U < START.burst ? 1 : 0));
-    hoverEnergy *= Math.pow(.25, dt);
+    hint.style.opacity = String(1 - seg(U, 0, .3));
 
-    /* --- l'orbe : apparition, montée, entrée dans l'écran --- */
+    /* --- 2. la sphère se forme, tourne, éclate --- */
+    var form = seg(tS, .02, .3), burst = ease(seg(tS, .5, .74));
+    var R = Math.min(vw, vh) * .27;
+    var rot = time * .25 + U * 1.6;                           // elle tourne d'elle-même, et plus vite quand on défile
+    sphere.draw(vw / 2, vh * .44, R, form, burst, rot, seg(tS, 0, .1) * (1 - seg(tS, .74, .8)));
+
+    /* --- 3. l'orbe naît de l'éclatement, puis entre dans l'écran --- */
+    appear.t = tS > .54 ? 1 : 0;
     var a = appear.step(dt);
-    var p0 = { x: vw / 2, y: Math.min(vh - 130, vh * .82), s: Math.min(.62, vw / 700) };
-    var p1 = { x: vw / 2, y: vh * .38, s: Math.min(1, vw / 520) };
+    var p1 = { x: vw / 2, y: vh * .4, s: Math.min(1, vw / 520) };
     var slotC = centerOf(slotWin), p2 = { x: slotC.x, y: slotC.y, s: (150 * cam.s.v) / ORB };
-    var tUp = ease(seg(tB, .05, .4)), tIn = ease(seg(tO, .3, .75));
-    var tx = lerp(lerp(p0.x, p1.x, tUp), p2.x, tIn), ty = lerp(lerp(p0.y, p1.y, tUp), p2.y, tIn), ts = lerp(lerp(p0.s, p1.s, tUp), p2.s, tIn);
+    var tIn = ease(seg(tO, .3, .75));
+    var tx = lerp(p1.x, p2.x, tIn), ty = lerp(p1.y, p2.y, tIn), ts = lerp(p1.s, p2.s, tIn);
     if (!orbInit) { orbPos.x.v = tx; orbPos.y.v = ty; orbPos.s.v = ts; orbInit = true; }
     orbPos.x.t = tx; orbPos.y.t = ty; orbPos.s.t = ts;
     var ox = orbPos.x.step(dt), oy = orbPos.y.step(dt), os = orbPos.s.step(dt);
-    if (tIn > .9) { ox = tx; oy = ty; os = ts; }               // collée à sa place une fois arrivée
+    if (tIn > .9) { ox = tx; oy = ty; os = ts; }
     var handOff = seg(tO, .74, .82);                           // l'orbe de la scène cède la place à celle du module
-    var vis = Math.max(a, seg(tB, 0, .1));
-    orbEl.style.transform = "translate(" + (ox - ORB / 2) + "px," + (oy - ORB / 2) + "px) scale(" + Math.max(.001, os * vis) + ")";
+    orbEl.style.transform = "translate(" + (ox - ORB / 2) + "px," + (oy - ORB / 2) + "px) scale(" + Math.max(.001, os * a) + ")";
     orbEl.style.opacity = String(1 - handOff);
-    orbEl.style.visibility = handOff >= 1 ? "hidden" : "visible";
-    if (orb) orb.setState(tB > .25 && tB < .95 ? "speaking" : hoverEnergy > .05 ? "speaking" : "idle");
+    orbEl.style.visibility = handOff >= 1 || a < .002 ? "hidden" : "visible";
+    if (orb) orb.setState(tS > .6 && tO < .9 ? "speaking" : "idle");
 
-    /* --- la galaxie --- */
-    var burst = ease(seg(tB, .15, .75));
-    var gx = lerp(p0.x, p1.x, tUp), gy = lerp(p0.y, p1.y, tUp);
-    var R = Math.min(vw, vh) * lerp(.34, .42, tUp);
-    var gA = U < START.write ? 1 - .7 * seg(tO, 0, .6) : .3;
-    galaxy.draw(gx, gy, R, gA, burst, burst * .01);
-
-    /* --- la phrase de l'orbe --- */
-    say.style.top = (vh * .38 + Math.min(150, vh * .17) * (vw < 600 ? .8 : 1)) + "px";
-    say.style.opacity = String(seg(tB, .2, .32) * (1 - seg(tO, .05, .25)));
-    reveal(sayW, seg(tB, .3, .85));
+    /* --- sa phrase --- */
+    say.style.top = (vh * .4 + Math.min(150, vh * .17) * (vw < 600 ? .8 : 1)) + "px";
+    say.style.opacity = String(seg(tS, .6, .68) * (1 - seg(tO, .05, .25)));
+    reveal(sayW, seg(tS, .64, .97));
 
     /* --- le fond --- */
-    shaderI.t = ch === "hero" ? 1 : ch === "burst" ? 1.25 : window.scrollY > story.offsetTop + story.offsetHeight - innerHeight ? .45 : .7;
-    shader.draw(time, shaderI.step(dt), ch === "burst" ? 1 : .4, mouse.x < -999 ? innerWidth / 2 : mouse.x, mouse.y < -999 ? innerHeight / 2 : mouse.y);
+    shaderI.t = ch === "hero" ? 1 : ch === "sphere" ? 1.15 : window.scrollY > story.offsetTop + story.offsetHeight - innerHeight ? .45 : .65;
+    shader.draw(time, shaderI.step(dt), ch === "sphere" ? 1 : .4, mouse.x < -999 ? innerWidth / 2 : mouse.x, mouse.y < -999 ? innerHeight / 2 : mouse.y);
 
     /* --- l'écran --- */
     var fIn = ease(seg(tO, 0, .5));
@@ -313,16 +294,15 @@
     win.style.transform = "translate(" + cx + "px," + cy + "px) scale(" + cs + ")";
     setClass(veil, "on", CAM_OF[ch] !== "full");
 
-    /* --- arguments et barre d'étapes --- */
-    copies.forEach(function (el) { var id = el.dataset.copy, t = L(id); setClass(el, "on", ch === id && (id !== "open" || t > .45) && t < .97); });
+    /* --- les étapes, à gauche --- */
     var si = STEP_IDS.indexOf(ch);
-    setClass(rail, "on", si >= 0);
-    railItems.forEach(function (r, i) { setClass(r, "on", i === si); setClass(r, "done", i < si); });
-    if (si >= 0) {
-      var it = railItems[si], rr = rail.getBoundingClientRect(), ir = it.getBoundingClientRect();
-      railPill.style.left = "0px"; railPill.style.width = ir.width + "px";
-      railPill.style.transform = "translateX(" + (ir.left - rr.left) + "px)";
-      railPill.style.transition = "transform .6s var(--spring), width .6s var(--spring)";
+    setClass(steps, "on", si >= 0 && (si > 0 || tO > .35));
+    stItems.forEach(function (el, i) { setClass(el, "on", i === si); setClass(el, "done", i < si); });
+    if (si >= 0 && !stacked) {                                // la ligne relie les pastilles, et se remplit jusqu'à l'étape active
+      var sr0 = steps.getBoundingClientRect(), cy0 = function (el) { var r = el.querySelector(".st-n").getBoundingClientRect(); return r.top + r.height / 2 - sr0.top; };
+      var top0 = cy0(stItems[0]), bot0 = cy0(stItems[stItems.length - 1]);
+      stLine.parentNode.style.top = top0 + "px"; stLine.parentNode.style.bottom = "auto"; stLine.parentNode.style.height = (bot0 - top0) + "px";
+      stLine.style.height = Math.max(0, cy0(stItems[si]) - top0) + "px";
     }
 
     /* =========== le module, geste par geste =========== */
@@ -360,6 +340,14 @@
     // ÉTAPE 2 · repérer
     marks.forEach(function (m, i) { var on = tsp >= .25 + i * .18 && !inBuild; setClass(m, "on", on); setClass(found[i], "on", on); clickAt("m" + i, on); });
     setClass($('[data-fb="hunt"]'), "on", tsp >= .8);
+    var spotOn = ch === "spot";
+    setClass(tags.q, "on", spotOn && tsp >= .04 && tsp < .3);
+    if (spotOn) { var ub = inWin(u1); tags.q.style.left = ub.x + "px"; tags.q.style.top = (ub.t + ub.h + 14) + "px"; }
+    marks.forEach(function (m, i) {
+      var on = spotOn && tsp >= .25 + i * .18 + .02 && tsp < .95, t = tags[String(i)];
+      setClass(t, "on", on);
+      if (spotOn) { var mr = inWin(m); t.style.left = mr.x + "px"; t.style.top = (mr.t - 44) + "px"; }
+    });
     // ÉTAPE 3 · construire
     var openI = -1;
     slots.forEach(function (s, i) {
@@ -434,7 +422,7 @@
     render(dt, (now - t0) / 1000);
     requestAnimationFrame(loop);
   }
-  function resize() { layout(); galaxy.size(); shader.size(); }
+  function resize() { layout(); sphere.size(); shader.size(); }
   window.addEventListener("resize", resize);
   resize(); scrollS.v = target(); U = scrollS.v;
   requestAnimationFrame(loop);

@@ -60,17 +60,17 @@
           <a class="btn btn-line" href="#modules">Voir les modules</a>
         </div>
       </div>
-      <p class="hover-hint" data-hint><i></i>Survolez le titre, puis faites défiler</p>
+      <p class="hover-hint" data-hint><i></i>Faites défiler</p>
 
       <p class="say" data-say>Bonjour. Je suis votre assistant de formation. Ici, on n’écoute pas un cours&nbsp;: on le fait.</p>
 
-      <div class="side l" data-side-l>
-        <div class="copy" data-copy="open"><p class="copy-k" style="--i:0">Le principe</p><h3 style="--i:1">Une vraie conversation avec une IA.</h3><p style="--i:2">À gauche, l’apprenant échange avec l’IA. À droite, la consigne et l’activité du moment. Rien à installer&nbsp;: tout tourne dans le navigateur ou votre LMS.</p><span class="chip" style="--i:3"><svg><use href="#i-check"/></svg>IA simulée, aucune donnée exposée</span></div>
-        <div class="copy" data-copy="write"><p class="copy-k" style="--i:0"><b>1</b>Écrire</p><h3 style="--i:1">On commence par faire.</h3><p style="--i:2">L’apprenant écrit sa demande à l’IA, comme au bureau. La règle arrive ensuite, quand elle a du sens.</p><span class="chip" style="--i:3"><svg><use href="#i-check"/></svg>Des cas tirés du quotidien</span></div>
-        <div class="copy" data-copy="spot"><p class="copy-k" style="--i:0"><b>2</b>Repérer</p><h3 style="--i:1">L’IA se trompe&nbsp;? Tant mieux.</h3><p style="--i:2">Elle invente une ville, un salaire… L’apprenant clique sur ce qui cloche. Vérifier, c’est ce qui évite les erreurs coûteuses.</p><span class="chip" style="--i:3"><svg><use href="#i-check"/></svg>Esprit critique entraîné</span></div>
-        <div class="copy" data-copy="build"><p class="copy-k" style="--i:0"><b>3</b>Construire</p><h3 style="--i:1">Il complète, l’IA comprend.</h3><p style="--i:2">Un clic sur une case orange, un choix concret&nbsp;: le prompt se construit. La méthode resservira pour un mail, un compte rendu, une image.</p><span class="chip" style="--i:3"><svg><use href="#i-check"/></svg>Applicable dès le lendemain</span></div>
-        <div class="copy" data-copy="swipe"><p class="copy-k" style="--i:0"><b>4</b>Trancher</p><h3 style="--i:1">Vrai ou faux, d’un geste.</h3><p style="--i:2">Une carte à glisser, une idée reçue qui tombe. Chaque action est corrigée sur-le-champ.</p><span class="chip" style="--i:3"><svg><use href="#i-check"/></svg>Correction immédiate</span></div>
-      </div>
+      <ol class="steps" data-side-l><li class="st-line" aria-hidden="true"><i data-st-line></i></li>
+        <li class="st" data-st="open"><span class="st-n">00</span><div class="st-b"><p class="st-name">Le principe</p><div class="st-more"><div><h3>Un module, c’est une conversation.</h3><p>L’apprenant n’écoute pas un cours&nbsp;: il échange avec une IA simulée, guidé pas à pas par une voix.</p><span class="badge"><svg><use href="#i-wave"/></svg>Voix et conversation</span></div></div></div></li>
+        <li class="st" data-st="write"><span class="st-n">01</span><div class="st-b"><p class="st-name">Écrire</p><div class="st-more"><div><h3>Il tape, l’IA répond.</h3><p>Saisie libre dans un vrai champ de conversation. L’apprenant formule sa demande et découvre la réponse en direct.</p><span class="badge"><svg><use href="#i-pen"/></svg>Saisie libre</span></div></div></div></li>
+        <li class="st" data-st="spot"><span class="st-n">02</span><div class="st-b"><p class="st-name">Repérer</p><div class="st-more"><div><h3>Il clique sur les erreurs.</h3><p>L’IA a inventé ce qu’on ne lui a jamais dit. L’apprenant le repère en cliquant directement dans sa réponse.</p><span class="badge"><svg><use href="#i-hand2"/></svg>Clic dans le texte</span></div></div></div></li>
+        <li class="st" data-st="build"><span class="st-n">03</span><div class="st-b"><p class="st-name">Construire</p><div class="st-more"><div><h3>Il complète les cases.</h3><p>Chaque case orange ouvre un choix. Le prompt se construit au fil des clics et les briques s’allument une à une.</p><span class="badge"><svg><use href="#i-box"/></svg>Cases à compléter</span></div></div></div></li>
+        <li class="st" data-st="swipe"><span class="st-n">04</span><div class="st-b"><p class="st-name">Trancher</p><div class="st-more"><div><h3>Il glisse la carte.</h3><p>Vrai à droite, faux à gauche, comme sur un téléphone. La correction tombe au même instant.</p><span class="badge"><svg><use href="#i-hand2"/></svg>Glisser, vrai ou faux</span></div></div></div></li>
+      </ol>
       <div class="frame" data-frame>
         <div class="win" data-win>
           <div class="w-top">
@@ -153,11 +153,11 @@
             </div>
           </div>
 
+          <div class="tags" data-tags><span class="tag tag-q" data-tag="q">Votre demande ne parlait ni de ville, ni de salaire.</span><span class="tag" data-tag="0">Ville inventée</span><span class="tag" data-tag="1">Salaire inventé</span><span class="tag" data-tag="2">Avantage inventé</span></div>
           <div class="cursor" data-cursor><svg viewBox="0 0 26 30"><path d="M3 2 L3 24 L9 18.5 L13 27.5 L17 25.8 L13 17 L21 17 Z" fill="#141413" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
         </div>
         <div class="veil" data-veil></div>
       </div>
-      <div class="rail" data-rail><b class="rail-pill" data-rail-pill></b><span><i>1</i>Écrire</span><span><i>2</i>Repérer</span><span><i>3</i>Construire</span><span><i>4</i>Trancher</span></div>
 
       <div class="orb-host" data-orb></div>
     </div>
