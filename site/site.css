@@ -527,3 +527,22 @@ main, .foot { position: relative; z-index: 1; }
 .pm-t b { font-weight: 600; }
 .msg { max-width: min(720px, 88vw); }
 .m-l, .m-r { max-width: min(720px, 88vw); }
+
+/* ---------- Hero « SaaS » ---------- */
+.hero.on-film::before { content: ""; position: absolute; left: 50%; top: 50%; width: min(1100px, 120vw); height: 620px; transform: translate(-50%, -52%); background: radial-gradient(closest-side, rgba(6,10,20,.55), rgba(6,10,20,0)); pointer-events: none; z-index: -1; }
+.hero-pill { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 26px; padding: 5px 14px 5px 5px; border-radius: 99px; background: rgba(255,255,255,.08); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18), 0 8px 30px -10px rgba(255,140,90,.35); backdrop-filter: blur(12px); color: rgba(255,255,255,.9); font: 500 13.5px/1 var(--text); text-decoration: none; transition: background .2s; }
+.hero-pill:hover { background: rgba(255,255,255,.14); }
+.hp-new { padding: 6px 10px; border-radius: 99px; background: linear-gradient(90deg, #ff9a62, #ff6fa5); color: #fff; font-weight: 600; font-size: 12px; }
+.hero-pill svg { width: 14px; height: 14px; opacity: .7; }
+.hero.on-film h1 { font-size: clamp(44px, 7vw, 104px); line-height: .98; letter-spacing: -.045em; }
+.hero.on-film .hw.g { color: transparent; background: linear-gradient(95deg, #ffd2b8 0%, #ff9a72 30%, #ff7eb0 60%, #b9a8ff 100%); -webkit-background-clip: text; background-clip: text; }
+.hero.on-film .hw.g.lit { background-position: 0 0; }
+.hero.on-film .hero-sub { max-width: 620px; font-size: clamp(16px, 1.35vw, 19px); }
+.hero-sub b { color: #fff; font-weight: 600; }
+.btn-lg { height: 52px; padding: 0 24px 0 26px; font-size: 16px; }
+.hero-trust { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 22px; margin: 26px 0 0; padding: 0; list-style: none; font-size: 14px; color: rgba(255,255,255,.75); }
+.hero-trust li { display: inline-flex; align-items: center; gap: 7px; }
+.hero-trust svg { width: 15px; height: 15px; color: #8ff0b8; }
+@media (max-width: 600px) { .hero-trust { flex-direction: column; align-items: center; gap: 6px; } .hero-pill span:nth-child(2) { font-size: 12.5px; } }
+.hp-s { display: none; }
+@media (max-width: 600px) { .hp-l { display: none; } .hp-s { display: inline; } }
