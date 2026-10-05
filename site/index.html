@@ -44,26 +44,35 @@
   </nav>
 </header>
 
+<canvas class="bg-shader" data-shader aria-hidden="true"></canvas>
 <main id="top">
   <!-- ===================== Le récit au défilement ===================== -->
   <section class="story" data-story aria-label="Démonstration de l’interactivité">
     <div class="stage" data-stage>
-      <canvas class="cloud" data-cloud aria-hidden="true"></canvas>
+      <canvas class="galaxy" data-galaxy aria-hidden="true"></canvas>
 
       <div class="hero" data-hero>
-        <p class="hero-k"><i></i>Formation à l’IA générative</p>
-        <h1>Apprendre l’IA<br>en la pratiquant.</h1>
-        <p class="hero-sub">15 modules courts où l’apprenant écrit, repère, complète et tranche. Une IA simulée, des cas réels, aucune donnée exposée.</p>
-        <div class="hero-cta">
+        <p class="hero-k rise" style="--d:.05s"><i></i>Formation à l’IA générative</p>
+        <h1 data-title><span class="hw" style="--i:0">Apprendre</span> <span class="hw" style="--i:1">l’IA</span><br><span class="hw" style="--i:2">en</span> <span class="hw" style="--i:3">la</span> <span class="hw" style="--i:4">pratiquant.</span></h1>
+        <p class="hero-sub rise" style="--d:.75s">15 modules courts où l’apprenant pratique&nbsp;: il écrit, repère, construit et tranche. Une IA simulée, aucune donnée exposée.</p>
+        <div class="hero-cta rise" style="--d:.9s">
           <a class="btn" href="#contact">Demander une démo<svg><use href="#i-arrow"/></svg></a>
           <a class="btn btn-line" href="#modules">Voir les modules</a>
         </div>
       </div>
+      <p class="hover-hint" data-hint><i></i>Survolez le titre, puis faites défiler</p>
 
-      <p class="say" data-say>Bonjour. Je suis votre assistant de formation. Ici, on n’écoute pas un cours&nbsp;: on le fait. Entrons dans un module.</p>
-      <div class="hint" data-hint>Faites défiler<i></i></div>
+      <p class="say" data-say>Bonjour. Je suis votre assistant de formation. Ici, on n’écoute pas un cours&nbsp;: on le fait.</p>
 
-      <div class="win-area" data-area>
+      <div class="side l" data-side-l>
+        <div class="copy" data-copy="open"><p class="copy-k" style="--i:0">Le principe</p><h3 style="--i:1">Une vraie conversation avec une IA.</h3><p style="--i:2">À gauche, l’apprenant échange avec l’IA. À droite, une consigne courte et l’activité du moment.</p></div>
+        <div class="copy" data-copy="write"><p class="copy-k" style="--i:0"><b>1</b>Écrire</p><h3 style="--i:1">On commence par faire.</h3><p style="--i:2">L’apprenant écrit sa demande à l’IA, comme il le ferait au bureau.</p></div>
+        <div class="copy" data-copy="spot"><p class="copy-k" style="--i:0"><b>2</b>Repérer</p><h3 style="--i:1">L’IA se trompe&nbsp;? Tant mieux.</h3><p style="--i:2">Elle invente une ville, un salaire… L’apprenant clique sur ce qui cloche.</p></div>
+        <div class="copy" data-copy="build"><p class="copy-k" style="--i:0"><b>3</b>Construire</p><h3 style="--i:1">Une méthode en cinq briques.</h3><p style="--i:2">Rôle, cible, objectif, contexte, format&nbsp;: l’apprenant complète chaque case.</p></div>
+        <div class="copy" data-copy="swipe"><p class="copy-k" style="--i:0"><b>4</b>Trancher</p><h3 style="--i:1">Vrai ou faux, d’un geste.</h3><p style="--i:2">Une carte à glisser, une idée reçue qui tombe.</p></div>
+        <div class="copy" data-copy="score"><p class="copy-k" style="--i:0"><b>5</b>Mesurer</p><h3 style="--i:1">Un score clair.</h3><p style="--i:2">Une note par activité, un seuil de validation, et de quoi revoir ce qui coince.</p></div>
+      </div>
+      <div class="frame" data-frame>
         <div class="win" data-win>
           <div class="w-top">
             <div class="w-tl">
@@ -74,7 +83,6 @@
             </div>
             <span class="w-mode"><i></i>Mode simulé</span>
           </div>
-          <div class="w-step" data-wstep><b data-wstepn>1</b><span data-wstept>L’apprenant écrit à l’IA</span><span class="dots"><i></i><i></i><i></i><i></i></span></div>
 
           <div class="w-left">
             <div class="w-orbslot" data-slot-win></div>
@@ -162,14 +170,24 @@
 
           <div class="cursor" data-cursor><svg viewBox="0 0 26 30"><path d="M3 2 L3 24 L9 18.5 L13 27.5 L17 25.8 L13 17 L21 17 Z" fill="#141413" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
         </div>
+        <div class="veil" data-veil></div>
       </div>
+      <div class="side r" data-side-r>
+        <div class="copy" data-copy="open"><p class="copy-k" style="--i:0">Pour vous</p><h3 style="--i:1">Rien à installer.</h3><p style="--i:2">Le module tourne dans le navigateur ou dans votre LMS. L’IA est simulée&nbsp;: aucune donnée ne sort.</p><span class="chip" style="--i:3"><svg><use href="#i-check"/></svg>Aucun compte à créer</span></div>
+        <div class="copy" data-copy="write"><p class="copy-k" style="--i:0">Pourquoi ça marche</p><h3 style="--i:1">Le geste avant la théorie.</h3><p style="--i:2">On part d’une situation réelle. La règle arrive ensuite, quand elle a du sens.</p><span class="chip" style="--i:3"><svg><use href="#i-check"/></svg>Des cas tirés du quotidien</span></div>
+        <div class="copy" data-copy="spot"><p class="copy-k" style="--i:0">Ce que vous y gagnez</p><h3 style="--i:1">Des équipes qui vérifient.</h3><p style="--i:2">Relire et corriger ce que produit une IA&nbsp;: c’est ce qui évite les erreurs coûteuses.</p><span class="chip" style="--i:3"><svg><use href="#i-check"/></svg>Esprit critique entraîné</span></div>
+        <div class="copy" data-copy="build"><p class="copy-k" style="--i:0">Ce qui reste</p><h3 style="--i:1">Un réflexe réutilisable.</h3><p style="--i:2">Les mêmes briques servent pour un mail, un compte rendu, une image.</p><span class="chip" style="--i:3"><svg><use href="#i-check"/></svg>Applicable dès le lendemain</span></div>
+        <div class="copy" data-copy="swipe"><p class="copy-k" style="--i:0">L’engagement</p><h3 style="--i:1">Un retour à chaque geste.</h3><p style="--i:2">Chaque action est corrigée sur-le-champ. On reste attentif jusqu’au bout.</p><span class="chip" style="--i:3"><svg><use href="#i-check"/></svg>Correction immédiate</span></div>
+        <div class="copy" data-copy="score"><p class="copy-k" style="--i:0">Le suivi</p><h3 style="--i:1">Directement dans votre LMS.</h3><p style="--i:2">Export SCORM&nbsp;: le score et la réussite remontent tout seuls.</p><span class="chip" style="--i:3"><svg><use href="#i-check"/></svg>Compatible SCORM</span></div>
+      </div>
+      <div class="rail" data-rail><b class="rail-pill" data-rail-pill></b><span><i>1</i>Écrire</span><span><i>2</i>Repérer</span><span><i>3</i>Construire</span><span><i>4</i>Trancher</span><span><i>5</i>Mesurer</span></div>
 
       <div class="orb-host" data-orb></div>
     </div>
   </section>
 
   <!-- ===================== Les modules ===================== -->
-  <section class="sec" id="modules">
+  <section class="sec" id="modules" data-reveal>
     <p class="sec-k">Le parcours</p>
     <h2>15 modules courts, du premier prompt au plan d’intégration.</h2>
     <p class="sec-lead">Chaque module tient en un quart d’heure environ et suit le même principe&nbsp;: une consigne courte, puis l’apprenant agit dans une conversation simulée.</p>
@@ -178,7 +196,7 @@
   </section>
 
   <!-- ===================== Atouts ===================== -->
-  <section class="sec" id="atouts">
+  <section class="sec" id="atouts" data-reveal>
     <p class="sec-k">Pourquoi ça marche</p>
     <h2>On retient ce qu’on a fait soi-même.</h2>
     <p class="sec-lead">Pas de vidéo à subir ni de diaporama à cliquer. L’apprenant manipule une IA, se trompe sans risque, et corrige.</p>
@@ -193,7 +211,7 @@
   </section>
 
   <!-- ===================== Référentiel ===================== -->
-  <section class="sec">
+  <section class="sec" data-reveal>
     <div class="align">
       <div>
         <p class="sec-k">Référentiel</p>
@@ -213,7 +231,7 @@
   </section>
 
   <!-- ===================== Formules ===================== -->
-  <section class="sec" id="formules">
+  <section class="sec" id="formules" data-reveal>
     <p class="sec-k">Formules</p>
     <h2>Pour une équipe ou tout un catalogue.</h2>
     <p class="sec-lead">Hébergé chez nous ou déposé dans votre LMS. Le tarif dépend du nombre d’apprenants et des modules choisis.</p>
@@ -225,7 +243,7 @@
   </section>
 
   <!-- ===================== FAQ ===================== -->
-  <section class="sec faq">
+  <section class="sec faq" data-reveal>
     <p class="sec-k">Questions</p>
     <h2>Ce qu’on nous demande souvent.</h2>
     <details><summary>Faut-il un compte sur un outil d’IA&nbsp;?</summary><p>Non. Les modules utilisent une IA simulée&nbsp;: l’apprenant pratique dans une interface réaliste, sans créer de compte et sans envoyer de données.</p></details>
@@ -234,7 +252,7 @@
     <details><summary>Le parcours prépare-t-il à la certification&nbsp;?</summary><p>Il est aligné sur le référentiel RS6776 et propose des entraînements au format des mises en situation. L’évaluation elle-même reste organisée par le certificateur.</p></details>
   </section>
 
-  <section class="final" id="contact">
+  <section class="final" id="contact" data-reveal>
     <h2>Voyez-le en vrai, en quinze minutes.</h2>
     <p>On vous montre un module en direct, puis on parle de votre public et de votre LMS.</p>
     <a class="btn" href="mailto:contact@exemple.fr?subject=Demande%20de%20d%C3%A9mo">Demander une démo<svg><use href="#i-arrow"/></svg></a>

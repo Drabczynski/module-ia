@@ -102,10 +102,11 @@ Fonction `api/chat.ts`, identifiant `structure-prompt`. Le menu « Les modules �
 
 ## Site vitrine (`site/`)
 
-Page de présentation commerciale. Le défilement pilote une démonstration du module 2 :
-le titre, puis l’orbe qui monte et parle (texte révélé au défilement), son entrée dans le
-module presque plein écran, et quatre actions de l’apprenant (écrire à l’IA, repérer les
-inventions, compléter les cases, trancher une carte) avant le score. Suivent les modules,
+Page de présentation commerciale, sur un fond animé par un shader WebGL. Le défilement
+raconte un module par chapitres : le titre (l’orbe apparaît au survol des mots), la
+galaxie de données qui éclate pendant que l’orbe parle, puis le module dans un écran
+dont une caméra cadre la zone utile, avec cinq gestes de l’apprenant (écrire, repérer,
+construire, trancher, mesurer) et, autour, les arguments de vente. Mouvements à ressorts. Suivent les modules,
 les atouts, le référentiel, les formules et la FAQ. Réutilise `premiers-pas/orb.js` et les
 polices de `assets/fonts`. Nom « Atelier IA », formules « Sur devis » et adresse de contact
 à remplacer.
