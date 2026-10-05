@@ -28,7 +28,7 @@
   };
 
   /* ---------- chapitres (longueurs en hauteurs d'écran) ---------- */
-  var CH = [["film", 10], ["dive", 1.4], ["sphere", 1.8], ["open", 2.8], ["write", 2.2], ["spot", .0001], ["build", .0001], ["more", 6.5]];   // repérer et construire : retirés du récit
+  var CH = [["film", 10], ["dive", 1.4], ["sphere", 1.8], ["open", 2.8], ["write", 2.2], ["spot", .0001], ["build", .0001], ["more", 6.5], ["end", 1.6]];   // repérer et construire : retirés du récit
   var START = {}, LEN = {}, TOTAL = 0;
   CH.forEach(function (c) { START[c[0]] = TOTAL; LEN[c[0]] = c[1]; TOTAL += c[1]; });
   var story = $("[data-story]"), stage = $("[data-stage]");
@@ -243,7 +243,7 @@
     if (ch === "write") return L("write") < .64 ? "colBot" : "colTop";
     if (ch === "spot") return "colTop";
     if (ch === "build") return "colBot";
-    if (ch === "more") return "full";                          // tout le module : la conversation à gauche, la consigne à droite
+    if (ch === "more" || ch === "end") return "full";                          // tout le module : la conversation à gauche, la consigne à droite
     return "full";
   }
   var fwS = new Spring(0, 120, 20), fwInit = false;
@@ -280,12 +280,23 @@
   // deux cases, chacune avec du temps : ouverture, choix, validation
   var IMGK = 2, DOCK = 3;
   var SLOT_AT = function (i) { return .14 + i * .4; }, SLOT_LEN = .34, OPT_AT = .16, SET_AT = .26;
-  var STEP_IDS = ["open", "write", "more"];
+  var STEP_IDS = ["open", "write", "inter", "images", "docs", "end"];
   function setClass(el, c, on) { if (el.classList.contains(c) !== !!on) el.classList.toggle(c, !!on); }
   function show(name) { Object.keys(views).forEach(function (k) { setClass(views[k], "on", k === name); }); }
 
   var clicks = {};
   function clickAt(id, now) { if (now && !clicks[id]) { clicks[id] = 1; cursor.classList.remove("click"); void cursor.offsetWidth; cursor.classList.add("click"); } if (!now) clicks[id] = 0; }
+
+  /* ---------- un dégradé de fond, d'une couleur différente à chaque partie ---------- */
+  var tints = $$(".tint i"), tintCur = -1, inStory = true;
+  function tintTo(k) { if (k === tintCur) return; tintCur = k; tints.forEach(function (t, i) { setClass(t, "on", i === k); }); }
+  var tintSecs = $$("[data-tint]");
+  window.addEventListener("scroll", function () {
+    var r = story.getBoundingClientRect(); inStory = r.bottom > innerHeight * .5;
+    if (inStory) return;
+    var mid = innerHeight * .5;
+    tintSecs.forEach(function (sec) { var b = sec.getBoundingClientRect(); if (b.top < mid && b.bottom > mid) tintTo(+sec.dataset.tint); });
+  }, { passive: true });
 
   /* =====================================================================
      Rendu d'un instant
@@ -305,7 +316,7 @@
     hero.style.visibility = heroOut >= 1 ? "hidden" : "visible";
     hint.style.opacity = String(1 - seg(tF, 0, .04));
     film.draw(seg(tF, .08, .985) * (film.N - 1));
-    filmShade.style.opacity = String(1 - .45 * seg(tF, .1, .2) - .5 * seg(tD, 0, .4));
+    filmShade.style.opacity = String(1 - .7 * seg(tF, .08, .16) - .3 * seg(tD, 0, .4));
     msgs.forEach(function (m, i) {                            // chaque message traverse l'écran pendant sa fenêtre
       var w = MSG[i], on = U < START.dive + .3 && tF >= w[0] && tF < w[1], t = seg(tF, w[0], w[1]);
       setClass(m, "on", on);
@@ -369,7 +380,8 @@
     win.style.transform = "translate(" + cx + "px," + cy + "px) scale(" + cs + ")";
 
     /* --- les étapes, à gauche --- */
-    var si = STEP_IDS.indexOf(ch);
+    var mp = L("more") * 6.5, si = ch === "open" ? 0 : ch === "write" ? 1 : ch === "more" ? (mp < 2 ? 2 : mp < 4.2 ? 3 : 4) : ch === "end" ? 5 : -1;
+    if (inStory) tintTo(si >= 0 ? [1, 2, 3, 4, 5, 6][si] : 0);
     setClass(steps, "on", si >= 0 && (si > 0 || tO > .35));
     stItems.forEach(function (el, i) { setClass(el, "on", i === si); setClass(el, "done", i < si); });
     if (si >= 0 && !stacked) {                                // la ligne relie les pastilles, et se remplit jusqu'à l'étape active
@@ -607,11 +619,10 @@
     part[1].forEach(function (m) {
       n++;
       var li = document.createElement("li"); li.className = "pm";
-      li.innerHTML = '<span class="pm-n"></span><div class="pm-t"><b></b><small></small></div><span class="tg"></span>';
+      li.innerHTML = '<span class="pm-n"></span><div class="pm-t"><b></b><small></small></div>';
       li.querySelector(".pm-n").textContent = String(n).padStart(2, "0");
       li.querySelector("b").textContent = m[0];
       li.querySelector("small").textContent = m[1];
-      var tg = li.querySelector(".tg"); tg.textContent = m[2] ? "+ notions" : "Pratique"; if (m[2]) tg.classList.add("tg-n");
       if (READY[n]) { var d = document.createElement("span"); d.className = "pm-ok"; d.textContent = "Disponible"; li.querySelector(".pm-t").appendChild(d); }
       el.lastChild.appendChild(li);
     });
