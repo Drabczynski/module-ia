@@ -698,3 +698,8 @@ html.bg-cream body { background: var(--cream); }
 /* les étages nommés dans le dessin */
 .vg-hl svg text { font: 600 5.2px/1 var(--text); letter-spacing: .01em; fill: #6f6c66; transition: fill .3s; }
 .vg-hl svg text.on { fill: var(--orange); font-weight: 700; }
+
+/* le menu prend la couleur du fond quand celui-ci passe au jaune pâle */
+.nav.is-solid { transition: background-color .9s var(--ease), box-shadow .3s; }
+html.bg-cream .nav.is-solid { background: rgba(250, 249, 245, .92); }
+html.bg-cream .nav-links a:hover { background: #efede6; }
