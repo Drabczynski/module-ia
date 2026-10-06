@@ -34,29 +34,45 @@ function start() {
 
   const box = (x0, y0, x1, y1, z0, z1, r = 1.2, b = 0.6, tag = "") => ({ z0, z1, tag, rg: rings(x0, y0, x1, y1, r, b), cx: (x0 + x1) / 2, cy: (y0 + y1) / 2 });
   const pillar = (x, y, R, z0, z1, tag) => box(x - R, y - R, x + R, y + R, z0, z1, R, Math.min(0.5, R * 0.4), tag);
-  const person = (x, y, out) => out.push(pillar(x, y, 1.6, 0, 6.2, "body"), pillar(x, y, 1.15, 6.9, 9.2, "head"));
+  const chair = (x, y, out, face = 1) => out.push(box(x - 1.3, y - 1.3, x + 1.3, y + 1.3, 0, 2.4, 0.6, 0.3, "chair"), box(x - 1.3, y + face * 1.05 - 0.3, x + 1.3, y + face * 1.05 + 0.3, 2.4, 5, 0.2, 0.1, "back"));
+  const plant = (x, y, out, R = 1.4) => out.push(pillar(x, y, R, 0, 2.4, "pot"), pillar(x, y, R * 1.45, 2.4, 5.6, "leaf"));
 
   function furnish(i) {
-    const it = [];
-    for (const [x, y] of [[2.6, 2.6], [W - 2.6, 2.6], [2.6, D - 2.6], [W - 2.6, D - 2.6]]) it.push(pillar(x, y, 1.3, 0, CLEAR[i], "post"));
-    if (i === 0) {                                   // l'accueil : comptoir, hôtesse, visiteurs, plantes
-      it.push(box(18, 9, 42, 14, 0, 4.2, 2.2, 0.8, "desk"));
-      person(30, 5.6, it); person(24, 25, it); person(36, 28, it);
-      it.push(pillar(8.5, 33, 3, 0, 4, "pot"), pillar(51.5, 33, 3, 0, 4, "pot"));
-    } else if (i === FLOORS - 1) {                   // la direction : la grande table du comité
-      it.push(box(17, 13, 43, 29, 0, 3.6, 7, 1.2, "desk"));
-      for (const [x, y] of [[23, 9.6], [30, 9.6], [37, 9.6], [23, 32.4], [30, 32.4], [37, 32.4], [13, 21], [47, 21]]) person(x, y, it);
-    } else {                                         // les plateaux : deux rangées de postes
-      for (const y of [8, 25]) for (const x of [7, 24, 41]) {
-        it.push(box(x, y, x + 12, y + 5, 0, 3.4, 1, 0.5, "desk"));
-        it.push(box(x + 3.5, y + 0.6, x + 8.5, y + 1.4, 3.4, 7, 0.3, 0.12, "screen"));
-        if ((x + y + i * 7) % 3) person(x + 6, y + 8.2, it);
+    const it = [], H = CLEAR[i];
+    // la structure : poteaux d'angle et intermédiaires, le noyau (escalier, ascenseur) au centre
+    for (const [x, y] of [[2.6, 2.6], [W - 2.6, 2.6], [2.6, D - 2.6], [W - 2.6, D - 2.6], [W / 2, 2.6], [W / 2, D - 2.6], [2.6, D / 2], [W - 2.6, D / 2]]) it.push(pillar(x, y, 1.1, 0, H, "post"));
+    it.push(box(26, 16, 34, 23.5, 0, H - 0.6, 1.2, 0.6, "core"));
+    if (i === 0) {                                   // l'accueil : comptoir, écran mural, canapé, portiques, plantes
+      it.push(box(15, 7, 35, 11.5, 0, 4.2, 2, 0.8, "desk"), box(14.6, 6.6, 35.4, 11.9, 4.2, 4.7, 2.2, 0.6, "top"));
+      it.push(box(18, 3.2, 32, 3.9, 4.5, 10, 0.3, 0.12, "screen"));
+      it.push(box(42, 9, 54, 12, 0, 1.8, 1, 0.5, "sofa"), box(42, 7.8, 54, 9, 1.8, 4, 0.5, 0.2, "sofa"), box(44, 15, 52, 18, 0, 1.4, 1, 0.4, "table"));
+      for (const x of [22, 28, 34, 40]) it.push(pillar(x, 33, 0.7, 0, 3.6, "gate"));
+      plant(7, 8, it, 1.8); plant(7, 34, it, 1.8); plant(53, 34, it, 1.8); plant(46, 24, it);
+    } else if (i === FLOORS - 1) {                   // la direction : la table du comité, ses chaises, l'écran
+      it.push(box(13, 9, 47, 14, 0, 3.6, 2.5, 1, "desk"));
+      for (const x of [16, 22, 28, 38, 44]) { chair(x, 6.6, it, -1); chair(x, 16.4, it, 1); }
+      it.push(box(10, 3.2, 26, 3.9, 3, 8.5, 0.3, 0.12, "screen"));
+      it.push(box(38, 30, 52, 33, 0, 1.8, 1, 0.5, "sofa"), box(38, 33, 52, 34.2, 1.8, 4, 0.5, 0.2, "sofa"), box(41, 26, 49, 28.5, 0, 1.4, 1, 0.4, "table"));
+      plant(7, 34, it, 1.8); plant(54, 8, it, 1.6); plant(20, 33, it);
+    } else {                                         // les plateaux : postes à deux écrans, chaises, rangements, coin réunion
+      for (const y of [6, 26]) for (const x of [6, 18.5]) {
+        it.push(box(x, y, x + 10, y + 4.6, 0, 3.4, 0.8, 0.4, "desk"));
+        it.push(box(x + 1.2, y + 0.5, x + 4.6, y + 1.2, 3.4, 6.4, 0.3, 0.12, "screen"), box(x + 5.4, y + 0.5, x + 8.8, y + 1.2, 3.4, 6.4, 0.3, 0.12, "screen"));
+        chair(x + 2.9, y + 7, it); chair(x + 7.1, y + 7, it);
       }
+      it.push(pillar(48, 12, 4.2, 0, 3.2, "desk"));                     // la table ronde de réunion
+      chair(48, 6.2, it, -1); chair(48, 17.8, it, 1); chair(42.2, 12, it); chair(53.8, 12, it);
+      for (const x of [38, 43, 48]) it.push(box(x, 35.6, x + 4.4, 38.4, 0, 4.4, 0.4, 0.2, "cabinet"));
+      plant(54.5, 35, it); plant(54.5, 24, it, 1.2);
+      if (i % 2) it.push(box(38, 24, 46, 26.5, 0, 6.5, 0.3, 0.12, "board"));   // un tableau blanc, un étage sur deux
     }
     return it;
   }
-  function furnishRoof() {
-    return [box(7, 7, 21, 17, 0, 5, 1.6, 0.7), box(24, 7, 33, 13, 0, 4, 1.2, 0.6), pillar(45, 27, 3.2, 0, 2.2, "plinth"), pillar(14, 31, 0.5, 0, 12, "mast")];
+  function furnishRoof() {                          // toit technique : centrales de traitement d'air, panneaux, mât, l'orbe
+    const it = [box(7, 7, 21, 17, 0, 5, 1.6, 0.7), box(24, 7, 33, 13, 0, 4, 1.2, 0.6), pillar(45, 27, 3.2, 0, 2.2, "plinth"), pillar(14, 31, 0.5, 0, 12, "mast")];
+    for (const x of [38, 44, 50]) it.push(box(x, 6, x + 5, 15, 0, 1.4, 0.4, 0.2, "solar"));
+    it.push(pillar(26, 30, 1.6, 0, 2.6, "vent"), pillar(31, 30, 1.6, 0, 2.6, "vent"));
+    return it;
   }
 
   /* ---------- les éléments, créés une fois, dans l'ordre de peinture ---------- */

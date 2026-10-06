@@ -123,6 +123,17 @@
     };
   })();
 
+  /* le fond passe au jaune pâle tant que l'immeuble occupe l'écran */
+  (function () {
+    var vg = $("[data-voyage]"); if (!vg) return;
+    var on = false;
+    function check() {
+      var r = vg.getBoundingClientRect(), mid = innerHeight / 2, want = r.top < mid && r.bottom > mid;
+      if (want !== on) { on = want; document.documentElement.classList.toggle("bg-cream", on); }
+    }
+    addEventListener("scroll", check, { passive: true }); addEventListener("resize", check); check();
+  })();
+
   /* =====================================================================
      La sphère du hero : des particules de lumière qui tournent au centre,
      et qui éclatent quand on descend vers la vidéo

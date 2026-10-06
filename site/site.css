@@ -7,7 +7,7 @@
 @font-face { font-family: "Source Serif 4"; src: url("../assets/fonts/source-serif-4.woff2") format("woff2-variations"); font-weight: 200 900; font-display: swap; }
 
 :root {
-  --bg: #faf9f5; --panel: #fff; --line: #e7e5de; --line-2: #f0eee8;
+  --bg: #ffffff; --cream: #faf9f5; --panel: #fff; --line: #e7e5de; --line-2: #f0eee8;
   --ink: #141413; --ink-2: #3d3d3a; --muted: #73726c; --faint: #a8a7a1;
   --c-line: #e8e4db; --c-user: #f0ede5; --c-ink: #28251f; --claude: #d97757;
   --pv-ink: #0a1233; --pv-ink2: #1b2547; --pv-muted: #5b6785; --pv-line: #d9e1ee; --pv-blue: #1f5cf0;
@@ -414,7 +414,7 @@ main, .foot { position: relative; z-index: 1; }
 .film { position: absolute; inset: 0; z-index: 2; background: #0b1220; will-change: transform, opacity; }
 .film canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .film-shade { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 70% at 50% 45%, rgba(6,10,20,.15), rgba(6,10,20,.6)), linear-gradient(180deg, rgba(6,10,20,.55), rgba(6,10,20,0) 28%, rgba(6,10,20,0) 70%, rgba(6,10,20,.6)); }
-.film-flash { position: absolute; inset: 0; background: radial-gradient(circle at 50% 44%, #fff, #e9f2ff 55%, #faf9f5); opacity: 0; }
+.film-flash { position: absolute; inset: 0; background: radial-gradient(circle at 50% 44%, #fff, #e9f2ff 55%, #fff); opacity: 0; }
 .on-film { color: #fff; }
 .hero.on-film .hero-k { background: rgba(255,255,255,.1); color: rgba(255,255,255,.88); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); backdrop-filter: blur(10px); }
 .hero.on-film h1 { color: #fff; text-shadow: 0 2px 30px rgba(0,0,0,.35); }
@@ -570,10 +570,10 @@ main, .foot { position: relative; z-index: 1; }
 
 /* ---------- L’immeuble : l’IA à tous les étages ---------- */
 .voyage { position: relative; z-index: 2; height: 900vh; }
-.vg-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; background: var(--bg); }
+.vg-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
 /* le dessin au trait (Hairline) : plein centre sur ordinateur, en haut sur mobile */
 .vg-hl { position: absolute; top: 64px; bottom: 0; left: 0; right: 0; aspect-ratio: auto;
-  --hairline-plate: var(--bg); --hairline-hi: var(--orange); --hairline-edge: #7f7c75; --hairline-mid: #b4b1a9; --hairline-lo: #c9c6be; --hairline-stroke: 1; }
+  --hairline-plate: var(--cream); --hairline-hi: var(--orange); --hairline-edge: #7f7c75; --hairline-mid: #b4b1a9; --hairline-lo: #c9c6be; --hairline-stroke: 1; }
 .vg-hl svg { overflow: visible; }
 .vg-caps { position: absolute; inset: 0; pointer-events: none; }
 .vg-cap { position: absolute; left: clamp(20px, 7vw, 120px); top: 50%; translate: 0 -50%; max-width: min(400px, 86vw); padding: 30px 32px; border-radius: 24px; background: rgba(255,255,255,.82); backdrop-filter: blur(14px); box-shadow: 0 0 0 1px var(--line), 0 30px 60px -40px rgba(16,24,56,.4); opacity: 0; transform: translateX(-32px); transition: opacity .35s, transform .35s; }
@@ -685,3 +685,12 @@ main, .foot { position: relative; z-index: 1; }
   .hero-r .hero-trust { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .sc-btn svg { animation: none; } }
+
+/* ---------- fond blanc après la vidéo ; jaune pâle le temps de l'immeuble ---------- */
+.tint { display: none; }
+body { transition: background-color .9s var(--ease); }
+html.bg-cream body { background: var(--cream); }
+
+/* les encarts de l'immeuble : titre plus petit et plus appuyé */
+.vg-cap h2 { font: 650 clamp(20px, 1.6vw, 25px)/1.22 var(--text); letter-spacing: -.012em; }
+@media (max-width: 800px) { .vg-cap h2 { font-size: 19px; } }
