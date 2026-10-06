@@ -133,3 +133,11 @@ Module autonome de découverte : une journée fictive chez Lumen, six missions e
 - L'espace Claude (à droite) n'est utilisable qu'aux étapes « Essayer ».
 - Points, badges et aide-mémoire final imprimable, avec la demande rédigée par l'apprenant.
 - Utilise la même fonction `api/chat.ts` (identifiant `decouvrir`) ; mode simulé automatique sans clé.
+
+## Film de présentation (`site/video/`)
+
+`atelier-ia-film.mp4` (40 s, 1920×1080) : la fenêtre de l'Atelier IA sur le dégradé du site, zooms sur le menu,
+ouverture du module 2, blocs glissés pour construire la demande, envoi à l'Assistant IA, réponse en continu
+avec un document Word, validation, puis sphère de particules et icônes. Source animée : `promo.html` et `promo.js`
+(chaque image se calcule par `render(t)`, lecture en boucle si on ouvre la page). Rendu :
+`node site/video/render.cjs http://localhost:8787/site/video/promo.html sortie.mp4 <ffmpeg> 30` (Playwright et ffmpeg).

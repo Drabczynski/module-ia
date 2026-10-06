@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Atelier IA · film de présentation</title>
+<meta name="viewport" content="width=1920">
+<style>
+@font-face { font-family: "Inter"; src: url("../../assets/fonts/inter.woff2") format("woff2-variations"); font-weight: 100 900; }
+@font-face { font-family: "Inter Tight"; src: url("../../assets/fonts/inter-tight.woff2") format("woff2-variations"); font-weight: 100 900; }
+@font-face { font-family: "Source Serif 4"; src: url("../../assets/fonts/source-serif-4.woff2") format("woff2-variations"); font-weight: 200 900; }
+:root {
+  --ink: #141413; --ink2: #3d3d3a; --mute: #73726c; --faint: #a8a7a1; --line: #e7e5de;
+  --cream: #faf9f5; --side: #f3f1ea; --orange: #e2622b; --ok: #15803d; --sel: #2f6bf2;
+  --b0: #2563eb; --b1: #e2622b; --b2: #7c3aed; --b3: #c2700c; --b4: #15803d;
+  --text: "Inter", system-ui, sans-serif; --display: "Inter Tight", "Inter", sans-serif; --serif: "Source Serif 4", Georgia, serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: #000; }
+body { font: 400 15px/1.45 var(--text); color: var(--ink); -webkit-font-smoothing: antialiased; }
+#stage { position: absolute; inset: 0; overflow: hidden; }
+#world { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; }
+.abs { position: absolute; }
+
+/* fond d'écran : le dégradé du site */
+.wall { position: absolute; inset: -500px; background: #0b1030; overflow: hidden; }
+.wall::before { content: ""; position: absolute; inset: 0;
+  background:
+    radial-gradient(30% 40% at 18% 62%, #8a2fb8 0%, rgba(122,31,168,.55) 38%, rgba(122,31,168,0) 72%),
+    radial-gradient(34% 30% at 40% 18%, #3a127e 0%, rgba(48,10,114,.7) 45%, rgba(48,10,114,0) 78%),
+    radial-gradient(30% 36% at 60% 82%, #4384c0 0%, rgba(58,120,176,.55) 40%, rgba(58,120,176,0) 74%),
+    radial-gradient(28% 40% at 84% 32%, #10184a 0%, rgba(4,8,23,.6) 45%, rgba(4,8,23,0) 80%),
+    linear-gradient(115deg, #5a26a3 0%, #2f2a86 40%, #1f3570 62%, #111a46 100%); }
+.wall::after { content: ""; position: absolute; inset: 0; opacity: .2; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+/* fenêtre */
+.win { position: absolute; left: 240px; top: 100px; width: 1440px; height: 880px; border-radius: 20px; background: var(--cream); overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.18), 0 40px 90px -20px rgba(5,8,30,.6), 0 12px 30px -10px rgba(5,8,30,.4); }
+.bar { position: absolute; left: 0; top: 0; right: 0; height: 48px; display: flex; align-items: center; gap: 8px; padding-left: 20px; background: var(--side); border-bottom: 1px solid var(--line); }
+.bar i { width: 12px; height: 12px; border-radius: 50%; display: block; }
+.bar .ttl { position: absolute; left: 0; right: 0; text-align: center; font: 500 13px var(--text); color: var(--mute); pointer-events: none; }
+.bar svg { margin-left: 18px; color: #8d8b84; }
+.body { position: absolute; left: 0; top: 48px; right: 0; bottom: 0; }
+
+.rail { position: absolute; left: 0; top: 0; bottom: 0; width: 64px; background: var(--side); display: flex; flex-direction: column; align-items: center; padding-top: 18px; gap: 14px; }
+.rail b { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; color: #6d6b65; }
+.rail b.on { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+.rail .me { position: absolute; bottom: 18px; width: 34px; height: 34px; border-radius: 50%; background: #d9d3c4; display: grid; place-items: center; font: 600 12px var(--text); color: var(--ink2); }
+
+.side { position: absolute; left: 64px; top: 0; bottom: 0; width: 256px; background: var(--side); border-right: 1px solid var(--line); padding: 22px 14px 0 16px; }
+.side .hd { display: flex; align-items: center; justify-content: space-between; height: 40px; }
+.side .hd h1 { font: 600 23px/1 var(--display); letter-spacing: -.01em; }
+.side .hd span { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); background: #fff; display: grid; place-items: center; color: var(--ink2); }
+.side h3 { font: 500 13.5px var(--text); color: var(--faint); margin: 22px 0 6px 8px; }
+.side li { list-style: none; height: 34px; padding: 0 8px; border-radius: 9px; display: flex; align-items: center; gap: 9px; font: 450 14px var(--text); color: var(--ink2); white-space: nowrap; overflow: hidden; }
+.side li.on { background: #e9e6dd; color: var(--ink); }
+.side li.more { color: var(--faint); }
+.side li em { font-style: normal; width: 20px; height: 20px; flex: none; border-radius: 6px; display: grid; place-items: center; font: 600 11px var(--text); color: #fff; background: #b9b5aa; }
+.side li em.dn { background: var(--ok); }
+.side li em.cur { background: var(--orange); }
+
+/* conversation */
+.chat { position: absolute; left: 320px; top: 0; bottom: 0; overflow: hidden; background: var(--cream); }
+.greet { position: absolute; left: 0; right: 0; top: 0; bottom: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+.greet h2 { font: 400 34px/1.15 var(--serif); letter-spacing: -.01em; text-align: center; }
+.greet p { font: 400 15px var(--text); color: var(--mute); }
+.dot-orb { width: 54px; height: 54px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0%, #f3d9ff 18%, #a77bf0 46%, #4b5be0 74%, #2a2f86 100%); box-shadow: 0 8px 26px -6px rgba(80,70,220,.55), inset 0 -6px 12px rgba(20,20,90,.25); }
+.compo { position: absolute; height: 172px; border-radius: 22px; background: #fff; border: 1px solid var(--line); box-shadow: 0 10px 30px -18px rgba(40,30,10,.35); }
+.compo .chip { position: absolute; left: 14px; top: 14px; width: 262px; height: 54px; border-radius: 13px; border: 1px solid var(--line); background: #fbfaf7; display: flex; align-items: center; gap: 11px; padding: 0 12px; transform-origin: 0 50%; }
+.compo .chip .x { position: absolute; right: -7px; top: -7px; width: 18px; height: 18px; border-radius: 50%; background: var(--ink); color: #fff; display: grid; place-items: center; font: 600 11px/1 var(--text); }
+.stack { width: 30px; height: 30px; border-radius: 9px; background: #fff; border: 1px solid var(--line); display: grid; grid-template-columns: repeat(2, 7px); gap: 3px; place-content: center; flex: none; }
+.stack i { width: 7px; height: 7px; border-radius: 2px; display: block; }
+.chip b { display: block; font: 600 13.5px/1.2 var(--text); }
+.chip small { display: block; font: 400 12.5px/1.3 var(--text); color: var(--mute); }
+.compo .ta { position: absolute; left: 20px; right: 20px; top: 80px; font: 400 15.5px/1.5 var(--text); color: var(--ink); }
+.compo .ta .ph { color: var(--faint); }
+.caret { display: inline-block; width: 1.5px; height: 18px; background: var(--ink); vertical-align: -3px; margin-left: 1px; }
+.compo .row { position: absolute; left: 14px; right: 14px; bottom: 12px; height: 34px; display: flex; align-items: center; gap: 12px; color: var(--mute); }
+.compo .row .plus { width: 30px; height: 30px; display: grid; place-items: center; font: 300 24px/1 var(--text); color: var(--ink2); }
+.compo .row .mdl { margin-left: auto; font: 450 13.5px var(--text); }
+.compo .send { width: 34px; height: 34px; border-radius: 50%; background: var(--ink); color: #fff; display: grid; place-items: center; }
+.compo .send .sq { width: 11px; height: 11px; border-radius: 2px; background: #fff; display: none; }
+
+.thread { position: absolute; left: 20px; top: 22px; }
+.ubub { margin-left: auto; width: fit-content; max-width: 330px; background: #ede9df; border-radius: 16px 16px 4px 16px; padding: 10px 14px; font: 400 14px/1.45 var(--text); }
+.ubub .mini { display: flex; align-items: center; gap: 7px; font: 500 12px var(--text); color: var(--mute); margin-bottom: 4px; }
+.ubub .mini i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; margin-right: -4px; }
+.asst { margin-top: 16px; font: 400 14px/1.5 var(--text); color: var(--ink); }
+.asst .who { display: flex; align-items: center; gap: 8px; font: 600 13px var(--text); margin-bottom: 8px; }
+.asst .who .dot-orb { width: 20px; height: 20px; box-shadow: none; }
+.asst ul { list-style: none; margin: 6px 0 10px; }
+.asst li { display: flex; align-items: center; gap: 9px; height: 27px; }
+.asst li i { width: 16px; height: 16px; border-radius: 5px; display: block; flex: none; }
+.asst li b { font-weight: 600; width: 74px; }
+.asst li span { color: var(--ink2); }
+.quote { border-left: 3px solid #d9d3c4; padding: 2px 0 2px 12px; margin: 8px 0 12px; font: 400 14px/1.55 var(--serif); color: var(--ink2); }
+.file { display: flex; align-items: center; gap: 12px; height: 62px; border: 1px solid var(--line); background: #fff; border-radius: 14px; padding: 0 14px; margin-bottom: 12px; }
+.file .doc { width: 34px; height: 40px; border-radius: 6px; background: #2b5cc8; color: #fff; display: grid; place-items: center; font: 700 15px var(--text); flex: none; }
+.file b { display: block; font: 600 13.5px/1.25 var(--text); }
+.file small { display: block; font: 400 12.5px var(--text); color: var(--mute); }
+.file .open { margin-left: auto; border: 1px solid var(--line); border-radius: 9px; padding: 5px 10px; font: 500 12.5px var(--text); color: var(--ink2); }
+.w { opacity: 0; }
+.w.v { opacity: 1; }
+
+/* panneau de formation */
+.panel { position: absolute; top: 0; bottom: 0; width: 620px; background: #fff; border-left: 1px solid var(--line); overflow: hidden; }
+.pin { position: absolute; inset: 0; }
+.kick { position: absolute; left: 36px; top: 30px; font: 600 11.5px/1 var(--text); letter-spacing: .09em; text-transform: uppercase; color: var(--orange); }
+.stp { position: absolute; right: 36px; top: 28px; font: 500 12.5px/1 var(--text); color: var(--mute); }
+.prog { position: absolute; left: 36px; right: 36px; top: 56px; height: 4px; border-radius: 4px; background: #efece5; overflow: hidden; }
+.prog i { display: block; height: 100%; border-radius: 4px; background: var(--orange); }
+.ptl { position: absolute; left: 36px; top: 80px; font: 600 30px/1.1 var(--display); letter-spacing: -.015em; }
+.cons { position: absolute; left: 36px; top: 128px; width: 548px; font: 400 15px/1.5 var(--text); color: var(--mute); }
+.res { position: absolute; left: 36px; top: 128px; width: 548px; height: 48px; border-radius: 12px; background: #eefaf2; border: 1px solid #bfe6cd; display: flex; align-items: center; gap: 10px; padding: 0 14px; font: 600 14.5px var(--text); color: #11643a; }
+.res .ck { width: 24px; height: 24px; border-radius: 50%; background: var(--ok); color: #fff; display: grid; place-items: center; }
+.res .pts { margin-left: auto; font: 700 13px var(--text); background: #fff; border: 1px solid #bfe6cd; border-radius: 99px; padding: 4px 10px; }
+.card { position: absolute; left: 36px; top: 196px; width: 548px; height: 352px; border-radius: 16px; border: 1px solid var(--line); background: #fcfbf8; }
+.card h4 { position: absolute; left: 18px; top: 14px; font: 600 13px var(--text); color: var(--mute); }
+.slot { position: absolute; left: 16px; width: 516px; height: 52px; border-radius: 12px; background: #fff; border: 1px solid #efece5; }
+.slot .lb { position: absolute; left: 10px; top: 13px; height: 26px; width: 88px; border-radius: 8px; font: 600 12.5px/26px var(--text); text-align: center; color: #fff; }
+.slot .dz { position: absolute; left: 108px; top: 6px; width: 396px; height: 40px; border-radius: 10px; border: 1.5px dashed #d8d4ca; }
+.slot .ok { position: absolute; right: 12px; top: 15px; width: 22px; height: 22px; border-radius: 50%; background: var(--ok); color: #fff; display: grid; place-items: center; opacity: 0; }
+.tray { position: absolute; left: 36px; top: 568px; font: 600 13px var(--text); color: var(--mute); }
+.blk { position: absolute; width: 268px; height: 40px; border-radius: 10px; background: #fff; border: 1px solid var(--line); display: flex; align-items: center; gap: 9px; padding: 0 12px; font: 500 13px/1.2 var(--text); color: var(--ink); white-space: nowrap; box-shadow: 0 1px 2px rgba(0,0,0,.05); transform-origin: 30px 20px; }
+.blk i { width: 10px; height: 22px; border-radius: 3px; flex: none; display: block; }
+.btn { position: absolute; right: 36px; top: 764px; height: 46px; padding: 0 22px; border-radius: 99px; background: var(--ink); color: #fff; font: 600 14.5px/46px var(--text); }
+.sel { position: absolute; border: 2px solid var(--sel); border-radius: 18px; pointer-events: none; opacity: 0; }
+.sel i { position: absolute; width: 10px; height: 10px; background: #fff; border: 2px solid var(--sel); border-radius: 2px; }
+.sel .tg { position: absolute; left: -2px; top: -30px; background: var(--sel); color: #fff; font: 600 12.5px/24px var(--text); padding: 0 9px; border-radius: 6px; white-space: nowrap; }
+.note { position: absolute; width: 238px; opacity: 0; }
+.note .tg { display: inline-block; background: var(--sel); color: #fff; font: 600 12px/22px var(--text); padding: 0 8px; border-radius: 6px; margin-bottom: 6px; }
+.note .bx { background: #fff; border-radius: 12px; padding: 11px 13px; font: 400 13.5px/1.45 var(--text); color: var(--ink2); box-shadow: 0 12px 30px -10px rgba(20,30,80,.35), 0 0 0 1px rgba(20,30,80,.08); }
+.note .av { position: absolute; right: -14px; top: 18px; width: 30px; height: 30px; border-radius: 50% 50% 50% 4px; background: #1f9d63; border: 3px solid #fff; color: #fff; font: 700 11px/24px var(--text); text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,.2); }
+.next { position: absolute; inset: 0; }
+
+/* curseur */
+#cur { position: absolute; left: 0; top: 0; width: 26px; height: 34px; transform-origin: 3px 3px; z-index: 50; filter: drop-shadow(0 2px 3px rgba(0,0,0,.28)); }
+#ring { position: absolute; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%; border: 2px solid rgba(20,20,19,.5); opacity: 0; z-index: 49; }
+
+/* fin */
+#outro { position: absolute; inset: 0; display: none; }
+#outro canvas { position: absolute; inset: 0; }
+.brand { position: absolute; left: 0; right: 0; top: 700px; text-align: center; opacity: 0; }
+.brand h5 { font: 600 46px/1 var(--display); letter-spacing: -.02em; color: var(--ink); }
+.brand p { margin-top: 14px; font: 400 21px var(--text); color: var(--mute); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="world">
+    <div class="wall" id="wall"></div>
+    <div class="win" id="win">
+      <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i>
+        <svg width="18" height="16" viewBox="0 0 18 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="16" height="14" rx="3"/><path d="M6.5 1v14"/></svg>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 3 5 8l5 5"/></svg>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" style="margin-left:4px"><path d="m6 3 5 5-5 5"/></svg>
+        <div class="ttl">Atelier IA</div></div>
+      <div class="body" id="body">
+        <div class="rail">
+          <b class="on"><svg width="19" height="19" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2.5 2.5 9v8.5h5.5v-5h4v5h5.5V9z"/></svg></b>
+          <b><svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="7.5"/><path d="M10 5.5V10l3 2"/></svg></b>
+          <b><svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="5.5" height="5.5" rx="1.5"/><rect x="11.5" y="3" width="5.5" height="5.5" rx="1.5"/><rect x="3" y="11.5" width="5.5" height="5.5" rx="1.5"/><rect x="11.5" y="11.5" width="5.5" height="5.5" rx="1.5"/></svg></b>
+          <b><svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 16V9M10 16V4M16 16v-5"/></svg></b>
+          <div class="me">CM</div>
+        </div>
+        <div class="side">
+          <div class="hd"><h1>Atelier IA</h1><span><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="7" cy="7" r="5"/><path d="m11 11 3.5 3.5"/></svg></span></div>
+          <h3>Récents</h3>
+          <ul>
+            <li class="on">Réponse à un client mécontent</li>
+            <li>Compte rendu de la réunion RH</li>
+            <li>Post pour le lancement</li>
+            <li>Relance d'une facture</li>
+            <li>Note sur les badges d'accès</li>
+            <li class="more">Afficher plus</li>
+          </ul>
+          <h3>Modules</h3>
+          <ul>
+            <li><em class="dn">✓</em>Première rencontre</li>
+            <li id="m2"><em class="cur">2</em>La structure d'un prompt</li>
+            <li><em>3</em>Prendre en main l'assistant</li>
+            <li><em>4</em>Résumer un document</li>
+            <li><em>5</em>Vérifier une réponse</li>
+            <li><em>6</em>Protéger les données</li>
+          </ul>
+          <h3>Mon équipe</h3>
+          <ul>
+            <li>Service après-vente</li>
+            <li>Ressources humaines</li>
+          </ul>
+        </div>
+
+        <div class="chat" id="chat">
+          <div class="greet" id="greet"><div class="dot-orb"></div><h2>Bonjour Camille</h2><p>Que voulez-vous pratiquer aujourd'hui ?</p></div>
+          <div class="thread" id="thread">
+            <div class="ubub" id="ub"><div class="mini"><i style="background:var(--b0)"></i><i style="background:var(--b1)"></i><i style="background:var(--b2)"></i><i style="background:var(--b3)"></i><i style="background:var(--b4)"></i>&nbsp;&nbsp;Demande · 5 blocs</div>Rédige la réponse à Mme Martin à partir de cette demande.</div>
+            <div class="asst" id="asst">
+              <div class="who w" data-s="0"><div class="dot-orb"></div>Assistant IA</div>
+              <p class="tx" data-s="0.25">J'ai repris les cinq blocs de votre demande :</p>
+              <ul>
+                <li class="w"><i style="background:var(--b0)"></i><b>Rôle</b><span>conseiller du service client</span></li>
+                <li class="w"><i style="background:var(--b1)"></i><b>Cible</b><span>Mme Martin, cliente mécontente</span></li>
+                <li class="w"><i style="background:var(--b2)"></i><b>Objectif</b><span>s'excuser et proposer un geste</span></li>
+                <li class="w"><i style="background:var(--b3)"></i><b>Contexte</b><span>livraison avec dix jours de retard</span></li>
+                <li class="w"><i style="background:var(--b4)"></i><b>Format</b><span>cinq lignes, ton chaleureux</span></li>
+              </ul>
+              <p class="quote tx">Madame Martin, nous sommes sincèrement désolés du retard de votre commande. Ce n'est pas le service que vous attendiez de nous. Pour nous faire pardonner, votre prochaine livraison vous est offerte.</p>
+              <div class="file w" id="file"><div class="doc">W</div><div><b>Réponse à Mme Martin</b><small>Document Word</small></div><div class="open">Ouvrir ⌄</div></div>
+              <p class="tx">Voulez-vous que j'ajuste le ton ?</p>
+            </div>
+          </div>
+          <div class="compo" id="compo">
+            <div class="chip" id="chip"><div class="stack"><i style="background:var(--b0)"></i><i style="background:var(--b1)"></i><i style="background:var(--b2)"></i><i style="background:var(--b4)"></i></div><div><b>Demande · 5 blocs</b><small>Depuis l'activité</small></div><div class="x">×</div></div>
+            <div class="ta" id="ta"></div>
+            <div class="row"><div class="plus">+</div><div class="mdl">Assistant IA ⌄</div>
+              <svg width="16" height="18" viewBox="0 0 16 18" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="1.5" width="6" height="10" rx="3"/><path d="M2 8.5a6 6 0 0 0 12 0M8 14.5v2.5"/></svg>
+              <div class="send" id="send"><svg id="arr" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5"/></svg><i class="sq" id="sq"></i></div></div>
+          </div>
+        </div>
+
+        <div class="panel" id="panel">
+          <div class="pin" id="pin">
+            <div class="kick">Module 2 · La structure d'un prompt</div>
+            <div class="stp" id="stp">Étape 4 / 9</div>
+            <div class="prog"><i id="bar"></i></div>
+            <div class="ptl">Construisez la demande</div>
+            <div class="cons" id="cons">Mme Martin a reçu sa commande avec dix jours de retard. Glissez chaque bloc à sa place pour construire la demande.</div>
+            <div class="res" id="res"><span class="ck">✓</span>Réussi · 5 blocs sur 5 bien placés<span class="pts">+4 points</span></div>
+            <div class="card" id="card"><h4>La demande</h4></div>
+            <div class="tray">Les blocs</div>
+            <div class="btn" id="btn">Valider</div>
+          </div>
+          <div class="next" id="next">
+            <div class="kick">Module 2 · La structure d'un prompt</div>
+            <div class="stp">Étape 5 / 9</div>
+            <div class="prog"><i style="width:55.5%"></i></div>
+            <div class="ptl">Comparez deux réponses</div>
+            <div class="cons">Même demande, deux réponses de l'assistant. Laquelle respecte le format demandé ?</div>
+            <div class="card" style="height:250px;background:#fff"><h4>Réponse A</h4></div>
+            <div class="card" style="top:466px;height:250px;background:#fff"><h4>Réponse B</h4></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sel" id="sel"><i style="left:-6px;top:-6px"></i><i style="right:-6px;top:-6px"></i><i style="left:-6px;bottom:-6px"></i><i style="right:-6px;bottom:-6px"></i><span class="tg">Demande · 5 blocs</span></div>
+    <div class="note" id="note"><span class="tg">Interaction</span><div class="bx">Glisser-déposer : chaque bloc trouve sa place dans la demande.</div><div class="av">LB</div></div>
+    <div id="ring"></div>
+    <svg id="cur" viewBox="0 0 26 34"><path d="M3 2.5v25.5l6.6-6.3 4.3 9.6 4.4-1.9-4.2-9.4h9.2z" fill="#141413" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>
+  </div>
+  <div id="outro"><canvas id="cv" width="1920" height="1080"></canvas>
+    <div class="brand" id="brand"><h5>Atelier IA</h5><p>Formez vos équipes à l'IA. En la pratiquant.</p></div></div>
+</div>
+<script src="promo.js"></script>
+</body>
+</html>
