@@ -623,6 +623,18 @@
     });
     mods.appendChild(el);
   });
+  // en colonnes façon Pinterest : chaque carte va dans la colonne la plus courte, collée à la précédente
+  var cards = $$(".pc"), twoCols = null;
+  function masonry() {
+    if (!mods) return;
+    var two = innerWidth > 900;
+    if (two === twoCols) return;
+    twoCols = two; mods.innerHTML = "";
+    if (!two) { cards.forEach(function (c) { mods.appendChild(c); }); return; }
+    var cols = [0, 1].map(function () { var d = document.createElement("div"); d.className = "pc-col"; mods.appendChild(d); return d; });
+    cards.forEach(function (c) { (cols[0].offsetHeight <= cols[1].offsetHeight + 64 ? cols[0] : cols[1]).appendChild(c); });   // + 64 : le décalage de la seconde colonne
+  }
+  masonry(); addEventListener("resize", masonry);
   if ("IntersectionObserver" in window) {                       // chaque étape apparaît en entrant à l'écran
     var io2 = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io2.unobserve(e.target); } }); }, { threshold: .2 });
     $$(".pc").forEach(function (p) { io2.observe(p); });

@@ -117,6 +117,8 @@ function start() {
   const C = Cam(45, 0.5, small ? 1.95 : 2.0);
   let P = proj(C), front = facing(C);
   const sp = spring(0, { eps: 1e-4 }), spPre = spring(0, { eps: 1e-4 });
+  // le cadrage : zoom, hauteur du regard, et part du cadre donnée à l'étage ouvert, chacun sur son ressort
+  const zoom = spring(small ? 1.7 : 1.8, { k: 60, c: 15.5, eps: 1e-3 }), tilt = spring(0.6, { k: 60, c: 15.5, eps: 1e-4 }), aim = spring(0, { k: 60, c: 15.5, eps: 1e-4 }), side = spring(0, { k: 60, c: 15.5, eps: 1e-3 });
   let last = "";
 
   const B = register(stage, (dt) => {
@@ -136,16 +138,33 @@ function start() {
       moving = stepS(lay.sl, dt) || moving; moving = stepS(lay.lf, dt) || moving;
     }
 
-    const sig = [az, build, burst, ...layers.map((l) => l.sl.x + l.lf.x * 3)].map((v) => v.toFixed(3)).join("|") + active;
+    // la prise de vue visée : large et plongeante à l'arrivée, serrée et rasante sur l'étage ouvert, en recul à la fin
+    const tk = f < 0.55 ? k : k + 1, tf = tk >= 1 && tk <= FLOORS ? tk - 1 : -1;
+    zoom.t = tf >= 0 ? (small ? 3.0 : 3.5) : tk === 0 ? (small ? 1.7 : 1.8) : (small ? 1.8 : 1.95);
+    tilt.t = tf >= 0 ? (tf % 2 ? 0.44 : 0.3) : tk === 0 ? 0.62 : 0.52;
+    aim.t = tf >= 0 ? 1 : 0;
+    side.t = small ? 0 : tk % 2 ? -58 : 58;              // l'immeuble se range du côté opposé à l'encart
+    moving = stepS(side, dt) || moving;
+    moving = stepS(zoom, dt) || moving; moving = stepS(tilt, dt) || moving; moving = stepS(aim, dt) || moving;
+
+    const sig = [az, build, burst, zoom.x, tilt.x, aim.x * 3, side.x / 50, ...layers.map((l) => l.sl.x + l.lf.x * 3)].map((v) => v.toFixed(3)).join("|") + active;
     if (sig !== last) {
       last = sig;
       C.az = (az * Math.PI) / 180;
       const s = Math.sin(C.az), c = Math.cos(C.az);
       const top = base[FLOORS] + SLAB + 6 + burst * GAP * FLOORS + layers[FLOORS].lf.x * OPEN;
       C.ox = C.oy = 0; P = proj(C);
-      const fo = layers.reduce((a, l) => a + l.sl.x * (base[l.L] + 6), 0), fw = Math.min(1, layers.reduce((a, l) => a + l.sl.x, 0));
-      const q = P(W / 2, D / 2, top / 2 * (1 - 0.45 * fw) + fo * 0.45);   // le cadre suit un peu l'étage ouvert
-      C.ox = 200 - q[0]; C.oy = (small ? 158 : 166) - q[1];
+      C.S = zoom.x; C.k = tilt.x; P = proj(C);
+      // le point visé : le centre de l'immeuble, ou l'étage ouvert, là où il a glissé
+      let fx = W / 2, fy = D / 2, fz = top / 2;
+      let sw = 0, sx = 0, sy = 0, sz = 0;                 // moyenne pondérée par le glissement : le cadre passe d'un étage à l'autre sans saut
+      for (const l of layers) if (!l.roof && l.sl.x > 0.001) {
+        const w = l.sl.x, o = SLIDE * w; sw += w;
+        sx += w * (W / 2 + o * s); sy += w * (D / 2 + o * c); sz += w * (base[l.L] + l.L * GAP * burst + l.lf.x * OPEN + SLAB + CLEAR[l.L] / 2);
+      }
+      if (sw > 0.01) { fx = sx / sw; fy = sy / sw; fz = sz / sw; }
+      const a = aim.x, q = P(W / 2 + (fx - W / 2) * a, D / 2 + (fy - D / 2) * a, top / 2 + (fz - top / 2) * a);
+      C.ox = 200 + side.x - q[0]; C.oy = (small ? 158 : 166) - q[1];
       P = proj(C); front = facing(C);
 
       put(plinth, prism(P, front, plinthRg[0], plinthRg[1], -3, 0));
