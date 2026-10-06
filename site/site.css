@@ -594,7 +594,10 @@ main, .foot { position: relative; z-index: 1; }
 /* ---------- L’immeuble : l’IA à tous les étages ---------- */
 .voyage { position: relative; z-index: 2; height: 900vh; }
 .vg-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; background: var(--bg); }
-.vg-cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+/* le dessin au trait (Hairline) : à droite sur ordinateur, en haut sur mobile */
+.vg-hl { position: absolute; top: 64px; bottom: 0; left: 30%; right: 0; aspect-ratio: auto;
+  --hairline-plate: var(--bg); --hairline-hi: var(--orange); --hairline-edge: #8d8a82; --hairline-mid: #b9b6ae; --hairline-lo: #d9d6ce; --hairline-stroke: 1.1; }
+.vg-hl svg { overflow: visible; }
 .vg-caps { position: absolute; inset: 0; pointer-events: none; }
 .vg-cap { position: absolute; left: clamp(20px, 7vw, 120px); top: 50%; translate: 0 -50%; max-width: min(460px, 86vw); padding: 30px 32px; border-radius: 24px; background: rgba(255,255,255,.82); backdrop-filter: blur(14px); box-shadow: 0 0 0 1px var(--line), 0 30px 60px -40px rgba(16,24,56,.4); opacity: 0; transform: translateY(16px); transition: opacity .35s, transform .35s; }
 .vg-cap.on { opacity: 1; transform: none; transition: opacity .7s var(--ease), transform .9s var(--spring); }
@@ -607,7 +610,7 @@ main, .foot { position: relative; z-index: 1; }
 .voyage.no-gl .vg-stage { position: static; height: auto; padding: 80px 20px; display: grid; gap: 16px; }
 .voyage.no-gl .vg-caps { position: static; display: grid; gap: 16px; }
 .voyage.no-gl .vg-cap { position: static; translate: none; opacity: 1; transform: none; margin: 0 auto; }
-@media (max-width: 800px) { .vg-cap { top: auto; bottom: 18px; left: 16px; right: 16px; translate: none; max-width: none; padding: 22px; } }
+@media (max-width: 800px) { .vg-hl { left: 0; bottom: 36%; top: 56px; } .vg-cap { top: auto; bottom: 18px; left: 16px; right: 16px; translate: none; max-width: none; padding: 22px; } }
 .vg-s strong { color: var(--ink); font-weight: 600; }
 .vg-k b { width: auto; min-width: 28px; padding: 0 8px; border-radius: 99px; }
 /* la photo de chaque étape, en tête de l'encart */
