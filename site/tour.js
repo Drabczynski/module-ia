@@ -139,7 +139,7 @@ function start() {
   let P = proj(C), front = facing(C);
   const sp = spring(0, { eps: 1e-4 }), spPre = spring(0, { eps: 1e-4 });
   // le cadrage : zoom, hauteur du regard, et part du cadre donnée à l'étage ouvert, chacun sur son ressort
-  const zoom = spring(small ? 1.7 : 1.8, { k: 60, c: 15.5, eps: 1e-3 }), tilt = spring(0.6, { k: 60, c: 15.5, eps: 1e-4 }), aim = spring(0, { k: 60, c: 15.5, eps: 1e-4 }), side = spring(0, { k: 60, c: 15.5, eps: 1e-3 });
+  const zoom = spring(small ? 1.7 : 1.8, { k: 60, c: 15.5, eps: 1e-3 }), tilt = spring(0.6, { k: 60, c: 15.5, eps: 1e-4 }), aim = spring(0, { k: 60, c: 15.5, eps: 1e-4 }), fxS = spring(W / 2, { k: 60, c: 15.5, eps: 1e-3 }), fyS = spring(D / 2, { k: 60, c: 15.5, eps: 1e-3 }), fzS = spring(20, { k: 60, c: 15.5, eps: 1e-3 }), side = spring(0, { k: 60, c: 15.5, eps: 1e-3 });
   let last = "";
 
   const B = register(stage, (dt) => {
@@ -149,26 +149,32 @@ function start() {
     let moving = stepS(sp, dt); moving = stepS(spPre, dt) || moving;
 
     const x = sp.x * (STEPS - 1), k = Math.min(STEPS - 2, Math.floor(x)), f = x - k, m = ease(seg01(f, 0.55, 1));
-    const active = f < 0.55 ? k : f > 0.9 ? k + 1 : -1, shown = f < 0.7 ? k : k + 1;
+    const shown = f < 0.7 ? k : k + 1;
     const build = clamp(spPre.x * 0.75 + x * 0.6, 0, 1);                    // la construction, à l'arrivée
     const burst = ease(seg01(x, 0.5, 1.05)) * (1 - ease(seg01(x, 6.5, 7)));   // l'éclaté, pendant les étages
     const az = 45 + ((k + m) * 360) / (STEPS - 1);                          // un tour complet
-    const af = active >= 1 && active <= FLOORS ? active - 1 : -1;            // l'étage ouvert
+    // l'étage visé : il change dès que la caméra part, si bien que l'ancien se referme pendant que le nouveau s'ouvre (pas de temps mort)
+    const tk = f < 0.55 ? k : k + 1, tf = tk >= 1 && tk <= FLOORS ? tk - 1 : -1;
     for (const lay of layers) {
-      lay.sl.t = lay.L === af ? 1 : 0; lay.lf.t = af >= 0 && lay.L > af ? 1 : 0;   // il glisse vers nous, ceux du dessus se soulèvent
+      lay.sl.t = lay.L === tf ? 1 : 0; lay.lf.t = tf >= 0 && lay.L > tf ? 1 : 0;   // il glisse vers nous, ceux du dessus se soulèvent
       moving = stepS(lay.sl, dt) || moving; moving = stepS(lay.lf, dt) || moving;
     }
 
     // la prise de vue visée : large et plongeante à l'arrivée, serrée et rasante sur l'étage ouvert, en recul à la fin
-    const tk = f < 0.55 ? k : k + 1, tf = tk >= 1 && tk <= FLOORS ? tk - 1 : -1;
     zoom.t = tf >= 0 ? (small ? 3.0 : 3.5) : tk === 0 ? (small ? 1.7 : 1.8) : (small ? 1.8 : 1.95);
     tilt.t = tf >= 0 ? (tf % 2 ? 0.44 : 0.3) : tk === 0 ? 0.62 : 0.52;
     aim.t = tf >= 0 ? 1 : 0;
     side.t = small ? 0 : tk % 2 ? -58 : 58;              // l'immeuble se range du côté opposé à l'encart
     moving = stepS(side, dt) || moving;
     moving = stepS(zoom, dt) || moving; moving = stepS(tilt, dt) || moving; moving = stepS(aim, dt) || moving;
+    // le point visé suit ses propres ressorts, d'un étage au suivant, sans repasser par le centre
+    if (tf >= 0) {
+      const sa = Math.sin((az * Math.PI) / 180), ca = Math.cos((az * Math.PI) / 180);
+      fxS.t = W / 2 + SLIDE * sa; fyS.t = D / 2 + SLIDE * ca; fzS.t = base[tf] + tf * GAP * burst + SLAB + CLEAR[tf] / 2;
+    }
+    for (const sp2 of [fxS, fyS, fzS]) moving = stepS(sp2, dt) || moving;
 
-    const sig = [az, build, burst, zoom.x, tilt.x, aim.x * 3, side.x / 50, ...layers.map((l) => l.sl.x + l.lf.x * 3)].map((v) => v.toFixed(3)).join("|") + active;
+    const sig = [az, build, burst, zoom.x, tilt.x, aim.x * 3, side.x / 50, fxS.x / 9, fyS.x / 9, fzS.x / 9, ...layers.map((l) => l.sl.x + l.lf.x * 3)].map((v) => v.toFixed(3)).join("|") + tk;
     if (sig !== last) {
       last = sig;
       C.az = (az * Math.PI) / 180;
@@ -177,13 +183,7 @@ function start() {
       C.ox = C.oy = 0; P = proj(C);
       C.S = zoom.x; C.k = tilt.x; P = proj(C);
       // le point visé : le centre de l'immeuble, ou l'étage ouvert, là où il a glissé
-      let fx = W / 2, fy = D / 2, fz = top / 2;
-      let sw = 0, sx = 0, sy = 0, sz = 0;                 // moyenne pondérée par le glissement : le cadre passe d'un étage à l'autre sans saut
-      for (const l of layers) if (!l.roof && l.sl.x > 0.001) {
-        const w = l.sl.x, o = SLIDE * w; sw += w;
-        sx += w * (W / 2 + o * s); sy += w * (D / 2 + o * c); sz += w * (base[l.L] + l.L * GAP * burst + l.lf.x * OPEN + SLAB + CLEAR[l.L] / 2);
-      }
-      if (sw > 0.01) { fx = sx / sw; fy = sy / sw; fz = sz / sw; }
+      const fx = fxS.x, fy = fyS.x, fz = fzS.x;
       const a = aim.x, q = P(W / 2 + (fx - W / 2) * a, D / 2 + (fy - D / 2) * a, top / 2 + (fz - top / 2) * a);
       C.ox = 200 + side.x - q[0]; C.oy = (small ? 158 : 166) - q[1];
       P = proj(C); front = facing(C);
@@ -192,14 +192,14 @@ function start() {
       // l'échafaudage : visible pendant la construction et l'éclaté, peint derrière tout
       const show = build < 1 || burst > 0.02;
       guides.setAttribute("d", show ? [[0, 0], [W, 0], [0, D], [W, D]].map(([gx, gy]) => seg(P(gx, gy, 0), P(gx, gy, top))).join("") : "");
-      const outro = active === STEPS - 1;
+      const outro = tk === STEPS - 1;
       for (const lay of layers) {
         const t = ease(seg01(build, lay.L * 0.1, lay.L * 0.1 + 0.34));
         lay.g.style.display = t > 0 ? "" : "none";
         if (!t) continue;
         const zb = base[lay.L] + lay.L * GAP * burst + lay.lf.x * OPEN + (1 - t) * DROP;
         const o = SLIDE * lay.sl.x;
-        drawLayer(lay, zb, o * s, o * c, s, c, (!lay.roof && active === lay.L + 1) || (outro && !lay.roof));
+        drawLayer(lay, zb, o * s, o * c, s, c, (!lay.roof && tk === lay.L + 1) || (outro && !lay.roof));
       }
       // les étiquettes : du côté opposé à l'encart, à mi-hauteur de chaque étage
       const right = side.x > 0;                            // l'immeuble à droite, l'encart à gauche : les noms partent à droite
@@ -215,9 +215,9 @@ function start() {
         lb.tx.removeAttribute("display");
         lb.tx.setAttribute("x", (x1 + (right ? 2.5 : -2.5)).toFixed(1)); lb.tx.setAttribute("y", (best[1] + 1.6).toFixed(1));
         lb.tx.setAttribute("text-anchor", right ? "start" : "end");
-        lb.tx.classList.toggle("on", active === lay.L + 1);
+        lb.tx.classList.toggle("on", tk === lay.L + 1);
       });
-      const orbLit = active === 0 || active === -1 && k === 0 || outro;
+      const orbLit = tk === 0 || outro;
       layers[FLOORS].orb.classList.toggle("hi", orbLit);
     }
     caps.forEach((el) => el.classList.toggle("on", +el.dataset.cap === shown));
