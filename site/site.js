@@ -124,6 +124,46 @@
   })();
 
   /* =====================================================================
+     La sphère du hero : des particules de lumière qui tournent au centre,
+     et qui éclatent quand on descend vers la vidéo
+     ===================================================================== */
+  (function () {
+    var cv = $("[data-hero-orb]"); if (!cv) return;
+    var ctx = cv.getContext("2d"), dpr = Math.min(2, window.devicePixelRatio || 1), W = 0, H = 0, pts = [], N = 1400, GA = Math.PI * (3 - Math.sqrt(5));
+    for (var i = 0; i < N; i++) {
+      var y = 1 - (i / (N - 1)) * 2, r = Math.sqrt(1 - y * y), th = GA * i;
+      pts.push({ x: Math.cos(th) * r, y: y, z: Math.sin(th) * r, v: .6 + Math.random() * 1.8, j: Math.random() });
+    }
+    function size() { var b = cv.getBoundingClientRect(); W = b.width; H = b.height; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+    size(); addEventListener("resize", size);
+    var rot = 0, last = performance.now(), mx = 0, my = 0, tx = 0, ty = 0, still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    addEventListener("pointermove", function (e) { tx = e.clientX / innerWidth - .5; ty = e.clientY / innerHeight - .5; }, { passive: true });
+    (function loop(now) {
+      requestAnimationFrame(loop);
+      var dt = Math.min(.05, (now - last) / 1000); last = now;
+      var out = Math.min(1, Math.max(0, scrollY / (innerHeight * 1.1)));
+      if (out >= 1) return;                                    // le hero est parti : on ne dessine plus
+      if (!still) rot += dt * .16;
+      mx += (tx - mx) * .04; my += (ty - my) * .04;
+      var burst = out * out, small = W < 800, R = small ? W * .25 : Math.min(W, H) * .24, cx = W / 2, cy = small ? H * .25 : H * .5;   // sur mobile, la sphère en haut, le texte en bas
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+      var g = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 1.25);   // un halo très doux
+      g.addColorStop(0, "rgba(190,200,255," + (.10 * (1 - out)).toFixed(3) + ")"); g.addColorStop(1, "rgba(190,200,255,0)");
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      var a = rot + mx * .6, cs = Math.cos(a), sn = Math.sin(a), t = .35 + my * .3, cT = Math.cos(t), sT = Math.sin(t);
+      for (var k = 0; k < N; k++) {
+        var p = pts[k], x0 = p.x * cs - p.z * sn, z0 = p.x * sn + p.z * cs, y0 = p.y * cT - z0 * sT; z0 = p.y * sT + z0 * cT;
+        var e = 1 + burst * p.v * 2.4, persp = 1 / (1.9 - z0 * .55);
+        var px = cx + x0 * e * R * persp * 1.4, py = cy + y0 * e * R * persp * 1.4;
+        var al = (.1 + .8 * (z0 + 1) / 2) * (1 - out * .85) * (.85 + .15 * Math.sin(now / 600 + p.j * 6.28));
+        if (al < .02) continue;
+        ctx.fillStyle = "rgba(235,238,255," + al.toFixed(3) + ")";
+        ctx.beginPath(); ctx.arc(px, py, .5 + (z0 + 1) * .55, 0, 6.2832); ctx.fill();
+      }
+    })(performance.now());
+  })();
+
+  /* =====================================================================
      La vidéo d'ouverture : 169 images dessinées au fil du défilement
      ===================================================================== */
   var film = (function () {
@@ -158,9 +198,7 @@
   requestAnimationFrame(function () { requestAnimationFrame(function () { document.body.classList.add("is-ready"); }); });
   var orbEl = $("[data-orb]"), ORB = 240;
   var orb = window.SiriOrb ? window.SiriOrb(orbEl, { size: ORB, state: "idle" }) : null;
-  $$(".hw", title).forEach(function (w) {                  // les mots s'illuminent au survol
-    w.addEventListener("pointerenter", function () { w.classList.add("lit"); setTimeout(function () { w.classList.remove("lit"); }, 900); });
-  });
+
   var appear = new Spring(0, 150, 13);
 
   /* ---------- typographie : jamais un petit mot seul en fin de ligne ---------- */
