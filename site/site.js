@@ -579,15 +579,7 @@
   /* =====================================================================
      Ce qu'on apprend : la bande défile à l'horizontale
      ===================================================================== */
-  var learn = $("[data-learn]"), track = $("[data-learn-track]"), lx = new Spring(0, 120, 22);
-  (function learnLoop() {
-    if (learn && innerWidth > 800) {
-      var r = learn.getBoundingClientRect(), p = clamp(-r.top / (r.height - innerHeight), 0, 1);
-      lx.t = -(track.scrollWidth - innerWidth) * p; lx.step(1 / 60);
-      track.style.transform = "translateX(" + lx.v.toFixed(1) + "px)";
-    } else if (track) track.style.transform = "";
-    requestAnimationFrame(learnLoop);
-  })();
+  /* la sphère des compétences : voir competences.js */
 
   /* =====================================================================
      Sections : apparitions en cascade

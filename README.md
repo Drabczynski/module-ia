@@ -105,21 +105,22 @@ Fonction `api/chat.ts`, identifiant `structure-prompt`. Le menu « Les modules �
 Page de présentation commerciale. Elle s’ouvre sur la vidéo du bureau
 (`assets/Photorealistic-cinematic-16-9-opening-fr.mp4`, découpée en 169 images dans
 `assets/video/bureau/`) qui avance au défilement, avec des messages sur l’IA au travail, puis
-plonge dans l’écran, d’où surgit directement l’orbe. Après la démonstration, un ensemble de bureaux en dessin d’architecte (`site/ensemble.js`, three.js embarqué
-dans `site/vendor/`) : six niveaux de barres empilées et croisées autour d’une cour
-hexagonale, un niveau par service (accueil, RH, communication, finance, juridique,
-direction), façades tramées, sous-faces en nid d’abeille, sol rose. Au défilement, la caméra
-survole l’ensemble, en fait le tour à hauteur d’œil, entre dans la cour et lève les yeux,
-remonte jusqu’aux toits, puis repart en vue aérienne ; le niveau présenté prend le ton rose
-et le trait orange. Chaque encart affiche une photo Unsplash liée à l’étape
+plonge dans l’écran, d’où surgit directement l’orbe. Après la démonstration, un ensemble de bureaux dessiné au trait (`site/ensemble.js`, sur le moteur de
+[Hairline](https://github.com/lucasmarkes/hairline), licence MIT, embarqué dans `site/vendor/hairline/`) :
+des barres empilées et croisées autour de trois cours hexagonales, sans sol coloré ; l’ensemble
+principal compte six niveaux, un par service (accueil, RH, communication, finance, juridique,
+direction). Au défilement, il s’assemble, fait un tour sur lui-même et s’éclate au niveau
+présenté, qui se soulève, s’écarte (pointillés jusqu’à sa place) et prend le trait orange.
+Chaque encart affiche une photo Unsplash liée à l’étape
 (chargée depuis images.unsplash.com, avec le crédit du photographe). Ensuite, le défilement
 raconte un module par chapitres : le titre, puis une sphère de particules qui se forme,
 tourne et éclate pour laisser place à l’orbe qui parle, puis le module dans un écran
 dont une caméra cadre la zone utile, avec cinq gestes de l’apprenant (écrire, repérer,
 construire, varier : glisser, QCM, roue, génération d’image et d’un document Word) et, à gauche, des étapes qui présentent chaque type
-d’interaction. Des étiquettes expliquent les clics de la démonstration. Une bande horizontale présente
-ensuite ce qu’on apprend, thème par thème, avec un exemple à chaque fois. Mouvements à ressorts. Suivent les modules,
-les atouts, le référentiel, les formules et la FAQ. Réutilise `premiers-pas/orb.js` et les
+d’interaction. Des étiquettes expliquent les clics de la démonstration. Ce qu’on apprend
+est une sphère de particules (`site/competences.js`) qui se forme puis éclate au défilement en
+huit points, un par compétence ; toucher un point ouvre sa fiche. Mouvements à ressorts. Suivent les modules,
+les formules et la FAQ. Réutilise `premiers-pas/orb.js` et les
 polices de `assets/fonts`. Photo de paysage : Liang Zhao sur Unsplash (licence Unsplash), chargée
 depuis images.unsplash.com. Nom « Atelier IA », formules « Sur devis » et adresse de contact
 à remplacer.

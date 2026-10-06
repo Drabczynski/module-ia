@@ -40,7 +40,6 @@
   <a class="brand" href="#top"><span class="brand-dot"></span>Atelier IA</a>
   <nav class="nav-links">
     <a href="#modules">Les modules</a>
-    <a href="#atouts">Pourquoi nous</a>
     <a href="#formules">Tarif</a>
     <a class="btn btn-sm" href="../premiers-pas/">Tester un module</a>
   </nav>
@@ -239,7 +238,7 @@
   <!-- ===================== L’immeuble : l’IA à tous les étages (3D, au défilement) ===================== -->
   <section class="voyage" data-voyage aria-label="L’IA à tous les étages de l’entreprise">
     <div class="vg-stage">
-      <canvas class="vg-cv" data-vg-cv aria-hidden="true"></canvas>
+      <div class="vg-hl" data-vg-hl role="img" aria-label="Un ensemble de bureaux dessiné au trait : des barres empilées et croisées autour de cours hexagonales, qui s’ouvrent niveau par niveau."></div>
       <div class="vg-caps">
         <div class="vg-cap" data-cap="0"><figure class="vg-ph"><img src="https://images.unsplash.com/photo-1621831337128-35676ca30868?auto=format&amp;fit=crop&amp;w=880&amp;h=440&amp;q=70" alt="Façade vitrée d’un immeuble de bureaux" width="880" height="440" loading="lazy" decoding="async"><figcaption>Photo&nbsp;: <a href="https://unsplash.com/@kenrick?utm_source=atelier_ia&amp;utm_medium=referral" target="_blank" rel="noopener">Kenrick Baksh</a>, <a href="https://unsplash.com/?utm_source=atelier_ia&amp;utm_medium=referral" target="_blank" rel="noopener">Unsplash</a></figcaption></figure><p class="vg-k">Votre entreprise</p><h2>L’IA est déjà<br>à tous les étages.</h2><p class="vg-s">Faites défiler pour monter, service par service.</p></div>
         <div class="vg-cap" data-cap="1"><figure class="vg-ph"><img src="https://images.unsplash.com/photo-1508780709619-79562169bc64?auto=format&amp;fit=crop&amp;w=880&amp;h=440&amp;q=70" alt="Mains sur le clavier d’un ordinateur portable, en train d’écrire une réponse" width="880" height="440" loading="lazy" decoding="async"><figcaption>Photo&nbsp;: <a href="https://unsplash.com/@kaitlynbaker?utm_source=atelier_ia&amp;utm_medium=referral" target="_blank" rel="noopener">Kaitlyn Baker</a>, <a href="https://unsplash.com/?utm_source=atelier_ia&amp;utm_medium=referral" target="_blank" rel="noopener">Unsplash</a></figcaption></figure><p class="vg-k"><b>0</b> Étage · Accueil et relation client</p><h2>Un client mécontent&nbsp;? Une réponse posée et juste, en une minute.</h2><p class="vg-s">Ce qu’on y apprend&nbsp;: <strong>Rédiger et ajuster le ton</strong></p><span class="vg-m">Modules 1 et 4</span></div>
@@ -253,11 +252,14 @@
     </div>
   </section>
 
-  <!-- ===================== Ce qu’on apprend (défilement horizontal) ===================== -->
+  <!-- ===================== Ce qu’on apprend : la sphère de particules ===================== -->
   <section class="learn" data-learn data-tint="2">
     <div class="learn-stage">
-      <div class="learn-head"><p class="sec-k">Ce qu’on apprend</p><h2>Des compétences concrètes, module après module.</h2></div>
-      <div class="learn-track" data-learn-track>
+      <div class="learn-head"><p class="sec-k">Ce qu’on apprend</p><h2>Des compétences concrètes, module après module.</h2><p class="lg-hint" data-lg-hint>Faites défiler, puis touchez un point.</p></div>
+      <canvas class="lg-cv" data-lg-cv aria-hidden="true"></canvas>
+      <div class="lg-nodes" data-lg-nodes role="list" aria-label="Les huit compétences du parcours"></div>
+      <div class="lg-card" data-lg-card aria-live="polite"></div>
+      <div class="lg-src" data-lg-src hidden>
         <article class="lc"><span class="lc-ic"><svg><use href="#i-spark"/></svg></span><span class="lc-n">Module 1</span><h3>Démarrer</h3><p>Ce que l’IA sait faire, et ce qu’elle ne sait pas.</p></article><article class="lc"><span class="lc-ic"><svg><use href="#i-pen"/></svg></span><span class="lc-n">Modules 2 et 3</span><h3>Rédiger des prompts</h3><p>Une demande complète, qui donne le bon résultat du premier coup.</p></article><article class="lc"><span class="lc-ic"><svg><use href="#i-image"/></svg></span><span class="lc-n">Module 3</span><h3>Des prompts pour les images</h3><p>Décrire un visuel utile pour un post ou un rapport.</p></article><article class="lc"><span class="lc-ic"><svg><use href="#i-replay"/></svg></span><span class="lc-n">Modules 4 et 5</span><h3>Améliorer un contenu</h3><p>Affiner, réécrire, changer de ton sans tout recommencer.</p></article><article class="lc"><span class="lc-ic"><svg><use href="#i-shield"/></svg></span><span class="lc-n">Module 6</span><h3>Protéger les données</h3><p>Savoir ce qu’on ne confie jamais à une IA.</p></article><article class="lc"><span class="lc-ic"><svg><use href="#i-cc"/></svg></span><span class="lc-n">Modules 7 et 8</span><h3>Des contenus pour tous</h3><p>Des textes clairs et des médias accessibles.</p></article><article class="lc"><span class="lc-ic"><svg><use href="#i-info"/></svg></span><span class="lc-n">Modules 9 à 11</span><h3>Le cadre et les biais</h3><p>RGPD, règlement européen sur l’IA, biais : l’essentiel.</p></article><article class="lc"><span class="lc-ic"><svg><use href="#i-chart"/></svg></span><span class="lc-n">Modules 12 à 15</span><h3>Intégrer l’IA à son poste</h3><p>Repérer ce que l’IA peut alléger, et bâtir son plan.</p></article>
       </div>
     </div>
@@ -279,42 +281,6 @@
     <div class="parc-list" data-mods></div>
   </section>
 
-  <!-- ===================== Atouts ===================== -->
-  <section class="sec" id="atouts" data-reveal data-tint="3">
-    <p class="sec-k">Pourquoi ça marche</p>
-    <h2>On retient ce qu’on a fait soi-même.</h2>
-    <p class="sec-lead">Pas de vidéo à subir ni de diaporama à cliquer. L’apprenant manipule une IA, se trompe sans risque, et corrige.</p>
-    <div class="grid3">
-      <article class="feat"><span class="feat-i"><svg><use href="#i-hand2"/></svg></span><h3>Faire, pas écouter</h3><p>Écrire, glisser, relier, compléter&nbsp;: une interaction nouvelle à chaque écran, avec un retour immédiat.</p></article>
-      <article class="feat"><span class="feat-i"><svg><use href="#i-shield"/></svg></span><h3>Une IA simulée, sans risque</h3><p>Les réponses sont simulées et les données sont fictives. Aucun compte à créer, aucune information de l’entreprise exposée.</p></article>
-      <article class="feat"><span class="feat-i"><svg><use href="#i-wave"/></svg></span><h3>Une voix qui guide</h3><p>Chaque consigne est lue à voix haute, le texte s’affiche au fil de la phrase. On peut couper le son et tout relire.</p></article>
-      <article class="feat"><span class="feat-i"><svg><use href="#i-box"/></svg></span><h3>Prêt pour votre LMS</h3><p>Chaque module s’exporte au format SCORM&nbsp;: score, réussite et progression remontent dans votre plateforme.</p></article>
-      <article class="feat"><span class="feat-i"><svg><use href="#i-chart"/></svg></span><h3>Un score qui a du sens</h3><p>Des corrections déterministes, un seuil de validation, et le détail par activité pour revoir ce qui coince.</p></article>
-      <article class="feat"><span class="feat-i"><svg><use href="#i-cc"/></svg></span><h3>Neutre et accessible</h3><p>Aucune marque d’IA mise en avant. Sous-titres, contrastes soignés et navigation au clavier.</p></article>
-    </div>
-  </section>
-
-  <!-- ===================== Référentiel ===================== -->
-  <section class="sec" data-reveal data-tint="6">
-    <div class="align">
-      <div>
-        <p class="sec-k">Référentiel</p>
-        <h2>Aligné sur le référentiel RS6776.</h2>
-        <p class="sec-lead">Le parcours couvre les six compétences du référentiel «&nbsp;Utiliser l’IA générative&nbsp;» et entraîne aux mises en situation de l’évaluation.</p>
-        <a class="btn" href="#contact">Recevoir le programme détaillé<svg><use href="#i-arrow"/></svg></a>
-      </div>
-      <ul class="comp">
-        <li><b>C1</b><span>Intégrer l’IA générative à son poste de travail</span></li>
-        <li><b>C2</b><span>Rédiger des prompts efficaces, pour le texte et l’image</span></li>
-        <li><b>C3</b><span>Améliorer et optimiser des contenus existants</span></li>
-        <li><b>C4</b><span>Protéger les données et respecter le cadre légal</span></li>
-        <li><b>C5</b><span>Produire des contenus accessibles à tous</span></li>
-        <li><b>C6</b><span>Assurer une veille et analyser les biais</span></li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- ===================== Formules ===================== -->
   <section class="sec" id="formules" data-reveal data-tint="5">
     <p class="sec-k">Tarif</p>
     <h2>Un seul prix, tout compris.</h2>
@@ -363,7 +329,7 @@
 
 <script src="../premiers-pas/orb.js"></script>
 <script src="site.js"></script>
-<script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
+<script src="competences.js"></script>
 <script type="module" src="ensemble.js"></script>
 </body>
 </html>

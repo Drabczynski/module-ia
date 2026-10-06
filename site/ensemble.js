@@ -1,216 +1,218 @@
 /* ==========================================================================
-   L'ensemble : des barres de bureaux empilées et croisées, en dessin
-   d'architecte (trait sombre, façades tramées, sol rose). Six niveaux de
-   barres autour d'une cour hexagonale : un niveau par service. Au défilement,
-   la caméra survole l'ensemble, en fait le tour à hauteur d'œil, entre dans
-   la cour par une trouée et lève les yeux, remonte par le vide central
-   jusqu'aux toits, puis repart en vue aérienne. Le niveau présenté prend
-   le ton rose et le trait orange.
+   L'ensemble, au trait : des barres de bureaux empilées et croisées autour
+   de cours hexagonales, dessinées dans le style et sur le moteur de Hairline
+   (@lucasmarkes/hairline, licence MIT, dans vendor/hairline). Projection
+   isométrique, un seul trait, plaques opaques triées de l'arrière vers
+   l'avant (plans séparateurs). L'ensemble principal compte six niveaux,
+   un par service. Au défilement : l'ensemble s'assemble, tourne sur
+   lui-même, et s'éclate au niveau présenté, qui se soulève, s'écarte et
+   prend le trait orange.
    ========================================================================== */
-import * as THREE from "three";
+import HL from "./vendor/hairline/kernel.js";
+
+const { Cam, proj, rrect, hull, ringAt, run, poly, open, seg, mk, register, spring, stepS, clamp, inject } = HL;
 
 const sec = document.querySelector("[data-voyage]");
-const cv = document.querySelector("[data-vg-cv]");
-if (sec && cv) start();
+const stage = document.querySelector("[data-vg-hl]");
+if (sec && stage) start();
 
 function start() {
-  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
-  const lerp = (a, b, t) => a + (b - a) * t;
-  const seg = (t, a, b) => clamp((t - a) / (b - a), 0, 1);
+  const seg01 = (t, a, b) => clamp((t - a) / (b - a), 0, 1);
   const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
   const small = matchMedia("(max-width: 800px)").matches;
-  let seed = 5;
+  let seed = 9;
   const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
 
-  /* ---------- rendu ---------- */
-  let renderer;
-  try { renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true }); }
-  catch (e) { sec.classList.add("no-gl"); return; }
-  renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color("#faf9f5");                 // le fond du site (--bg)
-  const camera = new THREE.PerspectiveCamera(30, 1, 0.4, 3000);
-  scene.add(new THREE.HemisphereLight(0xffffff, 0xe2d9d2, 1.25 * Math.PI));   // éclairage physique : la diffusion est divisée par π
-  const sun = new THREE.DirectionalLight(0xffffff, 0.5 * Math.PI); sun.position.set(-60, 110, 90); scene.add(sun);
+  inject(document);
+  stage.setAttribute("data-hairline", "ensemble");
+  stage.setAttribute("data-hairline-theme", "light");
+  const svg = mk("svg", { viewBox: "0 0 400 320", "aria-hidden": "true" }, stage);
 
-  /* ---------- textures dessinées : façades tramées, sous-faces en nid d'abeille ---------- */
-  const INK = "#3b3634", aniso = renderer.capabilities.getMaxAnisotropy();
-  const tex = (w, h, draw) => {
-    const c = document.createElement("canvas"); c.width = w; c.height = h; draw(c.getContext("2d"), w, h);
-    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = aniso; t.wrapS = t.wrapT = THREE.RepeatWrapping;
-    return t;
+  /* ---------- l'entrelacs : trois cours hexagonales qui partagent leurs murs ---------- */
+  const S = 34, AP = (S * Math.sqrt(3)) / 2, LEN = S * 1.3, WID = 8, HB = 9, LEVELS = 6;
+  const items = [];                                  // tout ce qui se trie : barres et arbres
+  const ring = (cx, cy, ang, L, Wd, r) => {          // un rectangle arrondi tourné, en échantillons du monde
+    const ca = Math.cos(ang), sa = Math.sin(ang);
+    return rrect(-L / 2, -Wd / 2, L / 2, Wd / 2, r, 3).map((q) => ({ u: cx + q.u * ca - q.v * sa, v: cy + q.u * sa + q.v * ca, nu: q.nu * ca - q.nv * sa, nv: q.nu * sa + q.nv * ca }));
   };
-  const facade = (bays, tall) => (g, w, h) => {      // 4 niveaux sur la hauteur, `bays` travées sur la largeur
-    g.fillStyle = "#f7f4ef"; g.fillRect(0, 0, w, h);
-    const bw = w / bays, sh = h / 4;
-    for (let s = 0; s < 4; s++) for (let b = 0; b < bays; b++) {
-      const x = b * bw, y = s * sh, loggia = !tall && rnd() < 0.12;
-      if (loggia) {                                     // une loggia : renfoncement sombre, garde-corps hachuré
-        g.fillStyle = "#b9aeaa"; g.fillRect(x + 3, y + sh * 0.12, bw - 6, sh * 0.8);
-        g.strokeStyle = "#d9d2cc"; g.lineWidth = 1.5;
-        for (let k = 1; k < 7; k++) { g.beginPath(); g.moveTo(x + 3, y + sh * (0.55 + k * 0.05)); g.lineTo(x + bw - 3, y + sh * (0.55 + k * 0.05)); g.stroke(); }
-      } else {
-        g.fillStyle = tall ? "#ebe6e0" : "#eee9e3"; g.fillRect(x + 5, y + sh * 0.14, bw - 10, sh * 0.72);
-        g.strokeStyle = "#4e4845"; g.lineWidth = 1.7; g.strokeRect(x + 5, y + sh * 0.14, bw - 10, sh * 0.72);
-        g.lineWidth = 1; g.beginPath(); g.moveTo(x + bw / 2, y + sh * 0.14); g.lineTo(x + bw / 2, y + sh * 0.86);
-        g.moveTo(x + 5, y + sh * 0.42); g.lineTo(x + bw - 5, y + sh * 0.42); g.stroke();
-      }
-    }
-    g.fillStyle = "#5a5350";
-    for (let s = 0; s <= 4; s++) g.fillRect(0, s * sh - 1.5, w, 3);
-    for (let b = 0; b <= bays; b++) g.fillRect(b * bw - 0.75, 0, 1.5, h);
-  };
-  const facTex = [tex(1024, 512, facade(8, false)), tex(1024, 512, facade(8, false))];
-  const endTex = tex(256, 512, facade(2, true));
-  const soffTex = tex(512, 512, (g, w, h) => {
-    g.fillStyle = "#c9b9b1"; g.fillRect(0, 0, w, h); g.strokeStyle = "#e6dcd6"; g.lineWidth = 2;
-    const r = 42, dx = r * 1.5, dy = r * Math.sqrt(3);
-    for (let i = -1; i < w / dx + 1; i++) for (let j = -1; j < h / dy + 1; j++) {
-      const cx = i * dx, cy = j * dy + (i % 2 ? dy / 2 : 0);
-      g.beginPath(); for (let k = 0; k <= 6; k++) { const a = (k * Math.PI) / 3; g[k ? "lineTo" : "moveTo"](cx + r * Math.cos(a), cy + r * Math.sin(a)); } g.stroke();
+  function bar(cx, cy, ang, level, main, hx) {
+    const g = mk("g", {}, null);
+    items.push({
+      kind: "bar", g, cx, cy, ang, L: LEN, Wd: WID, level, main, hx,
+      sil: mk("path", { class: "sil" }, g), cr: mk("path", { class: "nf lo" }, g), fac: mk("path", { class: "nf lo" }, g), roof: mk("path", { class: "nf lo" }, g),
+      hut: rnd() < 0.55 ? { sil: mk("path", { class: "sil" }, g), cr: mk("path", { class: "nf lo" }, g), at: (rnd() - 0.5) * LEN * 0.6 } : null,
+      pool: (rnd() < 0.5 ? -1 : 1) * LEN * 0.24,
+    });
+  }
+  const at = (a, d) => [d * Math.cos((a * Math.PI) / 180), d * Math.sin((a * Math.PI) / 180)];
+  const hexes = [{ ox: 0, oy: 0, levels: LEVELS, main: true }, { levels: 4, dir: 150 }, { levels: 3, dir: 270 }];
+  hexes.slice(1).forEach((h) => { [h.ox, h.oy] = at(h.dir, 2 * AP); });
+  const corner = (h, e) => [h.ox + S * Math.cos((e * Math.PI) / 3), h.oy + S * Math.sin((e * Math.PI) / 3)];
+  hexes.forEach((h, hx) => {
+    for (let l = 0; l < h.levels; l++) for (let e = 0; e < 6; e++) {
+      const [x0, y0] = corner(h, e), [x1, y1] = corner(h, e + 1), mx = (x0 + x1) / 2, my = (y0 + y1) / 2;
+      const shared = hx > 0 && Math.hypot(mx, my) < AP + 1;
+      // chaque niveau occupe un côté sur deux, et le mur partagé prend l'autre parité : les barres se croisent
+      if (shared ? l % 2 !== 1 : e % 2 !== l % 2) continue;
+      bar(mx, my, Math.atan2(y1 - y0, x1 - x0), l, !!h.main, hx);
     }
   });
-
-  const INKc = new THREE.Color(INK), ORANGE = new THREE.Color("#e2622b"), PINK = new THREE.Color(1, 0.8, 0.74), WHITE = new THREE.Color(1, 1, 1);
-  const lineMat = new THREE.LineBasicMaterial({ color: INKc });
-  const roofMat = new THREE.MeshLambertMaterial({ color: 0xefeae4, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
-  const poolMat = new THREE.MeshBasicMaterial({ color: 0xf0c3bb });
-  const ventMat = new THREE.MeshLambertMaterial({ color: 0x4a4442 });
-  const withEdges = (mesh, mat = lineMat, thr = 1) => { mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(mesh.geometry, thr), mat)); return mesh; };
-
-  /* ---------- une barre : façades tramées, toit, sous-face, édicule, patio rond ---------- */
-  const blocks = [];
-  function bar(cx, cz, ang, y, L, Wd, H, level, main) {
-    const g = new THREE.BoxGeometry(L, H, Wd), uv = g.attributes.uv;
-    for (let i = 16; i < 24; i++) uv.setX(i, uv.getX(i) * L / 24);               // les longues façades : une trame de 3 m
-    for (let i = 12; i < 16; i++) uv.setXY(i, uv.getX(i) * L / 14, uv.getY(i) * Wd / 14);
-    const off = { polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 };
-    const mLong = new THREE.MeshLambertMaterial({ map: facTex[(level + (main ? 0 : 1)) % 2], ...off });
-    const mEnd = new THREE.MeshLambertMaterial({ map: endTex, ...off });
-    const mSoff = new THREE.MeshLambertMaterial({ map: soffTex, ...off });
-    const mRoof = roofMat.clone();
-    const edge = new THREE.LineBasicMaterial({ color: INKc.clone() });
-    const m = withEdges(new THREE.Mesh(g, [mEnd, mEnd, mRoof, mSoff, mLong, mLong]), edge);
-    m.position.set(cx, y + H / 2, cz); m.rotation.y = -ang; scene.add(m);
-    // sur le toit : un patio rond, un édicule, des aérations
-    const side = rnd() < 0.5 ? -1 : 1, top = H / 2;
-    const pool = withEdges(new THREE.Mesh(new THREE.CircleGeometry(Wd * 0.3, 40), poolMat), edge);
-    pool.rotation.x = -Math.PI / 2; pool.position.set(side * L * 0.22, top + 0.04, 0); m.add(pool);
-    const hut = withEdges(new THREE.Mesh(new THREE.BoxGeometry(2.8, 2.3, 2.8), roofMat), edge);
-    hut.position.set(-side * L * 0.28, top + 1.15, (rnd() - 0.5) * 2); m.add(hut);
-    for (const k of [-1, 1]) { const v = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.9, 10), ventMat); v.position.set(side * L * 0.05 + k * 2.4, top + 0.45, Wd * 0.28 * k); m.add(v); }
-    const par = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints([[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([a, b]) => new THREE.Vector3(a * (L / 2 - 0.5), top + 0.03, b * (Wd / 2 - 0.5)))), edge);
-    m.add(par);
-    blocks.push({ m, level, main, mats: [mLong, mEnd, mRoof], edge, lit: 0 });
+  for (const [x, y] of [[62, 34], [70, -6], [48, 62], [8, 70], [-34, 66], [-98, 70], [-124, 18], [44, -84], [70, -60], [-62, -84], [-30, -112]]) {
+    const g = mk("g", {}, null);
+    items.push({ kind: "tree", g, x, y, trunk: mk("path", { class: "sil" }, g), crown: mk("path", { class: "sil" }, g), crc: mk("path", { class: "nf lo" }, g) });
   }
 
-  /* ---------- l'entrelacs : un hexagone de barres, chaque niveau tourné d'un côté ---------- */
-  const LEVELS = 6, HB = 9;
-  function cluster(ox, oz, rot, s, levels, main) {
-    for (let l = 0; l < levels; l++) for (let e = l % 2; e < 6; e += 2) {
-      const tw0 = rot + l * 0.11, a0 = tw0 + (e * Math.PI) / 3, a1 = tw0 + ((e + 1) * Math.PI) / 3;   // chaque niveau tourne un peu : l'entrelacs
-      const x0 = s * Math.cos(a0), z0 = s * Math.sin(a0), x1 = s * Math.cos(a1), z1 = s * Math.sin(a1);
-      const tw = (rnd() - 0.5) * 0.1;
-      bar(ox + (x0 + x1) / 2, oz + (z0 + z1) / 2, Math.atan2(z1 - z0, x1 - x0) + tw, l * HB, s * 1.38, 8, HB, l, main);
+  // le sol : seulement le contour du terrain, au trait, et sa limite en pointillé
+  const ground = mk("g", {}, svg), site = mk("path", { class: "nf lo" }, ground), siteOut = mk("path", { class: "nf dash" }, ground);
+  const guides = mk("path", { class: "nf dash" }, svg), body = mk("g", {}, svg);
+  const OUT = [[-150, -10], [-118, 92], [-20, 112], [86, 86], [104, 10], [80, -96], [10, -128], [-92, -98]];
+
+  /* ---------- une barre à sa pose courante, puis son dessin ---------- */
+  const cam = Cam(45, 0.5, small ? 1.7 : 1.85);
+  let P = proj(cam), s = 0, c = 0, T = [0, 0, 0];
+  const front = (q) => q.nu * s + q.nv * c >= -1e-6;
+  function pose(it, dz, k) {                         // dz : soulèvement ; k : écart vers l'extérieur, en part du rayon
+    const hx = hexes[it.hx], cx = hx.ox + (it.cx - hx.ox) * (1 + k), cy = hx.oy + (it.cy - hx.oy) * (1 + k), z0 = it.level * HB + dz;
+    it.p = { cx, cy, z0, z1: z0 + HB };
+    const ca = Math.cos(it.ang), sa = Math.sin(it.ang), hl = it.L / 2, hw = it.Wd / 2;
+    it.corners = [];
+    for (const [u, v] of [[-hl, -hw], [hl, -hw], [hl, hw], [-hl, hw]]) for (const z of [z0, z0 + HB + 2.4]) it.corners.push([cx + u * ca - v * sa, cy + u * sa + v * ca, z]);
+    const N = [[ca, sa], [-ca, -sa], [-sa, ca], [sa, -ca]], D = [hl, hl, hw, hw];
+    it.planes = N.map((n, i) => ({ n: [n[0], n[1], 0], d: n[0] * cx + n[1] * cy + D[i] })).concat([{ n: [0, 0, 1], d: z0 + HB }, { n: [0, 0, -1], d: -z0 }]);
+  }
+  function poseTree(it) {
+    it.corners = []; for (const [u, v] of [[-2.2, -2.2], [2.2, -2.2], [2.2, 2.2], [-2.2, 2.2]]) for (const z of [0, 7]) it.corners.push([it.x + u, it.y + v, z]);
+    it.planes = [[1, 0], [-1, 0], [0, 1], [0, -1]].map((n) => ({ n: [n[0], n[1], 0], d: n[0] * it.x + n[1] * it.y + 2.2 })).concat([{ n: [0, 0, 1], d: 7 }, { n: [0, 0, -1], d: 0 }]);
+  }
+  function drawBar(it, lit) {
+    const { cx, cy, z0, z1 } = it.p;
+    const rg = ring(cx, cy, it.ang, it.L, it.Wd, 1), inner = ring(cx, cy, it.ang, it.L - 1.6, it.Wd - 1.6, 0.4);
+    it.sil.setAttribute("d", poly(hull(ringAt(P, rg, z1).concat(ringAt(P, rg, z0)))));
+    it.cr.setAttribute("d", open(ringAt(P, run(inner, front), z1)));
+    it.sil.classList.toggle("hi", lit);
+    // la façade : les planchers et la trame, sur les faces tournées vers nous
+    const ca = Math.cos(it.ang), sa = Math.sin(it.ang), hl = it.L / 2 - 1, hw = it.Wd / 2, W = (u, v, z) => P(cx + u * ca - v * sa, cy + u * sa + v * ca, z);
+    let d = "";
+    for (const sd of [1, -1]) {                        // les longues faces
+      if (-sa * sd * s + ca * sd * c <= 0) continue;
+      for (let k = 1; k < 4; k++) d += seg(W(-hl, hw * sd, z0 + (HB * k) / 4), W(hl, hw * sd, z0 + (HB * k) / 4));
+      for (let u = -hl + 3; u < hl - 1; u += 3) d += seg(W(u, hw * sd, z0), W(u, hw * sd, z1));
+    }
+    for (const sd of [1, -1]) {                        // les pignons
+      if (ca * sd * s + sa * sd * c <= 0) continue;
+      for (let k = 1; k < 4; k++) d += seg(W(hl * sd + sd, -hw + 1, z0 + (HB * k) / 4), W(hl * sd + sd, hw - 1, z0 + (HB * k) / 4));
+    }
+    it.fac.setAttribute("d", d);
+    it.fac.classList.toggle("sil", lit); it.fac.classList.toggle("lo", !lit);
+    // sur le toit : un patio rond, parfois un édicule
+    const pr = []; for (let k = 0; k <= 24; k++) { const a = (k / 24) * Math.PI * 2; pr.push(W(it.pool + Math.cos(a) * 2.6, Math.sin(a) * 2.6, z1)); }
+    it.roof.setAttribute("d", open(pr));
+    if (it.hut) {
+      const hx = cx + it.hut.at * ca, hy = cy + it.hut.at * sa, hr = ring(hx, hy, it.ang, 3, 3, 0.5), hi = ring(hx, hy, it.ang, 2.2, 2.2, 0.3);
+      it.hut.sil.setAttribute("d", poly(hull(ringAt(P, hr, z1 + 2.4).concat(ringAt(P, hr, z1)))));
+      it.hut.cr.setAttribute("d", open(ringAt(P, run(hi, front), z1 + 2.4)));
     }
   }
-  cluster(0, 0, 0, 42, LEVELS, true);           // l'ensemble principal : un niveau par service
-  cluster(100, -82, 0.35, 30, 4, false);
-  cluster(132, 22, -0.2, 26, 3, false);
-
-  /* ---------- le sol : une dalle rose, son emmarchement, les arbres, les terrains ---------- */
-  const outline = [[-80, -55], [-42, -112], [64, -124], [152, -62], [156, 38], [104, 96], [18, 102], [-62, 82], [-90, 18]].map(([x, z]) => [30 + (x - 30) * 1.3, -10 + (z + 10) * 1.3]);
-  {
-    const sh = new THREE.Shape(outline.map(([x, z]) => new THREE.Vector2(x, -z)));
-    const g = new THREE.ExtrudeGeometry(sh, { depth: 1.6, bevelEnabled: false }); g.rotateX(-Math.PI / 2); g.translate(0, -1.6, 0);
-    scene.add(withEdges(new THREE.Mesh(g, [new THREE.MeshBasicMaterial({ color: 0xf5d7d2, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }), new THREE.MeshLambertMaterial({ color: 0xffffff })]), lineMat, 20));
-    const cx = 32, cz = -6, far = outline.map(([x, z]) => new THREE.Vector3(cx + (x - cx) * 1.1, -4, cz + (z - cz) * 1.1));
-    scene.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(far), lineMat));
-    const ribs = [];
-    outline.forEach(([x, z], i) => ribs.push(new THREE.Vector3(x, -1.6, z), far[i]));
-    scene.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(ribs), lineMat));
+  function drawTree(it) {
+    const tr = ring(it.x, it.y, 0, 0.7, 0.7, 0.35), cr = ring(it.x, it.y, 0, 4.4, 4.4, 2.2), ci = ring(it.x, it.y, 0, 3.4, 3.4, 1.7);
+    it.trunk.setAttribute("d", poly(hull(ringAt(P, tr, 3.5).concat(ringAt(P, tr, 0)))));
+    it.crown.setAttribute("d", poly(hull(ringAt(P, cr, 7).concat(ringAt(P, cr, 3.5)))));
+    it.crc.setAttribute("d", open(ringAt(P, run(ci, front), 7)));
   }
-  const inside = (x, z) => { let c = false; for (let i = 0, j = outline.length - 1; i < outline.length; j = i++) { const [xi, zi] = outline[i], [xj, zj] = outline[j]; if ((zi > z) !== (zj > z) && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) c = !c; } return c; };
-  const clear = (x, z) => Math.hypot(x, z) > 64 && Math.hypot(x - 100, z + 82) > 46 && Math.hypot(x - 132, z - 22) > 40;
-  {
-    const pts = [];
-    for (let n = 0; n < 160 && pts.length < 26 * 2 * 16; n++) {
-      const x = -110 + rnd() * 300, z = -160 + rnd() * 280;
-      if (!inside(x, z) || !clear(x, z) || !inside(x + 6, z + 6) || !inside(x - 6, z - 6)) continue;
-      for (let k = 0; k < 12; k++) { const a = (k / 12) * Math.PI * 2, b = ((k + 1) / 12) * Math.PI * 2; pts.push(x + 1.8 * Math.cos(a), 0.05, z + 1.8 * Math.sin(a), x + 1.8 * Math.cos(b), 0.05, z + 1.8 * Math.sin(b)); }
-      pts.push(x, 0, z, x, 4, z);
-      for (let k = 0; k < 6; k++) { const a = (k / 6) * Math.PI * 2 + 0.3; pts.push(x, 4, z, x + 2.2 * Math.cos(a), 3.1, z + 2.2 * Math.sin(a)); }
+
+  /* ---------- l'ordre de peinture : un plan séparateur décide qui passe devant ---------- */
+  const dot = (n, p) => n[0] * p[0] + n[1] * p[1] + n[2] * p[2];
+  function behind(A, B) {                             // -1 : A derrière B ; 1 : B derrière A ; 0 : rien ne les sépare
+    for (const [X, Y, sg] of [[A, B, 1], [B, A, -1]]) for (const pl of X.planes)
+      if (Y.corners.every((p) => dot(pl.n, p) >= pl.d - 1e-3)) return (dot(pl.n, T) > 0 ? -1 : 1) * sg;
+    return 0;
+  }
+  let lastOrder = "";
+  function sortItems(vis) {
+    for (const it of vis) {
+      let a = 1e9, b = -1e9, cc = 1e9, dd = -1e9;
+      for (const q of it.corners) { const p = P(q[0], q[1], q[2]); a = Math.min(a, p[0]); b = Math.max(b, p[0]); cc = Math.min(cc, p[1]); dd = Math.max(dd, p[1]); }
+      it.bb = [a, b, cc, dd]; it.depth = it.corners.reduce((m, q) => m + dot(T, q), 0) / 8; it.nin = 0; it.out = []; it.done = false;
     }
-    const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
-    scene.add(new THREE.LineSegments(g, lineMat));
-  }
-  const walk = new THREE.MeshLambertMaterial({ color: 0xffffff });
-  for (const a of [Math.PI / 2, (7 * Math.PI) / 6, (11 * Math.PI) / 6]) {   // les allées qui partent des trouées
-    const p = withEdges(new THREE.Mesh(new THREE.BoxGeometry(46, 0.3, 3.2), walk));
-    p.position.set(Math.cos(a) * 66, 0.15, Math.sin(a) * 66); p.rotation.y = -a; scene.add(p);
-  }
-  for (let i = 0; i < 3; i++) {                                               // trois terrains de sport
-    const c = withEdges(new THREE.Mesh(new THREE.BoxGeometry(13, 0.25, 8), new THREE.MeshBasicMaterial({ color: 0xef4b3c })));
-    c.position.set(-82 + i * 8, 0.13, -40 - i * 13); c.rotation.y = 0.45; scene.add(c);
+    for (let i = 0; i < vis.length; i++) for (let j = i + 1; j < vis.length; j++) {
+      const A = vis[i], Bb = vis[j];
+      if (A.bb[1] < Bb.bb[0] || Bb.bb[1] < A.bb[0] || A.bb[3] < Bb.bb[2] || Bb.bb[3] < A.bb[2]) continue;
+      const o = behind(A, Bb) || (A.depth < Bb.depth ? -1 : 1);
+      if (o < 0) { A.out.push(Bb); Bb.nin++; } else { Bb.out.push(A); A.nin++; }
+    }
+    const out = [];
+    while (out.length < vis.length) {
+      // le plus lointain de ceux que rien ne cache encore ; en cas de cycle, le plus lointain tout court
+      let pick = null;
+      for (const v of vis) if (!v.done && !v.nin && (!pick || v.depth < pick.depth)) pick = v;
+      if (!pick) for (const v of vis) if (!v.done && (!pick || v.depth < pick.depth)) pick = v;
+      pick.done = true; out.push(pick);
+      for (const w of pick.out) w.nin--;
+    }
+    const key = out.map((v) => items.indexOf(v)).join(",");
+    if (key !== lastOrder) { lastOrder = key; for (const v of out) body.appendChild(v.g); }
   }
 
-  /* ---------- la caméra : survol, tour à hauteur d'œil, la cour, les toits ---------- */
-  const SH = [
-    { p: [200, 175, 245], t: [25, 12, -15], f: 30 },    // l'ensemble, vu d'avion
-    { p: [88, 20, 118], t: [0, 7, 0], f: 40 },          // 0 · l'accueil, au pied des barres
-    { p: [-120, 40, 88], t: [0, 14, 0], f: 38 },        // 1 · les RH
-    { p: [-25, 28, -150], t: [0, 24, 0], f: 34 },       // 2 · la communication, en élévation
-    { p: [0, 5, 118], t: [0, 24, 0], f: 46 },           // 3 · la finance, devant la trouée
-    { p: [0, 2.5, 4], t: [0, 42, -20], f: 80 },         // 4 · le juridique : dans la cour, on lève les yeux
-    { p: [10, 92, 20], t: [0, 47, -8], f: 46 },         // 5 · la direction, sur les toits
-    { p: [-205, 185, 215], t: [25, 12, -15], f: 30 },   // retour à la vue d'avion
-  ];
-  const STEPS = SH.length;
-  const cam = (A, B, m, time) => {                       // les positions tournent autour de l'ensemble, sans le traverser
-    const ra = Math.hypot(A.p[0], A.p[2]), rb = Math.hypot(B.p[0], B.p[2]);
-    const aa = Math.atan2(A.p[2], A.p[0]); let da = Math.atan2(B.p[2], B.p[0]) - aa;
-    while (da > Math.PI) da -= 2 * Math.PI; while (da < -Math.PI) da += 2 * Math.PI;
-    const r = lerp(ra, rb, m), a = aa + da * m + Math.sin(time * 0.12) * 0.03 * clamp((r - 40) / 60, 0, 1);
-    camera.position.set(r * Math.cos(a), lerp(A.p[1], B.p[1], m), r * Math.sin(a));
-    camera.lookAt(lerp(A.t[0], B.t[0], m), lerp(A.t[1], B.t[1], m), lerp(A.t[2], B.t[2], m));
-    const f = Math.min(100, lerp(A.f, B.f, m) * (small ? 1.6 : 1));   // écran étroit : on ouvre le champ
-    if (Math.abs(camera.fov - f) > 1e-3) { camera.fov = f; camera.updateProjectionMatrix(); }
-  };
-  function resize() {
-    const w = cv.clientWidth, h = cv.clientHeight; renderer.setSize(w, h, false);
-    camera.aspect = w / h;
-    if (!small) camera.setViewOffset(w, h, -w * 0.16, 0, w, h); else camera.setViewOffset(w, h, 0, h * 0.2, w, h);
-    camera.updateProjectionMatrix();
-  }
-  addEventListener("resize", resize); resize();
-
+  /* ---------- le défilement ---------- */
   const caps = Array.from(sec.querySelectorAll("[data-cap]"));
-  let P = 0, visible = false, last = performance.now(), t0 = last;
-  new IntersectionObserver((e) => { visible = e[0].isIntersecting; }, { rootMargin: "200px" }).observe(sec);
-  const progress = () => { const r = sec.getBoundingClientRect(); return clamp(-r.top / (r.height - innerHeight), 0, 1); };
-  const tmp = new THREE.Color();
-
-  function render(now) {
-    requestAnimationFrame(render);
-    const dt = Math.min(0.05, (now - last) / 1000); last = now;
-    if (!visible) return;
-    const target = progress(); P += (target - P) * (1 - Math.exp(-dt * 4.5)); if (Math.abs(target - P) < 1e-4) P = target;
-    const time = (now - t0) / 1000;
-    const x = P * (STEPS - 1), k = Math.min(STEPS - 2, Math.floor(x)), f = x - k, m = ease(seg(f, 0.55, 1));
-    cam(SH[k], SH[k + 1], m, time);
-
+  const STEPS = LEVELS + 2;
+  const sp = spring(0, { eps: 1e-4 }), spPre = spring(0, { eps: 1e-4 });
+  const lev = Array.from({ length: LEVELS }, () => ({ ex: spring(0), up: spring(0) }));
+  let last = "";
+  const B = register(stage, (dt) => {
+    const r = sec.getBoundingClientRect();
+    sp.t = clamp(-r.top / (r.height - innerHeight), 0, 1);
+    spPre.t = clamp(1 - r.top / innerHeight, 0, 1);
+    let moving = stepS(sp, dt); moving = stepS(spPre, dt) || moving;
+    const x = sp.x * (STEPS - 1), k = Math.min(STEPS - 2, Math.floor(x)), f = x - k, m = ease(seg01(f, 0.55, 1));
     const active = f < 0.55 ? k : f > 0.9 ? k + 1 : -1, shown = f < 0.7 ? k : k + 1;
-    const ek = 1 - Math.exp(-dt * 4);
-    for (const b of blocks) {
-      const want = b.main && (active === b.level + 1 || active === STEPS - 1) ? 1 : 0;
-      if (Math.abs(want - b.lit) < 1e-3 && b.done) continue;
-      b.lit += (want - b.lit) * ek; b.done = Math.abs(want - b.lit) < 1e-3;
-      tmp.copy(WHITE).lerp(PINK, b.lit); b.mats.forEach((mm) => mm.color.copy(tmp));
-      b.edge.color.copy(INKc).lerp(ORANGE, b.lit);
+    const al = active >= 1 && active <= LEVELS ? active - 1 : -1, outro = active === STEPS - 1;
+    lev.forEach((L, l) => {
+      L.ex.t = l === al ? 1 : 0; L.up.t = al >= 0 && l > al ? 1 : 0;
+      moving = stepS(L.ex, dt) || moving; moving = stepS(L.up, dt) || moving;
+    });
+    const build = clamp(spPre.x * 0.8 + x * 0.5, 0, 1);              // l'assemblage, à l'arrivée
+    const az = 30 + ((k + m) * 360) / (STEPS - 1);                    // un tour complet
+
+    const sig = [az, build, ...lev.map((L) => L.ex.x * 7 + L.up.x)].map((v) => v.toFixed(3)).join("|") + active;
+    if (sig !== last) {
+      last = sig;
+      cam.az = (az * Math.PI) / 180; s = Math.sin(cam.az); c = Math.cos(cam.az);
+      T = [s * Math.cos(Math.PI / 6), c * Math.cos(Math.PI / 6), 0.5];   // vers la caméra
+      const open14 = lev.reduce((a, L) => Math.max(a, L.up.x), 0) * 24;
+      cam.ox = cam.oy = 0; P = proj(cam);
+      const q = P(-14, -8, (LEVELS * HB + open14) / 2);
+      cam.ox = 200 - q[0]; cam.oy = (small ? 150 : 162) - q[1]; P = proj(cam);
+
+      site.setAttribute("d", poly(OUT.map(([gx, gy]) => P(gx, gy, 0))));
+      siteOut.setAttribute("d", poly(OUT.map(([gx, gy]) => P(gx * 1.08 - 3, gy * 1.08, -4))));
+      const vis = []; let gd = "";
+      for (const it of items) {
+        if (it.kind === "tree") {
+          const t = seg01(build, 0.7, 0.9); it.g.style.display = t > 0 ? "" : "none";
+          if (t > 0) { poseTree(it); drawTree(it); vis.push(it); }
+          continue;
+        }
+        const t0 = it.level * 0.1 + it.hx * 0.03, t = ease(seg01(build, t0, t0 + 0.32));
+        it.g.style.display = t > 0 ? "" : "none";
+        if (!t) continue;
+        const L = it.main ? lev[it.level] : null, ex = L ? L.ex.x : 0, up = L ? L.up.x : 0;
+        pose(it, (1 - t) * 80 + ex * 8 + up * 24, ex * 0.5);
+        drawBar(it, !!it.main && (ex > 0.5 || outro)); vis.push(it);
+        if (ex > 0.05) {                               // l'éclaté : des pointillés rattachent la barre à sa place
+          const hx = hexes[it.hx], ca = Math.cos(it.ang), sa = Math.sin(it.ang);
+          for (const [u, v] of [[-1, -1], [1, 1], [-1, 1], [1, -1]]) {
+            const lu = (u * it.L) / 2, lv = (v * it.Wd) / 2, ox = it.cx + lu * ca - lv * sa, oy = it.cy + lu * sa + lv * ca;
+            gd += seg(P(ox, oy, it.level * HB), P(hx.ox + (ox - hx.ox) * (1 + ex * 0.5), hx.oy + (oy - hx.oy) * (1 + ex * 0.5), it.p.z0));
+          }
+        }
+      }
+      guides.setAttribute("d", gd);
+      sortItems(vis);
     }
     caps.forEach((el) => el.classList.toggle("on", +el.dataset.cap === shown));
-    renderer.render(scene, camera);
-  }
-  requestAnimationFrame(render);
+    return moving;
+  });
+  addEventListener("scroll", B.wake, { passive: true });
+  addEventListener("resize", B.wake);
 }
