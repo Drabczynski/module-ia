@@ -148,7 +148,7 @@
       }
     };
   })();
-  var filmDim = $("[data-film-dim]"), filmShade = $("[data-film-shade]"), filmFlash = $("[data-film-flash]"), msgs = $$("[data-msg]");
+  var filmAurora = $("[data-film-aurora]"), filmDim = $("[data-film-dim]"), filmShade = $("[data-film-shade]"), filmFlash = $("[data-film-flash]"), msgs = $$("[data-msg]");
   var MSG = [[.1, .3], [.28, .5], [.47, .68], [.65, .84], [.81, .99]];
 
   /* =====================================================================
@@ -313,6 +313,11 @@
     hero.style.transform = "translateY(" + (-70 * heroOut) + "px) scale(" + (1 - .05 * heroOut) + ")";
     hero.style.visibility = heroOut >= 1 ? "hidden" : "visible";
     hint.style.opacity = String(1 - seg(tF, 0, .04));
+    // le dégradé du hero s'efface pour lancer la vidéo
+    var au = ease(seg(tF, .015, .1));
+    filmAurora.style.opacity = String(1 - au);
+    filmAurora.style.transform = "scale(" + (1 + .12 * au) + ")";
+    filmAurora.style.visibility = au >= 1 ? "hidden" : "visible";
     film.draw(seg(tF, .08, .985) * (film.N - 1));
     filmShade.style.opacity = String(1 - .7 * seg(tF, .08, .16) - .3 * seg(tD, 0, .4));
     var anyMsg = false;

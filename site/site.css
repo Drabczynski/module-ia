@@ -629,3 +629,24 @@ main, .foot { position: relative; z-index: 1; }
   .parc-side { text-align: left; }
   .parc-side .sec-lead { margin-left: 0; }
 }
+
+/* ---------- le hero sur un dégradé violet-bleu, qui s'efface pour lancer la vidéo ---------- */
+.film-aurora { position: absolute; inset: 0; overflow: hidden; background: #0b1030; will-change: opacity, transform; }
+.film-aurora::before { content: ""; position: absolute; inset: -20%;
+  background:
+    radial-gradient(38% 46% at 12% 58%, #7a1fa8 0%, rgba(122,31,168,.55) 38%, rgba(122,31,168,0) 72%),
+    radial-gradient(40% 36% at 36% 14%, #300a72 0%, rgba(48,10,114,.7) 45%, rgba(48,10,114,0) 78%),
+    radial-gradient(34% 40% at 56% 80%, #3a78b0 0%, rgba(58,120,176,.55) 40%, rgba(58,120,176,0) 74%),
+    radial-gradient(34% 44% at 86% 30%, #040817 0%, rgba(4,8,23,.8) 45%, rgba(4,8,23,0) 80%),
+    linear-gradient(115deg, #4a1f8f 0%, #2a2477 40%, #1b2d63 62%, #0c1236 100%);
+  filter: saturate(1.08);
+  animation: aurora 22s ease-in-out infinite alternate; }
+.film-aurora::after { content: ""; position: absolute; inset: 0; opacity: .22; mix-blend-mode: overlay; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+@keyframes aurora {
+  0%   { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); }
+  50%  { transform: translate3d(3%, -2%, 0) rotate(4deg) scale(1.06); }
+  100% { transform: translate3d(-3%, 2%, 0) rotate(-3deg) scale(1.03); }
+}
+@media (prefers-reduced-motion: reduce) { .film-aurora::before { animation: none; } }
+.hero.on-film::before { background: radial-gradient(closest-side, rgba(6,10,20,.28), rgba(6,10,20,0)); }
