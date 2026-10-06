@@ -123,12 +123,12 @@
     };
   })();
 
-  /* le fond passe au jaune pâle tant que l'immeuble occupe l'écran */
+  /* le fond passe au jaune pâle à l'arrivée sur l'immeuble, et le reste ensuite */
   (function () {
     var vg = $("[data-voyage]"); if (!vg) return;
     var on = false;
     function check() {
-      var r = vg.getBoundingClientRect(), mid = innerHeight / 2, want = r.top < mid && r.bottom > mid;
+      var r = vg.getBoundingClientRect(), mid = innerHeight / 2, want = r.top < mid;   // à partir de l'immeuble, et jusqu'en bas
       if (want !== on) { on = want; document.documentElement.classList.toggle("bg-cream", on); }
     }
     addEventListener("scroll", check, { passive: true }); addEventListener("resize", check); check();

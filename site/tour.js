@@ -90,6 +90,11 @@ function start() {
     layers.push(lay);
   }
 
+  // le nom de chaque étage, relié au dessin par un trait
+  const NAMES = ["Service après-vente", "Ressources humaines", "Communication", "Comptabilité", "Sécurité", "Direction, administration"];
+  const labG = mk("g", {}, svg);
+  const labels = NAMES.map((n) => { const ln = mk("path", { class: "nf lo" }, labG), tx = mk("text", {}, labG); tx.textContent = n; return { ln, tx }; });
+
   /* ---------- une couche : dalle, mobilier trié par profondeur, façade vitrée ---------- */
   const SIDES = [{ n: [0, -1], a: [0, 0], b: [W, 0] }, { n: [1, 0], a: [W, 0], b: [W, D] }, { n: [0, 1], a: [W, D], b: [0, D] }, { n: [-1, 0], a: [0, D], b: [0, 0] }];
   function drawLayer(lay, zb, dx, dy, s, c, lit) {
@@ -196,6 +201,22 @@ function start() {
         const o = SLIDE * lay.sl.x;
         drawLayer(lay, zb, o * s, o * c, s, c, (!lay.roof && active === lay.L + 1) || (outro && !lay.roof));
       }
+      // les étiquettes : du côté opposé à l'encart, à mi-hauteur de chaque étage
+      const right = side.x > 0;                            // l'immeuble à droite, l'encart à gauche : les noms partent à droite
+      layers.forEach((lay) => {
+        if (lay.roof) return;
+        const lb = labels[lay.L], t = ease(seg01(build, lay.L * 0.1, lay.L * 0.1 + 0.34));
+        if (t < 0.99) { lb.ln.setAttribute("d", ""); lb.tx.setAttribute("display", "none"); return; }
+        const o = SLIDE * lay.sl.x, zm = base[lay.L] + lay.L * GAP * burst + lay.lf.x * OPEN + SLAB + CLEAR[lay.L] / 2;
+        let best = null;
+        for (const [cx0, cy0] of [[0, 0], [W, 0], [0, D], [W, D]]) { const q = P(cx0 + o * s, cy0 + o * c, zm); if (!best || (right ? q[0] > best[0] : q[0] < best[0])) best = q; }
+        const x1 = best[0] + (right ? 14 : -14);
+        lb.ln.setAttribute("d", seg([best[0] + (right ? 2 : -2), best[1]], [x1, best[1]]));
+        lb.tx.removeAttribute("display");
+        lb.tx.setAttribute("x", (x1 + (right ? 2.5 : -2.5)).toFixed(1)); lb.tx.setAttribute("y", (best[1] + 1.6).toFixed(1));
+        lb.tx.setAttribute("text-anchor", right ? "start" : "end");
+        lb.tx.classList.toggle("on", active === lay.L + 1);
+      });
       const orbLit = active === 0 || active === -1 && k === 0 || outro;
       layers[FLOORS].orb.classList.toggle("hi", orbLit);
     }
