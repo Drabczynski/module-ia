@@ -591,32 +591,35 @@
   } else $$("[data-reveal]").forEach(function (s) { s.classList.add("in"); });
 
   /* ---------- liste des modules ---------- */
-  var PARCOURS = [
-    ["Démarrer", [["Première rencontre", "Découvrir l’IA, écrire un premier prompt."]]],
-    ["Rédiger des prompts", [["La structure d’un prompt", "Rôle, cible, objectif, contexte, format."], ["Des prompts pour les images", "Décrire un visuel pour un post ou un rapport."]]],
-    ["Améliorer les contenus", [["Dialoguer pour affiner", "Enrichir le contexte, corriger sans recommencer."], ["Optimiser un contenu existant", "Réécrire selon un ton, un format, une contrainte."]]],
-    ["Protéger les données", [["Ce qu’on ne partage pas", "Repérer les données sensibles, anonymiser."]]],
-    ["Des contenus pour tous", [["Écrire pour tous", "Un texte clair pour un handicap cognitif."], ["Images, audio, vidéo accessibles", "Texte alternatif, transcription, sous-titres.", 1]]],
-    ["Le cadre légal", [["RGPD et IA Act : l’essentiel", "Les règles utiles au poste de travail.", 1], ["Biais et risques", "Analyser un cas, proposer des corrections."], ["Tenir sa veille réglementaire", "Sources officielles, textes à jour.", 1]]],
-    ["Intégrer l’IA à son poste", [["Cartographier son poste", "Repérer les tâches que l’IA peut optimiser."], ["Choisir ses outils", "Comparer les outils, estimer un budget.", 1], ["Son plan d’intégration", "Rédiger la stratégie, sans oublier le handicap."]]],
-    ["Se préparer", [["Préparer la certification", "Entraînements au format des mises en situation."]]]
+  var PARCOURS = [   // [étape, modules, photo Unsplash, texte alternatif, photographe, compte]
+    ["Démarrer", [["Première rencontre", "Découvrir l’IA, écrire un premier prompt."]], "photo-1544717302-de2939b7ef71", "Une personne découvre un outil sur son ordinateur portable", "Icons8 Team", "icons8"],
+    ["Rédiger des prompts", [["La structure d’un prompt", "Rôle, cible, objectif, contexte, format."], ["Des prompts pour les images", "Décrire un visuel pour un post ou un rapport."]], "photo-1501618669935-18b6ecb13d6d", "Un stylo posé sur un carnet ouvert", "Mike Tinnion", "m15ky"],
+    ["Améliorer les contenus", [["Dialoguer pour affiner", "Enrichir le contexte, corriger sans recommencer."], ["Optimiser un contenu existant", "Réécrire selon un ton, un format, une contrainte."]], "photo-1581431886288-e216ea4ccf3f", "Une main corrige une page au feutre rouge", "Kelly Sikkema", "kellysikkema"],
+    ["Protéger les données", [["Ce qu’on ne partage pas", "Repérer les données sensibles, anonymiser."]], "photo-1633265486064-086b219458ec", "Un cadenas posé sur un clavier", "Towfiqu barbhuiya", "towfiqu999999"],
+    ["Des contenus pour tous", [["Écrire pour tous", "Un texte clair pour un handicap cognitif."], ["Images, audio, vidéo accessibles", "Texte alternatif, transcription, sous-titres.", 1]], "photo-1640550444366-b94e5752c479", "Deux mains forment un signe en langue des signes", "Nic Rosenau", "nicreates"],
+    ["Le cadre légal", [["RGPD et IA Act : l’essentiel", "Les règles utiles au poste de travail.", 1], ["Biais et risques", "Analyser un cas, proposer des corrections."], ["Tenir sa veille réglementaire", "Sources officielles, textes à jour.", 1]], "photo-1576414160011-98dfab3aa889", "Une bibliothèque et son échelle", "Thomas Bormans", "thomasbormans"],
+    ["Intégrer l’IA à son poste", [["Cartographier son poste", "Repérer les tâches que l’IA peut optimiser."], ["Choisir ses outils", "Comparer les outils, estimer un budget.", 1], ["Son plan d’intégration", "Rédiger la stratégie, sans oublier le handicap."]], "photo-1503551723145-6c040742065b-v2", "Un mur couvert de notes adhésives colorées", "Patrick Perkins", "patrickperkins"],
+    ["Se préparer", [["Préparer la certification", "Entraînements au format des mises en situation."]], "photo-1434030216411-0b793f4b4173", "Une personne prend des notes à son bureau", "Unseen Studio", "uns__nstudio"]
   ];
-  var mods = $("[data-mods]"), n = 0, READY = { 1: 1, 2: 1 };
+  var mods = $("[data-mods]"), n = 0, READY = { 1: 1, 2: 1 }, UTM = "?utm_source=atelier_ia&utm_medium=referral";
   if (mods) PARCOURS.forEach(function (part, pi) {
     var el = document.createElement("section"); el.className = "pc";
-    el.innerHTML = '<header class="pc-h"><span class="pc-i"></span><h3></h3><span class="pc-c"></span></header><ol></ol>';
-    el.querySelector(".pc-i").textContent = String(pi + 1).padStart(2, "0");
+    el.innerHTML = '<figure class="pc-ph"><img loading="lazy" decoding="async" width="800" height="450"><figcaption>Photo&nbsp;: <a target="_blank" rel="noopener"></a>, <a target="_blank" rel="noopener">Unsplash</a></figcaption></figure>' +
+      '<div class="pc-b"><p class="pc-k"></p><h3></h3><ol></ol></div>';
+    var img = el.querySelector("img"), links = el.querySelectorAll("figcaption a");
+    img.src = "https://images.unsplash.com/" + part[2] + "?auto=format&fit=crop&w=800&h=450&q=70"; img.alt = part[3];
+    links[0].textContent = part[4]; links[0].href = "https://unsplash.com/@" + part[5] + UTM; links[1].href = "https://unsplash.com/" + UTM;
+    el.querySelector(".pc-k").textContent = "Étape " + (pi + 1) + " · " + part[1].length + (part[1].length > 1 ? " modules" : " module");
     el.querySelector("h3").textContent = part[0];
-    el.querySelector(".pc-c").textContent = part[1].length + (part[1].length > 1 ? " modules" : " module");
     part[1].forEach(function (m) {
       n++;
       var li = document.createElement("li"); li.className = "pm";
-      li.innerHTML = '<span class="pm-n"></span><div class="pm-t"><b></b><small></small></div>';
-      li.querySelector(".pm-n").textContent = String(n).padStart(2, "0");
+      li.innerHTML = '<span class="pm-n"></span><b></b><small></small>';
+      li.querySelector(".pm-n").textContent = "Module " + n;
       li.querySelector("b").textContent = m[0];
       li.querySelector("small").textContent = m[1];
-      if (READY[n]) { var d = document.createElement("span"); d.className = "pm-ok"; d.textContent = "Disponible"; li.querySelector(".pm-t").appendChild(d); }
-      el.lastChild.appendChild(li);
+      if (READY[n]) { var d = document.createElement("span"); d.className = "pm-ok"; d.textContent = "Disponible"; li.appendChild(d); }
+      el.querySelector("ol").appendChild(li);
     });
     mods.appendChild(el);
   });

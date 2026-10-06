@@ -598,3 +598,32 @@ main, .foot { position: relative; z-index: 1; }
 .vg-ph figcaption a { color: inherit; text-decoration: none; }
 .vg-cap.on .vg-ph figcaption { pointer-events: auto; }
 @media (max-width: 800px) { .vg-ph { margin: -8px -8px 14px; aspect-ratio: 3 / 1; border-radius: 14px; } }
+
+/* ---------- Le parcours, aéré : en-tête centré, huit étapes illustrées sur deux colonnes ---------- */
+.parc { display: block; }
+.parc-side { position: static; max-width: 760px; margin: 0 auto clamp(48px, 7vw, 80px); text-align: center; }
+.parc-side .sec-lead { margin: 18px auto 36px; max-width: 560px; }
+.parc-stats { grid-template-columns: repeat(4, 1fr); max-width: 680px; margin: 0 auto; text-align: left; }
+.parc-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(20px, 2.6vw, 32px); max-width: 1120px; margin: 0 auto; align-items: start; }
+.pc { border-radius: 26px; }
+.pc-ph { position: relative; margin: 0; aspect-ratio: 2.2 / 1; overflow: hidden; background: #ece6da; }
+.pc-ph img { display: block; width: 100%; height: 100%; object-fit: cover; color: transparent; transition: transform 1.2s var(--ease); }
+.pc:hover .pc-ph img { transform: scale(1.035); }
+.pc-ph figcaption { position: absolute; right: 10px; bottom: 10px; padding: 3px 8px; border-radius: 99px; background: rgba(20,18,15,.55); backdrop-filter: blur(6px); font: 500 10.5px/1.3 var(--text); color: rgba(255,255,255,.88); }
+.pc-ph figcaption a { color: inherit; text-decoration: none; }
+.pc-b { padding: clamp(24px, 2.6vw, 34px); }
+.pc-k { margin: 0 0 8px; font: 600 12px/1 var(--text); letter-spacing: .12em; text-transform: uppercase; color: var(--orange); }
+.pc-b h3 { margin: 0 0 22px; font: 500 clamp(22px, 2vw, 27px)/1.15 var(--display); letter-spacing: -.01em; color: var(--ink); }
+.pc ol { display: grid; gap: 18px; }
+.pm, .pm:first-child { display: block; padding: 0 0 0 16px; border: 0; border-left: 2px solid var(--line); background: none; }
+.pm:hover { background: none; border-left-color: var(--orange); }
+.pm-n { display: block; margin-bottom: 4px; font: 600 11.5px/1 var(--text); letter-spacing: .08em; text-transform: uppercase; color: var(--faint); }
+.pm:hover .pm-n { color: var(--orange); }
+.pm b { display: block; font: 600 16px/1.35 var(--text); color: var(--ink); }
+.pm small { display: block; margin-top: 3px; font-size: 14.5px; line-height: 1.5; color: var(--muted); }
+@media (max-width: 900px) {
+  .parc-list { grid-template-columns: 1fr; }
+  .parc-stats { grid-template-columns: 1fr 1fr; }
+  .parc-side { text-align: left; }
+  .parc-side .sec-lead { margin-left: 0; }
+}
