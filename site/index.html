@@ -239,7 +239,7 @@
   <!-- ===================== L’immeuble : l’IA à tous les étages (3D, au défilement) ===================== -->
   <section class="voyage" data-voyage aria-label="L’IA à tous les étages de l’entreprise">
     <div class="vg-stage">
-      <div class="vg-hl" data-vg-hl role="img" aria-label="Un immeuble de bureaux dessiné au trait : il se construit, s’ouvre étage par étage et fait un tour sur lui-même."></div>
+      <canvas class="vg-cv" data-vg-cv aria-hidden="true"></canvas>
       <div class="vg-caps">
         <div class="vg-cap" data-cap="0"><figure class="vg-ph"><img src="https://images.unsplash.com/photo-1621831337128-35676ca30868?auto=format&amp;fit=crop&amp;w=880&amp;h=440&amp;q=70" alt="Façade vitrée d’un immeuble de bureaux" width="880" height="440" loading="lazy" decoding="async"><figcaption>Photo&nbsp;: <a href="https://unsplash.com/@kenrick?utm_source=atelier_ia&amp;utm_medium=referral" target="_blank" rel="noopener">Kenrick Baksh</a>, <a href="https://unsplash.com/?utm_source=atelier_ia&amp;utm_medium=referral" target="_blank" rel="noopener">Unsplash</a></figcaption></figure><p class="vg-k">Votre entreprise</p><h2>L’IA est déjà<br>à tous les étages.</h2><p class="vg-s">Faites défiler pour monter, service par service.</p></div>
         <div class="vg-cap" data-cap="1"><figure class="vg-ph"><img src="https://images.unsplash.com/photo-1508780709619-79562169bc64?auto=format&amp;fit=crop&amp;w=880&amp;h=440&amp;q=70" alt="Mains sur le clavier d’un ordinateur portable, en train d’écrire une réponse" width="880" height="440" loading="lazy" decoding="async"><figcaption>Photo&nbsp;: <a href="https://unsplash.com/@kaitlynbaker?utm_source=atelier_ia&amp;utm_medium=referral" target="_blank" rel="noopener">Kaitlyn Baker</a>, <a href="https://unsplash.com/?utm_source=atelier_ia&amp;utm_medium=referral" target="_blank" rel="noopener">Unsplash</a></figcaption></figure><p class="vg-k"><b>0</b> Étage · Accueil et relation client</p><h2>Un client mécontent&nbsp;? Une réponse posée et juste, en une minute.</h2><p class="vg-s">Ce qu’on y apprend&nbsp;: <strong>Rédiger et ajuster le ton</strong></p><span class="vg-m">Modules 1 et 4</span></div>
@@ -363,6 +363,7 @@
 
 <script src="../premiers-pas/orb.js"></script>
 <script src="site.js"></script>
-<script type="module" src="tour.js"></script>
+<script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
+<script type="module" src="ensemble.js"></script>
 </body>
 </html>

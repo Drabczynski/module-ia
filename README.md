@@ -105,12 +105,14 @@ Fonction `api/chat.ts`, identifiant `structure-prompt`. Le menu « Les modules �
 Page de présentation commerciale. Elle s’ouvre sur la vidéo du bureau
 (`assets/Photorealistic-cinematic-16-9-opening-fr.mp4`, découpée en 169 images dans
 `assets/video/bureau/`) qui avance au défilement, avec des messages sur l’IA au travail, puis
-plonge dans l’écran, d’où surgit directement l’orbe. Après la démonstration, un immeuble de bureaux dessiné au trait (`site/tour.js`, sur le moteur de
-[Hairline](https://github.com/lucasmarkes/hairline), licence MIT, embarqué dans `site/vendor/hairline/`) :
-au défilement, il se construit étage par étage, s’ouvre à l’étage présenté (accueil, RH,
-communication, finance, juridique, direction), qui glisse vers le lecteur avec ses postes,
-ses écrans et ses collaborateurs, et fait un tour complet sur lui-même. Chaque encart affiche
-une photo Unsplash liée à l’étape (chargée depuis images.unsplash.com, avec le crédit du photographe). Ensuite, le défilement
+plonge dans l’écran, d’où surgit directement l’orbe. Après la démonstration, un ensemble de bureaux en dessin d’architecte (`site/ensemble.js`, three.js embarqué
+dans `site/vendor/`) : six niveaux de barres empilées et croisées autour d’une cour
+hexagonale, un niveau par service (accueil, RH, communication, finance, juridique,
+direction), façades tramées, sous-faces en nid d’abeille, sol rose. Au défilement, la caméra
+survole l’ensemble, en fait le tour à hauteur d’œil, entre dans la cour et lève les yeux,
+remonte jusqu’aux toits, puis repart en vue aérienne ; le niveau présenté prend le ton rose
+et le trait orange. Chaque encart affiche une photo Unsplash liée à l’étape
+(chargée depuis images.unsplash.com, avec le crédit du photographe). Ensuite, le défilement
 raconte un module par chapitres : le titre, puis une sphère de particules qui se forme,
 tourne et éclate pour laisser place à l’orbe qui parle, puis le module dans un écran
 dont une caméra cadre la zone utile, avec cinq gestes de l’apprenant (écrire, repérer,
