@@ -382,45 +382,7 @@ main, .foot { position: relative; z-index: 1; }
 .gen-cap { position: absolute; left: 16px; bottom: 28px; font: 600 12.5px/1 var(--text); color: var(--ink-2); }
 
 /* ---------- Ce qu'on apprend : bande horizontale épinglée ---------- */
-.learn { position: relative; z-index: 2; height: 300vh; }
-.learn-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
-.learn-head { position: absolute; z-index: 2; top: clamp(88px, 13vh, 130px); left: clamp(20px, 6vw, 96px); max-width: 520px; }
-.learn-head h2 { margin: 0; font: 400 clamp(32px, 3.6vw, 50px)/1.1 var(--display); letter-spacing: -.015em; text-wrap: balance; }
-.lg-hint { margin: 16px 0 0; font-size: 15px; color: var(--muted); transition: opacity .4s; }
-.lg-hint.done { opacity: 0; }
-.lg-cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.lg-nodes { position: absolute; inset: 0; pointer-events: none; }
-.lg-n { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 10px; padding: 6px; border: 0; background: none; cursor: pointer; opacity: 0; will-change: transform; font: 500 14.5px/1 var(--text); color: var(--ink); -webkit-tap-highlight-color: transparent; }
-.lg-n.on { pointer-events: auto; }
-.lg-n.lg-l { flex-direction: row-reverse; }
-.lg-d { flex: none; display: grid; place-items: center; width: 14px; height: 14px; border-radius: 50%; font: 600 0/1 var(--text); color: transparent; background: #fff; box-shadow: 0 0 0 1.5px var(--ink); transition: background .25s, box-shadow .25s, transform .25s var(--spring); }
-.lg-t { white-space: nowrap; padding: 7px 11px; border-radius: 99px; background: rgba(255,255,255,.88); backdrop-filter: blur(6px); box-shadow: 0 0 0 1px var(--line); transition: box-shadow .25s, color .25s; }
-.lg-n:hover .lg-d, .lg-n:focus-visible .lg-d { transform: scale(1.25); }
-.lg-n[aria-pressed="true"] .lg-d { background: var(--orange); box-shadow: 0 0 0 1.5px var(--orange), 0 0 0 8px rgba(226,98,43,.16); }
-.lg-n[aria-pressed="true"] .lg-t { color: var(--orange); box-shadow: 0 0 0 1px rgba(226,98,43,.45); }
-.lg-n:focus-visible { outline: none; }
-.lg-n:focus-visible .lg-t { box-shadow: 0 0 0 2px var(--ink); }
-.lg-card { position: absolute; z-index: 2; left: clamp(20px, 6vw, 96px); bottom: clamp(28px, 8vh, 80px); width: min(380px, 86vw); padding: 24px 26px 20px; border-radius: 22px; background: #fff; box-shadow: 0 0 0 1px var(--line), 0 30px 60px -40px rgba(16,24,56,.4); opacity: 0; transform: translateY(14px); transition: opacity .35s, transform .35s; pointer-events: none; }
-.lg-card.on { opacity: 1; transform: none; pointer-events: auto; }
-.lg-card.in { animation: lgIn .5s var(--ease); }
-@keyframes lgIn { from { opacity: .3; transform: translateY(8px); } }
-.lg-card .lc-ic { width: 44px; height: 44px; margin-bottom: 18px; }
-.lg-card .lc-ic svg { width: 22px; height: 22px; }
-.lg-card h3 { margin: 0 0 8px; font: 500 22px/1.2 var(--display); }
-.lg-card p { margin: 0; font-size: 15.5px; line-height: 1.5; color: var(--ink-2); }
-.lg-card .lg-count { margin-top: 14px; font: 600 12px/1 var(--text); letter-spacing: .1em; color: var(--faint); }
-@media (max-width: 800px) {
-  .learn-head { top: 76px; left: 16px; right: 16px; }
-  .learn-head h2 { font-size: 28px; }
-  .lg-hint { margin-top: 8px; }
-  .lg-n { font-size: 12.5px; gap: 6px; }
-  .lg-t { padding: 5px 8px; }
-  .lg-d { width: 24px; height: 24px; font-size: 11px; color: var(--ink); }   /* sur mobile : des points numérotés, le nom est dans la fiche */
-  .lg-n[aria-pressed="true"] .lg-d { color: #fff; }
-  .lg-t { display: none; }
-  .lg-card { left: 16px; right: 16px; width: auto; bottom: 16px; padding: 18px 20px 16px; }
-  .lg-card .lc-ic { display: none; }
-}
+
 
 /* accueil de la conversation (comme dans le module) et image générée dans le fil */
 .w-hello { position: absolute; left: 0; right: 0; top: 345px; text-align: center; opacity: 0; transform: translateY(8px); transition: opacity .4s, transform .6s var(--spring); }
@@ -609,13 +571,14 @@ main, .foot { position: relative; z-index: 1; }
 /* ---------- L’immeuble : l’IA à tous les étages ---------- */
 .voyage { position: relative; z-index: 2; height: 900vh; }
 .vg-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; background: var(--bg); }
-/* le dessin au trait (Hairline) : à droite sur ordinateur, en haut sur mobile */
-.vg-hl { position: absolute; top: 64px; bottom: 0; left: 28%; right: 0; aspect-ratio: auto;
+/* le dessin au trait (Hairline) : plein centre sur ordinateur, en haut sur mobile */
+.vg-hl { position: absolute; top: 64px; bottom: 0; left: 0; right: 0; aspect-ratio: auto;
   --hairline-plate: var(--bg); --hairline-hi: var(--orange); --hairline-edge: #7f7c75; --hairline-mid: #b4b1a9; --hairline-lo: #c9c6be; --hairline-stroke: 1; }
 .vg-hl svg { overflow: visible; }
 .vg-caps { position: absolute; inset: 0; pointer-events: none; }
-.vg-cap { position: absolute; left: clamp(20px, 7vw, 120px); top: 50%; translate: 0 -50%; max-width: min(460px, 86vw); padding: 30px 32px; border-radius: 24px; background: rgba(255,255,255,.82); backdrop-filter: blur(14px); box-shadow: 0 0 0 1px var(--line), 0 30px 60px -40px rgba(16,24,56,.4); opacity: 0; transform: translateY(16px); transition: opacity .35s, transform .35s; }
-.vg-cap.on { opacity: 1; transform: none; transition: opacity .7s var(--ease), transform .9s var(--spring); }
+.vg-cap { position: absolute; left: clamp(20px, 7vw, 120px); top: 50%; translate: 0 -50%; max-width: min(400px, 86vw); padding: 30px 32px; border-radius: 24px; background: rgba(255,255,255,.82); backdrop-filter: blur(14px); box-shadow: 0 0 0 1px var(--line), 0 30px 60px -40px rgba(16,24,56,.4); opacity: 0; transform: translateX(-32px); transition: opacity .35s, transform .35s; }
+.vg-cap:nth-child(even) { left: auto; right: clamp(20px, 7vw, 120px); transform: translateX(32px); }   /* une fois sur deux, à droite */
+.vg-cap.on, .vg-cap:nth-child(even).on { opacity: 1; transform: none; transition: opacity .7s var(--ease), transform .9s var(--spring); }
 .vg-k { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; font: 600 12.5px/1 var(--text); letter-spacing: .14em; text-transform: uppercase; color: var(--orange); }
 .vg-k b { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--orange); color: #fff; letter-spacing: 0; font-size: 12px; }
 .vg-cap h2 { margin: 0; font: 400 clamp(26px, 2.6vw, 38px)/1.14 var(--display); letter-spacing: -.015em; color: var(--ink); text-wrap: balance; }
@@ -625,7 +588,7 @@ main, .foot { position: relative; z-index: 1; }
 .voyage.no-gl .vg-stage { position: static; height: auto; padding: 80px 20px; display: grid; gap: 16px; }
 .voyage.no-gl .vg-caps { position: static; display: grid; gap: 16px; }
 .voyage.no-gl .vg-cap { position: static; translate: none; opacity: 1; transform: none; margin: 0 auto; }
-@media (max-width: 800px) { .vg-hl { left: 0; right: 0; top: 56px; bottom: 34%; } .vg-cap { top: auto; bottom: 18px; left: 16px; right: 16px; translate: none; max-width: none; padding: 22px; } }
+@media (max-width: 800px) { .vg-hl { left: 0; right: 0; top: 56px; bottom: 34%; } .vg-cap, .vg-cap:nth-child(even) { top: auto; bottom: 18px; left: 16px; right: 16px; translate: none; max-width: none; padding: 22px; transform: translateY(16px); } }
 .vg-s strong { color: var(--ink); font-weight: 600; }
 .vg-k b { width: auto; min-width: 28px; padding: 0 8px; border-radius: 99px; }
 /* la photo de chaque étape, en tête de l'encart */
