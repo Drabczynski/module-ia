@@ -43,6 +43,46 @@
     });
   }
 
+  /* ---------- le nuage de particules des modules (même mouvement que l'accueil des modules) ----------
+     Une sphère de points qui tourne lentement, derrière les personnes ; les points tourbillonnent sous la souris. */
+  (function () {
+    var cv = document.querySelector("[data-dots]"), ctx = cv.getContext("2d"), pts = [];
+    var mx = -9999, my = -9999, R = 0, rot = 0, dpr = Math.min(2, window.devicePixelRatio || 1);
+    var still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    for (var i = 0; i < 3400; i++) {
+      var u = Math.random() * 2 - 1, th = Math.random() * Math.PI * 2, r = 0.5 + 0.5 * Math.pow(Math.random(), 0.35), q = Math.sqrt(1 - u * u);
+      pts.push({ x: q * Math.cos(th) * r, y: u * r, z: q * Math.sin(th) * r, ox: 0, oy: 0, s: Math.random() < 0.08 ? 1.9 : 1.1 });
+    }
+    window.addEventListener("pointermove", function (e) { var b = cv.getBoundingClientRect(); mx = e.clientX - b.left; my = e.clientY - b.top; });
+    window.addEventListener("pointerleave", function () { mx = my = -9999; });
+    function frame() {
+      requestAnimationFrame(frame);
+      var w = cv.clientWidth, h = cv.clientHeight;
+      if (!w) return;
+      if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+      var base = w / 2.6, cx = w / 2, cy = h / 2;                 // le cadre fait 1,3 rayon de chaque côté
+      R += (base - R) * (still ? 1 : 0.05); if (!still) rot += 0.0016;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
+      var cs = Math.cos(rot), sn = Math.sin(rot), cT = Math.cos(0.35), sT = Math.sin(0.35), sz = Math.max(.8, Math.min(1.7, base / 300));
+      for (var k = 0; k < pts.length; k++) {
+        var p = pts[k];
+        var x = p.x * cs - p.z * sn, z = p.x * sn + p.z * cs, y = p.y * cT - z * sT; z = p.y * sT + z * cT;
+        var px = cx + x * R, py = cy + y * R;
+        var dx = px + p.ox - mx, dy = py + p.oy - my, d = Math.sqrt(dx * dx + dy * dy);
+        if (!still && d < 150 && d > 0.5) {                        // tourbillon autour du curseur
+          var f = (1 - d / 150);
+          p.ox += (-dy / d * 3.2 + dx / d * 1.1) * f * f * 6;
+          p.oy += (dx / d * 3.2 + dy / d * 1.1) * f * f * 6;
+        }
+        p.ox *= 0.93; p.oy *= 0.93;
+        ctx.fillStyle = "rgba(31, 30, 28," + (0.26 + 0.56 * (z + 1) / 2).toFixed(3) + ")";
+        ctx.fillRect(px + p.ox, py + p.oy, p.s * sz, p.s * sz);
+      }
+    }
+    requestAnimationFrame(frame);
+  })();
+
   // « Commencer » : la suite du module sera branchée ici
   document.querySelector("[data-start]").addEventListener("click", function () {
     hero.dispatchEvent(new CustomEvent("module:start", { bubbles: true }));

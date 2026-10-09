@@ -40,6 +40,10 @@ body {
   mask-composite: intersect;
 }
 .front { right: 0; bottom: 0; width: 73.435%; height: auto; }      /* 1396 / 1901 */
+/* le nuage de particules des modules, entre le collage et les personnes, centré derrière elles */
+.layer-dots { pointer-events: none; }
+.dots { position: absolute; left: calc(64.7% - 32.14%); top: calc(48.9% - 67.89%); width: 64.28%; height: 135.78%; opacity: 0; transition: opacity 1.4s var(--ease) .2s; }
+.is-in .dots { opacity: 1; }
 
 /* ---------- barre ---------- */
 .chrome { position: absolute; top: 10px; left: 10px; z-index: 3; display: flex; gap: 6px; color: #3d3d3a; }
