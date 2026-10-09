@@ -1971,44 +1971,38 @@
   /* ---------- Accueil : la sphère de cristal sur le fond dégradé, qui suit la souris ---------- */
 
   var cloud = (function () {
-    var cv = document.createElement("canvas"), ctx = cv.getContext("2d"), raf = 0, on = false, crystal = null;
-    var R = 0, Rt = 1, A = 1, At = 1, shift = 0, tx = 0, ty = 0, rx = 0, ry = 0, pulse = 0, t0 = 0, dpr = Math.min(2, window.devicePixelRatio || 1);
+    var scene = null, raf = 0, on = false;
+    var R = 0, Rt = 1, A = 1, At = 1, shift = 0, pulse = 0, t0 = 0;
     var bgEl = document.createElement("div");
     bgEl.className = "wl-bg";
     document.body.insertBefore(bgEl, document.body.firstChild);
-    cv.className = "wl-canvas";
-    // dans la page, entre le fond et l'application : visible aussi sur mobile, où Claude est replié
-    document.body.insertBefore(cv, bgEl.nextSibling);
-    window.addEventListener("pointermove", function (e) { tx = (e.clientY / window.innerHeight - .5) * .5; ty = (e.clientX / window.innerWidth - .5) * .9; });
-    function size() { var b = cv.getBoundingClientRect(); cv.width = b.width * dpr; cv.height = b.height * dpr; }
     function frame(now) {
       if (!on) return;
       raf = requestAnimationFrame(frame);
-      if (cv.width !== Math.round(cv.getBoundingClientRect().width * dpr)) size();
-      var b = cv.getBoundingClientRect(), o = bigHost.getBoundingClientRect();
-      var narrow = b.width < 720;
-      var cx = o.width ? o.left + o.width / 2 - b.left : b.width / 2, cy = o.width ? o.top + o.height / 2 - b.top : b.height * (narrow && Rt === 1 ? .28 : .42);
-      var base = narrow ? b.width * .4 : Math.min(340, Math.min(b.width, b.height) * 0.37);
-      R += (base * Rt - R) * 0.05;
+      var W = window.innerWidth, H = window.innerHeight, o = bigHost.getBoundingClientRect();
+      var narrow = W < 720;
+      var cx = o.width ? o.left + o.width / 2 : W / 2, cy = o.width ? o.top + o.height / 2 : H * (narrow && Rt === 1 ? .28 : .42);
+      var base = narrow ? W * .4 : Math.min(340, H * .37, W * .24);
+      R += (base * Rt - R) * 0.06;
       // avant « Commencer », la sphère se décale à droite pour laisser respirer le titre
-      shift += ((Rt === 1 && b.width > 900 ? b.width * .09 : 0) - shift) * .05; cx += shift; A += (At - A) * 0.05;
-      rx += (tx - rx) * .04; ry += (ty - ry) * .04;
+      shift += ((Rt === 1 && W > 900 ? W * .64 - cx : 0) - shift) * .05; cx += shift; A += (At - A) * 0.06;
       pulse += ((speaking ? 1 : 0) - pulse) * .08;
       var t = (now - t0) / 1000, beat = 1 + pulse * (.025 * Math.sin(t * 7.5) + .015 * Math.sin(t * 13.1));
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.clearRect(0, 0, b.width, b.height);
-      ctx.globalAlpha = 1;
-      cv.style.opacity = A.toFixed(3);
-      crystal.draw(ctx, cx, cy, R * beat, t, { rx: rx, ry: ry, glow: pulse });
+      scene.el.style.opacity = A.toFixed(3);
+      scene.render(now, cx, cy, R * beat, pulse);
     }
     return {
       start: function () {
         if (on) return;
-        if (!crystal) crystal = window.CrystalOrb();
-        on = true; cv.classList.remove("is-off"); bgEl.classList.add("is-on"); size(); R = 0; Rt = 1; A = 0; At = 1; t0 = performance.now(); raf = requestAnimationFrame(frame);
+        if (!scene) { scene = window.CrystalScene(); document.body.insertBefore(scene.el, bgEl.nextSibling); }
+        on = true; scene.el.classList.remove("is-off"); bgEl.classList.add("is-on");
+        R = 0; Rt = 1; A = 1; At = 1; t0 = performance.now();
+        scene.intro();
+        raf = requestAnimationFrame(frame);
       },
-      gather: function () { Rt = 0.3; At = 1; },
-      stop: function () { At = 0; bgEl.classList.remove("is-on"); setTimeout(function () { on = false; cancelAnimationFrame(raf); cv.classList.add("is-off"); ctx.clearRect(0, 0, cv.width, cv.height); }, 1100); }
+      gather: function () { Rt = 0.3; At = 1; scene.kick(); },
+      // la sphère se resserre et s'éteint là où l'orbe habituelle reprend sa place
+      stop: function () { Rt = .2; At = 0; bgEl.classList.remove("is-on"); scene.release(); setTimeout(function () { on = false; cancelAnimationFrame(raf); scene.el.classList.add("is-off"); }, 1100); }
     };
   })();
   var wlHero = $("[data-wl-hero]");

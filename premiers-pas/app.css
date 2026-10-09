@@ -1102,3 +1102,5 @@ svg { display: block; }
   .wl-foot-l span { white-space: normal; }
   .wl-foot-r { display: none; }
 }
+html.crystal-hover, html.crystal-hover body { cursor: grab; }
+html.crystal-drag, html.crystal-drag body, html.crystal-drag * { cursor: grabbing !important; user-select: none; }
