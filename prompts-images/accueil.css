@@ -40,6 +40,9 @@ body {
   mask-composite: intersect;
 }
 .front { right: 0; bottom: 0; width: 73.435%; height: auto; }      /* 1396 / 1901 */
+/* les particules, entre le collage et les personnes : un globe en trame de points, centré derrière elles */
+.layer-dots { pointer-events: none; }
+.dots { position: absolute; left: calc(66.28% - 33.14%); top: calc(48.9% - 70%); width: 66.28%; height: 140%; }
 /* ---------- barre ---------- */
 .chrome { position: absolute; top: 10px; left: 10px; z-index: 3; display: flex; gap: 6px; color: #3d3d3a; }
 .chrome span { width: 28px; height: 28px; display: grid; place-items: center; }

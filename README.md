@@ -153,6 +153,9 @@ avec un document Word, validation, puis sphère de particules et icônes. Source
 
 Écran d'accueil d'après la maquette : le collage `assets/img/01.png` et, devant, les deux personnes détourées
 `assets/img/02.png` (même échelle, calées en bas à droite).
+Entre les deux, un globe en trame de points (les particules des modules) qui tourne lentement derrière les personnes :
+points réguliers, plus gros à l'avant, onde de taille comme un ombrage en trame, quelques accents bleus et orange ;
+il se dessine du haut vers le bas à l'ouverture et ses points s'écartent sous la souris.
 Par-dessus, des prompts apparaissent tour à tour dans des bulles de verre liquide clair (blanc translucide, flou lumineux, liseré brillant) :
 la bulle arrive en fondu depuis le flou, puis le texte s'affiche mot à mot, comme une réponse qui s'écrit.
 `accueil.js` règle la taille du collage pour que la trame de points ne passe jamais sous le titre ; légère profondeur à la souris, entrée en fondu.
