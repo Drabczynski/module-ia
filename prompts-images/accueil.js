@@ -56,6 +56,7 @@
     var W = window.innerWidth, H = hero.clientHeight || window.innerHeight, s;
     root.style.setProperty("--lift", "0px");
     goBtn.classList.remove("is-low");
+    root.style.setProperty("--shift", "0px");
     if (W <= 720) { apply(W * 1.85 / W0, W, H); ballRest(); return; }     // mobile : on garde la partie droite, avec les personnes
     // le collage commence à x = clear : il doit rester à droite du texte, avec une marge
     s = Math.min(H / H0, (W * .94 - 40) / (W0 - BG.clear + 450));
@@ -68,10 +69,14 @@
     }
     // le bouton se pose en bas à gauche (comme sur la maquette) s'il y a la place, sinon il suit le texte
     var u = s * 900 / MOCK_H, hb = hero.getBoundingClientRect();
-    var lowLeft = hb.left + (W - W0 * s) + BG.lowX * s, lowTop = hb.top + (H - H0 * s) + BG.low * s;
     goBtn.classList.remove("is-low");
     var gb = goBtn.getBoundingClientRect(), cb = copy.getBoundingClientRect(), sb = subEl.getBoundingClientRect();
     var goY = hb.bottom - 51 * u - gb.height, goR = cb.left + 5 * u + gb.width;
+    // le collage glisse vers la droite pour laisser respirer le bouton (dans la limite de la marge des personnes)
+    var lowLeft0 = hb.left + (W - W0 * s) + BG.lowX * s;
+    var shift = Math.min(Math.max(0, goR + Math.max(110, W * .07) - lowLeft0), (MARGIN + .025) * W0 * s);
+    root.style.setProperty("--shift", shift.toFixed(1) + "px");
+    var lowLeft = lowLeft0 + shift, lowTop = hb.top + (H - H0 * s) + BG.low * s;
     var low = !(goR + 16 > lowLeft && goY + gb.height > lowTop) && goY > sb.bottom + 28;
     if (low) { goBtn.classList.add("is-low"); root.style.setProperty("--go-y", (goY - cb.top).toFixed(1) + "px"); }
     // si le texte descendrait sur l'image du bas, il remonte
@@ -148,56 +153,69 @@
     requestAnimationFrame(frame);
   })();
 
-  /* ---------- réflexion, puis le titre et la description s'écrivent mot à mot, une bille noire au bout ---------- */
+  /* ---------- réflexion, puis le titre et la description s'écrivent lettre à lettre ----------
+     Comme une réponse d'assistant : le texte s'écrit à la machine à écrire et une bille noire le suit,
+     au bout du dernier caractère écrit, du titre jusqu'à la fin de la description ; puis elle s'efface. */
   (function () {
     var still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
     var think = copy.querySelector("[data-think]"), label = think.querySelector(".think-l");
     var title = copy.querySelector(".title"), sub = copy.querySelector(".sub");
-    // découpe en mots, en gardant les retours à la ligne
-    function split(el) {
-      var words = [];
+    // découpe : en mots (lignes de réflexion) ou en caractères (titre et description), retours à la ligne gardés
+    function split(el, unit) {
+      var parts = [];
       Array.prototype.slice.call(el.childNodes).forEach(function (node) {
         if (node.nodeType !== 3) return;
         var frag = document.createDocumentFragment();
-        node.textContent.split(/(\s+)/).forEach(function (part) {
-          if (!part) return;
-          if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
-          var w = document.createElement("span"); w.className = "w"; w.textContent = part;
-          frag.appendChild(w); words.push(w);
+        var bits = unit === "c" ? Array.from(node.textContent) : node.textContent.split(/(\s+)/);
+        bits.forEach(function (bit) {
+          if (!bit) return;
+          if (unit !== "c" && /^\s+$/.test(bit)) { frag.appendChild(document.createTextNode(bit)); return; }
+          var s = document.createElement("span"); s.className = unit === "c" ? "c" : "w"; s.textContent = bit;
+          frag.appendChild(s); parts.push(s);
         });
         el.replaceChild(frag, node);
       });
-      return words;
+      return parts;
     }
-    var paras = Array.prototype.map.call(think.querySelectorAll(".think-b p"), split);
-    var tw = split(title), sw = split(sub);
+    var paras = Array.prototype.map.call(think.querySelectorAll(".think-b p"), function (p) { return split(p, "w"); });
+    var tc = split(title, "c"), sc = split(sub, "c");
     function finish(sec) {
       think.classList.add("is-on", "is-done");
       label.textContent = "Réflexion · " + sec + " s";
     }
-    var ball = document.createElement("span"); ball.className = "ball"; copy.appendChild(ball);
-    // la bille : une demi-hauteur de lettre, centrée sur les minuscules, un peu après le mot
-    function place(w, el) {
-      var c = copy.getBoundingClientRect(), r = w.getBoundingClientRect(), fs = parseFloat(getComputedStyle(el).fontSize);
-      var d = el === title ? fs * .53 : Math.max(8, fs * .55);
-      ball.style.width = ball.style.height = d + "px";
-      ball.style.left = (r.right - c.left + fs * (el === title ? .33 : .2)) + "px";
-      ball.style.top = (r.top - c.top + r.height * .59) + "px";
-    }
-    // au repos, la bille reste au bout du titre (et suit les changements de taille)
-    ballRest = function () { if (ball.classList.contains("rest")) place(tw[tw.length - 1], title); };
     if (still) {
-      copy.querySelectorAll(".w").forEach(function (w) { w.classList.add("on"); });
+      copy.querySelectorAll(".w, .c").forEach(function (s) { s.classList.add("on"); });
       think.classList.add("is-gone"); copy.classList.add("is-done");
-      ball.classList.add("rest"); place(tw[tw.length - 1], title);
       return;
     }
-    function stream(words, el, gap, done, noBall) {
+    var ball = document.createElement("span"); ball.className = "ball"; copy.appendChild(ball);
+    var last = null, lastEl = title;
+    // la bille : au bout du dernier caractère écrit, centrée sur les minuscules
+    function place(ch, el) {
+      last = ch; lastEl = el;
+      var c = copy.getBoundingClientRect(), r = ch.getBoundingClientRect(), fs = parseFloat(getComputedStyle(el).fontSize);
+      var d = el === title ? fs * .42 : Math.max(9, fs * .62);
+      ball.style.width = ball.style.height = d + "px";
+      ball.style.left = (r.right - c.left + fs * (el === title ? .22 : .28)) + "px";
+      ball.style.top = (r.top - c.top + r.height * .6) + "px";
+    }
+    ballRest = function () { if (last && ball.classList.contains("on")) place(last, lastEl); };
+    // machine à écrire : quelques caractères à la fois, à un rythme légèrement irrégulier
+    function type(chars, el, chunk, gap, done) {
+      var i = 0;
+      (function step() {
+        if (i >= chars.length) { done(); return; }
+        var n = Math.max(1, Math.round(chunk * (.6 + Math.random() * .8)));
+        for (var k = 0; k < n && i < chars.length; k++) chars[i++].classList.add("on");
+        place(chars[i - 1], el);
+        setTimeout(step, gap * (.7 + Math.random() * .6));
+      })();
+    }
+    function stream(words, gap, done) {
       var i = 0;
       (function step() {
         if (i >= words.length) { done(); return; }
-        var w = words[i++]; w.classList.add("on");
-        if (!noBall) place(w, el);
+        words[i++].classList.add("on");
         setTimeout(step, gap);
       })();
     }
@@ -205,7 +223,7 @@
       var k = 0;
       (function next() {
         if (k >= list.length) { done(); return; }
-        stream(list[k++], think, gap, function () { setTimeout(next, 50); }, true);
+        stream(list[k++], gap, function () { setTimeout(next, 50); });
       })();
     }
     function start() {
@@ -218,19 +236,19 @@
             setTimeout(function () {
               think.classList.add("is-gone");                         // puis la réflexion s'efface
               setTimeout(function () {
-                place(tw[0], title);
-                ball.style.left = (parseFloat(ball.style.left) - tw[0].offsetWidth) + "px";
+                // la bille apparaît là où le titre va commencer, pulse un instant, puis le texte s'écrit
+                place(tc[0], title);
+                ball.style.left = (parseFloat(ball.style.left) - tc[0].getBoundingClientRect().width) + "px";
                 ball.classList.add("on");
                 setTimeout(function () {
-                  stream(tw, title, 95, function () {                 // le titre s'écrit, la bille au bout
-                    ball.classList.remove("on"); ball.classList.add("rest");
+                  type(tc, title, 1, 38, function () {                // le titre, lettre à lettre
                     setTimeout(function () {
-                      stream(sw, sub, 30, function () {               // puis la description
-                        setTimeout(function () { copy.classList.add("is-done"); }, 250);
-                      }, true);
-                    }, 200);
+                      type(sc, sub, 3, 24, function () {              // puis la description, par petits paquets
+                        setTimeout(function () { ball.classList.remove("on"); copy.classList.add("is-done"); }, 350);
+                      });
+                    }, 160);
                   });
-                }, 250);
+                }, 420);
               }, 480);
             }, 380);
           }, 200);
