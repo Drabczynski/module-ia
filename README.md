@@ -154,11 +154,14 @@ avec un document Word, validation, puis sphère de particules et icônes. Source
 Écran d'accueil d'après la maquette.
 - Barre d'outils blanche : nom du module et bouton « Quitter » (ferme la session SCORM en « suspend », puis écran de fin).
 - Fond `assets/img/03.png` (ciel de nuages et dégradé ; `?fond=01` pour le premier collage `01.png`) et, devant,
-  les deux personnes détourées `assets/img/02.png`, à 86 % de leur taille et calées en bas à droite.
+  les deux personnes détourées `assets/img/02.png`, à 91 % de leur taille et calées en bas à droite.
 - Entre les deux, un globe en trame de points (les particules des modules) qui tourne lentement derrière les personnes ;
   en mode « différence », ses points restent noirs sur le blanc et deviennent clairs sur les nuages ; ils s'écartent sous la souris.
-- Le titre et le sous-titre s'écrivent mot à mot, chaque mot sortant du flou, avec une bille noire qui pulse au bout
-  du texte, comme une réponse d'assistant ; le bouton « Commencer » apparaît ensuite.
+- Temps de réflexion : « Réflexion » scintille pendant que des lignes grises s'écrivent dessous, puis le bloc se replie
+  en « Réflexion · 4 s » (cliquable pour le rouvrir).
+- Ensuite le titre et la description s'écrivent mot à mot, chaque mot sortant du flou, avec une bille noire qui pulse
+  au bout du texte, comme une réponse d'assistant ; le bouton « Commencer » apparaît à la fin.
+  Si le texte descendrait sur l'image du bas, il remonte.
 - `accueil.js` règle la taille du collage d'après la largeur réelle du texte, pour qu'il ne passe jamais sous le titre.
 - Police du libellé « Module 2 » : IBM Plex Mono (licence SIL OFL), dans `assets/fonts`.
 - « Commencer » émet l'événement `module:start`, où sera branchée la suite du module.

@@ -77,7 +77,7 @@ body.bg-01 { background: linear-gradient(180deg, #f3f8fd 0%, #f8fbfe 50%, #fdfdf
 .end p { margin: 0; color: var(--ink-2); font-size: 16px; }
 
 /* ---------- texte ---------- */
-.copy { position: absolute; z-index: 2; left: 6vw; top: calc(var(--top) + var(--u) * 56px); }
+.copy { position: absolute; z-index: 2; left: 6vw; top: max(20px, calc(var(--top) + var(--u) * 56px - var(--lift, 0px))); }
 .tag {
   margin: 0; font: 300 calc(var(--u) * 14.5px)/1 "IBM Plex Mono", ui-monospace, monospace;
   letter-spacing: -.01em; color: #1a1a1a;
@@ -87,8 +87,8 @@ body.bg-01 { background: linear-gradient(180deg, #f3f8fd 0%, #f8fbfe 50%, #fdfdf
   letter-spacing: -.022em; color: var(--ink);
 }
 .sub {
-  margin: calc(var(--u) * 15px) 0 0; font-size: max(13px, calc(var(--u) * 8.7px)); line-height: 1.42;
-  color: var(--ink-2);
+  margin: calc(var(--u) * 15px) 0 0; max-width: max(330px, calc(var(--u) * 252px));
+  font-size: max(13px, calc(var(--u) * 8.7px)); line-height: 1.55; color: var(--ink-2);
 }
 .go {
   margin-top: calc(var(--u) * 30px); display: inline-flex; align-items: center; gap: calc(var(--u) * 11px);
@@ -146,4 +146,42 @@ body.bg-01 { background: linear-gradient(180deg, #f3f8fd 0%, #f8fbfe 50%, #fdfdf
   .copy .w { opacity: 1; filter: none; }
   .copy > .ball { display: none; }
   .copy .go { opacity: 1; transform: none; }
+}
+
+/* ---------- temps de réflexion ----------
+   « Réflexion » scintille pendant que des lignes grises s'écrivent dessous ; puis le bloc se replie en
+   « Réflexion · 3 s » (cliquable pour le rouvrir), et le titre s'écrit. */
+.think { position: relative; margin-top: calc(var(--u) * 12px); }
+.copy .think { opacity: 1; transform: none; transition: none; }
+.think-h {
+  display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 8px 0 0; margin-left: -1px;
+  border: 0; border-radius: 6px; background: none; cursor: pointer; opacity: 0; transition: opacity .3s var(--ease);
+  font: 500 max(13px, calc(var(--u) * 8.4px))/1 "Inter", sans-serif; color: #8e8e93;
+}
+.think.is-on .think-h { opacity: 1; }
+.think-h svg { width: 14px; height: 14px; opacity: 0; transform: rotate(-90deg); transition: opacity .3s, transform .3s var(--ease); }
+.think.is-done .think-h svg { opacity: 1; }
+.think.is-open .think-h svg { transform: rotate(0); }
+.think-h:hover { color: #3d3d3a; }
+.think-h:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
+/* le libellé scintille tant que la réflexion dure */
+.think.is-on:not(.is-done) .think-l {
+  background: linear-gradient(90deg, #a1a1a6 0%, #a1a1a6 40%, #2a2a2c 50%, #a1a1a6 60%, #a1a1a6 100%) 0 0 / 250% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 1.6s linear infinite;
+}
+@keyframes shimmer { from { background-position: 125% 0; } to { background-position: -125% 0; } }
+/* les lignes grises : d'abord par-dessus l'emplacement du titre (encore invisible), puis repliées */
+.think-b {
+  position: absolute; left: 0; top: 100%; width: max(330px, calc(var(--u) * 252px)); padding-top: 6px;
+  font-size: max(13px, calc(var(--u) * 8.4px)); line-height: 1.55; color: #a1a1a6;
+  transition: opacity .45s var(--ease), filter .45s var(--ease);
+}
+.think-b p { margin: 0 0 .55em; }
+.think.is-done:not(.is-open) .think-b { opacity: 0; filter: blur(6px); pointer-events: none; }
+/* rouvert par l'apprenant : le bloc reprend sa place dans le texte */
+.think.is-done.is-open .think-b { position: static; padding: 4px 0 2px; }
+.think-b .w { transition-duration: .25s; }
+@media (prefers-reduced-motion: reduce) {
+  .think-h { opacity: 1; }
+  .think-h svg { opacity: 1; }
 }

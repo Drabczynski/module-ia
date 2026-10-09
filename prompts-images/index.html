@@ -14,6 +14,7 @@
     <symbol id="i-side" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9.5 4.5v15" stroke="currentColor" stroke-width="1.6"/></symbol>
     <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4ZM13.5 6.5l4 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
     <symbol id="i-x" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 5.5 19.5 12 13 18.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   </defs>
 </svg>
@@ -39,8 +40,18 @@
 
   <div class="copy">
     <p class="tag">Module 2</p>
+    <!-- le temps de réflexion, avant que le titre s'écrive -->
+    <div class="think" data-think>
+      <button type="button" class="think-h" aria-expanded="false" data-think-toggle><span class="think-l">Réflexion</span><svg><use href="#i-chev"/></svg></button>
+      <div class="think-b" data-think-body>
+        <p>Lecture de la demande : un module pour apprendre à demander une image à une IA.</p>
+        <p>Un résultat décevant vient souvent d’un prompt flou : il manque le sujet, le style, le cadrage ou l’usage.</p>
+        <p>Choix d’un cas concret pour s’exercer : le post d’une médiathèque qui annonce un atelier.</p>
+        <p>Plan : un réglage à la fois, puis un prompt complet à écrire et à corriger.</p>
+      </div>
+    </div>
     <h1 class="title">Des prompts<br>pour les images</h1>
-    <p class="sub">Sujet, style, cadrage, usage&nbsp;: quatre réglages pour une image utile. <br>Un cas réel&nbsp;: illustrer le post d’une médiathèque.</p>
+    <p class="sub">Une image générée dépend presque entièrement de la façon dont on la demande. Dans ce module, vous apprenez à régler quatre paramètres&nbsp;: le sujet, le style, le cadrage et l’usage. Vous les appliquez à un cas réel&nbsp;: illustrer le post d’une médiathèque qui annonce un atelier. À la fin, vous saurez écrire un prompt d’image précis, puis l’ajuster à chaque support.</p>
     <button type="button" class="go" data-start>Commencer<svg><use href="#i-arrow"/></svg></button>
   </div>
 </main>

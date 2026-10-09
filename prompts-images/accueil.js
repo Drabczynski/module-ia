@@ -5,14 +5,14 @@
 (function () {
   "use strict";
   var root = document.documentElement, hero = document.querySelector("[data-hero]");
-  // hauteur de la maquette ; les personnes (02.png, 1396 × 818) réduites à 86 %, calées en bas à droite avec une marge
-  var MOCK_H = 537, PEOPLE = .86, PW = 1396 * PEOPLE, PH = 818 * PEOPLE, MARGIN = .025;
+  // hauteur de la maquette ; les personnes (02.png, 1396 × 818) réduites à 91 %, calées en bas à droite avec une marge
+  var MOCK_H = 537, PEOPLE = .91, PW = 1396 * PEOPLE, PH = 818 * PEOPLE, MARGIN = .025;
 
   // fonds possibles : largeur, hauteur, abscisse où le collage commence en haut (il ne doit pas passer sous le texte),
   // fondu du bord quand le collage ne remplit pas la hauteur. ?fond=01 pour revenir au premier collage.
   var BGS = {
-    "01": { src: "../assets/img/01.png", w: 1901, h: 900, clear: 805, fade: true },
-    "03": { src: "../assets/img/03.png", w: 2039, h: 913, clear: 786, fade: false }
+    "01": { src: "../assets/img/01.png", w: 1901, h: 900, clear: 805, low: 466, fade: true },
+    "03": { src: "../assets/img/03.png", w: 2039, h: 913, clear: 786, low: 563, fade: false }
   };
   var key = (location.search.match(/fond=(\d+)/) || [])[1];
   var BG = BGS[key] || BGS["03"], W0 = BG.w, H0 = BG.h;
@@ -53,6 +53,7 @@
   }
   function layout() {
     var W = window.innerWidth, H = hero.clientHeight || window.innerHeight, s;
+    root.style.setProperty("--lift", "0px");
     if (W <= 720) { apply(W * 1.85 / W0, W, H); return; }     // mobile : on garde la partie droite, avec les personnes
     // le collage commence à x = clear : il doit rester à droite du texte, avec une marge
     s = Math.min(H / H0, (W * .94 - 40) / (W0 - BG.clear + 450));
@@ -63,6 +64,10 @@
       if (need <= room) break;
       s = Math.min(H / H0, room / (W0 - BG.clear));
     }
+    // si le texte descendrait sur l'image du bas, il remonte
+    var hb = hero.getBoundingClientRect(), cb = copy.getBoundingClientRect();
+    var limit = hb.top + (H - H0 * s) + BG.low * s - Math.max(24, H * .03);
+    if (cb.bottom > limit) root.style.setProperty("--lift", (cb.bottom - limit).toFixed(1) + "px");
   }
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
   layout();
@@ -129,9 +134,10 @@
     requestAnimationFrame(frame);
   })();
 
-  /* ---------- le titre et le sous-titre s'écrivent mot à mot, une bille noire au bout du texte ---------- */
+  /* ---------- réflexion, puis le titre et la description s'écrivent mot à mot, une bille noire au bout ---------- */
   (function () {
     var still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var think = copy.querySelector("[data-think]"), toggle = copy.querySelector("[data-think-toggle]"), label = think.querySelector(".think-l");
     var title = copy.querySelector(".title"), sub = copy.querySelector(".sub");
     // découpe en mots, en gardant les retours à la ligne
     function split(el) {
@@ -149,42 +155,74 @@
       });
       return words;
     }
+    var paras = Array.prototype.map.call(think.querySelectorAll(".think-b p"), split);
     var tw = split(title), sw = split(sub);
-    if (still) { copy.classList.add("is-done"); return; }
+    toggle.addEventListener("click", function () {
+      if (!think.classList.contains("is-done")) return;
+      var open = think.classList.toggle("is-open");
+      toggle.setAttribute("aria-expanded", String(open));
+      layout();
+    });
+    function finish(sec) {
+      think.classList.add("is-on", "is-done");
+      label.textContent = "Réflexion · " + sec + " s";
+    }
+    if (still) {
+      copy.querySelectorAll(".w").forEach(function (w) { w.classList.add("on"); });
+      finish(3); copy.classList.add("is-done"); return;
+    }
     var ball = document.createElement("span"); ball.className = "ball"; copy.appendChild(ball);
-    function place(w, el) {
+    function place(w, el, size) {
       var c = copy.getBoundingClientRect(), r = w.getBoundingClientRect();
-      var fs = parseFloat(getComputedStyle(el).fontSize), d = el === title ? fs * .3 : Math.max(8, fs * .55);
+      var fs = parseFloat(getComputedStyle(el).fontSize), d = size || Math.max(8, fs * .55);
       ball.style.width = ball.style.height = d + "px";
       ball.style.left = (r.right - c.left + d * .45) + "px";
       ball.style.top = (r.top - c.top + r.height * .56) + "px";
     }
-    function stream(words, el, gap, done) {
+    function stream(words, el, gap, done, size, noBall) {
       var i = 0;
       (function step() {
         if (i >= words.length) { done(); return; }
-        var w = words[i++]; w.classList.add("on"); place(w, el);
+        var w = words[i++]; w.classList.add("on");
+        if (!noBall) place(w, el, size);
         setTimeout(step, gap);
       })();
     }
-    function start() {
-      if (!tw.length) return;
-      place(tw[0], title); ball.style.left = (parseFloat(ball.style.left) - tw[0].offsetWidth) + "px";
-      ball.classList.add("on");
-      setTimeout(function () {
-        stream(tw, title, 95, function () {
-          setTimeout(function () {
-            stream(sw, sub, 38, function () {
-              setTimeout(function () { ball.classList.remove("on"); copy.classList.add("is-done"); }, 450);
-            });
-          }, 260);
-        });
-      }, 380);
+    function streamAll(list, gap, done) {
+      var k = 0;
+      (function next() {
+        if (k >= list.length) { done(); return; }
+        stream(list[k++], think, gap, function () { setTimeout(next, 180); }, 0, true);
+      })();
     }
-    var go = function () { go = function () {}; setTimeout(start, 350); };
+    function start() {
+      var t0 = performance.now();
+      think.classList.add("is-on");                                   // « Réflexion » scintille
+      setTimeout(function () {
+        streamAll(paras, 26, function () {                            // les lignes grises s'écrivent
+          setTimeout(function () {
+            finish(Math.max(1, Math.round((performance.now() - t0) / 1000)));   // repli : « Réflexion · 3 s »
+            setTimeout(function () {
+              place(tw[0], title, parseFloat(getComputedStyle(title).fontSize) * .3);
+              ball.style.left = (parseFloat(ball.style.left) - tw[0].offsetWidth) + "px";
+              ball.classList.add("on");
+              setTimeout(function () {
+                stream(tw, title, 95, function () {
+                  setTimeout(function () {
+                    stream(sw, sub, 30, function () {
+                      setTimeout(function () { ball.classList.remove("on"); copy.classList.add("is-done"); }, 450);
+                    });
+                  }, 260);
+                }, parseFloat(getComputedStyle(title).fontSize) * .3);
+              }, 300);
+            }, 450);
+          }, 500);
+        });
+      }, 500);
+    }
+    var go = function () { go = function () {}; setTimeout(start, 300); };
     new MutationObserver(function () { if (hero.classList.contains("is-in")) go(); }).observe(hero, { attributes: true, attributeFilter: ["class"] });
     if (hero.classList.contains("is-in")) go();
-    window.addEventListener("resize", function () { var on = copy.querySelectorAll(".w.on"); if (on.length && ball.classList.contains("on")) place(on[on.length - 1], on[on.length - 1].closest(".title") ? title : sub); });
   })();
 
   /* ---------- « Quitter » : on ferme proprement la session dans le LMS (SCORM 2004 ou 1.2) ---------- */
