@@ -5,8 +5,8 @@
 (function () {
   "use strict";
   var root = document.documentElement, hero = document.querySelector("[data-hero]");
-  // hauteur de la maquette ; les personnes (02.png, 1396 × 818) réduites à 74 %, calées en bas à droite avec une marge
-  var MOCK_H = 537, PEOPLE = .74, PW = 1396 * PEOPLE, PH = 818 * PEOPLE, MARGIN = .035;
+  // hauteur de la maquette ; les personnes (02.png, 1396 × 818) réduites à 86 %, calées en bas à droite avec une marge
+  var MOCK_H = 537, PEOPLE = .86, PW = 1396 * PEOPLE, PH = 818 * PEOPLE, MARGIN = .025;
 
   // fonds possibles : largeur, hauteur, abscisse où le collage commence en haut (il ne doit pas passer sous le texte),
   // fondu du bord quand le collage ne remplit pas la hauteur. ?fond=01 pour revenir au premier collage.

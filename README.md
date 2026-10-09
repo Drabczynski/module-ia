@@ -154,7 +154,7 @@ avec un document Word, validation, puis sphère de particules et icônes. Source
 Écran d'accueil d'après la maquette.
 - Barre d'outils blanche : nom du module et bouton « Quitter » (ferme la session SCORM en « suspend », puis écran de fin).
 - Fond `assets/img/03.png` (ciel de nuages et dégradé ; `?fond=01` pour le premier collage `01.png`) et, devant,
-  les deux personnes détourées `assets/img/02.png`, réduites à 74 % et calées en bas à droite.
+  les deux personnes détourées `assets/img/02.png`, à 86 % de leur taille et calées en bas à droite.
 - Entre les deux, un globe en trame de points (les particules des modules) qui tourne lentement derrière les personnes ;
   en mode « différence », ses points restent noirs sur le blanc et deviennent clairs sur les nuages ; ils s'écartent sous la souris.
 - Le titre et le sous-titre s'écrivent mot à mot, chaque mot sortant du flou, avec une bille noire qui pulse au bout
