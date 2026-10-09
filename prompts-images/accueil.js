@@ -5,22 +5,64 @@
 (function () {
   "use strict";
   var root = document.documentElement, hero = document.querySelector("[data-hero]");
-  var W0 = 1901, H0 = 900, MOCK_H = 537;          // collage d'origine et hauteur de la maquette
+  var MOCK_H = 537, PW = 1396, PH = 818;            // hauteur de la maquette ; les personnes (02.png)
 
-  function layout() {
-    var W = window.innerWidth, H = window.innerHeight, s;
-    if (W <= 720) {
-      s = W * 1.85 / W0;                              // mobile : on garde la partie droite, avec les personnes
-    } else {
-      // le nuage de points commence à x = 805 dans le collage ; le texte s'étend sur ~ 6 % + 245 u (le sous-titre)
-      s = Math.min(H / H0, (W * .94 - 40) / 1545);
-    }
+  // fonds possibles : largeur, hauteur, abscisse où le collage commence en haut (il ne doit pas passer sous le texte),
+  // fondu du bord quand le collage ne remplit pas la hauteur. ?fond=01 pour revenir au premier collage.
+  var BGS = {
+    "01": { src: "../assets/img/01.png", w: 1901, h: 900, clear: 805, fade: true },
+    "03": { src: "../assets/img/03.png", w: 2039, h: 913, clear: 786, fade: false }
+  };
+  var key = (location.search.match(/fond=(\d+)/) || [])[1];
+  var BG = BGS[key] || BGS["03"], W0 = BG.w, H0 = BG.h;
+  document.body.classList.add("bg-" + (BGS[key] ? key : "03"));
+  var back = document.querySelector("[data-back]");
+  back.width = W0; back.height = H0; back.src = BG.src;
+
+  // tout ce qui accompagne les personnes est placé par rapport à elles, quel que soit le fond
+  var pl = (W0 - PW) / W0 * 100, pt = (H0 - PH) / H0 * 100, pw = PW / W0 * 100, ph = PH / H0 * 100;
+  function onPeople(fx, fy) { return [pl + fx * pw, pt + fy * ph]; }
+  root.style.setProperty("--pw", pw.toFixed(3) + "%");
+  // le globe : centré derrière les personnes, rayon 0,55 × leur hauteur, cadre de 2,8 rayons
+  var g = onPeople(.541, .438), gs = 2.8 * .55 * PH;
+  root.style.setProperty("--gw", (gs / W0 * 100).toFixed(3) + "%");
+  root.style.setProperty("--gh", (gs / H0 * 100).toFixed(3) + "%");
+  root.style.setProperty("--gl", (g[0] - gs / W0 * 50).toFixed(3) + "%");
+  root.style.setProperty("--gt", (g[1] - gs / H0 * 50).toFixed(3) + "%");
+
+  var copy = document.querySelector(".copy");
+  function apply(s, W, H) {
     var top = H - H0 * s;
     root.style.setProperty("--s", s.toFixed(4));
-    root.style.setProperty("--u", W <= 720 ? 1 : (s * H0 / MOCK_H).toFixed(4));
+    root.style.setProperty("--sw", (W0 * s).toFixed(1) + "px");
+    root.style.setProperty("--sh", (H0 * s).toFixed(1) + "px");
+    root.style.setProperty("--u", W <= 720 ? 1 : (s * 900 / MOCK_H).toFixed(4));
     root.style.setProperty("--top", top.toFixed(1) + "px");
-    hero.classList.toggle("is-floating", top > 2);
+    hero.classList.toggle("is-floating", BG.fade && top > 2);
   }
+  // largeur réelle du bloc de texte (le plus large de ses éléments)
+  function copyRight() {
+    var r = 0;
+    Array.prototype.forEach.call(copy.children, function (el) {
+      var range = document.createRange(); range.selectNodeContents(el);
+      r = Math.max(r, range.getBoundingClientRect().right);
+    });
+    return r;
+  }
+  function layout() {
+    var W = window.innerWidth, H = window.innerHeight, s;
+    if (W <= 720) { apply(W * 1.85 / W0, W, H); return; }     // mobile : on garde la partie droite, avec les personnes
+    // le collage commence à x = clear : il doit rester à droite du texte, avec une marge
+    s = Math.min(H / H0, (W * .94 - 40) / (W0 - BG.clear + 450));
+    for (var k = 0; k < 3; k++) {
+      apply(s, W, H);
+      var room = W - copyRight() - Math.max(32, W * .025);      // place libre à droite du texte
+      var need = (W0 - BG.clear) * s;                           // largeur du collage depuis son début
+      if (need <= room) break;
+      s = Math.min(H / H0, room / (W0 - BG.clear));
+    }
+  }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
   layout();
   window.addEventListener("resize", layout);
 
@@ -46,7 +88,7 @@
   /* ---------- les particules, derrière les personnes ----------
      Un globe en trame de points (comme le nuage de points du collage) qui tourne lentement : points réguliers,
      plus gros à l'avant, une onde qui fait varier leur taille comme un ombrage en trame, quelques points
-     d'accent bleus et orange. Il se dessine à l'ouverture, du haut vers le bas ; les points s'écartent sous la souris. */
+     d'accent bleus et orange. Dessinés en couleurs inversées : le calque est en mode « différence ». Il se dessine à l'ouverture, du haut vers le bas ; les points s'écartent sous la souris. */
   (function () {
     var cv = document.querySelector("[data-dots]"), ctx = cv.getContext("2d");
     var still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -54,7 +96,7 @@
     for (var i = 0; i < N; i++) {
       var y = 1 - 2 * (i + .5) / N, q = Math.sqrt(1 - y * y), th = i * 2.399963, rr = Math.random();
       pts.push({ x: Math.cos(th) * q, y: y, z: Math.sin(th) * q, lat: Math.asin(y), lon: th,
-        c: rr < .06 ? "#2f5bd3" : rr < .085 ? "#f08a2c" : "#141414", ox: 0, oy: 0 });
+        c: rr < .06 ? "#d0a42c" : rr < .085 ? "#0f75d3" : "#ebebeb", ox: 0, oy: 0 });
     }
     var mx = -9999, my = -9999, rot = .5, t0 = performance.now(), last = t0;
     window.addEventListener("pointermove", function (e) { var b = cv.getBoundingClientRect(); mx = e.clientX - b.left; my = e.clientY - b.top; });
@@ -104,14 +146,14 @@
   (function () {
     var host = document.querySelector("[data-prompts]");
     var still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-    // [texte, x %, y %, ancre « r » = bulle calée à droite]
+    // [texte, x, y en fraction de l'image des personnes, ancre « r » = bulle calée à droite]
     var PROMPTS = [
-      ["Génère-moi une image pour le post de la médiathèque…", 33, 72],
-      ["Sujet : des lecteurs dans un parc, au soleil", 66, 50],
-      ["Style : illustration douce, couleurs pastel", 46, 17],
-      ["Cadrage : plan large, beaucoup de ciel", 22, 88],
-      ["Usage : format carré pour Instagram, sans texte", 97, 68, "r"]
-    ];
+      ["Génère-moi une image pour le post de la médiathèque…", .087, .692],
+      ["Sujet : des lecteurs dans un parc, au soleil", .537, .45],
+      ["Style : illustration douce, couleurs pastel", .264, .087],
+      ["Cadrage : plan large, beaucoup de ciel", -.062, .868],
+      ["Usage : format carré pour Instagram, sans texte", .956, .648, "r"]
+    ].map(function (p) { var q = onPeople(p[1], p[2]); return [p[0], q[0], q[1], p[3]]; });
     var k = 0;
     function show(item) {
       var el = document.createElement("div");
@@ -128,6 +170,11 @@
         tx.appendChild(w);
       });
       host.appendChild(el);
+      // une bulle qui déborderait de l'écran est ramenée à l'intérieur
+      var bx = el.getBoundingClientRect(), m = 12, dx = 0;
+      if (bx.right > window.innerWidth - m) dx = window.innerWidth - m - bx.right;
+      if (bx.left + dx < m) dx = m - bx.left;
+      if (dx) { if (item[3] === "r") el.style.right = "calc(" + (100 - item[1]) + "% - " + dx + "px)"; else el.style.left = "calc(" + item[1] + "% + " + dx + "px)"; }
       requestAnimationFrame(function () { requestAnimationFrame(function () { el.classList.add("is-pop"); }); });
       setTimeout(function () { el.classList.add("is-out"); setTimeout(function () { el.remove(); }, 400); }, still ? 4200 : 3000);
     }
