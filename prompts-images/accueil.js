@@ -6,7 +6,7 @@
   "use strict";
   var root = document.documentElement, hero = document.querySelector("[data-hero]");
   // hauteur de la maquette ; les personnes (02.png, 1396 × 818) à 95 %, calées en bas à droite avec une marge
-  var MOCK_H = 560, PEOPLE = .95, PW = 1396 * PEOPLE, PH = 818 * PEOPLE, MARGIN = .045;
+  var MOCK_H = 696, PEOPLE = .95, PW = 1396 * PEOPLE, PH = 818 * PEOPLE, MARGIN = .045;
 
   // fonds possibles : largeur, hauteur, abscisse où le collage commence en haut (il ne doit pas passer sous le texte),
   // fondu du bord quand le collage ne remplit pas la hauteur. ?fond=01 pour revenir au premier collage.
@@ -36,8 +36,8 @@
   var copy = document.querySelector(".copy"), goBtn = copy.querySelector(".go"), subEl = copy.querySelector(".sub");
   var ballRest = function () {};                     // replace la bille au bout du titre (définie plus bas)
 
-  // notre orbe, à gauche du titre : dessinée à 200 px puis mise à l'échelle de la place prévue (--od)
-  var ORB = 200, orbBox = copy.querySelector(".t-orb"), orb = null;
+  // notre orbe, dans le bouton « Commencer » : dessinée à 64 px puis mise à l'échelle de sa pastille
+  var ORB = 64, orbBox = copy.querySelector(".go-orb"), orb = null;
   if (window.SiriOrb) { orb = window.SiriOrb(orbBox.firstElementChild, { size: ORB, label: "Assistant IA", state: "idle" }); }
   function orbFit() { orbBox.firstElementChild.style.transform = "scale(" + (orbBox.clientWidth / ORB).toFixed(4) + ")"; }
   function orbState(s) { if (orb) orb.setState(s); }
@@ -46,7 +46,7 @@
     root.style.setProperty("--s", s.toFixed(4));
     root.style.setProperty("--sw", (W0 * s).toFixed(1) + "px");
     root.style.setProperty("--sh", (H0 * s).toFixed(1) + "px");
-    root.style.setProperty("--u", W <= 720 ? 1 : (s * 900 / MOCK_H).toFixed(4));
+    root.style.setProperty("--u", W <= 720 ? 1 : (s * H0 / MOCK_H).toFixed(4));
     root.style.setProperty("--top", top.toFixed(1) + "px");
     root.style.setProperty("--glow-top", (top + BG.low * s).toFixed(1) + "px");   // la lueur part du bas du ciel
     hero.classList.toggle("is-floating", BG.fade && top > 2);
@@ -80,10 +80,10 @@
       s = Math.min(H / H0, room / (W0 - BG.clear));
     }
     // le bouton se pose en bas à gauche (comme sur la maquette) s'il y a la place, sinon il suit le texte
-    var u = s * 900 / MOCK_H, hb = hero.getBoundingClientRect();
+    var u = s * H0 / MOCK_H, hb = hero.getBoundingClientRect();
     goBtn.classList.remove("is-low");
     var gb = goBtn.getBoundingClientRect(), cb = copy.getBoundingClientRect(), sb = subEl.getBoundingClientRect();
-    var goY = hb.bottom - 51 * u - gb.height, goR = cb.left + 5 * u + gb.width;
+    var goY = hb.bottom - 66 * u - gb.height, goR = cb.left + gb.width;
     // le collage glisse vers la droite pour laisser respirer le bouton (dans la limite de la marge des personnes)
     var lowLeft0 = hb.left + (W - W0 * s) + BG.lowX * s;
     var shift = Math.min(Math.max(0, goR + Math.max(110, W * .07) - lowLeft0), (MARGIN + .025) * W0 * s);
@@ -180,6 +180,22 @@
     }
     requestAnimationFrame(frame);
     if (still) window.addEventListener("resize", function () { requestAnimationFrame(frame); });
+  })();
+
+  /* ---------- le ciel en vidéo (fond 03) ----------
+     after-loop.mp4 : la vidéo after.mp4 dont la fin se fond dans le début, pour boucler sans à-coup.
+     Si l'apprenant demande moins d'animations, on garde l'image fixe. */
+  (function () {
+    var sky = document.querySelector("[data-sky]");
+    if (BG !== BGS["03"] || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) { sky.remove(); return; }
+    sky.classList.add("is-on");
+    // sources : WebM (VP9), puis MP4 (H.264) ; le navigateur prend la première qu'il sait lire
+    sky.addEventListener("canplay", function () {
+      var p = sky.play();
+      if (p && p.then) p.then(function () { sky.classList.add("is-ready"); }).catch(function () {});
+      else sky.classList.add("is-ready");
+    }, { once: true });
+    sky.load();
   })();
 
   /* ---------- le rectangle dégradé de l'image 03, animé ----------
@@ -339,7 +355,7 @@
     }
     if (still) {
       copy.querySelectorAll(".w, .c").forEach(function (s) { s.classList.add("on"); });
-      think.classList.add("is-gone"); copy.classList.add("is-done", "orb-on");
+      think.classList.add("is-gone"); copy.classList.add("is-done");
       return;
     }
     var ball = document.createElement("span"); ball.className = "ball"; copy.appendChild(ball);
@@ -394,7 +410,7 @@
                 place(tc[0], title);
                 ball.style.left = (parseFloat(ball.style.left) - tc[0].getBoundingClientRect().width) + "px";
                 ball.classList.add("on");
-                copy.classList.add("orb-on"); orbState("speaking");   // l'orbe apparaît et parle pendant l'écriture
+                orbState("speaking");
                 setTimeout(function () {
                   type(tc, title, 1, 15, function () {                // le titre, lettre à lettre
                     setTimeout(function () {

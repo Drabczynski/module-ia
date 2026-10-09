@@ -63,6 +63,13 @@ body.bg-01 { background: linear-gradient(180deg, #f3f8fd 0%, #f8fbfe 50%, #fdfdf
 .glow.has-gl { background: none; }
 .glow { opacity: 0; transition: opacity 1.2s var(--ease) .4s; }
 .is-in .glow { opacity: 1; }
+/* le ciel de nuages de l'image 03 remplacé par la vidéo (after-loop.mp4, bouclée sans à-coup) ;
+   l'image reste dessous tant que la vidéo n'est pas prête */
+.sky { position: absolute; left: 38.548%; top: 0; width: 61.452%; height: 61.665%; object-fit: cover; display: none;
+  opacity: 0; transform: scale(1.025); transform-origin: 51.18% 97.3%;
+  transition: opacity 1.3s var(--ease), transform 1.8s var(--ease); }
+.sky.is-on { display: block; }
+.is-in .sky.is-ready { opacity: 1; transform: none; }
 /* le rectangle dégradé de l'image 03, animé : ses couleurs ondulent lentement, comme un liquide */
 .rectfx { position: absolute; left: 19.127%; top: 61.665%; width: 41.148%; height: 38.335%; display: none;
   opacity: 0; transition: opacity .8s var(--ease); pointer-events: none; }
@@ -100,43 +107,37 @@ body.bg-01 { background: linear-gradient(180deg, #f3f8fd 0%, #f8fbfe 50%, #fdfdf
 .end h2 { margin: 0 0 10px; font: 400 clamp(30px, 3.4vw, 44px)/1.05 "Inter Tight", sans-serif; letter-spacing: -.025em; }
 .end p { margin: 0; color: var(--ink-2); font-size: 16px; }
 
-/* ---------- texte ---------- */
+/* ---------- texte ----------
+   Mise en page « M3 · 00 — Accueil » : 1 u = 1 pixel de la maquette (696 px de haut). */
 .copy {
-  /* taille du titre, et l'orbe à sa gauche : sa hauteur couvre les deux lignes du titre */
-  --tfs: max(27px, calc(var(--u) * 32px)); --od: calc(var(--tfs) * 2.1); --og: calc(var(--tfs) * .55);
-  position: absolute; left: 4.4vw; top: max(20px, calc(var(--top) + var(--u) * 80px - var(--lift, 0px))); }
-.tag {
-  margin: 0; font: 600 max(11px, calc(var(--u) * 11px))/1 "Inter", sans-serif;
-  text-transform: uppercase; letter-spacing: .01em; color: #111;
+  position: absolute; left: max(24px, calc(var(--u) * 99px));
+  top: max(20px, calc(var(--top) + var(--u) * 100px - var(--lift, 0px)));
 }
-/* l'orbe et le titre, côte à côte */
-.head { display: flex; align-items: center; gap: var(--og); margin-top: calc(var(--u) * 16px); }
-.t-orb { position: relative; flex: none; width: var(--od); height: var(--od); }
-.t-orb > div { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
-/* l'orbe n'est pas là pendant la réflexion : elle apparaît quand le titre commence à s'écrire */
-.t-orb { opacity: 0; transform: scale(.6); transition: opacity .35s var(--ease), transform .55s cubic-bezier(.2, 1.3, .3, 1); }
-.copy.orb-on .t-orb { opacity: 1; transform: none; }
+.tag {
+  margin: 0; font: 400 max(15px, calc(var(--u) * 21px))/1 "IBM Plex Mono", ui-monospace, monospace;
+  letter-spacing: -.02em; color: #141414;
+}
 .title {
-  margin: 0; font: 500 var(--tfs)/1.06 "IBM Plex Sans", "Inter", sans-serif;
-  letter-spacing: -.035em; color: var(--ink);
+  margin: calc(var(--u) * 14px) 0 0; font: 400 max(30px, calc(var(--u) * 47px))/1.06 "Inter Tight", "Inter", sans-serif;
+  letter-spacing: -.032em; color: var(--ink);
 }
 .sub {
-  margin: calc(var(--u) * 17px) 0 0 calc(var(--u) * 2px); max-width: max(330px, calc(var(--u) * 345px));
-  font-size: max(13px, calc(var(--u) * 11.4px)); line-height: 1.46; color: #6e6e73;
+  margin: calc(var(--u) * 26px) 0 0 calc(var(--u) * 1px); max-width: max(320px, calc(var(--u) * 430px));
+  font-size: max(13px, calc(var(--u) * 14px)); line-height: 1.55; color: #6e6e73;
 }
 .go {
-  margin-top: calc(var(--u) * 28px); display: inline-flex; align-items: center; gap: calc(var(--u) * 12px);
-  height: max(38px, calc(var(--u) * 28px)); padding: 0 calc(var(--u) * 15px) 0 calc(var(--u) * 13px);
+  margin-top: calc(var(--u) * 30px); display: inline-flex; align-items: center; gap: calc(var(--u) * 12px);
+  height: max(38px, calc(var(--u) * 34px)); padding: 0 calc(var(--u) * 26px) 0 calc(var(--u) * 7px);
   border: 0; border-radius: 999px; background: #000; color: #fff; cursor: pointer;
-  font: 600 max(13.5px, calc(var(--u) * 12px))/1 "IBM Plex Sans", "Inter", sans-serif; letter-spacing: 0;
+  font: 600 max(13.5px, calc(var(--u) * 14.5px))/1 "Inter", sans-serif; letter-spacing: -.005em;
   transition: transform .25s var(--ease), background .2s;
 }
-/* comme sur la maquette : le bouton se pose en bas à gauche, quand la place le permet */
+/* notre orbe, dans le bouton */
+.go-orb { position: relative; flex: none; width: max(22px, calc(var(--u) * 21px)); height: max(22px, calc(var(--u) * 21px)); border-radius: 50%; overflow: hidden; }
+.go-orb > span { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
 .copy .go { position: relative; z-index: 5; }
-.copy .go.is-low { position: absolute; left: calc(var(--u) * 5px); top: var(--go-y); margin: 0; }
-.go svg { width: max(13px, calc(var(--u) * 10px)); height: max(13px, calc(var(--u) * 10px)); transition: transform .25s var(--ease); }
+.copy .go.is-low { position: absolute; left: 0; top: var(--go-y); margin: 0; }
 .go:hover { background: #222; }
-.go:hover svg { transform: translateX(3px); }
 .go:active { transform: scale(.97); }
 .go:focus-visible { outline: 2px solid #000; outline-offset: 3px; }
 
@@ -148,7 +149,6 @@ body.bg-01 { background: linear-gradient(180deg, #f3f8fd 0%, #f8fbfe 50%, #fdfdf
 .copy > :nth-child(2) { transition-delay: .45s; }
 .copy > :nth-child(3) { transition-delay: .6s; }
 .copy > :nth-child(4) { transition-delay: .72s; }
-.copy > .head { transition-delay: 0s; transition-duration: .25s; }
 .is-in .back, .is-in .front, .is-in .copy > * { opacity: 1; transform: none; }
 
 /* ---------- petits écrans : le texte en haut, le collage en bas ---------- */
@@ -157,11 +157,10 @@ body.bg-01 { background: linear-gradient(180deg, #f3f8fd 0%, #f8fbfe 50%, #fdfdf
   .bar { padding-left: 16px; }
   .copy { left: 24px; right: 24px; top: 28px; }
   .tag { font-size: 12px; }
-  .copy { --tfs: clamp(25px, 7vw, 29px); }
-  .head { margin-top: 14px; }
+  .title { margin-top: 14px; font-size: clamp(30px, 9vw, 38px); }
   .sub { margin-top: 16px; font-size: 14px; }
   .sub br { display: none; }
-  .go { margin-top: 22px; height: 42px; padding: 0 18px 0 20px; gap: 12px; font-size: 15px; }
+  .go { margin-top: 22px; height: 42px; padding: 0 22px 0 8px; gap: 12px; font-size: 15px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

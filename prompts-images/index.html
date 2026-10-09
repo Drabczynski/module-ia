@@ -32,7 +32,7 @@
 <main class="hero" data-hero>
   <!-- le collage (01) et, devant, les deux personnes (02) : même échelle, calés en bas à droite -->
   <div class="stage" data-stage aria-hidden="true">
-    <div class="layer layer-back"><img class="back" data-back alt="" decoding="async"><canvas class="rectfx" data-rectfx></canvas></div>
+    <div class="layer layer-back"><img class="back" data-back alt="" decoding="async"><canvas class="rectfx" data-rectfx></canvas><video class="sky" data-sky muted loop playsinline preload="auto" aria-hidden="true"><source src="../assets/img/after-loop.webm" type="video/webm"><source src="../assets/img/after-loop.mp4" type="video/mp4"></video></div>
     <div class="layer layer-dots"><canvas class="dots" data-dots></canvas></div>
     <div class="layer layer-front"><img class="front" src="../assets/img/02.png" alt="" width="1396" height="818" decoding="async"></div>
   </div>
@@ -53,12 +53,9 @@
         <p>Plan : un réglage à la fois, puis un prompt complet à écrire et à corriger.</p>
       </div>
     </div>
-    <div class="head">
-      <div class="t-orb" aria-hidden="true"><div data-orb></div></div>
-      <h1 class="title">Des prompts<br>pour les images</h1>
-    </div>
+    <h1 class="title">Des prompts<br>pour les images</h1>
     <p class="sub">Une image générée dépend presque entièrement de la façon dont on la demande. Dans ce module, vous apprenez à régler quatre paramètres&nbsp;: le sujet, le style, le cadrage et l’usage, sur un cas réel&nbsp;: le post d’une médiathèque qui annonce un atelier. À la fin, vous saurez écrire un prompt d’image précis.</p>
-    <button type="button" class="go" data-start>Commencer<svg><use href="#i-arrow"/></svg></button>
+    <button type="button" class="go" data-start><span class="go-orb" aria-hidden="true"><span data-orb></span></span>Commencer</button>
   </div>
 </main>
 
