@@ -138,11 +138,8 @@
         return { layers: [{ img: back, x: ox, y: oy, w: sr.width, h: sr.height },
           { img: fr, x: ox + fr.offsetLeft, y: oy + fr.offsetTop, w: fr.offsetWidth, h: fr.offsetHeight }] };
       }),
-      onBurst: function () {
-        big.classList.add("is-on");
-        setTimeout(function () { big.classList.add("is-off"); }, 1000);
-        setTimeout(function () { big.remove(); }, 1700);
-      },
+      gather: 1.35,                                                  // les particules se posent une fois « Module » parti
+      onBurst: function () { if (window.AccAscii) window.AccAscii(big, { hold: 520 }); else big.remove(); },
       onReveal: enter
     });
     if (!intro) { big.remove(); plain(); return; }
@@ -389,6 +386,7 @@
     }
     var paras = Array.prototype.map.call(think.querySelectorAll(".think-b p"), function (p) { return split(p, "w"); });
     var tc = split(title, "c"), sc = split(sub, "c");
+    copy.classList.add("is-split");                                   // avant : rien (sinon les textes bruts se superposent)
     function finish(sec) {
       think.classList.add("is-on", "is-done");
       label.textContent = "Réflexion · " + sec + " s";

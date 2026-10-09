@@ -91,7 +91,7 @@ Storyboard : `premiers-pas/STORYBOARD.md`.
   collage 03 avec le ciel en vidéo, globe de points, lueur animée en bas, réflexion puis titre et description
   à la machine à écrire. Ouverture en particules (`premiers-pas/particules.js`, partagé avec le module 3) : une boule
   au centre de l'écran, qui tourne pendant le chargement, explose en milliers de particules (« Module 1 » s'affiche en grand
-  au centre, puis s'efface) ; elles se posent en trame de points pour former l'image, qui apparaît dessous sans bouger.
+  au centre, en Inter semi-gras : chaque lettre défile d'abord en caractères ASCII puis se fixe ; il repart en ASCII et s'efface) ; elles se posent en trame de points pour former l'image, qui apparaît dessous sans bouger.
   « Commencer » envoie `module:start` : l'accueil s'efface, l'assistante souhaite la bienvenue
   (interface épurée, sans champ de saisie, mention ni mode), puis la première étape s'ouvre.
 - Thème gris clair (au lieu du beige d'`app.css`, partagée avec le module 2) : `premiers-pas/gris.css`, générée par
@@ -166,7 +166,8 @@ avec un document Word, validation, puis sphère de particules et icônes. Source
   et les personnes ; seul le bouton « Commencer » passe devant elle.
 - Ouverture (`premiers-pas/particules.js`, WebGL) : une petite boule de particules, au centre de l'écran, tourne le temps que les images
   se chargent, explose en milliers de particules (halo, onde de choc, spirale), qui se posent du centre vers les bords
-  en trame de points aux couleurs de l'image ; « Module 3 » s'affiche en grand au centre pendant l'explosion, puis s'efface ;
+  en trame de points aux couleurs de l'image ; « Module 3 » s'affiche en grand au centre pendant l'explosion
+  (lettres en ASCII qui défilent puis se fixent en Inter semi-gras), puis s'efface, et les particules se posent ;
   la vraie image apparaît dessous, en fondu, sans glisser ni zoomer. Sans WebGL ou avec moins d'animations : rien.
 - Puis (≈ 2,8 s) : « Réflexion » scintille pendant que des lignes grises s'écrivent, se replie puis s'efface ;
   le titre et la description s'écrivent à la machine à écrire, une bille noire au bout ; puis le bouton apparaît.

@@ -9,13 +9,14 @@
      center: [x, y],              point de départ, en px dans parent
      area: { x, y, w, h },        la zone où l'image se forme, en px dans parent
      picture: Promise → { layers: [{ img, x, y, w, h }] }   l'image à former, en px dans parent
+     gather                       délai (s) entre l'explosion et le moment où les particules se posent (0,38 par défaut)
      onBurst(), onReveal(), onEnd()   l'explosion part / la vraie image peut apparaître / l'animation est finie
    }) → { finish() } ou null (sans WebGL) */
 (function () {
   "use strict";
   var VS = [
     "attribute vec3 aDir;attribute vec4 aSeed;attribute vec2 aTarget;attribute vec3 aCol;attribute vec3 aPal;attribute float aDot;",
-    "uniform vec2 uRes,uC;uniform float uT,uB,uR,uDpr,uFade;",
+    "uniform vec2 uRes,uC;uniform float uT,uB,uR,uDpr,uFade,uG;",
     "varying vec3 vCol;varying float vA,vSoft;",
     "void main(){",
     " float t=uT,sp=length(aDir),ty=aSeed.w;vec3 d=aDir/sp;",
@@ -34,7 +35,7 @@
     " vec2 q=fly*.004;float fa=sin(q.x*1.7+t*.9+aSeed.z*1.3)+cos(q.y*2.1-t*.7);",
     " fly+=vec2(cos(fa*2.),sin(fa*2.))*40.*burst;",
     // les particules qui ont une place dans l'image s'y posent, en arc, du centre vers les bords
-    " float w=ty<.5?clamp((t-uB-.38-aSeed.x)/.75,0.,1.):0.;w=w*w*(3.-2.*w);",
+    " float w=ty<.5?clamp((t-uB-uG-aSeed.x)/.75,0.,1.):0.;w=w*w*(3.-2.*w);",
     " vec2 dv=aTarget-fly;vec2 pos=mix(fly,aTarget,w)+vec2(-dv.y,dv.x)*sin(w*3.1416)*.36*(aSeed.z-.5);",
     // la poussière et l'onde de choc s'éteignent
     " float life=ty>1.5?1.-smoothstep(uB+.1,uB+.85,t):ty>.5?1.-smoothstep(uB+.5,uB+1.5,t):1.;",
@@ -62,6 +63,53 @@
     var z = Math.random() * 2 - 1, th = Math.random() * 6.2832, q = Math.sqrt(1 - z * z);
     return [Math.cos(th) * q, z, Math.sin(th) * q];
   }
+
+  /* Le numéro du module, pendant l'explosion : chaque lettre apparaît en caractères ASCII qui défilent, puis se fixe,
+     de gauche à droite, sur la bonne lettre ; à la sortie, les lettres repartent en ASCII et s'effacent.
+     el : le texte, déjà en place. AccAscii(el, { hold: ms }) → durée totale (ms) */
+  var CHARS = "!#$%&*+/0123456789<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^{|}~";
+  var ACCENTS = ["#f0507a", "#d64fd6", "#8a6cf0", "#f28a4a", "#0f75d3"];
+  window.AccAscii = function (el, opt) {
+    opt = opt || {};
+    var fs = parseFloat(getComputedStyle(el).fontSize), hold = opt.hold || 550;
+    var text = el.textContent; el.textContent = "";
+    // une case par lettre, à la largeur de la lettre finale : le mot ne bouge pas pendant que les caractères défilent
+    var slots = Array.from(text).map(function (c) {
+      var sp = document.createElement("span"); sp.className = "s"; sp.textContent = c === " " ? "\u00a0" : c; el.appendChild(sp);
+      return { el: sp, c: c };
+    });
+    slots.forEach(function (o) {
+      var w = o.el.getBoundingClientRect().width;
+      o.el.style.width = w + "px"; o.el.style.height = o.el.style.lineHeight = fs + "px";
+      o.size = Math.min(fs, w / .62) + "px";                      // le caractère ASCII tient dans la case
+    });
+    el.classList.add("is-go");
+    var live = slots.filter(function (o) { return o.c.trim(); }), n = live.length;
+    var LOCK0 = 300, STEP = 55, OUT = LOCK0 + STEP * (n - 1) + hold, END = OUT + 40 * n + 300, t0 = performance.now();
+    function ascii(o) {
+      o.el.classList.add("x"); o.el.style.fontSize = o.size;
+      o.el.textContent = CHARS[Math.floor(Math.random() * CHARS.length)];
+      o.el.style.color = Math.random() < .25 ? ACCENTS[Math.floor(Math.random() * ACCENTS.length)] : "";
+    }
+    function letter(o) { o.el.classList.remove("x"); o.el.style.fontSize = ""; o.el.style.color = ""; o.el.textContent = o.c; }
+    var last = 0;
+    function frame(now) {
+      var t = now - t0;
+      if (t > END) { el.remove(); return; }
+      requestAnimationFrame(frame);
+      if (now - last < 45) return;                                  // les caractères changent environ 22 fois par seconde
+      last = now;
+      live.forEach(function (o, i) {
+        var on = i * 60, lock = LOCK0 + STEP * i, out = OUT + 40 * i;
+        if (t < on) return;
+        o.el.classList.add("on");
+        if (t < lock || t > out) ascii(o); else letter(o);
+        if (t > out + 200) o.el.classList.remove("on");
+      });
+    }
+    requestAnimationFrame(frame);
+    return END;
+  };
 
   window.AccParticles = function (o) {
     var parent = o.parent, cv = document.createElement("canvas"), gl = null;
@@ -111,12 +159,14 @@
     buf(dir, "aDir", 3); buf(pc, "aPal", 3);
     var upSeed = buf(seed, "aSeed", 4), upTarget = buf(target, "aTarget", 2), upCol = buf(col, "aCol", 3), upDot = buf(dot, "aDot", 1);
     var U = {};
-    ["uRes", "uC", "uT", "uB", "uR", "uDpr", "uFade"].forEach(function (k) { U[k] = gl.getUniformLocation(pr, k); });
+    ["uRes", "uC", "uT", "uB", "uR", "uDpr", "uFade", "uG"].forEach(function (k) { U[k] = gl.getUniformLocation(pr, k); });
     gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
     gl.viewport(0, 0, cv.width, cv.height);
     gl.uniform2f(U.uRes, W, H); gl.uniform2f(U.uC, C[0], C[1]);
     gl.uniform1f(U.uR, Math.max(W, H) * .5); gl.uniform1f(U.uDpr, dpr);
+    var G = o.gather || .38;                                // délai avant que les particules se posent (s)
+    gl.uniform1f(U.uG, G);
     parent.appendChild(cv);
 
     // le halo de l'explosion
@@ -151,14 +201,14 @@
       upSeed(); upTarget(); upCol(); upDot();
       B = Math.max(.55, (performance.now() - t0) / 1000 + .05);
       setTimeout(function () { halo.classList.add("is-out"); if (o.onBurst) o.onBurst(); }, Math.max(0, B * 1000 - (performance.now() - t0)));
-      fadeAt = B + 1.75;
+      fadeAt = B + G + 1.37;
     });
 
     function frame(now) {
       if (done) return;
       raf = requestAnimationFrame(frame);
       var t = (now - t0) / 1000;
-      if (!revealed && t > B + 1.45) { revealed = true; if (o.onReveal) o.onReveal(); }
+      if (!revealed && t > B + G + 1.07) { revealed = true; if (o.onReveal) o.onReveal(); }
       var fade = Math.min(1, Math.max(0, (t - fadeAt) / .65));
       gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
       gl.uniform1f(U.uT, t); gl.uniform1f(U.uB, B); gl.uniform1f(U.uFade, fade);
