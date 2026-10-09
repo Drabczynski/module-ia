@@ -222,3 +222,13 @@
 /* le globe de points apparaît avec l'image */
 .acc .layer-dots { opacity: 0; transition: opacity .6s var(--ease); }
 .acc .is-in .layer-dots { opacity: 1; }
+/* le numéro du module, en grand au centre de l'écran, pendant l'explosion ; puis il s'efface */
+.acc .acc-big { position: absolute; z-index: 6; margin: 0; white-space: nowrap; pointer-events: none;
+  font: 400 clamp(44px, 7.2vw, 112px)/1 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: -.035em; color: #111;
+  text-shadow: 0 0 28px rgba(255, 255, 255, .9), 0 0 2px rgba(255, 255, 255, .8);
+  opacity: 0; filter: blur(12px); transform: translate(-50%, -50%) scale(.92);
+  transition: opacity .55s var(--ease), filter .7s var(--ease), transform 1.6s var(--ease); }
+.acc .acc-big.is-on { opacity: 1; filter: none; transform: translate(-50%, -50%) scale(1); }
+.acc .acc-big.is-off { opacity: 0; filter: blur(10px); transform: translate(-50%, -50%) scale(1.05); transition-duration: .5s, .5s, .7s; }
+/* après les particules, la vraie image apparaît exactement sous la trame : un simple fondu, sans glisser ni zoomer */
+.acc .is-gen .back, .acc .is-gen .front, .acc .is-gen .sky { transform: none; transition: opacity .9s var(--ease); }

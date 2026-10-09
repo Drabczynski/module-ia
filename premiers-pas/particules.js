@@ -9,7 +9,7 @@
      center: [x, y],              point de départ, en px dans parent
      area: { x, y, w, h },        la zone où l'image se forme, en px dans parent
      picture: Promise → { layers: [{ img, x, y, w, h }] }   l'image à former, en px dans parent
-     onReveal(), onEnd()          la vraie image peut apparaître / l'animation est finie
+     onBurst(), onReveal(), onEnd()   l'explosion part / la vraie image peut apparaître / l'animation est finie
    }) → { finish() } ou null (sans WebGL) */
 (function () {
   "use strict";
@@ -150,7 +150,7 @@
       }
       upSeed(); upTarget(); upCol(); upDot();
       B = Math.max(.55, (performance.now() - t0) / 1000 + .05);
-      setTimeout(function () { halo.classList.add("is-out"); }, Math.max(0, B * 1000 - (performance.now() - t0)));
+      setTimeout(function () { halo.classList.add("is-out"); if (o.onBurst) o.onBurst(); }, Math.max(0, B * 1000 - (performance.now() - t0)));
       fadeAt = B + 1.75;
     });
 

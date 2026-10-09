@@ -112,20 +112,33 @@
   function plain() { decoded.then(function () { requestAnimationFrame(enter); }); setTimeout(enter, 1500); }
   if (still || !window.AccParticles) plain();
   else (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () {
-    // une fois la mise en page définitive : l'explosion part du globe, derrière les personnes
+    // une fois la mise en page définitive
     var hb = hero.getBoundingClientRect(), sr = $(".stage").getBoundingClientRect(), fr = $(".front");
     var ox = sr.left - hb.left, oy = sr.top - hb.top;
+    // l'explosion part du centre de l'écran ; pendant qu'elle s'étend, le numéro du module s'y affiche en grand
+    var C = [window.innerWidth / 2 - hb.left, window.innerHeight / 2 - hb.top];
+    var big = document.createElement("p");
+    big.className = "acc-big"; big.setAttribute("aria-hidden", "true");
+    big.textContent = copy.firstElementChild.textContent;
+    big.style.left = C[0] + "px"; big.style.top = C[1] + "px";
+    hero.appendChild(big);
     var intro = window.AccParticles({
       parent: hero,
-      center: [ox + g[0] / 100 * sr.width, oy + g[1] / 100 * sr.height],
+      center: C,
       area: { x: ox, y: oy, w: sr.width, h: sr.height },
       picture: decoded.then(function () {
         return { layers: [{ img: back, x: ox, y: oy, w: sr.width, h: sr.height },
           { img: fr, x: ox + fr.offsetLeft, y: oy + fr.offsetTop, w: fr.offsetWidth, h: fr.offsetHeight }] };
       }),
+      onBurst: function () {
+        big.classList.add("is-on");
+        setTimeout(function () { big.classList.add("is-off"); }, 1000);
+        setTimeout(function () { big.remove(); }, 1700);
+      },
       onReveal: enter
     });
-    if (!intro) { plain(); return; }
+    if (!intro) { big.remove(); plain(); return; }
+    hero.classList.add("is-gen");
     setTimeout(enter, 9000);
     window.addEventListener("resize", intro.finish, { once: true });
   });
