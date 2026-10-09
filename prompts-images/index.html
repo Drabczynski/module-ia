@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Module 2 · Des prompts pour les images</title>
+  <link rel="preload" href="../assets/img/01.png" as="image">
+  <link rel="preload" href="../assets/img/02.png" as="image">
+  <link rel="stylesheet" href="accueil.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-side" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9.5 4.5v15" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4ZM13.5 6.5l4 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 5.5 19.5 12 13 18.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+
+<main class="hero" data-hero>
+  <!-- le collage (01) et, devant, les deux personnes (02) : même échelle, calés en bas à droite -->
+  <div class="stage" data-stage aria-hidden="true">
+    <div class="layer layer-back" data-depth="-1"><img class="back" src="../assets/img/01.png" alt="" width="1901" height="900" decoding="async"></div>
+    <div class="layer layer-front" data-depth="1"><img class="front" src="../assets/img/02.png" alt="" width="1396" height="818" decoding="async"></div>
+  </div>
+
+  <div class="chrome" aria-hidden="true">
+    <span><svg><use href="#i-side"/></svg></span>
+    <span><svg><use href="#i-pen"/></svg></span>
+  </div>
+
+  <div class="copy">
+    <p class="tag">Module 2</p>
+    <h1 class="title">Des prompts<br>pour les images</h1>
+    <p class="sub">Sujet, style, cadrage, usage&nbsp;: quatre réglages pour une image utile. <br>Un cas réel&nbsp;: illustrer le post d’une médiathèque.</p>
+    <button type="button" class="go" data-start>Commencer<svg><use href="#i-arrow"/></svg></button>
+  </div>
+</main>
+
+<script src="accueil.js"></script>
+</body>
+</html>
