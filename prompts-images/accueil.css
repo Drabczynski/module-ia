@@ -167,20 +167,20 @@ body.bg-01 { background: linear-gradient(180deg, #f3f8fd 0%, #f8fbfe 50%, #fdfdf
 /* le libellé scintille tant que la réflexion dure */
 .think.is-on:not(.is-done) .think-l {
   background: linear-gradient(90deg, #a1a1a6 0%, #a1a1a6 40%, #2a2a2c 50%, #a1a1a6 60%, #a1a1a6 100%) 0 0 / 250% 100%;
-  -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 1.6s linear infinite;
+  -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 1s linear infinite;
 }
 @keyframes shimmer { from { background-position: 125% 0; } to { background-position: -125% 0; } }
 /* les lignes grises : d'abord par-dessus l'emplacement du titre (encore invisible), puis repliées */
 .think-b {
   position: absolute; left: 0; top: 100%; width: max(330px, calc(var(--u) * 252px)); padding-top: 6px;
   font-size: max(13px, calc(var(--u) * 8.4px)); line-height: 1.55; color: #a1a1a6;
-  transition: opacity .45s var(--ease), filter .45s var(--ease);
+  transition: opacity .3s var(--ease), filter .3s var(--ease);
 }
 .think-b p { margin: 0 0 .55em; }
 .think.is-done:not(.is-open) .think-b { opacity: 0; filter: blur(6px); pointer-events: none; }
 /* rouvert par l'apprenant : le bloc reprend sa place dans le texte */
 .think.is-done.is-open .think-b { position: static; padding: 4px 0 2px; }
-.think-b .w { transition-duration: .25s; }
+.think-b .w { transition-duration: .16s; }
 @media (prefers-reduced-motion: reduce) {
   .think-h { opacity: 1; }
   .think-h svg { opacity: 1; }

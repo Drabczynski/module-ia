@@ -192,14 +192,14 @@
       var k = 0;
       (function next() {
         if (k >= list.length) { done(); return; }
-        stream(list[k++], think, gap, function () { setTimeout(next, 180); }, 0, true);
+        stream(list[k++], think, gap, function () { setTimeout(next, 50); }, 0, true);
       })();
     }
     function start() {
       var t0 = performance.now();
       think.classList.add("is-on");                                   // « Réflexion » scintille
       setTimeout(function () {
-        streamAll(paras, 26, function () {                            // les lignes grises s'écrivent
+        streamAll(paras, 9, function () {                             // les lignes grises s'écrivent
           setTimeout(function () {
             finish(Math.max(1, Math.round((performance.now() - t0) / 1000)));   // repli : « Réflexion · 3 s »
             setTimeout(function () {
@@ -215,10 +215,10 @@
                   }, 260);
                 }, parseFloat(getComputedStyle(title).fontSize) * .3);
               }, 300);
-            }, 450);
-          }, 500);
+            }, 280);
+          }, 220);
         });
-      }, 500);
+      }, 150);
     }
     var go = function () { go = function () {}; setTimeout(start, 300); };
     new MutationObserver(function () { if (hero.classList.contains("is-in")) go(); }).observe(hero, { attributes: true, attributeFilter: ["class"] });

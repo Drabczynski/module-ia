@@ -158,7 +158,7 @@ avec un document Word, validation, puis sphère de particules et icônes. Source
 - Entre les deux, un globe en trame de points (les particules des modules) qui tourne lentement derrière les personnes ;
   en mode « différence », ses points restent noirs sur le blanc et deviennent clairs sur les nuages ; ils s'écartent sous la souris.
 - Temps de réflexion : « Réflexion » scintille pendant que des lignes grises s'écrivent dessous, puis le bloc se replie
-  en « Réflexion · 4 s » (cliquable pour le rouvrir).
+  en « Réflexion · 1 s » (cliquable pour le rouvrir) ; le tout dure environ 1,2 s.
 - Ensuite le titre et la description s'écrivent mot à mot, chaque mot sortant du flou, avec une bille noire qui pulse
   au bout du texte, comme une réponse d'assistant ; le bouton « Commencer » apparaît à la fin.
   Si le texte descendrait sur l'image du bas, il remonte.
