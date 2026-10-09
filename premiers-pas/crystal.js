@@ -82,41 +82,51 @@
     " return mix(mix(mix(hash(i),hash(i+vec3(1,0,0)),f.x),mix(hash(i+vec3(0,1,0)),hash(i+vec3(1,1,0)),f.x),f.y),",
     "            mix(mix(hash(i+vec3(0,0,1)),hash(i+vec3(1,0,1)),f.x),mix(hash(i+vec3(0,1,1)),hash(i+vec3(1,1,1)),f.x),f.y),f.z);}",
     "float fbm(vec3 p){float a=.5,s=0.;for(int i=0;i<4;i++){s+=a*noise(p);p=p*2.03+vec3(1.7,9.2,3.1);a*=.5;}return s;}",
-    // le fond de la page, recalculé pour la réfraction (même dégradé que .wl-bg)
+    // le fond animé : un fluide corail, orange, magenta et violet, avec une ombre indigo en bas à droite
+    "float h2(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}",
+    "float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h2(i),h2(i+vec2(1,0)),f.x),mix(h2(i+vec2(0,1)),h2(i+vec2(1,1)),f.x),f.y);}",
+    "float fb2(vec2 p){float s=0.,a=.5;for(int i=0;i<3;i++){s+=a*n2(p);p=p*2.03+vec2(3.1,1.7);a*=.5;}return s;}",
     "vec3 bg(vec2 uv){",
-    " vec3 c=mix(vec3(.863,.843,.894),vec3(.698,.651,.839),smoothstep(0.,.38,uv.x));",
-    " c=mix(c,vec3(.690,.427,.690),smoothstep(.38,.68,uv.x));c=mix(c,vec3(.851,.502,.533),smoothstep(.68,1.,uv.x));",
-    " c=mix(c,vec3(.933,.922,.945),(1.-smoothstep(0.,.42,length((uv-vec2(.04,.58))*vec2(1.,.75))))*.85);",
-    " c=mix(c,vec3(.541,.208,.635),(1.-smoothstep(0.,.45,length((uv-vec2(.7,1.04))*vec2(1.,.9))))*.8);",
-    " c=mix(c,vec3(.878,.478,.502),(1.-smoothstep(0.,.5,length(uv-vec2(1.04,.22))))*.8);",
-    " c=mix(c,vec3(.561,.533,.8),(1.-smoothstep(0.,.45,length(uv-vec2(.24,-.04))))*.7);",
+    " float t=uT*.045;vec2 p=uv;",
+    " vec2 w=vec2(fb2(p*1.5+vec2(t,-t*.7)),fb2(p*1.5+vec2(5.2-t*.8,1.3+t*.5)))-.5;",
+    " p+=w*.38;",
+    " float x0=.56+.1*sin(p.y*4.2+uT*.11)+.05*sin(p.y*9.-uT*.17);",
+    " float cool=smoothstep(x0-.09,x0+.13,p.x);",
+    " vec3 warm=mix(vec3(.878,.471,.455),vec3(.95,.63,.34),smoothstep(.44,.04,length((p-vec2(.42,.24))*vec2(1.,1.2))));",
+    " warm=mix(warm,vec3(.70,.32,.68),smoothstep(.36,0.,length((p-vec2(.44,1.04))*vec2(1.,1.4)))*.85);",
+    " vec3 cold=mix(vec3(.42,.22,.80),vec3(.52,.28,.76),smoothstep(.5,0.,length(p-vec2(.75,1.)))*.6);",
+    " cold=mix(cold,vec3(.13,.04,.28),smoothstep(.4,0.,length((p-vec2(.82,.0))*vec2(1.4,1.))));",
+    " vec3 c=mix(warm,cold,cool);",
+    " c=mix(c,vec3(.86,.32,.62),exp(-pow((p.x-x0)*8.,2.))*.55);",
     " return c;}",
     "void main(){",
+    " vec2 uv=gl_FragCoord.xy/uRes;",
+    " vec3 col=bg(uv);",
     " vec2 q=(gl_FragCoord.xy-uC)/uR;float rr=length(q),aa=1.5/uR;",
     " vec3 hc=vec3(1.,.86,.98);",
     " float d=max(rr-1.,0.);",
-    " float halo=(exp(-d*5.)*(.26+.22*uSpeak)*uGlass+uFlash*exp(-d*1.6)*.6)*smoothstep(1.-aa,1.+aa,rr);",
-    " if(rr>1.+aa){gl_FragColor=vec4(hc*halo,halo)*uA;return;}",
-    " float z=sqrt(max(0.,1.-rr*rr));vec3 n=vec3(q,z);float fres=pow(1.-z,2.2);",
-    " vec2 cuv=uC/uRes,off=-q*uR/uRes*.82*(1.-.3*fres);",
-    // boule de verre : image retournée, dispersion sur le bord
-    " vec3 refr=vec3(bg(cuv+off*1.07).r,bg(cuv+off).g,bg(cuv+off*.93).b);",
-    " float neb=0.;",
-    " for(int i=0;i<5;i++){float zz=z-(float(i)+.5)*(2.*z/5.);vec3 pp=uRot*vec3(q,zz);",
-    "  float f=fbm(pp*1.7+vec3(0.,uT*.06,uT*.035));",
-    "  float sw=sin(atan(pp.z,pp.x)*2.+length(pp.xz)*6.5-uT*.5+f*4.);",
-    "  neb+=smoothstep(.58,1.08,f+.26*sw);}",
-    " neb/=5.;",
-    " vec3 col=mix(refr*.97,vec3(.97,.94,.99),.24);",
-    " col+=neb*vec3(1.,.42,.86)*(.42+.5*uSpeak);",
-    " col=mix(col,vec3(1.,.97,1.),fres*.42);",
-    " col+=(.5+.5*cos(6.2831*(fres*1.4+vec3(0.,.33,.67))+uT*.35))*fres*.24;",
-    " vec3 L=normalize(vec3(-.45+uLight.x,.55-uLight.y,.72));float l=max(dot(n,L),0.);",
-    " col+=pow(l,14.)*.08;",
-    " col+=uFlash*.4;",
-    " float a=(1.-smoothstep(1.-aa,1.+aa,rr))*uGlass;",
-    " vec4 o=vec4(col*a,a)+vec4(hc*halo,halo)*(1.-a);",
-    " gl_FragColor=o*uA;}"
+    " col+=hc*(exp(-d*5.)*(.22+.22*uSpeak)*uGlass+uFlash*exp(-d*1.6)*.6)*smoothstep(1.-aa,1.+aa,rr);",
+    " if(rr<1.+aa){",
+    "  float z=sqrt(max(0.,1.-rr*rr));vec3 n=vec3(q,z);float fres=pow(1.-z,2.2);",
+    "  vec2 off=-q*uR/uRes*.82*(1.-.3*fres),cuv=uC/uRes;",
+    // boule de verre : le fond apparaît retourné, dispersion sur le bord
+    "  vec3 refr=vec3(bg(cuv+off*1.07).r,bg(cuv+off).g,bg(cuv+off*.93).b);",
+    "  float neb=0.;",
+    "  for(int i=0;i<5;i++){float zz=z-(float(i)+.5)*(2.*z/5.);vec3 pp=uRot*vec3(q,zz);",
+    "   float f=fbm(pp*1.7+vec3(0.,uT*.06,uT*.035));",
+    "   float sw=sin(atan(pp.z,pp.x)*2.+length(pp.xz)*6.5-uT*.5+f*4.);",
+    "   neb+=smoothstep(.58,1.08,f+.26*sw);}",
+    "  neb/=5.;",
+    "  vec3 g=mix(refr,vec3(.97,.93,.99),.3);",
+    "  g+=neb*vec3(1.,.42,.86)*(.42+.5*uSpeak);",
+    "  g=mix(g,vec3(1.,.97,1.),fres*.45);",
+    "  g+=(.5+.5*cos(6.2831*(fres*1.4+vec3(0.,.33,.67))+uT*.35))*fres*.24;",
+    "  vec3 L=normalize(vec3(-.45+uLight.x,.55-uLight.y,.72));",
+    "  g+=pow(max(dot(n,L),0.),14.)*.08+uFlash*.25;",
+    "  col=mix(col,g,(1.-smoothstep(1.-aa,1.+aa,rr))*uGlass);}",
+    // grain
+    " col+=(h2(gl_FragCoord.xy+fract(uT*7.)*91.)-.5)*.04;",
+    " gl_FragColor=vec4(col,1.)*uA;}"
   ].join("\n");
 
   function makeGL(canvas) {
@@ -186,7 +196,7 @@
     var M = [1, 0, 0, 0, 1, 0, 0, 0, 1];
 
     function size() {
-      var w = el.clientWidth, h = el.clientHeight, d = Math.min(2, window.devicePixelRatio || 1), dg = Math.min(1.5, d);
+      var w = el.clientWidth, h = el.clientHeight, d = Math.min(2, window.devicePixelRatio || 1), dg = Math.min(1.25, d);
       if (w === W && h === H && d === dpr) return;
       W = w; H = h; dpr = d; dprG = dg;
       cv.width = Math.round(w * d); cv.height = Math.round(h * d);
@@ -296,7 +306,7 @@
       var ia = t - introAt;                                            // âge de la construction
       var glassA = reduce ? 1 : clamp((ia - .3) / 1.3, 0, 1);
       if (ia > 1.75 && ia - dt <= 1.75) {                               // la sphère est formée : éclair et onde
-        flash = 1; rings.push({ t: t, k: 1 });
+        flash = .75; rings.push({ t: t, k: 1 });
         ripples.push({ d: viewToObj([0, 0, 1]), t: t, k: 1.2 });
         for (var n0 = 0; n0 < 10; n0++) spawnPulse();
       }
@@ -308,7 +318,7 @@
         gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
         gl.uniform2f(U.uRes, cvG.width, cvG.height);
         gl.uniform2f(U.uC, cx * dprG, cvG.height - cy * dprG);
-        gl.uniform1f(U.uR, R * dprG);
+        gl.uniform1f(U.uR, Math.max(1, R * dprG));
         gl.uniform1f(U.uT, t);
         gl.uniform1f(U.uA, 1);
         gl.uniform1f(U.uGlass, glassA);
@@ -501,7 +511,7 @@
       ctx.drawImage(glowB, 0, 0, W, H);
       if (flash > .02) {                                                 // éclair
         var fg = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 1.6);
-        fg.addColorStop(0, "rgba(255,245,252," + .42 * flash + ")"); fg.addColorStop(1, "rgba(255,245,252,0)");
+        fg.addColorStop(0, "rgba(255,245,252," + .25 * flash + ")"); fg.addColorStop(1, "rgba(255,245,252,0)");
         ctx.globalAlpha = 1; ctx.fillStyle = fg; ctx.beginPath(); ctx.arc(cx, cy, R * 1.6, 0, 6.283); ctx.fill();
       }
       ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";

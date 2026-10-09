@@ -1971,21 +1971,27 @@
   /* ---------- Accueil : la sphère de cristal sur le fond dégradé, qui suit la souris ---------- */
 
   var cloud = (function () {
-    var scene = null, raf = 0, on = false;
-    var R = 0, Rt = 1, A = 1, At = 1, shift = 0, pulse = 0, t0 = 0;
+    var scene = null, raf = 0, on = false, mode = "hero";
+    var R = 0, A = 1, At = 1, cx = 0, cy = 0, pulse = 0, t0 = 0;
     var bgEl = document.createElement("div");
     bgEl.className = "wl-bg";
     document.body.insertBefore(bgEl, document.body.firstChild);
+    // où se tient la sphère : grande et débordant à droite sur l'accueil, à la place de l'orbe ensuite
+    function target() {
+      var W = window.innerWidth, H = window.innerHeight, o = bigHost.getBoundingClientRect(), r;
+      if (mode === "hero") {
+        if (W < 720) { r = W * .62; return [W * .8, H * .2, r]; }
+        r = Math.min(H * .54, W * .38);
+        return [W - r * .5, H * .52, r];
+      }
+      var x = o.width ? o.left + o.width / 2 : W / 2, y = o.width ? o.top + o.height / 2 : H * .42;
+      return [x, y, mode === "end" ? 70 : 108];
+    }
     function frame(now) {
       if (!on) return;
       raf = requestAnimationFrame(frame);
-      var W = window.innerWidth, H = window.innerHeight, o = bigHost.getBoundingClientRect();
-      var narrow = W < 720;
-      var cx = o.width ? o.left + o.width / 2 : W / 2, cy = o.width ? o.top + o.height / 2 : H * (narrow && Rt === 1 ? .28 : .42);
-      var base = narrow ? W * .4 : Math.min(340, H * .37, W * .24);
-      R += (base * Rt - R) * 0.06;
-      // avant « Commencer », la sphère se décale à droite pour laisser respirer le titre
-      shift += ((Rt === 1 && W > 900 ? W * .64 - cx : 0) - shift) * .05; cx += shift; A += (At - A) * 0.06;
+      var T = target(), k = mode === "hero" ? .06 : .075;
+      cx += (T[0] - cx) * k; cy += (T[1] - cy) * k; R += (T[2] - R) * k; A += (At - A) * .06;
       pulse += ((speaking ? 1 : 0) - pulse) * .08;
       var t = (now - t0) / 1000, beat = 1 + pulse * (.025 * Math.sin(t * 7.5) + .015 * Math.sin(t * 13.1));
       scene.el.style.opacity = A.toFixed(3);
@@ -1995,14 +2001,14 @@
       start: function () {
         if (on) return;
         if (!scene) { scene = window.CrystalScene(); document.body.insertBefore(scene.el, bgEl.nextSibling); }
-        on = true; scene.el.classList.remove("is-off"); bgEl.classList.add("is-on");
-        R = 0; Rt = 1; A = 1; At = 1; t0 = performance.now();
+        on = true; mode = "hero"; scene.el.classList.remove("is-off"); bgEl.classList.add("is-on");
+        var T = target(); cx = T[0]; cy = T[1]; R = 0; A = 1; At = 1; t0 = performance.now();
         scene.intro();
         raf = requestAnimationFrame(frame);
       },
-      gather: function () { Rt = 0.3; At = 1; scene.kick(); },
+      gather: function () { mode = "talk"; At = 1; scene.kick(); },
       // la sphère se resserre et s'éteint là où l'orbe habituelle reprend sa place
-      stop: function () { Rt = .2; At = 0; bgEl.classList.remove("is-on"); scene.release(); setTimeout(function () { on = false; cancelAnimationFrame(raf); scene.el.classList.add("is-off"); }, 1100); }
+      stop: function () { mode = "end"; At = 0; bgEl.classList.remove("is-on"); scene.release(); setTimeout(function () { on = false; cancelAnimationFrame(raf); scene.el.classList.add("is-off"); }, 1100); }
     };
   })();
   var wlHero = $("[data-wl-hero]");

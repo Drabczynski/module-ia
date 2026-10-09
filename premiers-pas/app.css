@@ -1069,15 +1069,14 @@ svg { display: block; }
 ::-webkit-scrollbar-button { display: none; }
 
 /* ---------- accueil : fond dégradé et sphère de cristal ---------- */
-.wl-bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; opacity: 0; background: #d9d3e3; transition: opacity 1s var(--ease); }
+.wl-bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; opacity: 0; background: #b45a9e; transition: opacity 1s var(--ease); }
 .wl-bg.is-on { opacity: 1; }
 .wl-bg::before { content: ""; position: absolute; inset: -15%;
   background:
-    radial-gradient(42% 60% at 4% 42%, #eeebf1 0%, rgba(238,235,241,.85) 35%, rgba(238,235,241,0) 75%),
-    radial-gradient(40% 48% at 70% -4%, #8a35a2 0%, rgba(138,53,162,.75) 40%, rgba(138,53,162,0) 78%),
-    radial-gradient(46% 56% at 104% 78%, #e07a80 0%, rgba(224,122,128,.8) 40%, rgba(224,122,128,0) 78%),
-    radial-gradient(40% 50% at 24% 104%, #8f88cc 0%, rgba(143,136,204,.7) 40%, rgba(143,136,204,0) 78%),
-    linear-gradient(100deg, #dcd7e4 0%, #b2a6d6 38%, #b06db0 68%, #d98088 100%);
+    radial-gradient(34% 42% at 42% 78%, #f2a157 0%, rgba(242,161,87,.75) 40%, rgba(242,161,87,0) 75%),
+    radial-gradient(30% 34% at 44% -2%, #b352ad 0%, rgba(179,82,173,.7) 40%, rgba(179,82,173,0) 75%),
+    radial-gradient(30% 40% at 84% 102%, #22094a 0%, rgba(34,9,74,.8) 40%, rgba(34,9,74,0) 78%),
+    linear-gradient(95deg, #e07a74 0%, #e07a74 38%, #d8509c 55%, #6c38cc 72%, #6534c8 100%);
   animation: wl-drift 26s ease-in-out infinite alternate; }
 .wl-bg::after { content: ""; position: absolute; inset: 0; opacity: .16; mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
@@ -1104,3 +1103,7 @@ svg { display: block; }
 }
 html.crystal-hover, html.crystal-hover body { cursor: grab; }
 html.crystal-drag, html.crystal-drag body, html.crystal-drag * { cursor: grabbing !important; user-select: none; }
+/* accueil épuré : ni champ de saisie, ni mention, ni mode */
+.app.is-welcome .claude .composer, .app.is-welcome .claude .work-note, .app.is-welcome .tb-mode { opacity: 0 !important; visibility: hidden; pointer-events: none; }
+.wl-hero .wl-foot-l { color: #2a1622; }
+.wl-hero .wl-foot-r, .wl-hero .wl-foot-r b { color: #fff; }
