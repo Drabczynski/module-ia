@@ -85,13 +85,20 @@ body.bg-01 { background: linear-gradient(180deg, #f3f8fd 0%, #f8fbfe 50%, #fdfdf
 .end p { margin: 0; color: var(--ink-2); font-size: 16px; }
 
 /* ---------- texte ---------- */
-.copy { position: absolute; z-index: 2; left: 4.4vw; top: max(20px, calc(var(--top) + var(--u) * 80px - var(--lift, 0px))); }
+.copy {
+  /* taille du titre, et l'orbe à sa gauche : sa hauteur couvre les deux lignes du titre */
+  --tfs: max(27px, calc(var(--u) * 32px)); --od: calc(var(--tfs) * 2.1); --og: calc(var(--tfs) * .55);
+  position: absolute; z-index: 2; left: 4.4vw; top: max(20px, calc(var(--top) + var(--u) * 80px - var(--lift, 0px))); }
 .tag {
   margin: 0; font: 600 max(11px, calc(var(--u) * 11px))/1 "Inter", sans-serif;
   text-transform: uppercase; letter-spacing: .01em; color: #111;
 }
+/* l'orbe et le titre, côte à côte */
+.head { display: flex; align-items: center; gap: var(--og); margin-top: calc(var(--u) * 16px); }
+.t-orb { position: relative; flex: none; width: var(--od); height: var(--od); }
+.t-orb > div { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
 .title {
-  margin: calc(var(--u) * 16px) 0 0; font: 500 max(27px, calc(var(--u) * 32px))/1.06 "IBM Plex Sans", "Inter", sans-serif;
+  margin: 0; font: 500 var(--tfs)/1.06 "IBM Plex Sans", "Inter", sans-serif;
   letter-spacing: -.035em; color: var(--ink);
 }
 .sub {
@@ -121,6 +128,8 @@ body.bg-01 { background: linear-gradient(180deg, #f3f8fd 0%, #f8fbfe 50%, #fdfdf
 .copy > :nth-child(2) { transition-delay: .45s; }
 .copy > :nth-child(3) { transition-delay: .6s; }
 .copy > :nth-child(4) { transition-delay: .72s; }
+/* l'orbe et le titre arrivent tout de suite : l'orbe « réfléchit » pendant la réflexion */
+.copy > .head { transition-delay: .15s; transition-duration: .5s; }
 .is-in .back, .is-in .front, .is-in .copy > * { opacity: 1; transform: none; }
 
 /* ---------- petits écrans : le texte en haut, le collage en bas ---------- */
@@ -129,7 +138,8 @@ body.bg-01 { background: linear-gradient(180deg, #f3f8fd 0%, #f8fbfe 50%, #fdfdf
   .bar { padding-left: 16px; }
   .copy { left: 24px; right: 24px; top: 28px; }
   .tag { font-size: 12px; }
-  .title { margin-top: 14px; font-size: clamp(25px, 7vw, 29px); }
+  .copy { --tfs: clamp(25px, 7vw, 29px); }
+  .head { margin-top: 14px; }
   .sub { margin-top: 16px; font-size: 14px; }
   .sub br { display: none; }
   .go { margin-top: 22px; height: 42px; padding: 0 18px 0 20px; gap: 12px; font-size: 15px; }
@@ -164,9 +174,9 @@ body.bg-01 { background: linear-gradient(180deg, #f3f8fd 0%, #f8fbfe 50%, #fdfdf
 /* ---------- temps de réflexion ----------
    « Réflexion » scintille pendant que des lignes grises s'écrivent dessous ; puis le bloc se replie en
    « Réflexion · 3 s » (cliquable pour le rouvrir), et le titre s'écrit. */
-.think { position: relative; margin-top: calc(var(--u) * 12px); max-height: 60px; transition: max-height .25s var(--ease), margin .25s var(--ease), opacity .18s; }
+.think { position: relative; margin-top: calc(var(--u) * 12px); margin-left: calc(var(--od) + var(--og)); max-height: 60px; transition: max-height .25s var(--ease), margin .25s var(--ease), opacity .18s; }
 /* une fois le titre lancé, la réflexion s'efface : on retrouve la maquette (le module, puis le titre) */
-.copy .think.is-gone { max-height: 0; margin-top: 0; opacity: 0; overflow: hidden; pointer-events: none; }
+.copy .think.is-gone { max-height: 0; margin-top: 0; margin-left: calc(var(--od) + var(--og)); opacity: 0; overflow: hidden; pointer-events: none; }
 .copy .think { opacity: 1; transform: none; transition: none; }
 .think-h {
   display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 8px 0 0; margin-left: -1px; margin-bottom: -6px;

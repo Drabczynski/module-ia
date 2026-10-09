@@ -34,6 +34,12 @@
 
   var copy = document.querySelector(".copy"), goBtn = copy.querySelector(".go"), subEl = copy.querySelector(".sub");
   var ballRest = function () {};                     // replace la bille au bout du titre (définie plus bas)
+
+  // notre orbe, à gauche du titre : dessinée à 200 px puis mise à l'échelle de la place prévue (--od)
+  var ORB = 200, orbBox = copy.querySelector(".t-orb"), orb = null;
+  if (window.SiriOrb) { orb = window.SiriOrb(orbBox.firstElementChild, { size: ORB, label: "Assistant IA", state: "idle" }); }
+  function orbFit() { orbBox.firstElementChild.style.transform = "scale(" + (orbBox.clientWidth / ORB).toFixed(4) + ")"; }
+  function orbState(s) { if (orb) orb.setState(s); }
   function apply(s, W, H) {
     var top = H - H0 * s;
     root.style.setProperty("--s", s.toFixed(4));
@@ -57,7 +63,7 @@
     root.style.setProperty("--lift", "0px");
     goBtn.classList.remove("is-low");
     root.style.setProperty("--shift", "0px");
-    if (W <= 720) { apply(W * 1.85 / W0, W, H); ballRest(); return; }     // mobile : on garde la partie droite, avec les personnes
+    if (W <= 720) { apply(W * 1.85 / W0, W, H); orbFit(); ballRest(); return; }     // mobile : on garde la partie droite, avec les personnes
     // le collage commence à x = clear : il doit rester à droite du texte, avec une marge
     s = Math.min(H / H0, (W * .94 - 40) / (W0 - BG.clear + 450));
     for (var k = 0; k < 3; k++) {
@@ -86,6 +92,7 @@
       root.style.setProperty("--lift", (bottom - limit).toFixed(1) + "px");
       if (low) root.style.setProperty("--go-y", (goY - cb.top + (bottom - limit)).toFixed(1) + "px");
     }
+    orbFit();
     ballRest();
   }
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
@@ -229,6 +236,7 @@
     function start() {
       var t0 = performance.now();
       think.classList.add("is-on");                                   // « Réflexion » scintille
+      orbState("thinking");                                           // l'orbe réfléchit
       setTimeout(function () {
         streamAll(paras, 4, function () {                             // les lignes grises s'écrivent, très vite
           setTimeout(function () {
@@ -240,11 +248,12 @@
                 place(tc[0], title);
                 ball.style.left = (parseFloat(ball.style.left) - tc[0].getBoundingClientRect().width) + "px";
                 ball.classList.add("on");
+                orbState("speaking");                                 // l'orbe parle pendant l'écriture
                 setTimeout(function () {
                   type(tc, title, 1, 15, function () {                // le titre, lettre à lettre
                     setTimeout(function () {
                       type(sc, sub, 7, 16, function () {              // puis la description, par paquets
-                        setTimeout(function () { ball.classList.remove("on"); copy.classList.add("is-done"); }, 180);
+                        setTimeout(function () { ball.classList.remove("on"); copy.classList.add("is-done"); orbState("listening"); }, 180);
                       });
                     }, 70);
                   });
