@@ -111,56 +111,57 @@
     .then(function () { requestAnimationFrame(function () { hero.classList.add("is-in"); }); });
   setTimeout(function () { hero.classList.add("is-in"); }, 1500);
 
-  /* ---------- le dégradé animé du bas ----------
-     Des taches de couleur douces qui dérivent (corail, rose, magenta, orange, pêche, lavande), une traînée orange
-     en diagonale qui ondule, mélangées en lumière linéaire, avec un grain léger. Sans WebGL : le dégradé CSS fixe. */
+  /* ---------- la lueur du bas ----------
+     Comme le halo d'un assistant vocal : une lumière irisée qui monte du bord inférieur de l'écran, en rayons
+     verticaux, plus haute par endroits, avec un liseré lumineux tout en bas. Couleurs qui glissent lentement
+     (corail, rose, magenta, lavande, orange, pêche), en fondu vers le haut : la page reste visible au-dessus.
+     Sans WebGL : un dégradé CSS fixe. */
   (function () {
-    var cv = document.querySelector("[data-band]"), gl = null;
-    try { gl = cv.getContext("webgl", { alpha: false, antialias: false, powerPreference: "low-power" }); } catch (e) { gl = null; }
+    var cv = document.querySelector("[data-band]"), layer = cv.parentNode, gl = null;
+    try { gl = cv.getContext("webgl", { alpha: true, premultipliedAlpha: true, antialias: false, powerPreference: "low-power" }); } catch (e) { gl = null; }
     if (!gl) { cv.remove(); return; }
     var still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
     var VS = "attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}";
     var FS = [
       "precision mediump float;uniform vec2 uR;uniform float uT;",
-      "float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}",
-      "void blob(inout vec3 acc,inout float ws,vec2 p,vec2 c,float s,vec3 col){vec2 d=p-c;float w=exp(-dot(d,d)/(s*s));acc+=w*col*col;ws+=w;}",
+      "float h1(float x){return fract(sin(x*127.1)*43758.5453);}",
+      "float h2(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}",
+      "float n1(float x){float i=floor(x),f=fract(x);f=f*f*(3.-2.*f);return mix(h1(i),h1(i+1.),f);}",
+      "float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h2(i),h2(i+vec2(1,0)),f.x),mix(h2(i+vec2(0,1)),h2(i+vec2(1,1)),f.x),f.y);}",
+      // palette : corail, rose, magenta, lavande, orange, pêche
+      "vec3 pal(float k){k=fract(k)*6.;",
+      " vec3 c0=vec3(.86,.76,1.),c1=vec3(.95,.45,.92),c2=vec3(.98,.42,.7),c3=vec3(.96,.39,.5),c4=vec3(.98,.55,.38),c5=vec3(.99,.74,.55);",
+      " if(k<1.)return mix(c0,c1,k);if(k<2.)return mix(c1,c2,k-1.);if(k<3.)return mix(c2,c3,k-2.);",
+      " if(k<4.)return mix(c3,c4,k-3.);if(k<5.)return mix(c4,c5,k-4.);return mix(c5,c0,k-5.);}",
       "void main(){",
-      " vec2 uv=gl_FragCoord.xy/uR;float a=uR.x/uR.y,A=clamp(a,1.,3.4),t=uT;",
-      // P : la largeur ramenée à ~3 hauteurs (les taches s'étirent sur les écrans très larges)
-      " vec2 P=vec2(uv.x*A,uv.y);",
-      " P+=.05*vec2(sin(P.y*3.+t*.31)+.5*sin(P.y*7.-t*.23),cos(P.x*1.9-t*.27)+.5*sin(P.x*4.3+t*.19));",
-      " vec3 acc=vec3(0.);float ws=1e-4;",
-      " blob(acc,ws,P,vec2((.1+.03*sin(t*.13))*A,1.),.55,vec3(.96,.4,.5));",
-      " blob(acc,ws,P,vec2((.2+.04*sin(t*.11))*A,.42+.08*sin(t*.17)),.33,vec3(.94,.45,.9));",
-      " blob(acc,ws,P,vec2((.42+.04*cos(t*.09))*A,.72),.45,vec3(.98,.42,.62));",
-      " blob(acc,ws,P,vec2((.52+.05*sin(t*.12))*A,.22+.06*cos(t*.14)),.3,vec3(.93,.47,.9));",
-      " blob(acc,ws,P,vec2((.68+.04*sin(t*.1))*A,.45),.4,vec3(.98,.58,.38));",
-      " blob(acc,ws,P,vec2((.83+.03*cos(t*.1))*A,.82),.35,vec3(.99,.76,.56));",
-      " blob(acc,ws,P,vec2((.96+.02*sin(t*.15))*A,.3),.45,vec3(.96,.43,.55));",
-      " blob(acc,ws,P,vec2(.02*A,-.06),.28,vec3(.88,.8,1.));",
-      " blob(acc,ws,P,vec2(-.02*A,-.16),.2,vec3(.72,.82,1.));",
-      " blob(acc,ws,P,vec2(1.*A,-.06),.26,vec3(.93,.82,1.));",
-      " vec3 c=sqrt(acc/ws);",
-      // traînées orange en diagonale (dans l'espace des pixels, pour garder l'angle), qui ondulent
-      " vec2 Q=vec2(uv.x*a,uv.y);",
-      " vec2 n=normalize(vec2(1.,-.85-.12*sin(t*.2)));",
-      " float d1=dot(Q-vec2((.06+.015*sin(t*.16))*a,0.),n),d2=dot(Q-vec2((.6+.015*cos(t*.14))*a,0.),n);",
-      " c=mix(c,vec3(1.,.63,.42),exp(-pow(d1/.08,2.))*.6+exp(-pow(d2/.1,2.))*.35);",
-      " c=mix(c,vec3(.98,.84,.98),exp(-pow((d1-.13)/.06,2.))*.3);",
-      " c+=(h(gl_FragCoord.xy+fract(t*7.)*91.)-.5)*.06;",
-      " gl_FragColor=vec4(c,1.);}"
+      " vec2 uv=gl_FragCoord.xy/uR;float a=uR.x/uR.y,t=uT,x=uv.x,y=uv.y;",
+      // hauteur de la lueur : une bosse au centre qui respire, des ondulations
+      " float bump=exp(-pow((x-.28-.04*sin(t*.21))/.17,2.))+.8*exp(-pow((x-.86-.03*cos(t*.17))/.15,2.));",
+      " float H=.32+.42*bump*(.85+.15*sin(t*.6))+.1*n1(x*4.+t*.25);",
+      // rayons verticaux
+      " float rays=.72+.28*n2(vec2(x*a*4.,y*1.2-t*.35));",
+      " float I=exp(-y/H)*rays*smoothstep(1.,.55,y);",                // s'éteint tout à fait en haut
+      // couleur : glisse le long du bas et avec le temps
+      " vec3 col=pal(x*1.1+t*.03+.15*n1(x*3.+t*.2)+y*.3);",
+      // liseré lumineux tout en bas, qui suit la bosse
+      " float edge=exp(-max(0.,y-.012*bump)*uR.y*.11);",
+      " vec3 c=col*I*1.1+mix(col,vec3(1.),.4)*edge*.7;",
+      " float al=clamp(I*1.05+edge*.6,0.,1.);",
+      " c+=(h2(gl_FragCoord.xy+fract(t*7.)*91.)-.5)*.04*al;",
+      " gl_FragColor=vec4(min(c,vec3(al)),al);}"
     ].join("\n");
     function sh(type, src) { var s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return gl.getShaderParameter(s, gl.COMPILE_STATUS) ? s : null; }
     var vs = sh(gl.VERTEX_SHADER, VS), fs = sh(gl.FRAGMENT_SHADER, FS);
     if (!vs || !fs) { cv.remove(); return; }
     var pr = gl.createProgram(); gl.attachShader(pr, vs); gl.attachShader(pr, fs); gl.linkProgram(pr);
     if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) { cv.remove(); return; }
+    layer.classList.add("has-gl");                                   // le dégradé CSS de secours s'efface
     gl.useProgram(pr);
     gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
     var loc = gl.getAttribLocation(pr, "p"); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
     var uR = gl.getUniformLocation(pr, "uR"), uT = gl.getUniformLocation(pr, "uT"), t0 = performance.now();
-    var dpr = .5, lastT = 0;                                       // dégradé flou : une demi-résolution suffit
+    var dpr = .6, lastT = 0;                                        // lueur floue : une résolution réduite suffit
     function frame(now) {
       if (!still) requestAnimationFrame(frame);
       if (!still && now - lastT < 33) return;                       // 30 images par seconde au plus
@@ -169,6 +170,7 @@
       if (!w || !h) return;
       if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
       gl.viewport(0, 0, w, h);
+      gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
       gl.uniform2f(uR, w, h);
       gl.uniform1f(uT, still ? 12 : (now - t0) / 1000);
       gl.drawArrays(gl.TRIANGLES, 0, 3);

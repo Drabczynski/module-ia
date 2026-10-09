@@ -161,9 +161,10 @@ avec un document Word, validation, puis sphère de particules et icônes. Source
 - Fond `assets/img/03.png` en mode « produit » sur un dégradé très léger (bleuté en haut à gauche, lavande en bas à droite),
   `?fond=01` pour le premier collage ; devant, les deux personnes `assets/img/02.png`, à 95 % de leur taille,
   calées en bas à droite avec une marge de 4,5 % (réglage ajusté par calcul sur la maquette).
-- Le bas de l'interface, sur toute la largeur : un dégradé animé en WebGL (corail, rose, magenta, orange, pêche, lavande,
-  traînées orange en diagonale, grain), qui recouvre le rectangle rose de l'image, derrière les personnes ;
-  rendu à demi-résolution et 30 images par seconde ; dégradé CSS fixe sans WebGL.
+- Le bas de l'interface, sur toute la largeur : une lueur animée en WebGL qui monte du bord inférieur, comme le halo
+  d'un assistant vocal (rayons verticaux, deux bosses qui respirent, liseré lumineux en bas), aux couleurs corail, rose,
+  magenta, lavande, orange et pêche, en fondu vers le haut ; le rectangle rose de l'image 03 est retiré (seul le ciel
+  reste) ; demi-résolution, 30 images par seconde ; dégradé CSS fixe sans WebGL.
 - Entre les deux, un globe en trame de points qui tourne lentement derrière les personnes (mode « différence » :
   noir sur le blanc, clair sur les nuages) ; ses points s'écartent sous la souris.
 - Entrée (≈ 2,8 s en tout) : « Réflexion » scintille pendant que des lignes grises s'écrivent, se replie puis s'efface ;
