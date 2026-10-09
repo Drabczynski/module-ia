@@ -1968,50 +1968,47 @@
   }
   $$("[data-tab]").forEach(function (b) { b.addEventListener("click", function () { split.dataset.tab = b.dataset.tab; $$("[data-tab]").forEach(function (x) { x.setAttribute("aria-selected", String(x === b)); }); }); });
 
-  /* ---------- Accueil : nuage de points autour de l'orbe, qui tourbillonne sous la souris ---------- */
+  /* ---------- Accueil : la sphère de cristal sur le fond dégradé, qui suit la souris ---------- */
 
   var cloud = (function () {
-    var cv = document.createElement("canvas"), ctx = cv.getContext("2d"), pts = [], raf = 0, on = false;
-    var mx = -9999, my = -9999, R = 0, Rt = 1, A = 1, At = 1, rot = 0, dpr = Math.min(2, window.devicePixelRatio || 1);
+    var cv = document.createElement("canvas"), ctx = cv.getContext("2d"), raf = 0, on = false, crystal = null;
+    var R = 0, Rt = 1, A = 1, At = 1, shift = 0, tx = 0, ty = 0, rx = 0, ry = 0, pulse = 0, t0 = 0, dpr = Math.min(2, window.devicePixelRatio || 1);
+    var bgEl = document.createElement("div");
+    bgEl.className = "wl-bg";
+    document.body.insertBefore(bgEl, document.body.firstChild);
     cv.className = "wl-canvas";
-    claudeEl.insertBefore(cv, claudeEl.firstChild);
-    for (var i = 0; i < 2600; i++) {
-      var u = Math.random() * 2 - 1, th = Math.random() * Math.PI * 2, r = 0.5 + 0.5 * Math.pow(Math.random(), 0.35), q = Math.sqrt(1 - u * u);
-      pts.push({ x: q * Math.cos(th) * r, y: u * r, z: q * Math.sin(th) * r, ox: 0, oy: 0, s: Math.random() < 0.08 ? 1.9 : 1.1 });
-    }
-    window.addEventListener("pointermove", function (e) { var b = cv.getBoundingClientRect(); mx = e.clientX - b.left; my = e.clientY - b.top; });
+    // dans la page, entre le fond et l'application : visible aussi sur mobile, où Claude est replié
+    document.body.insertBefore(cv, bgEl.nextSibling);
+    window.addEventListener("pointermove", function (e) { tx = (e.clientY / window.innerHeight - .5) * .5; ty = (e.clientX / window.innerWidth - .5) * .9; });
     function size() { var b = cv.getBoundingClientRect(); cv.width = b.width * dpr; cv.height = b.height * dpr; }
-    function frame() {
+    function frame(now) {
       if (!on) return;
       raf = requestAnimationFrame(frame);
       if (cv.width !== Math.round(cv.getBoundingClientRect().width * dpr)) size();
       var b = cv.getBoundingClientRect(), o = bigHost.getBoundingClientRect();
-      var cx = o.width ? o.left + o.width / 2 - b.left : b.width / 2, cy = o.width ? o.top + o.height / 2 - b.top : b.height / 2;
-      var base = Math.min(330, Math.min(b.width, b.height) * 0.36);
-      R += (base * Rt - R) * 0.05; A += (At - A) * 0.05; rot += 0.0016;
+      var narrow = b.width < 720;
+      var cx = o.width ? o.left + o.width / 2 - b.left : b.width / 2, cy = o.width ? o.top + o.height / 2 - b.top : b.height * (narrow && Rt === 1 ? .28 : .42);
+      var base = narrow ? b.width * .4 : Math.min(340, Math.min(b.width, b.height) * 0.37);
+      R += (base * Rt - R) * 0.05;
+      // avant « Commencer », la sphère se décale à droite pour laisser respirer le titre
+      shift += ((Rt === 1 && b.width > 900 ? b.width * .09 : 0) - shift) * .05; cx += shift; A += (At - A) * 0.05;
+      rx += (tx - rx) * .04; ry += (ty - ry) * .04;
+      pulse += ((speaking ? 1 : 0) - pulse) * .08;
+      var t = (now - t0) / 1000, beat = 1 + pulse * (.025 * Math.sin(t * 7.5) + .015 * Math.sin(t * 13.1));
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, b.width, b.height);
-      var cs = Math.cos(rot), sn = Math.sin(rot), cT = Math.cos(0.35), sT = Math.sin(0.35);
-      for (var k = 0; k < pts.length; k++) {
-        var p = pts[k];
-        var x = p.x * cs - p.z * sn, z = p.x * sn + p.z * cs, y = p.y * cT - z * sT; z = p.y * sT + z * cT;
-        var px = cx + x * R, py = cy + y * R;
-        var dx = px + p.ox - mx, dy = py + p.oy - my, d = Math.sqrt(dx * dx + dy * dy);
-        if (d < 150 && d > 0.5) {                        // tourbillon autour du curseur
-          var f = (1 - d / 150);
-          p.ox += (-dy / d * 3.2 + dx / d * 1.1) * f * f * 6;
-          p.oy += (dx / d * 3.2 + dy / d * 1.1) * f * f * 6;
-        }
-        p.ox *= 0.93; p.oy *= 0.93;
-        var al = (0.18 + 0.5 * (z + 1) / 2) * A;
-        ctx.fillStyle = "rgba(31, 30, 28," + al.toFixed(3) + ")";
-        ctx.fillRect(px + p.ox, py + p.oy, p.s, p.s);
-      }
+      ctx.globalAlpha = 1;
+      cv.style.opacity = A.toFixed(3);
+      crystal.draw(ctx, cx, cy, R * beat, t, { rx: rx, ry: ry, glow: pulse });
     }
     return {
-      start: function () { if (on) return; on = true; cv.classList.remove("is-off"); size(); R = 0; Rt = 1; A = 0; At = 1; frame(); },
-      gather: function () { Rt = 0.62; At = 0.55; },
-      stop: function () { cv.classList.add("is-off"); setTimeout(function () { on = false; cancelAnimationFrame(raf); }, 950); }
+      start: function () {
+        if (on) return;
+        if (!crystal) crystal = window.CrystalOrb();
+        on = true; cv.classList.remove("is-off"); bgEl.classList.add("is-on"); size(); R = 0; Rt = 1; A = 0; At = 1; t0 = performance.now(); raf = requestAnimationFrame(frame);
+      },
+      gather: function () { Rt = 0.3; At = 1; },
+      stop: function () { At = 0; bgEl.classList.remove("is-on"); setTimeout(function () { on = false; cancelAnimationFrame(raf); cv.classList.add("is-off"); ctx.clearRect(0, 0, cv.width, cv.height); }, 1100); }
     };
   })();
   var wlHero = $("[data-wl-hero]");

@@ -86,6 +86,8 @@ Nouveau parcours court, sur un seul thème : découvrir Claude, à quoi il sert,
 Contenu tiré des articles d'aide Claude « Get started with Claude » et « What are some things I can use Claude for? ».
 Storyboard : `premiers-pas/STORYBOARD.md`.
 
+- Accueil : une sphère de cristal (`premiers-pas/crystal.js`, canvas 2D : maillage lumineux, poussière en spirale, volutes roses)
+  sur un fond dégradé lavande, violet et corail ; elle suit la souris, pulse pendant la voix, puis s'efface pour l'interface habituelle.
 - Même moteur que l'atelier (Claude simulé à gauche, formation à droite, orbe, pas à pas), situations fictives de la vie courante :
   pot de départ, mot d'un voisin en portugais, exposé scolaire.
 - Activités variées : écrire dans Claude, cartes à glisser (vrai/faux), glisser-déposer, relier, classer dans l'ordre,
