@@ -1968,51 +1968,6 @@
   }
   $$("[data-tab]").forEach(function (b) { b.addEventListener("click", function () { split.dataset.tab = b.dataset.tab; $$("[data-tab]").forEach(function (x) { x.setAttribute("aria-selected", String(x === b)); }); }); });
 
-  /* ---------- Accueil : la sphère de cristal sur le fond dégradé, qui suit la souris ---------- */
-
-  var cloud = (function () {
-    var scene = null, raf = 0, on = false, mode = "hero";
-    var R = 0, A = 1, At = 1, cx = 0, cy = 0, pulse = 0, t0 = 0;
-    var bgEl = document.createElement("div");
-    bgEl.className = "wl-bg";
-    document.body.insertBefore(bgEl, document.body.firstChild);
-    // où se tient la sphère : grande et débordant à droite sur l'accueil, à la place de l'orbe ensuite
-    function target() {
-      var W = window.innerWidth, H = window.innerHeight, o = bigHost.getBoundingClientRect(), r;
-      if (mode === "hero") {
-        if (W < 720) { r = W * .5; return [W * .78, 30 + r * .45, r]; }
-        r = Math.min(H * .54, W * .38);
-        return [W - r * .5, H * .52, r];
-      }
-      var x = o.width ? o.left + o.width / 2 : W / 2, y = o.width ? o.top + o.height / 2 : H * .42;
-      return [x, y, mode === "end" ? 70 : 108];
-    }
-    function frame(now) {
-      if (!on) return;
-      raf = requestAnimationFrame(frame);
-      var T = target(), k = mode === "hero" ? .06 : .075;
-      cx += (T[0] - cx) * k; cy += (T[1] - cy) * k; R += (T[2] - R) * k; A += (At - A) * .06;
-      pulse += ((speaking ? 1 : 0) - pulse) * .08;
-      var t = (now - t0) / 1000, beat = 1 + pulse * (.025 * Math.sin(t * 7.5) + .015 * Math.sin(t * 13.1));
-      scene.el.style.opacity = A.toFixed(3);
-      scene.render(now, cx, cy, R * beat, pulse);
-    }
-    return {
-      start: function () {
-        if (on) return;
-        if (!scene) { scene = window.CrystalScene(); document.body.insertBefore(scene.el, bgEl.nextSibling); }
-        on = true; mode = "hero"; scene.el.classList.remove("is-off"); bgEl.classList.add("is-on");
-        var T = target(); cx = T[0]; cy = T[1]; R = 0; A = 1; At = 1; t0 = performance.now();
-        scene.intro();
-        raf = requestAnimationFrame(frame);
-      },
-      gather: function () { mode = "talk"; At = 1; scene.kick(); },
-      // la sphère se resserre et s'éteint là où l'orbe habituelle reprend sa place
-      stop: function () { mode = "end"; At = 0; bgEl.classList.remove("is-on"); scene.release(); setTimeout(function () { on = false; cancelAnimationFrame(raf); scene.el.classList.add("is-off"); }, 1100); }
-    };
-  })();
-  var wlHero = $("[data-wl-hero]");
-
   /* ---------- Le parcours : douze modules, du premier contact à l'usage autonome ---------- */
 
   // [titre, description, (inutilisé), contenu à apprendre] ; modules déjà construits : MOD_URLS
@@ -2083,9 +2038,8 @@
   /* ---------- Accueil : l'orbe au centre, le message de bienvenue mot à mot ---------- */
 
   var WELCOME_TEXT = "Bonjour et bienvenue ! Je serai votre assistante pour toute la durée des modules. Aujourd’hui, vous allez… oui, c’est ça : écrire vos premiers messages à une IA. C’est parti !";
-  var wlGo = $("[data-wl-go]");
   var inWelcome = false, wlStarted = false;
-  // la synthèse vocale a besoin d'un geste : l'accueil s'ouvre sur « Commencer »
+  // la synthèse vocale a besoin d'un geste : l'accueil (accueil.js), posé par-dessus, s'ouvre sur « Commencer »
   function startWelcome() {
     stopVoice();
     cues = [];
@@ -2098,9 +2052,6 @@
     saying(true);
     sayText(WELCOME_TEXT);
     sayReveal(0);
-    wlHero.classList.add("is-on");
-    cloud.start();
-    showGo("Commencer");
   }
   function speakWelcome() {
     var once = false;
@@ -2127,14 +2078,10 @@
     speakTTS(WELCOME_TEXT, v, function () { return inWelcome; }, end, end);
     setTimeout(end, WELCOME_TEXT.length * 95 + 4000);            // filet : certains navigateurs n'émettent pas « end »
   }
-  function showGo(label) { wlGo.firstChild.textContent = label; wlGo.hidden = false; requestAnimationFrame(function () { wlGo.classList.add("is-on"); }); }
-  wlGo.addEventListener("click", function () {
-    if (!inWelcome) return;
-    if (wlStarted) { leaveWelcome(); return; }
+  // « Commencer », sur l'accueil : l'accueil s'efface et l'assistante souhaite la bienvenue
+  document.addEventListener("module:start", function () {
+    if (!inWelcome || wlStarted) return;
     wlStarted = true;
-    wlGo.classList.remove("is-on");
-    wlHero.classList.add("is-started");
-    cloud.gather();
     speakWelcome();
   });
   function leaveWelcome() {
@@ -2142,11 +2089,8 @@
     inWelcome = false;
     if (window.speechSynthesis) speechSynthesis.cancel();
     sayProgress(1);
-    wlGo.classList.remove("is-on");
     app.classList.remove("is-welcome");
     split.classList.remove("panel-away");
-    wlHero.classList.remove("is-on");
-    cloud.stop();
     saying(false);
     setTimeout(function () { go(0); }, 800);
   }

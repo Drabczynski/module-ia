@@ -4,7 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Module 1 · Première rencontre</title>
+  <link rel="preload" href="../assets/img/02.png" as="image">
   <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="gris.css">
+  <link rel="stylesheet" href="accueil.css">
 </head>
 <body>
 
@@ -45,15 +48,51 @@
   </defs>
 </svg>
 
-<!-- bouton de lancement de l'accueil (la voix a besoin d'un premier clic) -->
-<div class="wl-hero" data-wl-hero aria-hidden="false">
-  <div class="wl-main">
-    <h1 class="wl-title">Première rencontre<br>avec l’IA.</h1>
-    <button type="button" class="wl-go" data-wl-go hidden>Commencer<svg><use href="#i-arrow"/></svg></button>
-  </div>
-  <button type="button" class="wl-menu" data-menu-open aria-haspopup="dialog"><svg><use href="#i-menu"/></svg>Les modules</button>
-  <p class="wl-foot-l"><span>Découvrir l’IA, écrire son premier prompt, commencer simple.</span><span>Des situations de la vie courante, pas de théorie.</span></p>
-  <p class="wl-foot-r"><b>Module 1</b><br>15 minutes · 5 séquences</p>
+<!-- ============ Accueil : posé par-dessus l'application jusqu'à « Commencer » (accueil.js) ============ -->
+<div class="acc" data-acc>
+  <header class="bar">
+    <div class="bar-l">
+      <span class="bar-ic" aria-hidden="true"><svg><use href="#i-side"/></svg></span>
+      <span class="bar-ic" aria-hidden="true"><svg><use href="#i-pen"/></svg></span>
+      <span class="bar-sep" aria-hidden="true"></span>
+      <p class="bar-name"><span class="bar-k">Module 1</span><span class="bar-t">Première rencontre</span></p>
+    </div>
+    <div class="bar-r">
+      <button type="button" class="bar-btn" data-menu-open aria-haspopup="dialog" aria-label="Les modules"><svg><use href="#i-menu"/></svg><span class="bar-lbl">Les modules</span></button>
+      <button type="button" class="bar-btn" data-acc-quit><svg><use href="#i-x"/></svg>Quitter</button>
+    </div>
+  </header>
+
+  <main class="hero" data-acc-hero>
+    <!-- le collage (03) et, devant, les deux personnes (02) : même échelle, calés en bas à droite -->
+    <div class="stage" aria-hidden="true">
+      <div class="layer layer-back"><img class="back" data-acc-back alt="" decoding="async"><canvas class="rectfx" data-acc-rectfx></canvas><video class="sky" data-acc-sky muted loop playsinline preload="auto" aria-hidden="true"><source src="../assets/img/after-loop.webm" type="video/webm"><source src="../assets/img/after-loop.mp4" type="video/mp4"></video></div>
+      <div class="layer layer-dots"><canvas class="globe" data-acc-globe></canvas></div>
+      <div class="layer layer-front"><img class="front" src="../assets/img/02.png" alt="" width="1396" height="818" decoding="async"></div>
+    </div>
+
+    <!-- la lueur du bas : au premier plan, par-dessus l'image et les personnes, sous le bouton « Commencer » -->
+    <div class="glow" aria-hidden="true"><canvas class="band" data-acc-band></canvas></div>
+
+    <div class="copy">
+      <p class="tag">Module 1</p>
+      <!-- le temps de réflexion, avant que le titre s'écrive -->
+      <div class="think" data-acc-think aria-hidden="true">
+        <p class="think-h"><span class="think-l">Réflexion</span><svg><use href="#i-chevron"/></svg></p>
+        <div class="think-b">
+          <p>Lecture de la demande : un premier module, pour quelqu’un qui n’a encore jamais écrit à une IA.</p>
+          <p>Mieux vaut pratiquer tout de suite : lui dire bonjour, lui demander à quoi elle sert, voir ce qu’elle répond.</p>
+          <p>Choix d’un cas concret pour le premier prompt : répondre au mail de Karim pour le pot de départ de Martine.</p>
+          <p>Plan : cinq courtes séquences, jusqu’au défi final, l’exposé de Léna.</p>
+        </div>
+      </div>
+      <h1 class="title">Première rencontre<br>avec l’IA</h1>
+      <p class="sub">Une IA générative s’utilise en lui écrivant, comme à quelqu’un. Dans ce module, vous lui dites bonjour, vous découvrez ce qu’elle sait faire, puis vous écrivez votre premier prompt sur un cas concret&nbsp;: le mail de Karim pour le pot de départ de Martine. À la fin, vous saurez lancer une conversation et la relancer.</p>
+      <button type="button" class="go" data-acc-start><span class="go-orb" aria-hidden="true"><span></span></span>Commencer</button>
+    </div>
+  </main>
+
+  <div class="end" data-acc-end hidden><div><h2>À bientôt</h2><p>Vous pouvez fermer cette fenêtre.</p></div></div>
 </div>
 
 <!-- ============ Application : Claude à gauche, formation à droite ============ -->
@@ -143,7 +182,7 @@
 <script src="../assets/audio/sous-titres.js"></script>
 <script src="../assets/audio/mots.js"></script>
 <script src="orb.js"></script>
-<script src="crystal.js"></script>
+<script src="accueil.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

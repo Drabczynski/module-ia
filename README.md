@@ -86,13 +86,13 @@ Nouveau parcours court, sur un seul thème : découvrir Claude, à quoi il sert,
 Contenu tiré des articles d'aide Claude « Get started with Claude » et « What are some things I can use Claude for? ».
 Storyboard : `premiers-pas/STORYBOARD.md`.
 
-- Accueil épuré (sans champ de saisie, mention ni mode) : une grande sphère de cristal (`premiers-pas/crystal.js`) qui déborde à droite,
-  sur un fond animé en shader (dégradé « mesh » corail, orange et violet, liseré magenta, ombre indigo, grain) ; textes en blanc.
-  Verre en WebGL (le fond animé apparaît retourné comme dans une boule de cristal, dispersion des couleurs, nébuleuse rose,
-  reflets irisés ; verre laiteux en canvas 2D si WebGL manque), maillage lumineux avec halo, impulsions de lumière
-  d'arête en arête, galaxie de poussière. Elle se construit à l'ouverture (arêtes tracées, poussière qui converge,
-  éclair, onde de choc), se fait tourner à la souris, répond au clic par une onde, s'anime pendant la voix,
-  puis se resserre et s'efface pour l'interface habituelle.
+- Accueil : le même écran que le module « Des prompts pour les images » (`premiers-pas/accueil.css`, `accueil.js`,
+  règles sous `.acc`), posé par-dessus l'application : barre blanche (module, « Les modules », « Quitter »),
+  collage 03 avec le ciel en vidéo, globe de points, lueur animée en bas, réflexion puis titre et description
+  à la machine à écrire. « Commencer » envoie `module:start` : l'accueil s'efface, l'assistante souhaite la bienvenue
+  (interface épurée, sans champ de saisie, mention ni mode), puis la première étape s'ouvre.
+- Thème gris clair (au lieu du beige d'`app.css`, partagée avec le module 2) : `premiers-pas/gris.css`, générée par
+  `node premiers-pas/gris.mjs` (à relancer après une modification d'`app.css`).
 - Même moteur que l'atelier (Claude simulé à gauche, formation à droite, orbe, pas à pas), situations fictives de la vie courante :
   pot de départ, mot d'un voisin en portugais, exposé scolaire.
 - Activités variées : écrire dans Claude, cartes à glisser (vrai/faux), glisser-déposer, relier, classer dans l'ordre,
