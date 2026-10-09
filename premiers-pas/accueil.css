@@ -209,3 +209,16 @@
 
 /* ---------- après « Commencer » : l'assistante souhaite la bienvenue, sur une interface épurée ---------- */
 .app.is-welcome .claude .composer, .app.is-welcome .claude .work-note, .app.is-welcome .tb-mode { opacity: 0 !important; visibility: hidden; pointer-events: none; }
+
+/* ---------- ouverture : l'image se forme à partir de particules (particules.js) ----------
+   une petite lueur rose pendant que la boule de particules tourne, puis un souffle qui s'étend à l'explosion */
+.acc .acc-burst { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 4; pointer-events: none; }
+.acc .acc-halo { position: absolute; z-index: 4; width: 130px; height: 130px; margin: -65px 0 0 -65px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255, 220, 238, .95), rgba(246, 120, 170, .38) 45%, rgba(170, 140, 255, .14) 72%, rgba(255, 255, 255, 0));
+  animation: acc-halo 1.1s ease-in-out infinite alternate; }
+@keyframes acc-halo { from { transform: scale(.65); opacity: .55; } to { transform: scale(1); opacity: 1; } }
+.acc .acc-halo.is-out { animation: acc-halo-out 1.2s cubic-bezier(.15, .7, .2, 1) forwards; }
+@keyframes acc-halo-out { from { transform: scale(1); opacity: 1; } to { transform: scale(16); opacity: 0; } }
+/* le globe de points apparaît avec l'image */
+.acc .layer-dots { opacity: 0; transition: opacity .6s var(--ease); }
+.acc .is-in .layer-dots { opacity: 1; }

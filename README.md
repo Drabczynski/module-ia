@@ -89,7 +89,9 @@ Storyboard : `premiers-pas/STORYBOARD.md`.
 - Accueil : le même écran que le module « Des prompts pour les images » (`premiers-pas/accueil.css`, `accueil.js`,
   règles sous `.acc`), posé par-dessus l'application : barre blanche (module, « Les modules », « Quitter »),
   collage 03 avec le ciel en vidéo, globe de points, lueur animée en bas, réflexion puis titre et description
-  à la machine à écrire. « Commencer » envoie `module:start` : l'accueil s'efface, l'assistante souhaite la bienvenue
+  à la machine à écrire. Ouverture en particules (`premiers-pas/particules.js`, partagé avec le module 3) : une boule
+  qui tourne pendant le chargement, explose en milliers de particules, qui se posent en trame de points pour former l'image.
+  « Commencer » envoie `module:start` : l'accueil s'efface, l'assistante souhaite la bienvenue
   (interface épurée, sans champ de saisie, mention ni mode), puis la première étape s'ouvre.
 - Thème gris clair (au lieu du beige d'`app.css`, partagée avec le module 2) : `premiers-pas/gris.css`, générée par
   `node premiers-pas/gris.mjs` (à relancer après une modification d'`app.css`).
@@ -161,7 +163,10 @@ avec un document Word, validation, puis sphère de particules et icônes. Source
 - Entre le fond et les personnes, un globe en trame de points qui tourne lentement (mode « différence »).
 - En bas, sur toute la largeur, une lueur animée (corail, rose, magenta, lavande, orange, pêche) passe devant l'image
   et les personnes ; seul le bouton « Commencer » passe devant elle.
-- Entrée (≈ 2,8 s) : « Réflexion » scintille pendant que des lignes grises s'écrivent, se replie puis s'efface ;
+- Ouverture (`premiers-pas/particules.js`, WebGL) : une petite boule de particules tourne le temps que les images
+  se chargent, explose en milliers de particules (halo, onde de choc, spirale), qui se posent du centre vers les bords
+  en trame de points aux couleurs de l'image ; la vraie image apparaît dessous. Sans WebGL ou avec moins d'animations : rien.
+- Puis (≈ 2,8 s) : « Réflexion » scintille pendant que des lignes grises s'écrivent, se replie puis s'efface ;
   le titre et la description s'écrivent à la machine à écrire, une bille noire au bout ; puis le bouton apparaît.
 - `accueil.js` règle la taille du collage d'après la largeur réelle du texte, pour qu'il ne passe jamais sous le titre.
 - Polices IBM Plex Sans et IBM Plex Mono (licence SIL OFL), dans `assets/fonts`.

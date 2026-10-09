@@ -108,11 +108,35 @@
   layout();
   window.addEventListener("resize", layout);
 
-  // entrée, une fois les images prêtes
+  // entrée : l'image se forme à partir de particules (../premiers-pas/particules.js), puis apparaît ;
+  // sans WebGL ou avec moins d'animations, elle apparaît dès que les images sont prêtes
   var imgs = Array.prototype.slice.call(document.querySelectorAll(".stage img"));
-  Promise.all(imgs.map(function (im) { return im.decode ? im.decode().catch(function () {}) : Promise.resolve(); }))
-    .then(function () { requestAnimationFrame(function () { hero.classList.add("is-in"); }); });
-  setTimeout(function () { hero.classList.add("is-in"); }, 1500);
+  var decoded = Promise.all(imgs.map(function (im) { return im.decode ? im.decode().catch(function () {}) : Promise.resolve(); }));
+  function enter() { hero.classList.add("is-in"); }
+  function plain() { decoded.then(function () { requestAnimationFrame(enter); }); setTimeout(enter, 1500); }
+  function onIn(fn) {
+    if (hero.classList.contains("is-in")) { fn(); return; }
+    new MutationObserver(function (m, o) { if (hero.classList.contains("is-in")) { o.disconnect(); fn(); } }).observe(hero, { attributes: true, attributeFilter: ["class"] });
+  }
+  if ((window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) || !window.AccParticles) plain();
+  else (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () {
+    // une fois la mise en page définitive : l'explosion part du globe, derrière les personnes
+    var hb = hero.getBoundingClientRect(), sr = document.querySelector("[data-stage]").getBoundingClientRect(), fr = document.querySelector(".front");
+    var ox = sr.left - hb.left, oy = sr.top - hb.top;
+    var intro = window.AccParticles({
+      parent: hero,
+      center: [ox + g[0] / 100 * sr.width, oy + g[1] / 100 * sr.height],
+      area: { x: ox, y: oy, w: sr.width, h: sr.height },
+      picture: decoded.then(function () {
+        return { layers: [{ img: back, x: ox, y: oy, w: sr.width, h: sr.height },
+          { img: fr, x: ox + fr.offsetLeft, y: oy + fr.offsetTop, w: fr.offsetWidth, h: fr.offsetHeight }] };
+      }),
+      onReveal: enter
+    });
+    if (!intro) { plain(); return; }
+    setTimeout(enter, 9000);
+    window.addEventListener("resize", intro.finish, { once: true });
+  });
 
   /* ---------- la lueur du bas ----------
      Comme le halo d'un assistant vocal : une lumière irisée qui monte du bord inférieur de l'écran, en rayons
@@ -284,6 +308,7 @@
         c: rr < .06 ? "#d0a42c" : rr < .085 ? "#0f75d3" : "#ebebeb", ox: 0, oy: 0 });
     }
     var mx = -9999, my = -9999, rot = .5, t0 = performance.now(), last = t0;
+    onIn(function () { t0 = performance.now(); });              // le globe se dessine quand l'image apparaît
     window.addEventListener("pointermove", function (e) { var b = cv.getBoundingClientRect(); mx = e.clientX - b.left; my = e.clientY - b.top; });
     document.addEventListener("pointerleave", function () { mx = my = -9999; });
     function frame(now) {
