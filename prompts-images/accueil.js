@@ -12,8 +12,8 @@
     if (W <= 720) {
       s = W * 1.85 / W0;                              // mobile : on garde la partie droite, avec les personnes
     } else {
-      // le nuage de points commence à x = 805 dans le collage ; le texte s'étend sur ~ 6 % + 292 u
-      s = Math.min(H / H0, (W * .94 - 32) / 1585);
+      // le nuage de points commence à x = 805 dans le collage ; le texte s'étend sur ~ 6 % + 245 u (le sous-titre)
+      s = Math.min(H / H0, (W * .94 - 40) / 1545);
     }
     var top = H - H0 * s;
     root.style.setProperty("--s", s.toFixed(4));
@@ -81,6 +81,53 @@
       }
     }
     requestAnimationFrame(frame);
+  })();
+
+  /* ---------- des prompts qui apparaissent sur l'image, dans des bulles de verre liquide ----------
+     Chaque bulle naît en pastille, s'étire pendant que le texte s'écrit, reste un instant puis s'efface.
+     Positions en % du collage (ancre : centre gauche de la bulle, ou centre droit si « r »). */
+  (function () {
+    var host = document.querySelector("[data-prompts]");
+    var still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var PROMPTS = [
+      ["Génère-moi une image pour le post de la médiathèque…", 33, 72],
+      ["Sujet : des lecteurs dans un parc, au soleil", 66, 50],
+      ["Style : illustration douce, couleurs pastel", 46, 17],
+      ["Cadrage : plan large, beaucoup de ciel", 22, 88],
+      ["Usage : format carré pour Instagram, sans texte", 97, 68, "r"]
+    ];
+    var k = 0;
+    function show(item) {
+      var el = document.createElement("div");
+      el.className = "pp" + (item[3] === "r" ? " is-right" : "");
+      el.innerHTML = '<span class="pp-ic"><svg><use href="#i-spark4"/></svg></span><span class="pp-tx"></span>';
+      if (item[3] === "r") el.style.right = (100 - item[1]) + "%"; else el.style.left = item[1] + "%";
+      el.style.top = item[2] + "%";
+      host.appendChild(el);
+      var tx = el.querySelector(".pp-tx");
+      requestAnimationFrame(function () {
+        el.classList.add("is-pop");
+        setTimeout(function () {
+          var car = document.createElement("span"); car.className = "pp-car"; tx.appendChild(car);
+          var chars = Array.from(item[0]), n = 0;
+          // la bulle s'étire avec le texte, lettre après lettre
+          (function type() {
+            if (n >= chars.length) { el.classList.add("is-typed", "is-open"); el.style.width = el.scrollWidth + "px"; return; }
+            var c = document.createElement("i"); c.textContent = chars[n++];
+            tx.insertBefore(c, car);
+            el.style.width = el.scrollWidth + "px";
+            setTimeout(type, still ? 0 : 26 + Math.random() * 24);
+          })();
+        }, still ? 0 : 380);
+      });
+      var life = still ? 5200 : 2000 + item[0].length * 38 + 2400;
+      setTimeout(function () { el.classList.add("is-out"); setTimeout(function () { el.remove(); }, 700); }, life);
+    }
+    function next() {
+      if (!document.hidden) show(PROMPTS[k++ % PROMPTS.length]);
+      setTimeout(next, still ? 6000 : 2900);
+    }
+    setTimeout(next, 1900);
   })();
 
   // « Commencer » : la suite du module sera branchée ici
