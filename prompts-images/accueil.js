@@ -338,7 +338,7 @@
     }
     if (still) {
       copy.querySelectorAll(".w, .c").forEach(function (s) { s.classList.add("on"); });
-      think.classList.add("is-gone"); copy.classList.add("is-done");
+      think.classList.add("is-gone"); copy.classList.add("is-done", "orb-on");
       return;
     }
     var ball = document.createElement("span"); ball.className = "ball"; copy.appendChild(ball);
@@ -382,7 +382,6 @@
     function start() {
       var t0 = performance.now();
       think.classList.add("is-on");                                   // « Réflexion » scintille
-      orbState("thinking");                                           // l'orbe réfléchit
       setTimeout(function () {
         streamAll(paras, 4, function () {                             // les lignes grises s'écrivent, très vite
           setTimeout(function () {
@@ -394,7 +393,7 @@
                 place(tc[0], title);
                 ball.style.left = (parseFloat(ball.style.left) - tc[0].getBoundingClientRect().width) + "px";
                 ball.classList.add("on");
-                orbState("speaking");                                 // l'orbe parle pendant l'écriture
+                copy.classList.add("orb-on"); orbState("speaking");   // l'orbe apparaît et parle pendant l'écriture
                 setTimeout(function () {
                   type(tc, title, 1, 15, function () {                // le titre, lettre à lettre
                     setTimeout(function () {
@@ -410,8 +409,7 @@
         });
       }, 60);
     }
-    // l'orbe est visible dès l'arrivée (elle réfléchit) ; la réflexion commence quand elle est bien là
-    var go = function () { go = function () {}; orbState("thinking"); setTimeout(start, 380); };
+    var go = function () { go = function () {}; setTimeout(start, 200); };
     new MutationObserver(function () { if (hero.classList.contains("is-in")) go(); }).observe(hero, { attributes: true, attributeFilter: ["class"] });
     if (hero.classList.contains("is-in")) go();
   })();

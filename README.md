@@ -153,7 +153,8 @@ avec un document Word, validation, puis sphère de particules et icônes. Source
 
 Écran d'accueil d'après la maquette finale (1260 × 560).
 - Barre d'outils blanche : nom du module et bouton « Quitter » (ferme la session SCORM en « suspend », puis écran de fin).
-- Notre orbe (`premiers-pas/orb.js`) tourne à gauche du titre, visible dès l'arrivée : elle « réfléchit » pendant la réflexion,
+- Notre orbe (`premiers-pas/orb.js`) tourne à gauche du titre ; absente pendant la réflexion, elle apparaît quand le titre
+  commence à s'écrire,
   « parle » pendant l'écriture, puis reste en écoute.
 - « MODULE 3 » en petites capitales ; titre en IBM Plex Sans (500), interlettrage serré ; description en gris ;
   bouton « Commencer » en IBM Plex Sans, posé en bas à gauche quand la place le permet (sinon sous le texte) ;
