@@ -1,10 +1,13 @@
 /* ==========================================================================
-   Module 2 · Des prompts pour les images — écran d'accueil.
-   Mesures reprises de la maquette (1131 × 537) : 1 u = 1 pixel de la maquette,
+   Module 3 · Des prompts pour les images — écran d'accueil.
+   Mesures reprises de la maquette finale (1260 × 560) : 1 u = 1 pixel de la maquette,
    recalculé par accueil.js selon la taille de l'écran (--u, --s, --top).
    ========================================================================== */
 @font-face { font-family: "Inter"; src: url("../assets/fonts/inter.woff2") format("woff2-variations"); font-weight: 100 900; font-display: swap; }
 @font-face { font-family: "Inter Tight"; src: url("../assets/fonts/inter-tight.woff2") format("woff2-variations"); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: "IBM Plex Sans"; src: url("../assets/fonts/ibm-plex-sans-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "IBM Plex Sans"; src: url("../assets/fonts/ibm-plex-sans-500.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "IBM Plex Sans"; src: url("../assets/fonts/ibm-plex-sans-600.woff2") format("woff2"); font-weight: 600; font-display: swap; }
 @font-face { font-family: "IBM Plex Mono"; src: url("../assets/fonts/ibm-plex-mono-300.woff2") format("woff2"); font-weight: 300; font-display: swap; }
 @font-face { font-family: "IBM Plex Mono"; src: url("../assets/fonts/ibm-plex-mono-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
 
@@ -18,9 +21,14 @@ html, body { margin: 0; height: 100%; }
 body {
   overflow: hidden; color: var(--ink); -webkit-font-smoothing: antialiased;
   font: 400 15px/1.5 "Inter", system-ui, sans-serif;
-  /* même blanc bleuté que le bord gauche du collage */
-  background: #fff;
+  /* blanc légèrement bleuté en haut à gauche, lavande en bas à droite, comme la maquette */
+  background:
+    radial-gradient(55% 75% at 100% 100%, #dedff6 0%, rgba(222, 223, 246, 0) 72%),
+    radial-gradient(45% 60% at 0% 0%, #e9f1fa 0%, rgba(233, 241, 250, 0) 75%),
+    #fbfcfe;
 }
+/* fond 03 : ses blancs laissent voir le dégradé de la page */
+body.bg-03 .back { mix-blend-mode: multiply; }
 /* fond 01 : même blanc bleuté que le bord gauche du collage */
 body.bg-01 { background: linear-gradient(180deg, #f3f8fd 0%, #f8fbfe 50%, #fdfdfe 100%); }
 
@@ -77,27 +85,29 @@ body.bg-01 { background: linear-gradient(180deg, #f3f8fd 0%, #f8fbfe 50%, #fdfdf
 .end p { margin: 0; color: var(--ink-2); font-size: 16px; }
 
 /* ---------- texte ---------- */
-.copy { position: absolute; z-index: 2; left: 6vw; top: max(20px, calc(var(--top) + var(--u) * 56px - var(--lift, 0px))); }
+.copy { position: absolute; z-index: 2; left: 4.4vw; top: max(20px, calc(var(--top) + var(--u) * 80px - var(--lift, 0px))); }
 .tag {
-  margin: 0; font: 300 calc(var(--u) * 14.5px)/1 "IBM Plex Mono", ui-monospace, monospace;
-  letter-spacing: -.01em; color: #1a1a1a;
+  margin: 0; font: 600 max(11px, calc(var(--u) * 11px))/1 "Inter", sans-serif;
+  text-transform: uppercase; letter-spacing: .01em; color: #111;
 }
 .title {
-  margin: calc(var(--u) * 13px) 0 0; font: 400 max(30px, calc(var(--u) * 29px))/1.08 "Inter Tight", "Inter", sans-serif;
-  letter-spacing: -.022em; color: var(--ink);
+  margin: calc(var(--u) * 18px) 0 0; font: 500 max(30px, calc(var(--u) * 39.5px))/1.04 "IBM Plex Sans", "Inter", sans-serif;
+  letter-spacing: -.012em; color: var(--ink);
 }
 .sub {
-  margin: calc(var(--u) * 15px) 0 0; max-width: max(330px, calc(var(--u) * 252px));
-  font-size: max(13px, calc(var(--u) * 8.7px)); line-height: 1.55; color: var(--ink-2);
+  margin: calc(var(--u) * 17px) 0 0 calc(var(--u) * 2px); max-width: max(330px, calc(var(--u) * 345px));
+  font-size: max(13px, calc(var(--u) * 11.4px)); line-height: 1.46; color: #6e6e73;
 }
 .go {
-  margin-top: calc(var(--u) * 30px); display: inline-flex; align-items: center; gap: calc(var(--u) * 11px);
-  height: max(38px, calc(var(--u) * 24px)); padding: 0 calc(var(--u) * 12px) 0 calc(var(--u) * 12.5px);
+  margin-top: calc(var(--u) * 28px); display: inline-flex; align-items: center; gap: calc(var(--u) * 12px);
+  height: max(38px, calc(var(--u) * 28px)); padding: 0 calc(var(--u) * 15px) 0 calc(var(--u) * 13px);
   border: 0; border-radius: 999px; background: #000; color: #fff; cursor: pointer;
-  font: 600 max(13.5px, calc(var(--u) * 9.4px))/1 "Inter", sans-serif; letter-spacing: -.005em;
+  font: 600 max(13.5px, calc(var(--u) * 12px))/1 "IBM Plex Sans", "Inter", sans-serif; letter-spacing: 0;
   transition: transform .25s var(--ease), background .2s;
 }
-.go svg { width: max(13px, calc(var(--u) * 8.5px)); height: max(13px, calc(var(--u) * 8.5px)); transition: transform .25s var(--ease); }
+/* comme sur la maquette : le bouton se pose en bas à gauche, quand la place le permet */
+.copy .go.is-low { position: absolute; left: calc(var(--u) * 5px); top: var(--go-y); margin: 0; }
+.go svg { width: max(13px, calc(var(--u) * 10px)); height: max(13px, calc(var(--u) * 10px)); transition: transform .25s var(--ease); }
 .go:hover { background: #222; }
 .go:hover svg { transform: translateX(3px); }
 .go:active { transform: scale(.97); }
@@ -118,8 +128,8 @@ body.bg-01 { background: linear-gradient(180deg, #f3f8fd 0%, #f8fbfe 50%, #fdfdf
   .bar-ic, .bar-sep, .bar-k { display: none; }
   .bar { padding-left: 16px; }
   .copy { left: 24px; right: 24px; top: 28px; }
-  .tag { font-size: 15px; }
-  .title { margin-top: 12px; font-size: clamp(27px, 7.6vw, 32px); }
+  .tag { font-size: 12px; }
+  .title { margin-top: 14px; font-size: clamp(28px, 8vw, 34px); }
   .sub { margin-top: 16px; font-size: 14px; }
   .sub br { display: none; }
   .go { margin-top: 22px; height: 42px; padding: 0 18px 0 20px; gap: 12px; font-size: 15px; }
@@ -139,6 +149,8 @@ body.bg-01 { background: linear-gradient(180deg, #f3f8fd 0%, #f8fbfe 50%, #fdfdf
   opacity: 0; transform: translate(0, -50%); transition: left .09s linear, top .09s linear, width .2s, height .2s, opacity .25s;
 }
 .copy > .ball.on { opacity: 1; animation: ball 1s ease-in-out infinite; }
+/* au repos, au bout du titre */
+.copy > .ball.rest { opacity: 1; animation: none; }
 @keyframes ball { 50% { transform: translate(0, -50%) scale(.72); } }
 .copy .go { opacity: 0; transform: translateY(10px); transition: opacity .6s var(--ease), transform .7s var(--ease); }
 .copy.is-done .go { opacity: 1; transform: none; }
@@ -151,10 +163,12 @@ body.bg-01 { background: linear-gradient(180deg, #f3f8fd 0%, #f8fbfe 50%, #fdfdf
 /* ---------- temps de réflexion ----------
    « Réflexion » scintille pendant que des lignes grises s'écrivent dessous ; puis le bloc se replie en
    « Réflexion · 3 s » (cliquable pour le rouvrir), et le titre s'écrit. */
-.think { position: relative; margin-top: calc(var(--u) * 12px); }
+.think { position: relative; margin-top: calc(var(--u) * 12px); max-height: 60px; transition: max-height .45s var(--ease), margin .45s var(--ease), opacity .3s; }
+/* une fois le titre lancé, la réflexion s'efface : on retrouve la maquette (le module, puis le titre) */
+.copy .think.is-gone { max-height: 0; margin-top: 0; opacity: 0; overflow: hidden; pointer-events: none; }
 .copy .think { opacity: 1; transform: none; transition: none; }
 .think-h {
-  display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 8px 0 0; margin-left: -1px;
+  display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 8px 0 0; margin-left: -1px; margin-bottom: -6px;
   border: 0; border-radius: 6px; background: none; cursor: pointer; opacity: 0; transition: opacity .3s var(--ease);
   font: 500 max(13px, calc(var(--u) * 8.4px))/1 "Inter", sans-serif; color: #8e8e93;
 }

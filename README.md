@@ -151,17 +151,18 @@ avec un document Word, validation, puis sphère de particules et icônes. Source
 
 ## Module « Des prompts pour les images » (`prompts-images/`)
 
-Écran d'accueil d'après la maquette.
+Écran d'accueil d'après la maquette finale (1260 × 560).
 - Barre d'outils blanche : nom du module et bouton « Quitter » (ferme la session SCORM en « suspend », puis écran de fin).
-- Fond `assets/img/03.png` (ciel de nuages et dégradé ; `?fond=01` pour le premier collage `01.png`) et, devant,
-  les deux personnes détourées `assets/img/02.png`, à 91 % de leur taille et calées en bas à droite.
-- Entre les deux, un globe en trame de points (les particules des modules) qui tourne lentement derrière les personnes ;
-  en mode « différence », ses points restent noirs sur le blanc et deviennent clairs sur les nuages ; ils s'écartent sous la souris.
-- Temps de réflexion : « Réflexion » scintille pendant que des lignes grises s'écrivent dessous, puis le bloc se replie
-  en « Réflexion · 1 s » (cliquable pour le rouvrir) ; le tout dure environ 1,2 s.
-- Ensuite le titre et la description s'écrivent mot à mot, chaque mot sortant du flou, avec une bille noire qui pulse
-  au bout du texte, comme une réponse d'assistant ; le bouton « Commencer » apparaît à la fin.
-  Si le texte descendrait sur l'image du bas, il remonte.
-- `accueil.js` règle la taille du collage d'après la largeur réelle du texte, pour qu'il ne passe jamais sous le titre.
-- Police du libellé « Module 2 » : IBM Plex Mono (licence SIL OFL), dans `assets/fonts`.
+- « MODULE 3 » en petites capitales ; titre en IBM Plex Sans (500) terminé par une bille noire ; description en gris ;
+  bouton « Commencer » en IBM Plex Sans, posé en bas à gauche quand la place le permet (sinon sous le texte).
+- Fond `assets/img/03.png` en mode « produit » sur un dégradé très léger (bleuté en haut à gauche, lavande en bas à droite),
+  `?fond=01` pour le premier collage ; devant, les deux personnes `assets/img/02.png`, à 95 % de leur taille,
+  calées en bas à droite avec une marge de 4,5 % (réglage ajusté par calcul sur la maquette).
+- Entre les deux, un globe en trame de points qui tourne lentement derrière les personnes (mode « différence » :
+  noir sur le blanc, clair sur les nuages) ; ses points s'écartent sous la souris.
+- Entrée : « Réflexion » scintille pendant que des lignes grises s'écrivent (≈ 1,2 s), se replie puis s'efface ;
+  le titre s'écrit mot à mot avec la bille au bout, où elle reste ; puis la description, puis le bouton.
+- `accueil.js` règle la taille du collage d'après la largeur réelle du texte, pour qu'il ne passe jamais sous le titre,
+  et remonte le texte s'il descendrait sur l'image du bas.
+- Polices IBM Plex Sans et IBM Plex Mono (licence SIL OFL), dans `assets/fonts`.
 - « Commencer » émet l'événement `module:start`, où sera branchée la suite du module.

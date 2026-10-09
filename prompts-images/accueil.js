@@ -5,14 +5,14 @@
 (function () {
   "use strict";
   var root = document.documentElement, hero = document.querySelector("[data-hero]");
-  // hauteur de la maquette ; les personnes (02.png, 1396 × 818) réduites à 91 %, calées en bas à droite avec une marge
-  var MOCK_H = 537, PEOPLE = .91, PW = 1396 * PEOPLE, PH = 818 * PEOPLE, MARGIN = .025;
+  // hauteur de la maquette ; les personnes (02.png, 1396 × 818) à 95 %, calées en bas à droite avec une marge
+  var MOCK_H = 560, PEOPLE = .95, PW = 1396 * PEOPLE, PH = 818 * PEOPLE, MARGIN = .045;
 
   // fonds possibles : largeur, hauteur, abscisse où le collage commence en haut (il ne doit pas passer sous le texte),
   // fondu du bord quand le collage ne remplit pas la hauteur. ?fond=01 pour revenir au premier collage.
   var BGS = {
-    "01": { src: "../assets/img/01.png", w: 1901, h: 900, clear: 805, low: 466, fade: true },
-    "03": { src: "../assets/img/03.png", w: 2039, h: 913, clear: 786, low: 563, fade: false }
+    "01": { src: "../assets/img/01.png", w: 1901, h: 900, clear: 805, low: 466, lowX: 385, fade: true },
+    "03": { src: "../assets/img/03.png", w: 2039, h: 913, clear: 786, low: 563, lowX: 390, fade: false }
   };
   var key = (location.search.match(/fond=(\d+)/) || [])[1];
   var BG = BGS[key] || BGS["03"], W0 = BG.w, H0 = BG.h;
@@ -32,7 +32,8 @@
   root.style.setProperty("--gl", (g[0] - gs / W0 * 50).toFixed(3) + "%");
   root.style.setProperty("--gt", (g[1] - gs / H0 * 50).toFixed(3) + "%");
 
-  var copy = document.querySelector(".copy");
+  var copy = document.querySelector(".copy"), goBtn = copy.querySelector(".go"), subEl = copy.querySelector(".sub");
+  var ballRest = function () {};                     // replace la bille au bout du titre (définie plus bas)
   function apply(s, W, H) {
     var top = H - H0 * s;
     root.style.setProperty("--s", s.toFixed(4));
@@ -54,7 +55,8 @@
   function layout() {
     var W = window.innerWidth, H = hero.clientHeight || window.innerHeight, s;
     root.style.setProperty("--lift", "0px");
-    if (W <= 720) { apply(W * 1.85 / W0, W, H); return; }     // mobile : on garde la partie droite, avec les personnes
+    goBtn.classList.remove("is-low");
+    if (W <= 720) { apply(W * 1.85 / W0, W, H); ballRest(); return; }     // mobile : on garde la partie droite, avec les personnes
     // le collage commence à x = clear : il doit rester à droite du texte, avec une marge
     s = Math.min(H / H0, (W * .94 - 40) / (W0 - BG.clear + 450));
     for (var k = 0; k < 3; k++) {
@@ -64,10 +66,22 @@
       if (need <= room) break;
       s = Math.min(H / H0, room / (W0 - BG.clear));
     }
+    // le bouton se pose en bas à gauche (comme sur la maquette) s'il y a la place, sinon il suit le texte
+    var u = s * 900 / MOCK_H, hb = hero.getBoundingClientRect();
+    var lowLeft = hb.left + (W - W0 * s) + BG.lowX * s, lowTop = hb.top + (H - H0 * s) + BG.low * s;
+    goBtn.classList.remove("is-low");
+    var gb = goBtn.getBoundingClientRect(), cb = copy.getBoundingClientRect(), sb = subEl.getBoundingClientRect();
+    var goY = hb.bottom - 51 * u - gb.height, goR = cb.left + 5 * u + gb.width;
+    var low = !(goR + 16 > lowLeft && goY + gb.height > lowTop) && goY > sb.bottom + 28;
+    if (low) { goBtn.classList.add("is-low"); root.style.setProperty("--go-y", (goY - cb.top).toFixed(1) + "px"); }
     // si le texte descendrait sur l'image du bas, il remonte
-    var hb = hero.getBoundingClientRect(), cb = copy.getBoundingClientRect();
-    var limit = hb.top + (H - H0 * s) + BG.low * s - Math.max(24, H * .03);
-    if (cb.bottom > limit) root.style.setProperty("--lift", (cb.bottom - limit).toFixed(1) + "px");
+    var bottom = low ? sb.bottom : copy.getBoundingClientRect().bottom;
+    var limit = lowTop - Math.max(24, H * .03);
+    if (bottom > limit && cb.left + copy.offsetWidth > lowLeft) {
+      root.style.setProperty("--lift", (bottom - limit).toFixed(1) + "px");
+      if (low) root.style.setProperty("--go-y", (goY - cb.top + (bottom - limit)).toFixed(1) + "px");
+    }
+    ballRest();
   }
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
   layout();
@@ -137,7 +151,7 @@
   /* ---------- réflexion, puis le titre et la description s'écrivent mot à mot, une bille noire au bout ---------- */
   (function () {
     var still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var think = copy.querySelector("[data-think]"), toggle = copy.querySelector("[data-think-toggle]"), label = think.querySelector(".think-l");
+    var think = copy.querySelector("[data-think]"), label = think.querySelector(".think-l");
     var title = copy.querySelector(".title"), sub = copy.querySelector(".sub");
     // découpe en mots, en gardant les retours à la ligne
     function split(el) {
@@ -157,34 +171,33 @@
     }
     var paras = Array.prototype.map.call(think.querySelectorAll(".think-b p"), split);
     var tw = split(title), sw = split(sub);
-    toggle.addEventListener("click", function () {
-      if (!think.classList.contains("is-done")) return;
-      var open = think.classList.toggle("is-open");
-      toggle.setAttribute("aria-expanded", String(open));
-      layout();
-    });
     function finish(sec) {
       think.classList.add("is-on", "is-done");
       label.textContent = "Réflexion · " + sec + " s";
     }
+    var ball = document.createElement("span"); ball.className = "ball"; copy.appendChild(ball);
+    // la bille : une demi-hauteur de lettre, centrée sur les minuscules, un peu après le mot
+    function place(w, el) {
+      var c = copy.getBoundingClientRect(), r = w.getBoundingClientRect(), fs = parseFloat(getComputedStyle(el).fontSize);
+      var d = el === title ? fs * .53 : Math.max(8, fs * .55);
+      ball.style.width = ball.style.height = d + "px";
+      ball.style.left = (r.right - c.left + fs * (el === title ? .33 : .2)) + "px";
+      ball.style.top = (r.top - c.top + r.height * .59) + "px";
+    }
+    // au repos, la bille reste au bout du titre (et suit les changements de taille)
+    ballRest = function () { if (ball.classList.contains("rest")) place(tw[tw.length - 1], title); };
     if (still) {
       copy.querySelectorAll(".w").forEach(function (w) { w.classList.add("on"); });
-      finish(3); copy.classList.add("is-done"); return;
+      think.classList.add("is-gone"); copy.classList.add("is-done");
+      ball.classList.add("rest"); place(tw[tw.length - 1], title);
+      return;
     }
-    var ball = document.createElement("span"); ball.className = "ball"; copy.appendChild(ball);
-    function place(w, el, size) {
-      var c = copy.getBoundingClientRect(), r = w.getBoundingClientRect();
-      var fs = parseFloat(getComputedStyle(el).fontSize), d = size || Math.max(8, fs * .55);
-      ball.style.width = ball.style.height = d + "px";
-      ball.style.left = (r.right - c.left + d * .45) + "px";
-      ball.style.top = (r.top - c.top + r.height * .56) + "px";
-    }
-    function stream(words, el, gap, done, size, noBall) {
+    function stream(words, el, gap, done, noBall) {
       var i = 0;
       (function step() {
         if (i >= words.length) { done(); return; }
         var w = words[i++]; w.classList.add("on");
-        if (!noBall) place(w, el, size);
+        if (!noBall) place(w, el);
         setTimeout(step, gap);
       })();
     }
@@ -192,7 +205,7 @@
       var k = 0;
       (function next() {
         if (k >= list.length) { done(); return; }
-        stream(list[k++], think, gap, function () { setTimeout(next, 50); }, 0, true);
+        stream(list[k++], think, gap, function () { setTimeout(next, 50); }, true);
       })();
     }
     function start() {
@@ -201,22 +214,26 @@
       setTimeout(function () {
         streamAll(paras, 9, function () {                             // les lignes grises s'écrivent
           setTimeout(function () {
-            finish(Math.max(1, Math.round((performance.now() - t0) / 1000)));   // repli : « Réflexion · 3 s »
+            finish(Math.max(1, Math.round((performance.now() - t0) / 1000)));   // repli : « Réflexion · 1 s »
             setTimeout(function () {
-              place(tw[0], title, parseFloat(getComputedStyle(title).fontSize) * .3);
-              ball.style.left = (parseFloat(ball.style.left) - tw[0].offsetWidth) + "px";
-              ball.classList.add("on");
+              think.classList.add("is-gone");                         // puis la réflexion s'efface
               setTimeout(function () {
-                stream(tw, title, 95, function () {
-                  setTimeout(function () {
-                    stream(sw, sub, 30, function () {
-                      setTimeout(function () { ball.classList.remove("on"); copy.classList.add("is-done"); }, 450);
-                    });
-                  }, 260);
-                }, parseFloat(getComputedStyle(title).fontSize) * .3);
-              }, 300);
-            }, 280);
-          }, 220);
+                place(tw[0], title);
+                ball.style.left = (parseFloat(ball.style.left) - tw[0].offsetWidth) + "px";
+                ball.classList.add("on");
+                setTimeout(function () {
+                  stream(tw, title, 95, function () {                 // le titre s'écrit, la bille au bout
+                    ball.classList.remove("on"); ball.classList.add("rest");
+                    setTimeout(function () {
+                      stream(sw, sub, 30, function () {               // puis la description
+                        setTimeout(function () { copy.classList.add("is-done"); }, 250);
+                      }, true);
+                    }, 200);
+                  });
+                }, 250);
+              }, 480);
+            }, 380);
+          }, 200);
         });
       }, 150);
     }
