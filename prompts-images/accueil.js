@@ -114,7 +114,8 @@
   /* ---------- la lueur du bas ----------
      Comme le halo d'un assistant vocal : une lumière irisée qui monte du bord inférieur de l'écran, en rayons
      verticaux, plus haute par endroits, avec un liseré lumineux tout en bas. Couleurs qui glissent lentement
-     (corail, rose, magenta, lavande, orange, pêche), en fondu vers le haut : la page reste visible au-dessus.
+     (corail, rose, magenta, lavande, orange, pêche), en fondu vers le haut ; discrète, et placée derrière l'image
+     de fond : on la voit dans les blancs de l'image et au bas de l'écran.
      Sans WebGL : un dégradé CSS fixe. */
   (function () {
     var cv = document.querySelector("[data-band]"), layer = cv.parentNode, gl = null;
@@ -136,17 +137,18 @@
       "void main(){",
       " vec2 uv=gl_FragCoord.xy/uR;float a=uR.x/uR.y,t=uT,x=uv.x,y=uv.y;",
       // hauteur de la lueur : une bosse au centre qui respire, des ondulations
-      " float bump=exp(-pow((x-.28-.04*sin(t*.21))/.17,2.))+.8*exp(-pow((x-.86-.03*cos(t*.17))/.15,2.));",
-      " float H=.32+.42*bump*(.85+.15*sin(t*.6))+.1*n1(x*4.+t*.25);",
+      " float bump=exp(-pow((x-.3-.12*sin(t*.37))/.16,2.))*(.75+.25*sin(t*1.1))+.8*exp(-pow((x-.8-.1*cos(t*.29))/.14,2.))*(.75+.25*sin(t*.9+2.));",
+      " float H=.13+.22*bump+.06*n1(x*4.+t*.6);",
       // rayons verticaux
-      " float rays=.72+.28*n2(vec2(x*a*4.,y*1.2-t*.35));",
+      " float rays=.62+.38*n2(vec2(x*a*4.+t*.2,y*1.6-t*.9));",        // les rayons montent
       " float I=exp(-y/H)*rays*smoothstep(1.,.55,y);",                // s'éteint tout à fait en haut
       // couleur : glisse le long du bas et avec le temps
-      " vec3 col=pal(x*1.1+t*.03+.15*n1(x*3.+t*.2)+y*.3);",
+      " vec3 col=pal(x*1.1-t*.07+.15*n1(x*3.+t*.4)+y*.3);",           // les couleurs défilent le long du bas
       // liseré lumineux tout en bas, qui suit la bosse
       " float edge=exp(-max(0.,y-.012*bump)*uR.y*.11);",
-      " vec3 c=col*I*1.1+mix(col,vec3(1.),.4)*edge*.7;",
-      " float al=clamp(I*1.05+edge*.6,0.,1.);",
+      " float k=.5;",                                                  // discrète : la moitié de l'intensité
+      " vec3 c=(col*I+mix(col,vec3(1.),.4)*edge*.5)*k;",
+      " float al=clamp(I*.95+edge*.45,0.,1.)*k;",
       " c+=(h2(gl_FragCoord.xy+fract(t*7.)*91.)-.5)*.04*al;",
       " gl_FragColor=vec4(min(c,vec3(al)),al);}"
     ].join("\n");
@@ -177,6 +179,76 @@
     }
     requestAnimationFrame(frame);
     if (still) window.addEventListener("resize", function () { requestAnimationFrame(frame); });
+  })();
+
+  /* ---------- le rectangle dégradé de l'image 03, animé ----------
+     On découpe le rectangle dans l'image et on fait onduler ses couleurs (déformation lente et douce) :
+     l'image reste la même, son dégradé bouge. Seulement avec le fond 03 et WebGL. */
+  (function () {
+    var cv = document.querySelector("[data-rectfx]");
+    if (BG !== BGS["03"]) return;
+    var still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (still) return;
+    var gl = null;
+    try { gl = cv.getContext("webgl", { alpha: false, antialias: false, powerPreference: "low-power" }); } catch (e) { gl = null; }
+    if (!gl) return;
+    var R = { x: 390, y: 563, w: 839, h: 350 };                    // le rectangle, en pixels de l'image
+    var VS = "attribute vec2 p;varying vec2 v;void main(){v=p*.5+.5;gl_Position=vec4(p,0.,1.);}";
+    var FS = [
+      "precision mediump float;varying vec2 v;uniform sampler2D uTex;uniform float uT;uniform vec2 uR;",
+      "float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}",
+      "float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}",
+      "void main(){",
+      " vec2 uv=vec2(v.x,1.-v.y),q=uv*vec2(2.4,1.);float t=uT;",
+      " vec2 w=vec2(n(q*1.6+vec2(t*.13,-t*.07)),n(q*1.6+vec2(5.2-t*.11,1.3+t*.09)))-.5;",
+      " w+=.5*(vec2(n(q*3.4+vec2(-t*.2,t*.15)),n(q*3.4+vec2(2.7+t*.17,8.1-t*.12)))-.5);",
+      " vec2 s=clamp(uv+w*vec2(.07,.16),vec2(.002),vec2(.998));",
+      " vec3 c=texture2D(uTex,s).rgb;",
+      " c+=(h(gl_FragCoord.xy+fract(t*5.)*71.)-.5)*.035;",                 // grain, comme l'image
+      " gl_FragColor=vec4(c,1.);}"
+    ].join("\n");
+    function sh(type, src) { var s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return gl.getShaderParameter(s, gl.COMPILE_STATUS) ? s : null; }
+    var vs = sh(gl.VERTEX_SHADER, VS), fs = sh(gl.FRAGMENT_SHADER, FS);
+    if (!vs || !fs) return;
+    var pr = gl.createProgram(); gl.attachShader(pr, vs); gl.attachShader(pr, fs); gl.linkProgram(pr);
+    if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) return;
+    gl.useProgram(pr);
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    var loc = gl.getAttribLocation(pr, "p"); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    var uT = gl.getUniformLocation(pr, "uT"), t0 = performance.now(), lastT = 0;
+    function begin() {
+      // le rectangle, légèrement adouci pour que le grain d'origine ne « nage » pas
+      var crop = document.createElement("canvas"), cc = crop.getContext("2d");
+      crop.width = 420; crop.height = 175;
+      if (typeof cc.filter === "string") cc.filter = "blur(1px)";
+      cc.drawImage(back, R.x + 3, R.y + 3, R.w - 6, R.h - 6, -4, -4, crop.width + 8, crop.height + 8);
+      var tex = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      try { gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, crop); } catch (e) { return; }
+      cv.classList.add("is-on");
+      requestAnimationFrame(frame);
+      setTimeout(function () { cv.classList.add("is-shown"); }, 60);
+    }
+    function frame(now) {
+      requestAnimationFrame(frame);
+      if (now - lastT < 33) return;                                    // 30 images par seconde au plus
+      lastT = now;
+      var w = Math.round(cv.clientWidth * .75), h = Math.round(cv.clientHeight * .75);
+      if (!w || !h) return;
+      if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+      gl.viewport(0, 0, w, h);
+      gl.uniform1f(uT, (now - t0) / 1000);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    }
+    // une fois l'entrée de l'image terminée
+    var wait = function () { setTimeout(function () { (back.complete && back.naturalWidth ? Promise.resolve() : new Promise(function (r) { back.onload = r; })).then(begin); }, 1900); };
+    if (hero.classList.contains("is-in")) wait();
+    else new MutationObserver(function (m, o) { if (hero.classList.contains("is-in")) { o.disconnect(); wait(); } }).observe(hero, { attributes: true, attributeFilter: ["class"] });
   })();
 
   /* ---------- les particules, derrière les personnes ----------
