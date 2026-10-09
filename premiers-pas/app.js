@@ -1980,7 +1980,7 @@
     function target() {
       var W = window.innerWidth, H = window.innerHeight, o = bigHost.getBoundingClientRect(), r;
       if (mode === "hero") {
-        if (W < 720) { r = W * .62; return [W * .8, H * .2, r]; }
+        if (W < 720) { r = W * .5; return [W * .78, 30 + r * .45, r]; }
         r = Math.min(H * .54, W * .38);
         return [W - r * .5, H * .52, r];
       }

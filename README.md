@@ -87,7 +87,7 @@ Contenu tiré des articles d'aide Claude « Get started with Claude » et « Wha
 Storyboard : `premiers-pas/STORYBOARD.md`.
 
 - Accueil épuré (sans champ de saisie, mention ni mode) : une grande sphère de cristal (`premiers-pas/crystal.js`) qui déborde à droite,
-  sur un fond animé en shader (fluide corail, orange, magenta et violet, ombre indigo, grain).
+  sur un fond animé en shader (dégradé « mesh » corail, orange et violet, liseré magenta, ombre indigo, grain) ; textes en blanc.
   Verre en WebGL (le fond animé apparaît retourné comme dans une boule de cristal, dispersion des couleurs, nébuleuse rose,
   reflets irisés ; verre laiteux en canvas 2D si WebGL manque), maillage lumineux avec halo, impulsions de lumière
   d'arête en arête, galaxie de poussière. Elle se construit à l'ouverture (arêtes tracées, poussière qui converge,

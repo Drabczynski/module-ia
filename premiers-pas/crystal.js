@@ -82,22 +82,25 @@
     " return mix(mix(mix(hash(i),hash(i+vec3(1,0,0)),f.x),mix(hash(i+vec3(0,1,0)),hash(i+vec3(1,1,0)),f.x),f.y),",
     "            mix(mix(hash(i+vec3(0,0,1)),hash(i+vec3(1,0,1)),f.x),mix(hash(i+vec3(0,1,1)),hash(i+vec3(1,1,1)),f.x),f.y),f.z);}",
     "float fbm(vec3 p){float a=.5,s=0.;for(int i=0;i<4;i++){s+=a*noise(p);p=p*2.03+vec3(1.7,9.2,3.1);a*=.5;}return s;}",
-    // le fond animé : un fluide corail, orange, magenta et violet, avec une ombre indigo en bas à droite
+    // le fond animé : un dégradé « mesh », des taches de couleur douces qui dérivent lentement
+    // (corail, orange, magenta, violet, ombre indigo en bas à droite), mélangées en lumière linéaire
     "float h2(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}",
-    "float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h2(i),h2(i+vec2(1,0)),f.x),mix(h2(i+vec2(0,1)),h2(i+vec2(1,1)),f.x),f.y);}",
-    "float fb2(vec2 p){float s=0.,a=.5;for(int i=0;i<3;i++){s+=a*n2(p);p=p*2.03+vec2(3.1,1.7);a*=.5;}return s;}",
+    "float pt(inout vec3 acc,inout float ws,vec2 p,vec2 c,float s,vec3 col){vec2 d=p-c;float w=exp(-dot(d,d)/(s*s));acc+=w*col*col;ws+=w;return w;}",
     "vec3 bg(vec2 uv){",
-    " float t=uT*.045;vec2 p=uv;",
-    " vec2 w=vec2(fb2(p*1.5+vec2(t,-t*.7)),fb2(p*1.5+vec2(5.2-t*.8,1.3+t*.5)))-.5;",
-    " p+=w*.38;",
-    " float x0=.56+.1*sin(p.y*4.2+uT*.11)+.05*sin(p.y*9.-uT*.17);",
-    " float cool=smoothstep(x0-.09,x0+.13,p.x);",
-    " vec3 warm=mix(vec3(.878,.471,.455),vec3(.95,.63,.34),smoothstep(.44,.04,length((p-vec2(.42,.24))*vec2(1.,1.2))));",
-    " warm=mix(warm,vec3(.70,.32,.68),smoothstep(.36,0.,length((p-vec2(.44,1.04))*vec2(1.,1.4)))*.85);",
-    " vec3 cold=mix(vec3(.42,.22,.80),vec3(.52,.28,.76),smoothstep(.5,0.,length(p-vec2(.75,1.)))*.6);",
-    " cold=mix(cold,vec3(.13,.04,.28),smoothstep(.4,0.,length((p-vec2(.82,.0))*vec2(1.4,1.))));",
-    " vec3 c=mix(warm,cold,cool);",
-    " c=mix(c,vec3(.86,.32,.62),exp(-pow((p.x-x0)*8.,2.))*.55);",
+    " float a=uRes.x/uRes.y,t=uT;vec2 p=vec2(uv.x*a,uv.y);",
+    " p+=.07*vec2(sin(p.y*3.1+t*.23)+.5*sin(p.y*6.3-t*.17),cos(p.x*2.4-t*.19)+.5*sin(p.x*5.1+t*.21));",
+    " vec3 acc=vec3(0.);float ws=1e-4,warm=0.;",
+    " warm+=pt(acc,ws,p,vec2((.12+.04*sin(t*.11))*a,.8),.42,vec3(.89,.43,.4));",
+    " warm+=pt(acc,ws,p,vec2(.0,.3+.05*sin(t*.07)),.42,vec3(.88,.45,.45));",
+    " warm+=pt(acc,ws,p,vec2((.42+.04*sin(t*.13))*a,.24+.05*cos(t*.1)),.3,vec3(.97,.61,.3));",
+    " pt(acc,ws,p,vec2((.46+.04*cos(t*.09))*a,.92),.3,vec3(.64,.3,.69));",
+    " pt(acc,ws,p,vec2((.8+.03*cos(t*.08))*a,.78),.45,vec3(.42,.21,.83));",
+    " pt(acc,ws,p,vec2(1.*a,.32+.05*sin(t*.1)),.4,vec3(.36,.18,.8));",
+    " pt(acc,ws,p,vec2((.8+.03*sin(t*.12))*a,-.04),.26,vec3(.09,.03,.21));",
+    " vec3 c=sqrt(acc/ws);",
+    // liseré magenta lumineux entre les zones chaudes et froides
+    " float f=warm/ws;",
+    " c=mix(c,vec3(.93,.3,.66),exp(-pow((f-.45)*5.,2.))*.62);",
     " return c;}",
     "void main(){",
     " vec2 uv=gl_FragCoord.xy/uRes;",
@@ -105,7 +108,7 @@
     " vec2 q=(gl_FragCoord.xy-uC)/uR;float rr=length(q),aa=1.5/uR;",
     " vec3 hc=vec3(1.,.86,.98);",
     " float d=max(rr-1.,0.);",
-    " col+=hc*(exp(-d*5.)*(.22+.22*uSpeak)*uGlass+uFlash*exp(-d*1.6)*.6)*smoothstep(1.-aa,1.+aa,rr);",
+    " col+=hc*(exp(-d*5.)*(.13+.2*uSpeak)*uGlass+uFlash*exp(-d*1.6)*.6)*smoothstep(1.-aa,1.+aa,rr);",
     " if(rr<1.+aa){",
     "  float z=sqrt(max(0.,1.-rr*rr));vec3 n=vec3(q,z);float fres=pow(1.-z,2.2);",
     "  vec2 off=-q*uR/uRes*.82*(1.-.3*fres),cuv=uC/uRes;",
@@ -125,7 +128,7 @@
     "  g+=pow(max(dot(n,L),0.),14.)*.08+uFlash*.25;",
     "  col=mix(col,g,(1.-smoothstep(1.-aa,1.+aa,rr))*uGlass);}",
     // grain
-    " col+=(h2(gl_FragCoord.xy+fract(uT*7.)*91.)-.5)*.04;",
+    " col+=(h2(gl_FragCoord.xy+fract(uT*7.)*91.)-.5)*.035;",
     " gl_FragColor=vec4(col,1.)*uA;}"
   ].join("\n");
 

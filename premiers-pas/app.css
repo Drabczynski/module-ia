@@ -1107,3 +1107,13 @@ html.crystal-drag, html.crystal-drag body, html.crystal-drag * { cursor: grabbin
 .app.is-welcome .claude .composer, .app.is-welcome .claude .work-note, .app.is-welcome .tb-mode { opacity: 0 !important; visibility: hidden; pointer-events: none; }
 .wl-hero .wl-foot-l { color: #2a1622; }
 .wl-hero .wl-foot-r, .wl-hero .wl-foot-r b { color: #fff; }
+/* accueil sur fond sombre et coloré : textes en blanc */
+.wl-hero .wl-title { color: #fff; }
+.wl-hero .wl-go { background: #fff; color: #1a1220; }
+.wl-hero .wl-go:hover { background: #f3eef6; }
+.wl-hero .wl-foot-l, .wl-hero .wl-foot-r, .wl-hero .wl-foot-r b { color: rgba(255, 255, 255, .9); }
+.wl-hero .wl-menu { background: rgba(255, 255, 255, .14); box-shadow: 0 0 0 1px rgba(255, 255, 255, .35); color: #fff; }
+.wl-hero .wl-menu:hover { background: rgba(255, 255, 255, .24); box-shadow: 0 0 0 1px rgba(255, 255, 255, .5); }
+.app.is-welcome .topbar, .app.is-welcome .tb-title, .app.is-welcome .tb-icon { color: #fff; }
+.app.is-welcome .tb-pill { background: rgba(255, 255, 255, .14); color: rgba(255, 255, 255, .9); }
+.is-welcome .orb-say, .app.is-welcome .orb-say { color: #fff; }
