@@ -40,11 +40,6 @@ body {
   mask-composite: intersect;
 }
 .front { right: 0; bottom: 0; width: 73.435%; height: auto; }      /* 1396 / 1901 */
-/* le nuage de particules des modules, entre le collage et les personnes, centré derrière elles */
-.layer-dots { pointer-events: none; }
-.dots { position: absolute; left: calc(64.7% - 32.14%); top: calc(48.9% - 67.89%); width: 64.28%; height: 135.78%; opacity: 0; transition: opacity 1.4s var(--ease) .2s; }
-.is-in .dots { opacity: 1; }
-
 /* ---------- barre ---------- */
 .chrome { position: absolute; top: 10px; left: 10px; z-index: 3; display: flex; gap: 6px; color: #3d3d3a; }
 .chrome span { width: 28px; height: 28px; display: grid; place-items: center; }
@@ -101,21 +96,20 @@ body {
   .layer, .back, .front, .copy > * { transition: none !important; }
 }
 
-/* ---------- prompts en verre liquide, qui apparaissent sur l'image ---------- */
+/* ---------- prompts en verre liquide, qui apparaissent sur l'image ----------
+   La bulle arrive en fondu depuis le flou, puis le texte s'affiche mot à mot, comme une réponse qui s'écrit. */
 .layer-prompts { pointer-events: none; }
 .pp {
   --h: max(40px, calc(var(--u) * 28px));
-  position: absolute; height: var(--h); width: var(--h); border-radius: 999px;
-  display: flex; align-items: center; overflow: hidden; white-space: nowrap;
-  transform: translate(0, -50%) scale(.86); transform-origin: calc(var(--h) / 2) 50%;
-  opacity: 0; filter: blur(8px);
+  position: absolute; height: var(--h); padding-right: calc(var(--h) * .5); border-radius: 999px;
+  display: flex; align-items: center; white-space: nowrap;
+  transform: translate(0, calc(-50% + 6px)); opacity: 0; filter: blur(10px);
   color: #fff; font: 600 max(13px, calc(var(--u) * 8.6px))/1 "Inter", sans-serif; letter-spacing: -.01em;
   background: linear-gradient(180deg, rgba(86, 88, 96, .5), rgba(28, 29, 34, .52));
   -webkit-backdrop-filter: blur(14px) saturate(170%); backdrop-filter: blur(14px) saturate(170%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28), inset 0 -1px 0 rgba(255, 255, 255, .06), 0 12px 32px -10px rgba(10, 12, 20, .45), 0 2px 6px rgba(10, 12, 20, .12);
-  transition: opacity .55s var(--ease), transform .7s cubic-bezier(.2, 1.35, .3, 1), filter .55s var(--ease), width .32s cubic-bezier(.2, .8, .2, 1);
+  transition: opacity .35s var(--ease), filter .35s var(--ease), transform .45s var(--ease);
 }
-.pp.is-right { transform-origin: calc(100% - var(--h) / 2) 50%; }
 /* liseré lumineux, plus vif en haut, comme un verre bombé */
 .pp::before {
   content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
@@ -123,25 +117,14 @@ body {
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
 }
-/* reflet qui traverse le verre à l'ouverture */
-.pp::after {
-  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
-  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, .22) 50%, transparent 65%) no-repeat;
-  background-size: 260% 100%; background-position: 120% 0; opacity: 0;
-}
-.pp.is-open::after { animation: pp-sheen 1.6s var(--ease) .15s; }
-@keyframes pp-sheen { 0% { opacity: 1; background-position: 120% 0; } 100% { opacity: 1; background-position: -60% 0; } }
-.pp.is-pop { opacity: 1; filter: none; transform: translate(0, -50%) scale(1); }
-.pp.is-out { opacity: 0; filter: blur(6px); transform: translate(0, calc(-50% - 10px)) scale(.97); transition: opacity .5s var(--ease), transform .6s var(--ease), filter .5s var(--ease); }
+.pp.is-pop { opacity: 1; filter: none; transform: translate(0, -50%); }
+.pp.is-out { opacity: 0; filter: blur(8px); transform: translate(0, calc(-50% - 4px)); transition: opacity .3s var(--ease), filter .3s var(--ease), transform .3s var(--ease); }
 .pp-ic { flex: none; width: var(--h); height: var(--h); display: grid; place-items: center; }
 .pp-ic svg { width: calc(var(--h) * .36); height: calc(var(--h) * .36); }
-.pp-tx { padding-right: calc(var(--h) * .5); }
-.pp-tx i { font-style: normal; display: inline-block; white-space: pre; animation: ch-in .4s var(--ease) both; }
-@keyframes ch-in { from { opacity: 0; filter: blur(4px); transform: translateY(2px); } }
-.pp-car { display: inline-block; width: 1.5px; height: 1.05em; margin-left: 2px; vertical-align: -.15em; background: rgba(255, 255, 255, .9); animation: car 1s steps(1) infinite; }
-.pp.is-typed .pp-car { opacity: 0; transition: opacity .4s; animation: none; }
-@keyframes car { 50% { opacity: 0; } }
+.pp-tx .w { display: inline; opacity: 0; filter: blur(6px); }
+.pp.is-pop .pp-tx .w { animation: w-in .38s var(--ease) forwards; }
+@keyframes w-in { to { opacity: 1; filter: blur(0); } }
 @media (prefers-reduced-motion: reduce) {
-  .pp { transition: opacity .4s !important; filter: none !important; transform: translate(0, -50%) !important; }
-  .pp-tx i { animation: none; }
+  .pp, .pp.is-out { filter: none !important; transform: translate(0, -50%) !important; }
+  .pp-tx .w { opacity: 1; filter: none; animation: none !important; }
 }

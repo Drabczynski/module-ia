@@ -152,10 +152,9 @@ avec un document Word, validation, puis sphère de particules et icônes. Source
 ## Module « Des prompts pour les images » (`prompts-images/`)
 
 Écran d'accueil d'après la maquette : le collage `assets/img/01.png` et, devant, les deux personnes détourées
-`assets/img/02.png` (même échelle, calées en bas à droite). Entre les deux, le nuage de particules des modules
-(sphère de points qui tourne et tourbillonne sous la souris), centré derrière les personnes.
-Par-dessus, des prompts apparaissent tour à tour dans des bulles de verre liquide (flou d'arrière-plan, liseré lumineux,
-reflet) : la bulle naît en pastille, s'étire lettre après lettre pendant que le prompt s'écrit, puis s'efface. `accueil.js` règle la taille du collage pour que le
+`assets/img/02.png` (même échelle, calées en bas à droite).
+Par-dessus, des prompts apparaissent tour à tour dans des bulles de verre liquide (flou d'arrière-plan, liseré lumineux) :
+la bulle arrive en fondu depuis le flou, puis le texte s'affiche mot à mot, comme une réponse qui s'écrit. `accueil.js` règle la taille du collage pour que le
 nuage de points ne passe jamais sous le titre ; légère profondeur à la souris, entrée en fondu.
 Police du libellé « Module 2 » : IBM Plex Mono (licence SIL OFL), dans `assets/fonts`.
 Le bouton « Commencer » émet l'événement `module:start`, où sera branchée la suite du module.
