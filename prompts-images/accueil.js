@@ -223,39 +223,39 @@
       var k = 0;
       (function next() {
         if (k >= list.length) { done(); return; }
-        stream(list[k++], gap, function () { setTimeout(next, 50); });
+        stream(list[k++], gap, function () { setTimeout(next, 20); });
       })();
     }
     function start() {
       var t0 = performance.now();
       think.classList.add("is-on");                                   // « Réflexion » scintille
       setTimeout(function () {
-        streamAll(paras, 9, function () {                             // les lignes grises s'écrivent
+        streamAll(paras, 4, function () {                             // les lignes grises s'écrivent, très vite
           setTimeout(function () {
             finish(Math.max(1, Math.round((performance.now() - t0) / 1000)));   // repli : « Réflexion · 1 s »
             setTimeout(function () {
               think.classList.add("is-gone");                         // puis la réflexion s'efface
               setTimeout(function () {
-                // la bille apparaît là où le titre va commencer, pulse un instant, puis le texte s'écrit
+                // la bille apparaît là où le titre va commencer, puis le texte s'écrit
                 place(tc[0], title);
                 ball.style.left = (parseFloat(ball.style.left) - tc[0].getBoundingClientRect().width) + "px";
                 ball.classList.add("on");
                 setTimeout(function () {
-                  type(tc, title, 1, 38, function () {                // le titre, lettre à lettre
+                  type(tc, title, 1, 15, function () {                // le titre, lettre à lettre
                     setTimeout(function () {
-                      type(sc, sub, 3, 24, function () {              // puis la description, par petits paquets
-                        setTimeout(function () { ball.classList.remove("on"); copy.classList.add("is-done"); }, 350);
+                      type(sc, sub, 7, 16, function () {              // puis la description, par paquets
+                        setTimeout(function () { ball.classList.remove("on"); copy.classList.add("is-done"); }, 180);
                       });
-                    }, 160);
+                    }, 70);
                   });
-                }, 420);
-              }, 480);
-            }, 380);
-          }, 200);
+                }, 150);
+              }, 260);
+            }, 160);
+          }, 110);
         });
-      }, 150);
+      }, 60);
     }
-    var go = function () { go = function () {}; setTimeout(start, 300); };
+    var go = function () { go = function () {}; setTimeout(start, 120); };
     new MutationObserver(function () { if (hero.classList.contains("is-in")) go(); }).observe(hero, { attributes: true, attributeFilter: ["class"] });
     if (hero.classList.contains("is-in")) go();
   })();

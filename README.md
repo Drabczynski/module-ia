@@ -153,7 +153,7 @@ avec un document Word, validation, puis sphère de particules et icônes. Source
 
 Écran d'accueil d'après la maquette finale (1260 × 560).
 - Barre d'outils blanche : nom du module et bouton « Quitter » (ferme la session SCORM en « suspend », puis écran de fin).
-- « MODULE 3 » en petites capitales ; titre en IBM Plex Sans (500) ; description en gris ;
+- « MODULE 3 » en petites capitales ; titre en IBM Plex Sans (500), interlettrage serré ; description en gris ;
   bouton « Commencer » en IBM Plex Sans, posé en bas à gauche quand la place le permet (sinon sous le texte) ;
   le collage glisse vers la droite pour laisser de l'air autour du bouton.
 - Fond `assets/img/03.png` en mode « produit » sur un dégradé très léger (bleuté en haut à gauche, lavande en bas à droite),
@@ -161,7 +161,7 @@ avec un document Word, validation, puis sphère de particules et icônes. Source
   calées en bas à droite avec une marge de 4,5 % (réglage ajusté par calcul sur la maquette).
 - Entre les deux, un globe en trame de points qui tourne lentement derrière les personnes (mode « différence » :
   noir sur le blanc, clair sur les nuages) ; ses points s'écartent sous la souris.
-- Entrée : « Réflexion » scintille pendant que des lignes grises s'écrivent (≈ 1,2 s), se replie puis s'efface ;
+- Entrée (≈ 2,8 s en tout) : « Réflexion » scintille pendant que des lignes grises s'écrivent, se replie puis s'efface ;
   puis le titre et la description s'écrivent à la machine à écrire, une bille noire au bout du dernier caractère
   (comme une réponse d'assistant) ; la bille s'efface à la fin et le bouton apparaît.
 - `accueil.js` règle la taille du collage d'après la largeur réelle du texte, pour qu'il ne passe jamais sous le titre,
