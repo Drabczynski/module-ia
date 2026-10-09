@@ -49,6 +49,7 @@
   (function () {
     var host = document.querySelector("[data-prompts]");
     var still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // [texte, x %, y %, ancre « r » = bulle calée à droite]
     var PROMPTS = [
       ["Génère-moi une image pour le post de la médiathèque…", 33, 72],
       ["Sujet : des lecteurs dans un parc, au soleil", 66, 50],
