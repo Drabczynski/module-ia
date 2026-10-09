@@ -118,7 +118,7 @@ body.bg-01 { background: linear-gradient(180deg, #f3f8fd 0%, #f8fbfe 50%, #fdfdf
   letter-spacing: -.02em; color: #141414;
 }
 .title {
-  margin: calc(var(--u) * 14px) 0 0; font: 400 max(30px, calc(var(--u) * 47px))/1.06 "Inter Tight", "Inter", sans-serif;
+  margin: calc(var(--u) * 14px) 0 0; font: 450 max(30px, calc(var(--u) * 47px))/1.06 "Inter Tight", "Inter", sans-serif;
   letter-spacing: -.032em; color: var(--ink);
 }
 .sub {

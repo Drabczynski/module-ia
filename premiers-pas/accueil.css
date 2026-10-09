@@ -105,7 +105,7 @@
   letter-spacing: -.02em; color: #141414;
 }
 .acc .title {
-  margin: calc(var(--u) * 14px) 0 0; font: 400 max(30px, calc(var(--u) * 47px))/1.06 "Inter Tight", "Inter", sans-serif;
+  margin: calc(var(--u) * 14px) 0 0; font: 450 max(30px, calc(var(--u) * 47px))/1.06 "Inter Tight", "Inter", sans-serif;
   letter-spacing: -.032em; color: var(--ink);
 }
 .acc .sub {
