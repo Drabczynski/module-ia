@@ -24,14 +24,14 @@ body {
 /* fond 01 : même blanc bleuté que le bord gauche du collage */
 body.bg-01 { background: linear-gradient(180deg, #f3f8fd 0%, #f8fbfe 50%, #fdfdfe 100%); }
 
-.hero { position: relative; height: 100vh; height: 100dvh; overflow: hidden; }
+.hero { position: relative; overflow: hidden; }
 
 /* ---------- collage ---------- */
 .stage {
   position: absolute; right: 0; top: var(--top);
   width: var(--sw); height: var(--sh);
 }
-.layer { position: absolute; inset: 0; will-change: transform; transition: transform .9s var(--ease); }
+.layer { position: absolute; inset: 0; }
 .stage img { position: absolute; display: block; user-select: none; -webkit-user-drag: none; }
 .back { inset: 0; width: 100%; height: 100%; }
 /* quand le collage ne touche pas le haut de l'écran, son bord se fond dans le fond de page */
@@ -41,15 +41,40 @@ body.bg-01 { background: linear-gradient(180deg, #f3f8fd 0%, #f8fbfe 50%, #fdfdf
   mask-image: linear-gradient(to bottom, transparent 0, #000 9%), linear-gradient(to right, transparent 0, #000 4%);
   mask-composite: intersect;
 }
-.front { right: 0; bottom: 0; width: var(--pw); height: auto; }      /* les personnes, calées en bas à droite */
+.front { right: var(--pr); bottom: 0; width: var(--pw); height: auto; }      /* les personnes, calées en bas à droite */
 /* les particules, entre le collage et les personnes : un globe en trame de points, centré derrière elles */
 /* mode « différence » : les points restent noirs sur le blanc et s'éclaircissent sur une image sombre */
 .layer-dots { pointer-events: none; mix-blend-mode: difference; }
 .dots { position: absolute; left: var(--gl); top: var(--gt); width: var(--gw); height: var(--gh); }
-/* ---------- barre ---------- */
-.chrome { position: absolute; top: 10px; left: 10px; z-index: 3; display: flex; gap: 6px; color: #3d3d3a; }
-.chrome span { width: 28px; height: 28px; display: grid; place-items: center; }
-.chrome svg { width: 17px; height: 17px; }
+/* ---------- barre d'outils ---------- */
+:root { --bar: 56px; }
+.bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 20; height: var(--bar);
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 14px 0 10px;
+  background: #fff; border-bottom: 1px solid #ececee;
+}
+.bar-l { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.bar-ic { width: 32px; height: 32px; display: grid; place-items: center; color: #3d3d3a; flex: none; }
+.bar-ic svg { width: 17px; height: 17px; }
+.bar-sep { width: 1px; height: 20px; margin: 0 10px 0 6px; background: #e6e6e8; flex: none; }
+.bar-name { margin: 0; display: flex; align-items: baseline; gap: 10px; min-width: 0; white-space: nowrap; }
+.bar-k { font: 400 12.5px/1 "IBM Plex Mono", ui-monospace, monospace; color: #8a8a8e; }
+.bar-t { font: 500 14px/1.2 "Inter", sans-serif; color: #141414; overflow: hidden; text-overflow: ellipsis; }
+.bar-quit {
+  flex: none; display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 14px 0 11px;
+  border: 1px solid #dededf; border-radius: 999px; background: #fff; color: #141414; cursor: pointer;
+  font: 600 13.5px/1 "Inter", sans-serif; transition: border-color .2s, background .2s;
+}
+.bar-quit svg { width: 15px; height: 15px; }
+.bar-quit:hover { border-color: #141414; }
+.bar-quit:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
+.hero { margin-top: var(--bar); height: calc(100vh - var(--bar)); height: calc(100dvh - var(--bar)); }
+
+/* écran de fin, après « Quitter » */
+.end[hidden] { display: none; }
+.end { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; background: #fff; text-align: center; }
+.end h2 { margin: 0 0 10px; font: 400 clamp(30px, 3.4vw, 44px)/1.05 "Inter Tight", sans-serif; letter-spacing: -.025em; }
+.end p { margin: 0; color: var(--ink-2); font-size: 16px; }
 
 /* ---------- texte ---------- */
 .copy { position: absolute; z-index: 2; left: 6vw; top: calc(var(--top) + var(--u) * 56px); }
@@ -90,7 +115,9 @@ body.bg-01 { background: linear-gradient(180deg, #f3f8fd 0%, #f8fbfe 50%, #fdfdf
 
 /* ---------- petits écrans : le texte en haut, le collage en bas ---------- */
 @media (max-width: 720px) {
-  .copy { left: 24px; right: 24px; top: 72px; }
+  .bar-ic, .bar-sep, .bar-k { display: none; }
+  .bar { padding-left: 16px; }
+  .copy { left: 24px; right: 24px; top: 28px; }
   .tag { font-size: 15px; }
   .title { margin-top: 12px; font-size: clamp(27px, 7.6vw, 32px); }
   .sub { margin-top: 16px; font-size: 14px; }
@@ -99,39 +126,24 @@ body.bg-01 { background: linear-gradient(180deg, #f3f8fd 0%, #f8fbfe 50%, #fdfdf
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .layer, .back, .front, .copy > * { transition: none !important; }
+  .back, .front, .copy > * { transition: none !important; }
 }
 
-/* ---------- prompts en verre liquide, qui apparaissent sur l'image ----------
-   La bulle arrive en fondu depuis le flou, puis le texte s'affiche mot à mot, comme une réponse qui s'écrit. */
-.layer-prompts { pointer-events: none; }
-.pp {
-  --h: max(40px, calc(var(--u) * 28px));
-  position: absolute; height: var(--h); padding-right: calc(var(--h) * .5); border-radius: 999px;
-  display: flex; align-items: center; white-space: nowrap;
-  transform: translate(0, calc(-50% + 6px)); opacity: 0; filter: blur(10px);
-  color: #161616; font: 600 max(13px, calc(var(--u) * 8.6px))/1 "Inter", sans-serif; letter-spacing: -.01em;
-  /* verre clair : blanc translucide, flou lumineux de ce qui est derrière */
-  background: linear-gradient(180deg, rgba(255, 255, 255, .66), rgba(255, 255, 255, .46));
-  -webkit-backdrop-filter: blur(18px) saturate(180%) brightness(1.12); backdrop-filter: blur(18px) saturate(180%) brightness(1.12);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, .75), inset 0 -1px 1px rgba(255, 255, 255, .22), inset 0 0 14px rgba(255, 255, 255, .22), 0 10px 28px -10px rgba(20, 22, 40, .3), 0 1px 3px rgba(20, 22, 40, .08);
-  transition: opacity .35s var(--ease), filter .35s var(--ease), transform .45s var(--ease);
+/* ---------- le titre et le sous-titre s'écrivent comme une réponse d'assistant ----------
+   Chaque mot sort du flou à son tour ; une bille noire pulse au bout du texte, puis s'efface. */
+.copy .title, .copy .sub { opacity: 1; transform: none; transition: none; }
+.copy .w { opacity: 0; filter: blur(5px); transition: opacity .32s var(--ease), filter .32s var(--ease); }
+.copy .w.on { opacity: 1; filter: none; }
+.copy > .ball {
+  position: absolute; left: 0; top: 0; z-index: 1; border-radius: 50%; background: #111; pointer-events: none;
+  opacity: 0; transform: translate(0, -50%); transition: left .09s linear, top .09s linear, width .2s, height .2s, opacity .25s;
 }
-/* liseré lumineux, plus vif en haut, comme un verre bombé */
-.pp::before {
-  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
-  background: linear-gradient(180deg, rgba(255, 255, 255, .95), rgba(255, 255, 255, .25) 45%, rgba(255, 255, 255, .6));
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
-  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
-}
-.pp.is-pop { opacity: 1; filter: none; transform: translate(0, -50%); }
-.pp.is-out { opacity: 0; filter: blur(8px); transform: translate(0, calc(-50% - 4px)); transition: opacity .3s var(--ease), filter .3s var(--ease), transform .3s var(--ease); }
-.pp-ic { flex: none; width: var(--h); height: var(--h); display: grid; place-items: center; }
-.pp-ic svg { width: calc(var(--h) * .36); height: calc(var(--h) * .36); }
-.pp-tx .w { display: inline; opacity: 0; filter: blur(6px); }
-.pp.is-pop .pp-tx .w { animation: w-in .38s var(--ease) forwards; }
-@keyframes w-in { to { opacity: 1; filter: blur(0); } }
+.copy > .ball.on { opacity: 1; animation: ball 1s ease-in-out infinite; }
+@keyframes ball { 50% { transform: translate(0, -50%) scale(.72); } }
+.copy .go { opacity: 0; transform: translateY(10px); transition: opacity .6s var(--ease), transform .7s var(--ease); }
+.copy.is-done .go { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) {
-  .pp, .pp.is-out { filter: none !important; transform: translate(0, -50%) !important; }
-  .pp-tx .w { opacity: 1; filter: none; animation: none !important; }
+  .copy .w { opacity: 1; filter: none; }
+  .copy > .ball { display: none; }
+  .copy .go { opacity: 1; transform: none; }
 }

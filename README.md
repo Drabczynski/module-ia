@@ -151,15 +151,14 @@ avec un document Word, validation, puis sphère de particules et icônes. Source
 
 ## Module « Des prompts pour les images » (`prompts-images/`)
 
-Écran d'accueil d'après la maquette : le fond `assets/img/03.png` (ciel de nuages et dégradé ; `?fond=01` pour le premier
-collage `01.png`) et, devant, les deux personnes détourées `assets/img/02.png` (même échelle, calées en bas à droite) ;
-le globe et les bulles sont placés par rapport aux personnes, quel que soit le fond.
-Entre les deux, un globe en trame de points (les particules des modules) qui tourne lentement derrière les personnes :
-points réguliers, plus gros à l'avant, onde de taille comme un ombrage en trame, quelques accents bleus et orange ;
-il se dessine du haut vers le bas à l'ouverture et ses points s'écartent sous la souris ; en mode « différence »,
-ses points restent noirs sur le blanc et deviennent clairs sur les nuages.
-Par-dessus, des prompts apparaissent tour à tour dans des bulles de verre liquide clair (blanc translucide, flou lumineux, liseré brillant) :
-la bulle arrive en fondu depuis le flou, puis le texte s'affiche mot à mot, comme une réponse qui s'écrit.
-`accueil.js` règle la taille du collage, d'après la largeur réelle du texte, pour qu'il ne passe jamais sous le titre ; légère profondeur à la souris, entrée en fondu.
-Police du libellé « Module 2 » : IBM Plex Mono (licence SIL OFL), dans `assets/fonts`.
-Le bouton « Commencer » émet l'événement `module:start`, où sera branchée la suite du module.
+Écran d'accueil d'après la maquette.
+- Barre d'outils blanche : nom du module et bouton « Quitter » (ferme la session SCORM en « suspend », puis écran de fin).
+- Fond `assets/img/03.png` (ciel de nuages et dégradé ; `?fond=01` pour le premier collage `01.png`) et, devant,
+  les deux personnes détourées `assets/img/02.png`, réduites à 74 % et calées en bas à droite.
+- Entre les deux, un globe en trame de points (les particules des modules) qui tourne lentement derrière les personnes ;
+  en mode « différence », ses points restent noirs sur le blanc et deviennent clairs sur les nuages ; ils s'écartent sous la souris.
+- Le titre et le sous-titre s'écrivent mot à mot, chaque mot sortant du flou, avec une bille noire qui pulse au bout
+  du texte, comme une réponse d'assistant ; le bouton « Commencer » apparaît ensuite.
+- `accueil.js` règle la taille du collage d'après la largeur réelle du texte, pour qu'il ne passe jamais sous le titre.
+- Police du libellé « Module 2 » : IBM Plex Mono (licence SIL OFL), dans `assets/fonts`.
+- « Commencer » émet l'événement `module:start`, où sera branchée la suite du module.

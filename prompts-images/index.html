@@ -13,24 +13,29 @@
   <defs>
     <symbol id="i-side" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9.5 4.5v15" stroke="currentColor" stroke-width="1.6"/></symbol>
     <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4ZM13.5 6.5l4 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
-    <symbol id="i-spark4" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.6" fill="currentColor"/><circle cx="12" cy="19" r="2.6" fill="currentColor"/><circle cx="5" cy="12" r="2.6" fill="currentColor"/><circle cx="19" cy="12" r="2.6" fill="currentColor"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
     <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 5.5 19.5 12 13 18.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   </defs>
 </svg>
 
+<header class="bar">
+  <div class="bar-l">
+    <span class="bar-ic" aria-hidden="true"><svg><use href="#i-side"/></svg></span>
+    <span class="bar-ic" aria-hidden="true"><svg><use href="#i-pen"/></svg></span>
+    <span class="bar-sep" aria-hidden="true"></span>
+    <p class="bar-name"><span class="bar-k">Module 2</span><span class="bar-t">Des prompts pour les images</span></p>
+  </div>
+  <button type="button" class="bar-quit" data-quit><svg><use href="#i-x"/></svg>Quitter</button>
+</header>
+
 <main class="hero" data-hero>
   <!-- le collage (01) et, devant, les deux personnes (02) : même échelle, calés en bas à droite -->
   <div class="stage" data-stage aria-hidden="true">
-    <div class="layer layer-back" data-depth="-1"><img class="back" data-back alt="" decoding="async"></div>
-    <div class="layer layer-dots" data-depth=".45"><canvas class="dots" data-dots></canvas></div>
-    <div class="layer layer-front" data-depth="1"><img class="front" src="../assets/img/02.png" alt="" width="1396" height="818" decoding="async"></div>
-    <div class="layer layer-prompts" data-depth="1.25" data-prompts></div>
+    <div class="layer layer-back"><img class="back" data-back alt="" decoding="async"></div>
+    <div class="layer layer-dots"><canvas class="dots" data-dots></canvas></div>
+    <div class="layer layer-front"><img class="front" src="../assets/img/02.png" alt="" width="1396" height="818" decoding="async"></div>
   </div>
 
-  <div class="chrome" aria-hidden="true">
-    <span><svg><use href="#i-side"/></svg></span>
-    <span><svg><use href="#i-pen"/></svg></span>
-  </div>
 
   <div class="copy">
     <p class="tag">Module 2</p>
@@ -39,6 +44,8 @@
     <button type="button" class="go" data-start>Commencer<svg><use href="#i-arrow"/></svg></button>
   </div>
 </main>
+
+<div class="end" data-end hidden><div><h2>À bientôt</h2><p>Vous pouvez fermer cette fenêtre.</p></div></div>
 
 <script src="accueil.js"></script>
 </body>

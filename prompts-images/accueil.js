@@ -1,11 +1,12 @@
 /* Écran d'accueil du module « Des prompts pour les images » :
    - cale le collage en bas à droite, à la plus grande taille qui laisse le texte
      dégagé à gauche (le nuage de points ne doit pas passer sous le titre) ;
-   - légère profondeur à la souris : le collage et les personnes glissent en sens contraires. */
+   - le titre et le sous-titre s'écrivent mot à mot. */
 (function () {
   "use strict";
   var root = document.documentElement, hero = document.querySelector("[data-hero]");
-  var MOCK_H = 537, PW = 1396, PH = 818;            // hauteur de la maquette ; les personnes (02.png)
+  // hauteur de la maquette ; les personnes (02.png, 1396 × 818) réduites à 74 %, calées en bas à droite avec une marge
+  var MOCK_H = 537, PEOPLE = .74, PW = 1396 * PEOPLE, PH = 818 * PEOPLE, MARGIN = .035;
 
   // fonds possibles : largeur, hauteur, abscisse où le collage commence en haut (il ne doit pas passer sous le texte),
   // fondu du bord quand le collage ne remplit pas la hauteur. ?fond=01 pour revenir au premier collage.
@@ -20,9 +21,10 @@
   back.width = W0; back.height = H0; back.src = BG.src;
 
   // tout ce qui accompagne les personnes est placé par rapport à elles, quel que soit le fond
-  var pl = (W0 - PW) / W0 * 100, pt = (H0 - PH) / H0 * 100, pw = PW / W0 * 100, ph = PH / H0 * 100;
+  var pl = (W0 * (1 - MARGIN) - PW) / W0 * 100, pt = (H0 - PH) / H0 * 100, pw = PW / W0 * 100, ph = PH / H0 * 100;
   function onPeople(fx, fy) { return [pl + fx * pw, pt + fy * ph]; }
   root.style.setProperty("--pw", pw.toFixed(3) + "%");
+  root.style.setProperty("--pr", (MARGIN * 100).toFixed(3) + "%");
   // le globe : centré derrière les personnes, rayon 0,55 × leur hauteur, cadre de 2,8 rayons
   var g = onPeople(.541, .438), gs = 2.8 * .55 * PH;
   root.style.setProperty("--gw", (gs / W0 * 100).toFixed(3) + "%");
@@ -50,7 +52,7 @@
     return r;
   }
   function layout() {
-    var W = window.innerWidth, H = window.innerHeight, s;
+    var W = window.innerWidth, H = hero.clientHeight || window.innerHeight, s;
     if (W <= 720) { apply(W * 1.85 / W0, W, H); return; }     // mobile : on garde la partie droite, avec les personnes
     // le collage commence à x = clear : il doit rester à droite du texte, avec une marge
     s = Math.min(H / H0, (W * .94 - 40) / (W0 - BG.clear + 450));
@@ -71,19 +73,6 @@
   Promise.all(imgs.map(function (im) { return im.decode ? im.decode().catch(function () {}) : Promise.resolve(); }))
     .then(function () { requestAnimationFrame(function () { hero.classList.add("is-in"); }); });
   setTimeout(function () { hero.classList.add("is-in"); }, 1500);
-
-  // profondeur à la souris
-  if (!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) {
-    var layers = document.querySelectorAll("[data-depth]");
-    window.addEventListener("pointermove", function (e) {
-      if (e.pointerType === "touch") return;
-      var mx = e.clientX / window.innerWidth - .5, my = e.clientY / window.innerHeight - .5;
-      layers.forEach(function (l) {
-        var d = +l.dataset.depth;
-        l.style.transform = "translate(" + (mx * 14 * d).toFixed(1) + "px," + (my * 8 * d).toFixed(1) + "px)";
-      });
-    });
-  }
 
   /* ---------- les particules, derrière les personnes ----------
      Un globe en trame de points (comme le nuage de points du collage) qui tourne lentement : points réguliers,
@@ -140,50 +129,84 @@
     requestAnimationFrame(frame);
   })();
 
-  /* ---------- des prompts qui apparaissent sur l'image, dans des bulles de verre liquide ----------
-     Chaque bulle arrive en fondu depuis le flou, le texte s'affiche mot à mot (comme une réponse qui s'écrit), puis s'efface.
-     Positions en % du collage (ancre : centre gauche de la bulle, ou centre droit si « r »). */
+  /* ---------- le titre et le sous-titre s'écrivent mot à mot, une bille noire au bout du texte ---------- */
   (function () {
-    var host = document.querySelector("[data-prompts]");
     var still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-    // [texte, x, y en fraction de l'image des personnes, ancre « r » = bulle calée à droite]
-    var PROMPTS = [
-      ["Génère-moi une image pour le post de la médiathèque…", .087, .692],
-      ["Sujet : des lecteurs dans un parc, au soleil", .537, .45],
-      ["Style : illustration douce, couleurs pastel", .264, .087],
-      ["Cadrage : plan large, beaucoup de ciel", -.062, .868],
-      ["Usage : format carré pour Instagram, sans texte", .956, .648, "r"]
-    ].map(function (p) { var q = onPeople(p[1], p[2]); return [p[0], q[0], q[1], p[3]]; });
-    var k = 0;
-    function show(item) {
-      var el = document.createElement("div");
-      el.className = "pp";
-      el.innerHTML = '<span class="pp-ic"><svg><use href="#i-spark4"/></svg></span><span class="pp-tx"></span>';
-      if (item[3] === "r") el.style.right = (100 - item[1]) + "%"; else el.style.left = item[1] + "%";
-      el.style.top = item[2] + "%";
-      // le texte, mot à mot : chaque mot sort du flou un peu après le précédent
-      var tx = el.querySelector(".pp-tx");
-      item[0].split(" ").forEach(function (word, i, all) {
-        var w = document.createElement("span"); w.className = "w";
-        w.textContent = word + (i < all.length - 1 ? " " : "");
-        w.style.animationDelay = (.12 + i * .045).toFixed(3) + "s";
-        tx.appendChild(w);
+    var title = copy.querySelector(".title"), sub = copy.querySelector(".sub");
+    // découpe en mots, en gardant les retours à la ligne
+    function split(el) {
+      var words = [];
+      Array.prototype.slice.call(el.childNodes).forEach(function (node) {
+        if (node.nodeType !== 3) return;
+        var frag = document.createDocumentFragment();
+        node.textContent.split(/(\s+)/).forEach(function (part) {
+          if (!part) return;
+          if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+          var w = document.createElement("span"); w.className = "w"; w.textContent = part;
+          frag.appendChild(w); words.push(w);
+        });
+        el.replaceChild(frag, node);
       });
-      host.appendChild(el);
-      // une bulle qui déborderait de l'écran est ramenée à l'intérieur
-      var bx = el.getBoundingClientRect(), m = 12, dx = 0;
-      if (bx.right > window.innerWidth - m) dx = window.innerWidth - m - bx.right;
-      if (bx.left + dx < m) dx = m - bx.left;
-      if (dx) { if (item[3] === "r") el.style.right = "calc(" + (100 - item[1]) + "% - " + dx + "px)"; else el.style.left = "calc(" + item[1] + "% + " + dx + "px)"; }
-      requestAnimationFrame(function () { requestAnimationFrame(function () { el.classList.add("is-pop"); }); });
-      setTimeout(function () { el.classList.add("is-out"); setTimeout(function () { el.remove(); }, 400); }, still ? 4200 : 3000);
+      return words;
     }
-    function next() {
-      if (!document.hidden) show(PROMPTS[k++ % PROMPTS.length]);
-      setTimeout(next, still ? 5000 : 1900);
+    var tw = split(title), sw = split(sub);
+    if (still) { copy.classList.add("is-done"); return; }
+    var ball = document.createElement("span"); ball.className = "ball"; copy.appendChild(ball);
+    function place(w, el) {
+      var c = copy.getBoundingClientRect(), r = w.getBoundingClientRect();
+      var fs = parseFloat(getComputedStyle(el).fontSize), d = el === title ? fs * .3 : Math.max(8, fs * .55);
+      ball.style.width = ball.style.height = d + "px";
+      ball.style.left = (r.right - c.left + d * .45) + "px";
+      ball.style.top = (r.top - c.top + r.height * .56) + "px";
     }
-    setTimeout(next, 1500);
+    function stream(words, el, gap, done) {
+      var i = 0;
+      (function step() {
+        if (i >= words.length) { done(); return; }
+        var w = words[i++]; w.classList.add("on"); place(w, el);
+        setTimeout(step, gap);
+      })();
+    }
+    function start() {
+      if (!tw.length) return;
+      place(tw[0], title); ball.style.left = (parseFloat(ball.style.left) - tw[0].offsetWidth) + "px";
+      ball.classList.add("on");
+      setTimeout(function () {
+        stream(tw, title, 95, function () {
+          setTimeout(function () {
+            stream(sw, sub, 38, function () {
+              setTimeout(function () { ball.classList.remove("on"); copy.classList.add("is-done"); }, 450);
+            });
+          }, 260);
+        });
+      }, 380);
+    }
+    var go = function () { go = function () {}; setTimeout(start, 350); };
+    new MutationObserver(function () { if (hero.classList.contains("is-in")) go(); }).observe(hero, { attributes: true, attributeFilter: ["class"] });
+    if (hero.classList.contains("is-in")) go();
+    window.addEventListener("resize", function () { var on = copy.querySelectorAll(".w.on"); if (on.length && ball.classList.contains("on")) place(on[on.length - 1], on[on.length - 1].closest(".title") ? title : sub); });
   })();
+
+  /* ---------- « Quitter » : on ferme proprement la session dans le LMS (SCORM 2004 ou 1.2) ---------- */
+  function findApi(name) {
+    var w = window;
+    for (var i = 0; i < 12 && w; i++) {
+      try { if (w[name]) return w[name]; } catch (e) { return null; }
+      if (w.parent && w.parent !== w) w = w.parent; else if (w.opener) w = w.opener; else break;
+    }
+    return null;
+  }
+  document.querySelector("[data-quit]").addEventListener("click", function () {
+    var api04 = findApi("API_1484_11"), api12 = findApi("API");
+    try {
+      // l'apprenant n'a pas encore commencé : on garde la session ouverte pour la reprendre plus tard
+      if (api04) { api04.SetValue("cmi.exit", "suspend"); api04.Commit(""); api04.Terminate(""); }
+      else if (api12) { api12.LMSSetValue("cmi.core.exit", "suspend"); api12.LMSCommit(""); api12.LMSFinish(""); }
+    } catch (e) {}
+    try { window.top.close(); } catch (e) {}
+    try { window.close(); } catch (e) {}
+    setTimeout(function () { document.querySelector("[data-end]").hidden = false; }, 250);
+  });
 
   // « Commencer » : la suite du module sera branchée ici
   document.querySelector("[data-start]").addEventListener("click", function () {
