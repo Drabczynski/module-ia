@@ -153,7 +153,7 @@ avec un document Word, validation, puis sphère de particules et icônes. Source
 
 Écran d'accueil d'après la maquette finale (1260 × 560).
 - Barre d'outils blanche : nom du module et bouton « Quitter » (ferme la session SCORM en « suspend », puis écran de fin).
-- Notre orbe (`premiers-pas/orb.js`) tourne à gauche du titre : elle « réfléchit » pendant la réflexion,
+- Notre orbe (`premiers-pas/orb.js`) tourne à gauche du titre, visible dès l'arrivée : elle « réfléchit » pendant la réflexion,
   « parle » pendant l'écriture, puis reste en écoute.
 - « MODULE 3 » en petites capitales ; titre en IBM Plex Sans (500), interlettrage serré ; description en gris ;
   bouton « Commencer » en IBM Plex Sans, posé en bas à gauche quand la place le permet (sinon sous le texte) ;
@@ -161,6 +161,9 @@ avec un document Word, validation, puis sphère de particules et icônes. Source
 - Fond `assets/img/03.png` en mode « produit » sur un dégradé très léger (bleuté en haut à gauche, lavande en bas à droite),
   `?fond=01` pour le premier collage ; devant, les deux personnes `assets/img/02.png`, à 95 % de leur taille,
   calées en bas à droite avec une marge de 4,5 % (réglage ajusté par calcul sur la maquette).
+- Le bas de l'interface, sur toute la largeur : un dégradé animé en WebGL (corail, rose, magenta, orange, pêche, lavande,
+  traînées orange en diagonale, grain), qui recouvre le rectangle rose de l'image, derrière les personnes ;
+  rendu à demi-résolution et 30 images par seconde ; dégradé CSS fixe sans WebGL.
 - Entre les deux, un globe en trame de points qui tourne lentement derrière les personnes (mode « différence » :
   noir sur le blanc, clair sur les nuages) ; ses points s'écartent sous la souris.
 - Entrée (≈ 2,8 s en tout) : « Réflexion » scintille pendant que des lignes grises s'écrivent, se replie puis s'efface ;
