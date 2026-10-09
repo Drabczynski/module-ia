@@ -48,6 +48,7 @@
     root.style.setProperty("--sh", (H0 * s).toFixed(1) + "px");
     root.style.setProperty("--u", W <= 720 ? 1 : (s * 900 / MOCK_H).toFixed(4));
     root.style.setProperty("--top", top.toFixed(1) + "px");
+    root.style.setProperty("--glow-top", (top + BG.low * s).toFixed(1) + "px");   // la lueur part du bas du ciel
     hero.classList.toggle("is-floating", BG.fade && top > 2);
   }
   // largeur réelle du bloc de texte (le plus large de ses éléments)
@@ -114,8 +115,8 @@
   /* ---------- la lueur du bas ----------
      Comme le halo d'un assistant vocal : une lumière irisée qui monte du bord inférieur de l'écran, en rayons
      verticaux, plus haute par endroits, avec un liseré lumineux tout en bas. Couleurs qui glissent lentement
-     (corail, rose, magenta, lavande, orange, pêche), en fondu vers le haut ; discrète, et placée derrière l'image
-     de fond : on la voit dans les blancs de l'image et au bas de l'écran.
+     (corail, rose, magenta, lavande, orange, pêche), en fondu vers le haut ; au premier plan, translucide,
+     par-dessus l'image et les personnes ; seul le bouton « Commencer » passe devant.
      Sans WebGL : un dégradé CSS fixe. */
   (function () {
     var cv = document.querySelector("[data-band]"), layer = cv.parentNode, gl = null;
@@ -138,7 +139,7 @@
       " vec2 uv=gl_FragCoord.xy/uR;float a=uR.x/uR.y,t=uT,x=uv.x,y=uv.y;",
       // hauteur de la lueur : une bosse au centre qui respire, des ondulations
       " float bump=exp(-pow((x-.3-.12*sin(t*.37))/.16,2.))*(.75+.25*sin(t*1.1))+.8*exp(-pow((x-.8-.1*cos(t*.29))/.14,2.))*(.75+.25*sin(t*.9+2.));",
-      " float H=.13+.22*bump+.06*n1(x*4.+t*.6);",
+      " float H=.16+.3*bump+.07*n1(x*4.+t*.6);",
       // rayons verticaux
       " float rays=.62+.38*n2(vec2(x*a*4.+t*.2,y*1.6-t*.9));",        // les rayons montent
       " float I=exp(-y/H)*rays*smoothstep(1.,.55,y);",                // s'éteint tout à fait en haut
@@ -146,7 +147,7 @@
       " vec3 col=pal(x*1.1-t*.07+.15*n1(x*3.+t*.4)+y*.3);",           // les couleurs défilent le long du bas
       // liseré lumineux tout en bas, qui suit la bosse
       " float edge=exp(-max(0.,y-.012*bump)*uR.y*.11);",
-      " float k=.5;",                                                  // discrète : la moitié de l'intensité
+      " float k=.72;",                                                 // translucide : l'image reste visible dessous
       " vec3 c=(col*I+mix(col,vec3(1.),.4)*edge*.5)*k;",
       " float al=clamp(I*.95+edge*.45,0.,1.)*k;",
       " c+=(h2(gl_FragCoord.xy+fract(t*7.)*91.)-.5)*.04*al;",

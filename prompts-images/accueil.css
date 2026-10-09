@@ -53,14 +53,16 @@ body.bg-01 { background: linear-gradient(180deg, #f3f8fd 0%, #f8fbfe 50%, #fdfdf
 /* les particules, entre le collage et les personnes : un globe en trame de points, centré derrière elles */
 /* mode « différence » : les points restent noirs sur le blanc et s'éclaircissent sur une image sombre */
 .layer-dots { pointer-events: none; mix-blend-mode: difference; clip-path: inset(0 0 calc(100% - var(--bt, 62) * 1%) 0); }
-/* le bas de l'interface : une lueur discrète qui monte du bord inférieur, sur toute la largeur,
-   derrière l'image de fond (dont les blancs la laissent voir) et derrière les personnes */
-.layer-band { left: calc(-1 * var(--bandl, 100vw)); right: 0; top: calc(var(--bt, 62) * 1%); bottom: 0; pointer-events: none;
+/* le bas de l'interface : une lueur animée qui monte du bord inférieur, sur toute la largeur, au premier plan
+   (par-dessus l'image et les personnes) ; seul le bouton « Commencer » passe devant */
+.glow { position: absolute; left: 0; right: 0; bottom: 0; top: var(--glow-top, 62%); z-index: 3; pointer-events: none;
   background:
-    radial-gradient(60% 70% at 50% 100%, rgba(246, 98, 126, .3) 0%, rgba(246, 98, 126, 0) 75%),
-    radial-gradient(40% 60% at 20% 100%, rgba(238, 111, 230, .25) 0%, rgba(238, 111, 230, 0) 75%),
-    radial-gradient(40% 60% at 80% 100%, rgba(250, 136, 97, .25) 0%, rgba(250, 136, 97, 0) 75%); }
-.layer-band.has-gl { background: none; }
+    radial-gradient(60% 70% at 50% 100%, rgba(246, 98, 126, .45) 0%, rgba(246, 98, 126, 0) 75%),
+    radial-gradient(40% 60% at 20% 100%, rgba(238, 111, 230, .4) 0%, rgba(238, 111, 230, 0) 75%),
+    radial-gradient(40% 60% at 80% 100%, rgba(250, 136, 97, .4) 0%, rgba(250, 136, 97, 0) 75%); }
+.glow.has-gl { background: none; }
+.glow { opacity: 0; transition: opacity 1.2s var(--ease) .4s; }
+.is-in .glow { opacity: 1; }
 /* le rectangle dégradé de l'image 03, animé : ses couleurs ondulent lentement, comme un liquide */
 .rectfx { position: absolute; left: 19.127%; top: 61.665%; width: 41.148%; height: 38.335%; display: none;
   opacity: 0; transition: opacity .8s var(--ease); pointer-events: none; }
@@ -102,7 +104,7 @@ body.bg-01 { background: linear-gradient(180deg, #f3f8fd 0%, #f8fbfe 50%, #fdfdf
 .copy {
   /* taille du titre, et l'orbe à sa gauche : sa hauteur couvre les deux lignes du titre */
   --tfs: max(27px, calc(var(--u) * 32px)); --od: calc(var(--tfs) * 2.1); --og: calc(var(--tfs) * .55);
-  position: absolute; z-index: 2; left: 4.4vw; top: max(20px, calc(var(--top) + var(--u) * 80px - var(--lift, 0px))); }
+  position: absolute; left: 4.4vw; top: max(20px, calc(var(--top) + var(--u) * 80px - var(--lift, 0px))); }
 .tag {
   margin: 0; font: 600 max(11px, calc(var(--u) * 11px))/1 "Inter", sans-serif;
   text-transform: uppercase; letter-spacing: .01em; color: #111;
@@ -130,6 +132,7 @@ body.bg-01 { background: linear-gradient(180deg, #f3f8fd 0%, #f8fbfe 50%, #fdfdf
   transition: transform .25s var(--ease), background .2s;
 }
 /* comme sur la maquette : le bouton se pose en bas à gauche, quand la place le permet */
+.copy .go { position: relative; z-index: 5; }
 .copy .go.is-low { position: absolute; left: calc(var(--u) * 5px); top: var(--go-y); margin: 0; }
 .go svg { width: max(13px, calc(var(--u) * 10px)); height: max(13px, calc(var(--u) * 10px)); transition: transform .25s var(--ease); }
 .go:hover { background: #222; }

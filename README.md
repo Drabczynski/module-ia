@@ -164,8 +164,9 @@ avec un document Word, validation, puis sphère de particules et icônes. Source
   calées en bas à droite avec une marge de 4,5 % (réglage ajusté par calcul sur la maquette).
 - Le rectangle dégradé de l'image 03 est animé (WebGL) : il est découpé dans l'image et ses couleurs ondulent
   lentement, comme un liquide ; l'image reste la même.
-- En bas de l'écran, sur toute la largeur, une lueur discrète et animée monte du bord inférieur (corail, rose,
-  magenta, lavande, orange, pêche), derrière l'image : on la voit dans ses blancs. 30 images par seconde au plus.
+- En bas de l'écran, sur toute la largeur, une lueur animée monte du bord inférieur (corail, rose, magenta,
+  lavande, orange, pêche ; rayons qui montent, couleurs qui défilent) : au premier plan, translucide, par-dessus
+  l'image et les personnes ; seul le bouton « Commencer » passe devant. 30 images par seconde au plus.
 - Entre les deux, un globe en trame de points qui tourne lentement derrière les personnes (mode « différence » :
   noir sur le blanc, clair sur les nuages) ; ses points s'écartent sous la souris.
 - Entrée (≈ 2,8 s en tout) : « Réflexion » scintille pendant que des lignes grises s'écrivent, se replie puis s'efface ;
