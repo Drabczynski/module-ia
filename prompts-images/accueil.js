@@ -62,7 +62,7 @@
   }
   function layout() {
     var W = window.innerWidth, H = hero.clientHeight || window.innerHeight, s;
-    root.style.setProperty("--lift", "0px");
+    root.style.setProperty("--copy-y", "");
     goBtn.classList.remove("is-low");
     root.style.setProperty("--shift", "0px");
     if (W <= 720) {                                              // mobile : on garde la partie droite, avec les personnes
@@ -91,14 +91,16 @@
     root.style.setProperty("--bandl", (W + shift - W0 * s).toFixed(1) + "px");     // la bande part du bord gauche de l'écran
     var lowLeft = lowLeft0 + shift, lowTop = hb.top + (H - H0 * s) + BG.low * s;
     var low = goY > sb.bottom + 28;                              // le bouton se pose sur la bande du bas
-    if (low) { goBtn.classList.add("is-low"); root.style.setProperty("--go-y", (goY - cb.top).toFixed(1) + "px"); }
-    // si le texte descendrait sur l'image du bas, il remonte
-    var bottom = low ? sb.bottom : copy.getBoundingClientRect().bottom;
-    var limit = lowTop - Math.max(24, H * .03);
-    if (bottom > limit) {                                        // la bande couvre toute la largeur
-      root.style.setProperty("--lift", (bottom - limit).toFixed(1) + "px");
-      if (low) root.style.setProperty("--go-y", (goY - cb.top + (bottom - limit)).toFixed(1) + "px");
-    }
+    if (low) goBtn.classList.add("is-low");
+    // le bloc (module, titre, description) est centré verticalement dans l'espace blanc,
+    // entre le haut de l'écran et le haut de l'image du bas ; la réflexion, qui s'efface, ne compte pas
+    var think = copy.querySelector("[data-think]"), tagR = copy.firstElementChild.getBoundingClientRect();
+    var thinkH = think.classList.contains("is-gone") ? 0 : think.getBoundingClientRect().height + parseFloat(getComputedStyle(think).marginTop);
+    var end = low ? sb.bottom : goBtn.getBoundingClientRect().bottom;
+    var blockH = end - tagR.top - thinkH, zoneH = lowTop - hb.top;
+    var y = Math.max(20, (zoneH - blockH) / 2);
+    root.style.setProperty("--copy-y", y.toFixed(1) + "px");
+    if (low) root.style.setProperty("--go-y", (goY - (hb.top + y)).toFixed(1) + "px");
     orbFit();
     ballRest();
   }

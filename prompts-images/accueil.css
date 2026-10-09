@@ -111,7 +111,7 @@ body.bg-01 { background: linear-gradient(180deg, #f3f8fd 0%, #f8fbfe 50%, #fdfdf
    Mise en page « M3 · 00 — Accueil » : 1 u = 1 pixel de la maquette (696 px de haut). */
 .copy {
   position: absolute; left: max(24px, calc(var(--u) * 99px));
-  top: max(20px, calc(var(--top) + var(--u) * 100px - var(--lift, 0px)));
+  top: var(--copy-y, max(20px, calc(var(--top) + var(--u) * 100px)));
 }
 .tag {
   margin: 0; font: 400 max(15px, calc(var(--u) * 21px))/1 "IBM Plex Mono", ui-monospace, monospace;
