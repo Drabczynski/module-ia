@@ -769,6 +769,9 @@
       while (ac.nextSibling) stage.appendChild(ac.nextSibling);
       if (s.stage && !stage.children.length) stage.classList.add("is-deco");   // une illustration : elle s'adapte à la place qui reste
       if (s.stage) s.stage(stage);
+      // le dégradé coloré seulement quand l'apprenant a quelque chose à faire dans la zone (un bouton actif, une info à repérer) ;
+      // sinon (une illustration, un récapitulatif, le mail gardé sous les yeux), le gris
+      stage.classList.toggle("is-act", !!stage.querySelector("button:not(:disabled), .is-hunt"));
       pv.appendChild(stage);
       pv.classList.add("has-stage");
     }
