@@ -1,88 +1,52 @@
 # Module 1 · Première rencontre
 
-**Thème unique :** découvrir Claude, à quoi il sert, écrire son premier prompt, commencer simple.
-**Durée visée :** 12 à 15 minutes. 5 séquences, 15 étapes. **Construit dans `premiers-pas/`**, avec la voix de synthèse en attendant les enregistrements.
-**Sources :** articles d'aide Claude « Get started with Claude » et « What are some things I can use Claude for? ».
+**Thème unique :** découvrir l'IA, à quoi elle sert, écrire son premier prompt, commencer simple.
+**Public :** personnes éloignées du numérique (DAQ, dispositif en amont de la qualification). Tout doit être clair : une seule chose à faire à la fois, toujours la même forme de consigne, toujours le même geste pour avancer.
+**Durée visée :** 8 à 10 minutes. 9 étapes. **Construit dans `premiers-pas/`.**
 **Format :**
-- Claude simulé à gauche, formation à droite, orbe qui parle.
-- Quand l'apprenant doit écrire, la demande apparaît dans le champ de Claude avec des **cases orange à compléter au clic** (choix proposés ou réponse libre).
-- Données fictives, « Simulation pédagogique ».
+- L'IA simulée à gauche (le cadre « Écrivez ici » et le bouton « Envoyer »), la consigne à droite, l'orbe qui lit la consigne.
+- Barre d'outils sombre en bas : Quitter, le module, « Étape 3 sur 9 », Réécouter, Son, Précédent, Suivant. « Suivant » s'allume en vert quand l'activité est faite.
+- Chaque consigne : « À vous : », des actions numérotées, la dernière est toujours « Cliquez sur « Suivant », en bas à droite ».
+- Quand il faut compléter une demande, elle apparaît dans le cadre avec des **cases orange à compléter au clic**.
+- Données fictives.
 
 ---
 
-## Séquence 1 · Faire connaissance
+## Accueil
+L'écran d'accueil (particules, « Module 1 », titre écrit à la machine), puis « Commencer » : l'orbe, au centre de l'IA, souhaite la bienvenue. « Suivant » permet de passer.
 
-**1.1 · Bienvenue**
-L'orbe, au centre de Claude, se présente et annonce le programme.
-→ *Action : cliquer sur « Commencer ». La voix lit le message mot à mot, puis le panneau apparaît.*
+## Étape 1 · Dites bonjour à l'IA
+→ *Écrire un message dans le cadre « Écrivez ici » (ou cliquer sur une phrase proposée), cliquer sur « Envoyer », lire la réponse, cliquer sur « Suivant ».*
 
-**1.2 · Dites bonjour à Claude**
-Premier contact. Le champ de Claude s'active pour la première fois.
-→ *Action : écrire un premier message libre, ou cliquer sur une suggestion, puis l'envoyer. Claude se présente.*
+## Étape 2 · Vrai ou faux ? (3 points)
+Trois idées reçues : « L'IA connaît mon entreprise », « on lui écrit comme à une personne », « ses réponses sont toujours justes ».
+→ *Pour chaque phrase, cliquer sur « Vrai » ou « Faux » (ou glisser la carte). Une explication suit chaque carte.*
 
-**1.3 · Vrai ou faux ?** (3 points)
-Trois idées reçues : « Claude connaît mon entreprise », « on lui écrit comme à une personne », « ses réponses sont toujours justes ».
-→ *Action : **glisser chaque carte** à droite (vrai) ou à gauche (faux), ou utiliser les boutons ou les flèches du clavier. Une explication suit chaque carte.*
+## Étape 3 · Demandez-lui à quoi elle sert
+→ *Compléter les cases orange [Où ?] et [Votre niveau], cliquer sur « Envoyer ». L'IA liste ce qu'elle sait faire.*
 
-**1.4 · Où trouver Claude ?**
-Une illustration montre le navigateur (claude.ai), l'application ordinateur (Mac, Windows) et l'application mobile (iOS, Android). Un encart rappelle qu'il faut avoir 18 ans minimum.
-→ *Action : regarder, puis cliquer sur « Continuer ».*
+## Étape 4 · Le bon usage (3 points)
+→ *Relier 3 situations à leur usage : mot en portugais → Traduire, compte rendu de 12 pages → Résumer, nom de fête → Trouver des idées. Puis « Valider ».*
 
-## Séquence 2 · À quoi ça sert ?
+## Étape 5 · Le mail de Karim
+→ *Ouvrir le mail de Karim (pot de départ de Martine), puis demander à l'IA des idées pour ce pot, en une phrase courte (une phrase est proposée).*
 
-**2.1 · Demandez-lui à quoi il sert**
-C'est Claude lui-même qui explique ses usages.
-→ *Action : compléter les cases [Où ?] et [Votre niveau] dans le champ de Claude, puis envoyer. Claude liste ses 7 usages.*
+## Étape 6 · Qu'est-ce qui manque ? (1 point)
+L'IA propose un traiteur, un DJ, un voyage : ce n'est pas adapté.
+→ *Cliquer dans le mail sur les 3 informations que l'IA ne pouvait pas deviner : une douzaine, 60 €, la salle de pause.*
 
-**2.2 · Le bon usage** (5 points)
-Il s'agit de réutiliser tout de suite la réponse de Claude.
-→ *Action : **relier** 5 situations de la vie courante à l'usage qui convient : mot en portugais, compte rendu de 12 pages, nom de fête, fiche de paie, photo de graphique.*
+## Étape 7 · Préciser, puis relancer (2 points)
+→ *Dans la même conversation, compléter [Budget], [Nombre de personnes] et [Lieu] avec les valeurs du mail, puis « Envoyer ».*
 
-**2.3 · Essayez un usage**
-→ *Action : choisir une carte-situation. La demande apparaît dans Claude : compléter la case orange ([Ambiance], [Votre niveau] ou [Pour qui ?]), puis envoyer.*
+## Étape 8 · Votre résultat
+Score sur 9 (seuil 70 %), bouton « Revoir » sur les activités manquées.
 
-## Séquence 3 · Mon premier vrai prompt
+## Étape 9 · Mes premiers réflexes
+Commencer simple ; donner ce que l'IA ne peut pas deviner ; préciser dans la même conversation ; relire, car l'IA peut se tromper.
+→ *« Enregistrer la fiche », puis « Terminer ».*
 
-**3.1 · C'est quoi, un prompt ?** (1 point)
-→ *Action : **classer** trois prompts du plus simple au plus détaillé, en cliquant dans l'ordre.*
-
-**3.2 · Le mail de Karim**
-Une boîte mail simulée occupe tout le panneau. Une fois ouvert, le mail de Karim **reste affiché** jusqu'à la fin du scénario.
-→ *Action : ouvrir le bon mail, puis, tout de suite, écrire dans Claude une demande courte (« commencer simple ») et l'envoyer.*
-
-**3.3 · Qu'est-ce qui manque ?** (1 point)
-Claude a proposé un traiteur, un DJ et un voyage : ce n'est pas adapté.
-→ *Action : **cliquer dans le mail** sur les 3 informations qui changeraient ses idées : une douzaine, 60 €, la salle de pause. La date et le contexte sont des pièges expliqués.*
-
-**3.4 · Préciser, puis relancer** (2 points)
-On relance dans la même conversation, avec le mail toujours affiché.
-→ *Action : compléter [Budget], [Nombre de personnes] et [Lieu] avec les valeurs du mail (les autres choix sont des pièges), puis envoyer. En cas d'erreur, la case fausse est signalée et les bonnes cases sont conservées.*
-
-**3.5 · Avant, après** (1 point)
-Deux cartes lisibles : la demande envoyée, puis ce que Claude propose. Après le choix, chaque idée reçoit un verdict (« Trop cher pour 60 € », « Tient dans les 60 € »).
-→ *Action : cliquer sur la réponse utilisable telle quelle.*
-
-## Séquence 4 · Les bons gestes
-
-**4.1 · Les repères de l'écran**
-→ *Action : le panneau se replie ; cliquer sur les 5 pastilles (saisie, « / », « + », Envoyer, nouvelle conversation). La suite est automatique.*
-
-**4.2 · Un sujet, une conversation**
-Rui, le voisin, a glissé un mot en portugais sous la porte.
-→ *Action : cliquer sur « Nouvelle conversation » ; la demande de traduction apparaît avec le mot de Rui ; choisir [Langue] = français, puis envoyer.*
-
-## Séquence 5 · Bilan
-
-**5.1 · Le défi : l'exposé de Léna** (2 points)
-Seule étape sans cases à compléter. Léna envoie un SMS : CM2, 5 minutes, avec des images.
-→ *Action : ouvrir une nouvelle conversation, écrire une demande simple, puis relancer avec deux précisions.*
-
-**5.2 · Votre résultat**
-Plein écran : score sur 15 (seuil 70 %) et bouton « Revoir » sur les activités manquées.
-→ *Action : « Continuer » ou « Quitter ».*
-
-**5.3 · Mes premiers réflexes**
-→ *Action : « Enregistrer la fiche », puis « Quitter ».*
+## Mis de côté (pour alléger, prêts à revenir)
+Où trouver l'IA (navigateur, ordinateur, mobile) · Essayez un usage · C'est quoi, un prompt ? · Les repères de l'écran · Un sujet, une conversation (le mot de Diogo) · Le défi : l'exposé de Léna.
 
 ---
 

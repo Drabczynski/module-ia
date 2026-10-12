@@ -82,26 +82,36 @@ Claude à gauche (simulation de l'interface), la formation à droite, **pas à p
 
 ## Module 1 · Première rencontre (`premiers-pas/`)
 
-Nouveau parcours court, sur un seul thème : découvrir Claude, à quoi il sert, écrire son premier prompt, commencer simple.
-Contenu tiré des articles d'aide Claude « Get started with Claude » et « What are some things I can use Claude for? ».
-Storyboard : `premiers-pas/STORYBOARD.md`.
+Parcours court, sur un seul thème : découvrir l'IA, à quoi elle sert, écrire son premier prompt, commencer simple.
+Version claire pour un public éloigné du numérique (DAQ, dispositif en amont de la qualification) : peu d'étapes,
+une seule chose à faire à la fois, toujours le même geste pour avancer. Storyboard : `premiers-pas/STORYBOARD.md`.
 
 - Accueil : le même écran que le module « Des prompts pour les images » (`premiers-pas/accueil.css`, `accueil.js`,
-  règles sous `.acc`), posé par-dessus l'application : barre blanche (module, « Les modules », « Quitter »),
+  règles sous `.acc`), posé par-dessus l'application : barre blanche avec le seul nom du module,
   collage 03 avec le ciel en vidéo, globe de points, lueur animée en bas, réflexion puis titre et description
   à la machine à écrire. Ouverture en particules (`premiers-pas/particules.js`, partagé avec le module 3) : une boule
   au centre de l'écran, qui tourne pendant le chargement, explose en milliers de particules (« Module 1 » s'affiche en grand
   au centre, en Inter semi-gras : chaque lettre défile d'abord en caractères ASCII puis se fixe ; il repart en ASCII et s'efface) ; elles se posent en trame de points pour former l'image, qui apparaît dessous sans bouger.
-  « Commencer » envoie `module:start` : l'accueil s'efface, l'assistante souhaite la bienvenue
-  (interface épurée, sans champ de saisie, mention ni mode), puis la première étape s'ouvre.
+  « Commencer » envoie `module:start` : l'accueil s'efface, l'assistante souhaite la bienvenue, puis la première étape s'ouvre.
+- Barre d'outils sombre, toujours en bas (`premiers-pas/simple.css`) : Quitter (avec confirmation), le nom du module,
+  l'avancement (« Étape 3 sur 9 », une case par étape), Réécouter, Son, Précédent, Suivant. On n'avance jamais tout seul :
+  « Suivant » reste éteint tant que l'activité n'est pas faite (un clic rappelle ce qu'il reste à faire), puis s'allume en vert.
+  Sur tablette et téléphone, l'avancement passe au-dessus des boutons.
+- L'IA, à gauche, sans icônes ni mentions (ni « Nouvelle conversation », ni « Simulation pédagogique », ni « Mode simulé ») :
+  le cadre « Écrivez ici » s'allume en orange quand c'est à l'apprenant d'écrire, et le bouton « Envoyer » est écrit en toutes lettres.
+- La consigne, à droite, toujours de la même forme et sans ombre : « À vous : », des actions numérotées
+  (l'action en cours encadrée, les actions faites cochées en vert), la dernière toujours « Cliquez sur « Suivant » ».
+  Le bouton de l'activité (« Valider », « Réessayer ») se trouve juste sous l'exercice.
+- 9 étapes : dire bonjour, vrai ou faux, demander à l'IA à quoi elle sert, relier 3 situations à leur usage,
+  le mail de Karim (demande courte), ce qui manque, préciser puis relancer, le résultat, la fiche (4 réflexes).
+  Mises de côté pour alléger, prêtes à revenir (`off: true` dans `app.js`) : où trouver l'IA, essayer un usage,
+  c'est quoi un prompt, les repères de l'écran, un sujet une conversation, le défi de Léna.
+- Barème : 9 points (vrai ou faux 3, usages 3, ce qui manque 1, relance 2), seuil 70 %. Quitter en cours de route laisse la
+  session SCORM « incomplete » ; « Terminer », sur la fiche, envoie le score.
 - Thème gris clair (au lieu du beige d'`app.css`, partagée avec le module 2) : `premiers-pas/gris.css`, générée par
   `node premiers-pas/gris.mjs` (à relancer après une modification d'`app.css`).
-- Même moteur que l'atelier (Claude simulé à gauche, formation à droite, orbe, pas à pas), situations fictives de la vie courante :
-  pot de départ, mot d'un voisin en portugais, exposé scolaire.
-- Activités variées : écrire dans Claude, cartes à glisser (vrai/faux), glisser-déposer, relier, classer dans l'ordre,
-  étiquettes à cocher, boîte mail simulée, choisir entre deux réponses, pastilles sur l'interface, défi final.
-- Barème : 15 points, seuil 70 %. Quand il faut écrire, la demande arrive dans Claude avec des cases orange à compléter au clic. Bilan et fiche en plein écran, bouton Quitter (SCORM si présent).
-- Voix de synthèse du navigateur en attendant les enregistrements ; l'accueil démarre au clic sur « Commencer ».
+- Relecture : `premiers-pas/?etape=usages` (identifiant d'étape) ouvre directement une étape, sans accueil.
+- Voix : enregistrements `assets/audio/pp-*.mp3`, voix de synthèse sinon.
 - Fonction `api/chat.ts`, identifiant `premiers-pas` ; mode simulé automatique sans clé.
 
 ## Module 2 · La structure d’un prompt (`structure-prompt/`)

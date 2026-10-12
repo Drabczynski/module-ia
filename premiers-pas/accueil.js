@@ -7,6 +7,8 @@
   "use strict";
   var root = document.querySelector("[data-acc]");
   if (!root) return;
+  // ?etape=… (relecture) : on va droit à une étape, sans accueil
+  if (/[?&]etape=/.test(location.search)) { root.remove(); return; }
   function $(s) { return root.querySelector(s); }
   var hero = $("[data-acc-hero]"), alive = true;
   var still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -457,27 +459,6 @@
     }
     onIn(function () { setTimeout(start, 200); });
   })();
-
-  /* ---------- « Quitter » : on ferme proprement la session dans le LMS (SCORM 2004 ou 1.2) ---------- */
-  function findApi(name) {
-    var w = window;
-    for (var i = 0; i < 12 && w; i++) {
-      try { if (w[name]) return w[name]; } catch (e) { return null; }
-      if (w.parent && w.parent !== w) w = w.parent; else if (w.opener) w = w.opener; else break;
-    }
-    return null;
-  }
-  $("[data-acc-quit]").addEventListener("click", function () {
-    var api04 = findApi("API_1484_11"), api12 = findApi("API");
-    try {
-      // l'apprenant n'a pas encore commencé : on garde la session ouverte pour la reprendre plus tard
-      if (api04) { api04.SetValue("cmi.exit", "suspend"); api04.Commit(""); api04.Terminate(""); }
-      else if (api12) { api12.LMSSetValue("cmi.core.exit", "suspend"); api12.LMSCommit(""); api12.LMSFinish(""); }
-    } catch (e) {}
-    try { window.top.close(); } catch (e) {}
-    try { window.close(); } catch (e) {}
-    setTimeout(function () { $("[data-acc-end]").hidden = false; }, 250);
-  });
 
   /* ---------- « Commencer » : l'assistante prend la parole (app.js), l'accueil s'efface ---------- */
   goBtn.addEventListener("click", function () {

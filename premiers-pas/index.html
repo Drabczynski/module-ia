@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="app.css">
   <link rel="stylesheet" href="gris.css">
   <link rel="stylesheet" href="accueil.css">
+  <link rel="stylesheet" href="simple.css">
 </head>
 <body>
 
@@ -52,14 +53,7 @@
 <div class="acc" data-acc>
   <header class="bar">
     <div class="bar-l">
-      <span class="bar-ic" aria-hidden="true"><svg><use href="#i-side"/></svg></span>
-      <span class="bar-ic" aria-hidden="true"><svg><use href="#i-pen"/></svg></span>
-      <span class="bar-sep" aria-hidden="true"></span>
       <p class="bar-name"><span class="bar-k">Module 1</span><span class="bar-t">Première rencontre</span></p>
-    </div>
-    <div class="bar-r">
-      <button type="button" class="bar-btn" data-menu-open aria-haspopup="dialog" aria-label="Les modules"><svg><use href="#i-menu"/></svg><span class="bar-lbl">Les modules</span></button>
-      <button type="button" class="bar-btn" data-acc-quit><svg><use href="#i-x"/></svg>Quitter</button>
     </div>
   </header>
 
@@ -83,7 +77,7 @@
           <p>Lecture de la demande : un premier module, pour quelqu’un qui n’a encore jamais écrit à une IA.</p>
           <p>Mieux vaut pratiquer tout de suite : lui dire bonjour, lui demander à quoi elle sert, voir ce qu’elle répond.</p>
           <p>Choix d’un cas concret pour le premier prompt : répondre au mail de Karim pour le pot de départ de Martine.</p>
-          <p>Plan : cinq courtes séquences, jusqu’au défi final, l’exposé de Léna.</p>
+          <p>Plan : peu d’étapes, une seule chose à faire à la fois, et toujours le même bouton « Suivant » pour avancer.</p>
         </div>
       </div>
       <h1 class="title">Première rencontre<br>avec l’IA</h1>
@@ -92,7 +86,6 @@
     </div>
   </main>
 
-  <div class="end" data-acc-end hidden><div><h2>À bientôt</h2><p>Vous pouvez fermer cette fenêtre.</p></div></div>
 </div>
 
 <!-- ============ Application : Claude à gauche, formation à droite ============ -->
@@ -110,8 +103,8 @@
   </header>
 
   <div class="tabs" role="tablist">
-    <button type="button" role="tab" data-tab="claude" aria-selected="false">IA <span class="tab-dot" data-tab-dot hidden></span></button>
-    <button type="button" role="tab" data-tab="story" aria-selected="true">Formation</button>
+    <button type="button" role="tab" data-tab="claude" aria-selected="false">L’IA <span class="tab-dot" data-tab-dot hidden></span></button>
+    <button type="button" role="tab" data-tab="story" aria-selected="true">Consigne</button>
   </div>
 
   <div class="split" data-shell>
@@ -125,12 +118,13 @@
       <div class="chat">
         <div class="messages" data-messages aria-live="polite"></div>
         <form class="composer" data-composer data-fn="input">
+          <span class="cz-tag" aria-hidden="true"><svg><use href="#i-pencil"/></svg>Écrivez ici</span>
           <div class="attach-chip" data-attach-chip hidden><svg><use href="#i-doc"/></svg><span>document-fictif.pdf</span><button type="button" data-attach-remove aria-label="Retirer le fichier"><svg><use href="#i-x"/></svg></button></div>
-          <textarea data-input data-fn="slash" rows="1" placeholder="Écrire à l’IA…" aria-label="Votre message à l’IA"></textarea>
+          <textarea data-input data-fn="slash" rows="1" placeholder="Écrivez votre message ici…" aria-label="Écrivez ici votre message à l’IA"></textarea>
           <div class="composer-foot">
             <button type="button" class="c-icon" data-attach data-fn="attach" aria-label="Ajouter un fichier"><svg><use href="#i-plus"/></svg></button>
             <span class="c-model">Assistant IA</span>
-            <span class="send-wrap" data-fn="send"><button type="submit" class="send" aria-label="Envoyer"><svg><use href="#i-up"/></svg></button></span>
+            <span class="send-wrap" data-fn="send"><button type="submit" class="send"><span>Envoyer</span><svg><use href="#i-up"/></svg></button></span>
           </div>
         </form>
         <p class="work-note" data-work-note></p>
@@ -142,40 +136,49 @@
 
     <!-- Formation -->
     <aside class="panel" data-panel="story" aria-label="Formation">
-      <div class="panel-head">
-        <span class="ph-t">Module 1 · Première rencontre</span>
-        <div class="ph-actions">
-          
-        </div>
-      </div>
-      <div class="ph-prog" aria-hidden="true"><i data-prog></i></div>
       <div class="panel-body" data-p-body></div>
       <footer class="panel-foot">
         <div class="narr">
           <div class="narr-orb" data-orb></div>
           <p class="narr-cap is-idle" data-cap aria-live="polite"></p>
-          <div class="narr-ctl">
-            <button type="button" class="nc" data-replay aria-label="Réécouter la consigne"><svg><use href="#i-replay"/></svg></button>
-            <button type="button" class="nc" data-sound aria-label="Couper le son"><svg><use href="#i-sound"/></svg></button>
-          </div>
         </div>
-        <button type="button" class="btn-back btn-sm" data-back hidden><svg><use href="#i-back"/></svg>Retour</button>
-        <button type="button" class="btn-quit btn-sm" data-quit hidden>Quitter</button>
-        <button type="button" class="btn-next btn-sm" data-next hidden><span data-next-label>Continuer</span><svg><use href="#i-arrow"/></svg></button>
       </footer>
     </aside>
   </div>
+
+  <!-- ============ Barre d'outils : toujours au même endroit, en bas de l'écran ============ -->
+  <nav class="tools" aria-label="Barre d’outils du module">
+    <div class="tl-l">
+      <button type="button" class="tl-b" data-quit><svg><use href="#i-x"/></svg><span>Quitter</span></button>
+      <p class="tl-name"><span class="tl-k">Module 1</span><span class="tl-t">Première rencontre</span></p>
+    </div>
+    <div class="tl-prog">
+      <p class="tl-step" data-step-label aria-live="polite">Bienvenue</p>
+      <ol class="tl-bar" data-step-bar aria-hidden="true"></ol>
+    </div>
+    <div class="tl-r">
+      <button type="button" class="tl-b" data-replay><svg><use href="#i-replay"/></svg><span>Réécouter</span></button>
+      <button type="button" class="tl-b" data-sound aria-pressed="true"><svg><use href="#i-sound"/></svg><span data-sound-label>Son activé</span></button>
+      <span class="tl-sep" aria-hidden="true"></span>
+      <button type="button" class="tl-b tl-prev" data-back><svg><use href="#i-back"/></svg><span>Précédent</span></button>
+      <button type="button" class="tl-next" data-next><span data-next-label>Suivant</span><svg><use href="#i-arrow"/></svg></button>
+    </div>
+  </nav>
 </div>
 
-<div class="mm" data-menu hidden>
-  <div class="mm-back" data-menu-close></div>
-  <aside class="mm-panel" role="dialog" aria-label="Les modules du parcours">
-    <div class="mm-head"><div><b>Le parcours</b><span>Certification « Utiliser l’IA générative » · 15 modules</span></div><button type="button" class="mm-x" data-menu-close aria-label="Fermer"><svg><use href="#i-x"/></svg></button></div>
-    <div class="mm-list" data-menu-list></div>
-  </aside>
+<!-- « Quitter » : on demande confirmation -->
+<div class="ask" data-ask hidden>
+  <div class="ask-box" role="dialog" aria-modal="true" aria-labelledby="ask-t">
+    <h2 id="ask-t" data-ask-title>Quitter le module ?</h2>
+    <p data-ask-text></p>
+    <div class="ask-btns">
+      <button type="button" class="ask-no" data-ask-no>Non, je continue</button>
+      <button type="button" class="ask-yes" data-ask-yes>Oui, quitter</button>
+    </div>
+  </div>
 </div>
 
-<div class="end-screen" data-end hidden><div><h2>Formation terminée</h2><p>Merci pour votre participation. Vous pouvez fermer cette fenêtre.</p></div></div>
+<div class="end-screen" data-end hidden><div><h2>À bientôt</h2><p>Merci pour votre participation. Vous pouvez fermer cette fenêtre.</p></div></div>
 <div class="toast" data-toast role="status" aria-live="polite"></div>
 <audio data-audio preload="auto"></audio>
 

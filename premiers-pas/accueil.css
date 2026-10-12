@@ -72,6 +72,7 @@
   background: #fff; border-bottom: 1px solid #ececee;
 }
 .acc .bar-l, .acc .bar-r { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.acc .bar-l { padding-left: 14px; }
 .acc .bar-r { flex: none; gap: 8px; }
 .acc .bar-ic { width: 32px; height: 32px; display: grid; place-items: center; color: #3d3d3a; flex: none; }
 .acc .bar-ic svg { width: 17px; height: 17px; }

@@ -215,7 +215,7 @@
   var voiceId = 0;
   function speakTTS(text, v, alive, onEnd, onErr) {
     var u = new SpeechSynthesisUtterance(text);
-    speakTTS.u = u;                                   // garder une référence, sinon « end » peut ne jamais arriver
+    speakTTS.u = u;                                   // garder une référence, sinon « end » peut ne jamais arriver
     u.voice = v; u.lang = v.lang; u.rate = 1.02;
     var t0 = 0, best = 0, done = false;
     function prog(p) { best = Math.max(best, Math.min(1, p)); sayProgress(best); }
@@ -226,7 +226,7 @@
       requestAnimationFrame(loop);
     })();
     u.onstart = begin;
-    setTimeout(begin, 800);                             // certains navigateurs n'émettent pas « start »
+    setTimeout(begin, 800);                             // certains navigateurs n'émettent pas « start »
     u.onboundary = function (ev) { begin(); if (alive() && ev.charIndex !== undefined) prog((ev.charIndex + (ev.charLength || 1)) / text.length); };
     u.onend = function () { if (done || !alive()) return; done = true; prog(1); onEnd(); };
     u.onerror = function (ev) { if (done || !alive()) return; done = true; (onErr || onEnd)(ev); };
@@ -236,14 +236,16 @@
   audio.addEventListener("pause", function () { if (!audio.ended) { speaking = false; orbMood(); } });
   audio.addEventListener("ended", ended);
 
-  $("[data-replay]").addEventListener("click", function () { narrate(current); });
+  $("[data-replay]").addEventListener("click", function () { if (!inWelcome) narrate(current); });
   var soundBtn = $("[data-sound]");
   function paintSound() {
     soundBtn.querySelector("use").setAttribute("href", S.sound ? "#i-sound" : "#i-mute");
-    soundBtn.setAttribute("aria-label", S.sound ? "Couper le son" : "Remettre le son");
+    soundBtn.setAttribute("aria-pressed", String(!!S.sound));
+    $("[data-sound-label]").textContent = S.sound ? "Son activé" : "Son coupé";
   }
   soundBtn.addEventListener("click", function () {
     S.sound = !S.sound; save(); paintSound();
+    if (inWelcome) { audio.muted = !S.sound; if (!S.sound && window.speechSynthesis) speechSynthesis.cancel(); return; }   // la bienvenue continue, sans la voix
     if (!S.sound) { stopVoice(); if (current) caption(current.text, true); } else narrate(current);
   });
   paintSound();
@@ -308,7 +310,7 @@
     $("[data-conv-title]").textContent = c && c.messages.length ? c.title : "Nouvelle conversation";
     messagesEl.innerHTML = "";
     if (big) {
-      messagesEl.innerHTML = '<div class="empty-state"><h2>Comment puis-je vous aider ?</h2><p>Environnement de formation · dossiers fictifs uniquement</p></div>';
+      messagesEl.innerHTML = '<div class="empty-state"><h2>Comment puis-je vous aider ?</h2></div>';
       messagesEl.firstChild.insertBefore(bigSay, messagesEl.firstChild.firstChild);
       messagesEl.firstChild.insertBefore(bigHost, messagesEl.firstChild.firstChild);
     } else c.messages.forEach(function (m) { messagesEl.appendChild(msgNode(m)); });
@@ -324,7 +326,7 @@
     ul.innerHTML = "";
     var list = P.convs.filter(function (c) { return c.messages.length; });
     if (demoRecents) {
-      // exemples fictifs, pour illustrer le repère « Échanges précédents »
+      // exemples fictifs, pour illustrer le repère « Échanges précédents »
       ["Idées pour l’affiche", "Relance du fournisseur", "Ordre du jour du point équipe"].forEach(function (t) {
         var li = h('<li><button type="button" class="is-demo" tabindex="-1"><svg><use href="#i-chat"/></svg><span></span></button></li>');
         li.querySelector("span").textContent = t;
@@ -415,8 +417,8 @@
     var all = users.map(function (m) { return m.content; }).join("\n").toLowerCase();
     if (/olá|obras|barulho/.test(all)) {
       if (/en anglais/.test(t)) return "Here is the translation:\n\n“Hello! On Saturday morning I’m going to do some work in the apartment. Sorry for the noise. Thank you! — Diogo, 3rd floor”";
-      if (/en espagnol/.test(t)) return "Aquí tienes la traducción:\n\n« ¡Hola! El sábado por la mañana voy a hacer obras en el piso. Perdón por el ruido. ¡Gracias! — Diogo, 3.º »";
-      if (/tradu|fran[çc]ais|que veut dire|signifie|comprends pas|explique/.test(t)) return "Voici la traduction :\n\n« Bonjour ! Samedi matin, je vais faire des travaux dans l’appartement. Je m’excuse pour le bruit. Merci ! — Diogo, 3e étage »\n\nSi vous le souhaitez, je peux vous aider à lui répondre en portugais.";
+      if (/en espagnol/.test(t)) return "Aquí tienes la traducción:\n\n« ¡Hola! El sábado por la mañana voy a hacer obras en el piso. Perdón por el ruido. ¡Gracias! — Diogo, 3.º »";
+      if (/tradu|fran[çc]ais|que veut dire|signifie|comprends pas|explique/.test(t)) return "Voici la traduction :\n\n« Bonjour ! Samedi matin, je vais faire des travaux dans l’appartement. Je m’excuse pour le bruit. Merci ! — Diogo, 3e étage »\n\nSi vous le souhaitez, je peux vous aider à lui répondre en portugais.";
       return "Ce message est écrit en portugais. Que souhaitez-vous que j’en fasse : le traduire, le résumer ou y répondre ?";
     }
     if (/volcan/.test(all)) {
@@ -513,9 +515,9 @@
   function paintComposer() {
     var on = composeOn && !busy;
     input.disabled = !on;
-    sendBtn.disabled = !on || !!(tpl && !tplDone());
+    sendBtn.disabled = !on || (tpl ? !tplDone() : !input.value.trim());     // « Envoyer » s'allume quand il y a quelque chose à envoyer
     claudeEl.classList.toggle("is-locked", !composeOn);
-    input.placeholder = composeOn ? "Écrire à l’IA…" : "Le champ s’activera quand ce sera à vous d’écrire.";
+    input.placeholder = composeOn ? "Écrivez votre message ici…" : "Ce cadre s’activera quand ce sera à vous d’écrire.";
   }
   function compose(on, tip) {
     composeOn = !!on;
@@ -532,6 +534,7 @@
   function insert(text) {
     input.value = text;
     autosize();
+    paintComposer();
     input.focus();
     input.setSelectionRange(input.value.length, input.value.length);
     hook("onInsert");
@@ -638,6 +641,7 @@
   });
   input.addEventListener("input", function () {
     autosize();
+    paintComposer();
     clearTimeout(typingTimer);
     typingTimer = setTimeout(function () { typingTimer = null; orbMood(); }, 1400);
     orbMood();
@@ -654,8 +658,8 @@
 
   var REPERES = [
     ["input", "Zone de saisie", "Vous y écrivez votre message, comme dans une messagerie.", false],
-    ["slash", "Commandes « / »", "Tapez « / » au début du champ pour afficher des commandes supplémentaires.", true],
-    ["attach", "Bouton « + »", "Ajoute un fichier ou une image à votre message, et donne accès à d’autres options.", false],
+    ["slash", "Commandes « / »", "Tapez « / » au début du champ pour afficher des commandes supplémentaires.", true],
+    ["attach", "Bouton « + »", "Ajoute un fichier ou une image à votre message, et donne accès à d’autres options.", false],
     ["send", "Envoyer", "La flèche envoie le message. La touche Entrée aussi.", false],
     ["new", "Nouvelle conversation", "Un nouveau sujet ? Repartez d’une page blanche.", false]
   ];
@@ -735,7 +739,8 @@
     narrate({ audio: s.audio || null, text: s.say });
   }
   function next() { go(P.i + 1); }
-  function autoNext(delay) { clearTimeout(autoTimer); autoTimer = setTimeout(next, delay || 2600); }
+  // activité réussie : on n'avance pas tout seul, le bouton « Suivant » s'allume (même geste à chaque étape)
+  function readyNext() { paintNext(); nextBtn.classList.remove("is-flash"); void nextBtn.offsetWidth; nextBtn.classList.add("is-flash"); }
 
   function render(fresh) {
     var s = st();
@@ -754,16 +759,15 @@
       side.appendChild(h('<span class="pv-rule"></span>'));
     }
     s.render(pv, side);
+    actionBox = pv.appendChild(h('<div class="pv-act"></div>'));
     if (!fresh) Array.prototype.forEach.call(pv.children, function (c) { if (!c.classList.contains("is-new")) c.style.animation = "none"; });
     bodyEl.appendChild(pv);
     syncMarks(markT);
     bodyEl.scrollTop = fresh ? 0 : y;
-    $("[data-prog]").style.width = ((P.i + 1) / STEPS.length * 100) + "%";
     paintNext();
   }
   function refresh() { render(false); }
-  var backBtn = $("[data-back]"), quitBtn = $("[data-quit]");
-  quitBtn.addEventListener("click", quit);
+  var backBtn = $("[data-back]"), quitBtn = $("[data-quit]"), actionBox = null;
   // Quitter : signale la fin à la plateforme (SCORM 1.2 ou 2004) si elle est présente, puis ferme la fenêtre
   function findApi(name) {
     for (var w = window, n = 0; w && n < 8; n++) {
@@ -772,21 +776,28 @@
     }
     return null;
   }
-  function quit() {
+  // done : le module est fini (score et réussite) ; sinon, la session reste en cours
+  function quit(done) {
     stopVoice();
     var snap = window.AtelierTracking.snapshot(), pct = Math.round(snap.score / snap.max * 100);
     var api12 = findApi("API"), api04 = findApi("API_1484_11");
     try {
-      if (api04) {
+      if (api04 && done) {
         api04.SetValue("cmi.score.scaled", String(snap.score / snap.max));
         api04.SetValue("cmi.score.raw", String(snap.score)); api04.SetValue("cmi.score.min", "0"); api04.SetValue("cmi.score.max", String(snap.max));
         api04.SetValue("cmi.completion_status", "completed");
         api04.SetValue("cmi.success_status", snap.validated ? "passed" : "failed");
         api04.SetValue("cmi.exit", "normal");
         api04.Commit(""); api04.Terminate("");
-      } else if (api12) {
+      } else if (api04) {
+        api04.SetValue("cmi.completion_status", "incomplete"); api04.SetValue("cmi.exit", "suspend");
+        api04.Commit(""); api04.Terminate("");
+      } else if (api12 && done) {
         api12.LMSSetValue("cmi.core.score.raw", String(pct)); api12.LMSSetValue("cmi.core.score.min", "0"); api12.LMSSetValue("cmi.core.score.max", "100");
         api12.LMSSetValue("cmi.core.lesson_status", snap.validated ? "passed" : "failed");
+        api12.LMSCommit(""); api12.LMSFinish("");
+      } else if (api12) {
+        api12.LMSSetValue("cmi.core.lesson_status", "incomplete"); api12.LMSSetValue("cmi.core.exit", "suspend");
         api12.LMSCommit(""); api12.LMSFinish("");
       }
     } catch (e) {}
@@ -794,21 +805,77 @@
     try { window.close(); } catch (e) {}
     setTimeout(function () { $("[data-end]").hidden = false; }, 250);
   }
-  backBtn.addEventListener("click", function () { if (P.i > 0) go(P.i - 1); });
-  function paintNext() {
-    backBtn.hidden = P.i === 0;
-    quitBtn.hidden = !st().full;
-    var s = st(), p = s.primary ? s.primary() : { label: "Continuer", disabled: s.ready ? !s.ready() : false, run: next };
-    if (!p) { nextBtn.hidden = true; return; }
-    nextBtn.hidden = false;
-    $("[data-next-label]").textContent = p.label;
-    nextBtn.disabled = !!p.disabled;
-    nextBtn.classList.toggle("is-success", !!p.success);
-    nextBtn.onclick = function () { if (!p.disabled && p.run) p.run(); };
+  // « Quitter » demande confirmation : un clic de trop ne doit pas faire perdre le module
+  var askEl = $("[data-ask]");
+  function askQuit() {
+    var end = !!st().full && !inWelcome;
+    $("[data-ask-title]").textContent = end ? "Terminer le module ?" : "Quitter le module ?";
+    $("[data-ask-text]").textContent = end ? "Votre résultat est enregistré." : "Si vous quittez maintenant, vous recommencerez le module depuis le début.";
+    askEl.hidden = false;
+    askEl.dataset.end = end ? "1" : "";
+    $("[data-ask-no]").focus();
   }
+  $("[data-ask-no]").addEventListener("click", function () { askEl.hidden = true; quitBtn.focus(); });
+  $("[data-ask-yes]").addEventListener("click", function () { askEl.hidden = true; quit(!!askEl.dataset.end); });
+  askEl.addEventListener("click", function (e) { if (e.target === askEl) askEl.hidden = true; });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !askEl.hidden) askEl.hidden = true; });
+  quitBtn.addEventListener("click", askQuit);
+
+  // l'étape peut-elle être quittée ? sinon, quel bouton d'activité montrer dans le panneau (« Valider », « Réessayer »…)
+  function navState() {
+    var s = st(), p = s.primary ? s.primary() : null;
+    if (p && p.run !== next) return { action: p, ready: false };
+    return { action: null, ready: p ? !p.disabled : s.ready ? !!s.ready() : true };
+  }
+  var stepLabel = $("[data-step-label]"), stepBar = $("[data-step-bar]");
+  function paintNext() {
+    var s = st(), n = navState(), last = P.i === STEPS.length - 1;
+    if (inWelcome) n = { action: null, ready: true };
+    backBtn.disabled = inWelcome || P.i === 0;
+    $("[data-next-label]").textContent = last && !inWelcome ? "Terminer" : "Suivant";
+    nextBtn.classList.toggle("is-off", !n.ready);
+    nextBtn.setAttribute("aria-disabled", String(!n.ready));
+    if (!n.ready) nextBtn.classList.remove("is-flash");
+    // l'avancement : « Étape 3 sur 9 » et une case par étape
+    stepLabel.textContent = inWelcome ? "Bienvenue" : "Étape " + (P.i + 1) + " sur " + STEPS.length;
+    Array.prototype.forEach.call(stepBar.children, function (li, k) {
+      li.className = inWelcome ? "" : k < P.i ? "is-done" : k === P.i ? "is-cur" : "";
+    });
+    if (actionBox) {
+      actionBox.innerHTML = "";
+      if (n.action) {
+        var b = h('<button type="button" class="pv-go"></button>');
+        b.textContent = n.action.label;
+        b.disabled = !!n.action.disabled;
+        b.onclick = function () { if (!n.action.disabled && n.action.run) n.action.run(); };
+        actionBox.appendChild(b);
+      }
+    }
+  }
+  backBtn.addEventListener("click", function () { if (!backBtn.disabled && P.i > 0) go(P.i - 1); });
+  nextBtn.addEventListener("click", function () {
+    if (inWelcome) { leaveWelcome(); return; }
+    if (!navState().ready) {                              // pas encore : on montre ce qu'il reste à faire
+      toast("Faites d’abord ce qui est demandé. Le bouton « Suivant » s’allumera ensuite.");
+      nextBtn.classList.remove("is-denied"); void nextBtn.offsetWidth; nextBtn.classList.add("is-denied");
+      var cur = $(".pv-steps li.is-cur", bodyEl);
+      if (cur) { cur.classList.remove("is-nudge"); void cur.offsetWidth; cur.classList.add("is-nudge"); cur.scrollIntoView({ block: "nearest", behavior: "smooth" }); }
+      return;
+    }
+    if (P.i === STEPS.length - 1) { quit(true); return; }
+    next();
+  });
 
   /* petits constructeurs de contenu */
-  function lead(pv, html) { pv.appendChild(h('<p class="pv-lead">' + html + "</p>")); }
+  // sur les petits écrans, l'IA n'est pas « à gauche » mais dans l'onglet « L'IA »
+  function here(html) { return window.innerWidth > 980 ? html : html.replace(/la partie <b>à gauche<\/b> de l’écran/g, "l’onglet <b>« L’IA »</b>").replace(/,? à gauche/g, ", dans l’onglet « L’IA »"); }
+  function lead(pv, html) { pv.appendChild(h('<p class="pv-lead">' + here(html) + "</p>")); }
+  // la consigne, à chaque étape la même forme : « À vous : », des actions numérotées, la dernière est toujours « Suivant »
+  var NEXT = "Cliquez sur <b>« Suivant »</b>, en bas à droite.";
+  function consigne(pv, items, cur) {
+    pv.appendChild(h('<p class="cs-h">À vous :</p>'));
+    stepsList(pv, items.map(function (t) { return { html: here(t) }; }), cur);
+  }
   function fbNew(pv, kind, html) { fb(pv, kind, html); pv.lastChild.classList.add("is-new", "fb-pop"); }
   function fb(pv, kind, html) {
     var icon = kind === "ok" ? "check" : kind === "ko" ? "bulb" : "info";
@@ -879,7 +946,7 @@
           a.checked = true;
           if (ok || a.tries.length >= 2) { a.done = true; a.checked = ok; }
           refresh();
-          if (ok) autoNext(2600);
+          if (ok) readyNext();
         } };
       }
     };
@@ -997,7 +1064,7 @@
           a.best = Math.max(a.best || 0, score);
           if (score === n || a.tries.length >= 2) a.done = true; else a.checked = true;
           refresh();
-          if (score === n) autoNext(3000);
+          if (score === n) readyNext();
         } };
       }
     };
@@ -1103,7 +1170,7 @@
         shown.forEach(function (k) {
           var pos = a.seq.indexOf(k);
           var b = h('<button type="button" class="ord-card"><span class="ord-n"></span><span class="ord-t"></span></button>');
-          b.querySelector(".ord-t").textContent = "« " + items[k] + " »";
+          b.querySelector(".ord-t").textContent = "« " + items[k] + " »";
           b.querySelector(".ord-n").textContent = pos >= 0 ? pos + 1 : "";
           if (pos >= 0) b.classList.add("is-on");
           if (locked && pos >= 0) b.classList.add(pos === k ? "is-good" : "is-bad");
@@ -1120,7 +1187,7 @@
           var ok = a.tries[a.tries.length - 1];
           fb(pv, ok ? "ok" : "ko", ok ? "<b>Réussi :</b> plus on donne de précisions, plus la réponse sera adaptée. Les trois restent des prompts." : "<b>À reprendre :</b> comparez la quantité de précisions dans chaque prompt.");
         }
-        if (a.done && !a.best) fb(pv, "", "<b>Correction :</b> " + items.map(function (t, k) { return (k + 1) + ". « " + esc(t) + " »"; }).join(" · "));
+        if (a.done && !a.best) fb(pv, "", "<b>Correction :</b> " + items.map(function (t, k) { return (k + 1) + ". « " + esc(t) + " »"; }).join(" · "));
         triesLine(pv, a, 1);
       },
       primary: function () {
@@ -1134,7 +1201,7 @@
           a.best = ok ? 1 : (a.best || 0);
           if (ok || a.tries.length >= 2) a.done = true; else a.checked = true;
           refresh();
-          if (ok) autoNext(3000);
+          if (ok) readyNext();
         } };
       }
     };
@@ -1182,7 +1249,7 @@
           a.best = ok ? 1 : (a.best || 0);
           if (ok || a.tries.length >= 2) a.done = true; else a.checked = true;
           refresh();
-          if (ok) autoNext(3200);
+          if (ok) readyNext();
         } };
       },
       count: goodCount
@@ -1243,7 +1310,7 @@
           }
           b.disabled = !!locked;
           b.onclick = function () {
-            if (a.sel === null || a.sel === undefined) { toast("Choisissez d’abord un élément, à gauche."); return; }
+            if (a.sel === null || a.sel === undefined) { toast("Cliquez d’abord sur une situation."); return; }
             Object.keys(a.links).forEach(function (k) { if (a.links[k] === f[0] && !(a.good && a.good[k])) delete a.links[k]; });
             a.links[a.sel] = f[0];
             var nk = cfg.left.map(function (x, k) { return k; }).filter(function (k) { return !a.links[k]; })[0];
@@ -1279,7 +1346,7 @@
           a.sel = null;
           if (score === n || a.tries.length >= 2) a.done = true; else a.checked = true;
           refresh();
-          if (score === n) autoNext(3000);
+          if (score === n) readyNext();
         } };
       },
       leave: function () { redrawLinks = null; }
@@ -1315,9 +1382,9 @@
     { k: "idees", icon: "bulb", img: "fete.jpg", title: "Trouver des idées", sub: "Un nom pour la fête des voisins",
       tpl: ["Propose 5 noms pour la fête des voisins de notre rue. Ambiance : ", { k: "amb", label: "Ambiance", opts: ["familiale", "festive", "rétro", "chic"] }, "."] },
     { k: "apprendre", icon: "eye", img: "apprendre.jpg", title: "Apprendre", sub: "Une ligne de votre fiche de paie",
-      tpl: ["Explique-moi simplement ce que veut dire « net imposable » sur une fiche de paie. Je suis ", { k: "niv", label: "Votre niveau", opts: ["débutant", "à l’aise avec les chiffres", "pressé : en 3 lignes"] }, "."] },
+      tpl: ["Explique-moi simplement ce que veut dire « net imposable » sur une fiche de paie. Je suis ", { k: "niv", label: "Votre niveau", opts: ["débutant", "à l’aise avec les chiffres", "pressé : en 3 lignes"] }, "."] },
     { k: "resumer", icon: "doc", img: "resumer.jpg", title: "Résumer", sub: "Le compte rendu du conseil",
-      tpl: ["Résume en 3 points ce compte rendu, pour ", { k: "pub", label: "Pour qui ?", opts: ["mes voisins", "mon équipe", "un enfant de 10 ans"] }, " : « Le conseil a voté la rénovation du gymnase, avec des travaux de mars à juin. La cantine passera au bio deux jours par semaine. Une réunion publique aura lieu le 14 à 18 h. »"] }
+      tpl: ["Résume en 3 points ce compte rendu, pour ", { k: "pub", label: "Pour qui ?", opts: ["mes voisins", "mon équipe", "un enfant de 10 ans"] }, " : « Le conseil a voté la rénovation du gymnase, avec des travaux de mars à juin. La cantine passera au bio deux jours par semaine. Une réunion publique aura lieu le 14 à 18 h. »"] }
   ];
   function isPotConv(c) { return c && c.kind === "pot"; }
 
@@ -1373,11 +1440,11 @@
             sp.tabIndex = 0;
             sp.onclick = function () {
               if (HUNT[m[2]]) { hunt.found[m[2]] = true; hunt.why = null; }
-              else { hunt.miss = (hunt.miss || 0) + 1; hunt.why = "« " + m[1] + " » : " + HUNT_WHY[m[2]]; }
+              else { hunt.miss = (hunt.miss || 0) + 1; hunt.why = "« " + m[1] + " » : " + HUNT_WHY[m[2]]; }
               if (Object.keys(HUNT).every(function (k) { return hunt.found[k]; })) {
                 hunt.done = true;
                 hunt.best = (hunt.miss || 0) <= 1 ? 1 : 0;
-                autoNext(4200);
+                readyNext();
               }
               refresh();
             };
@@ -1393,22 +1460,23 @@
 
   /* ---------- Les étapes ---------- */
 
-  var STEPS = [
+  var ALL_STEPS = [
     /* Dire bonjour ------------------------------------------------------------- */
     {
       id: "bonjour", seq: 0, pill: "À vous d’écrire", icon: "pencil", title: "Dites bonjour à l’IA",
       audio: "pp-bonjour", say: "À gauche, vous avez accès à l’IA. Le champ de saisie est maintenant actif. Écrivez-lui un premier message, par exemple : Bonjour, qui es-tu ? Puis envoyez-le !",
       render: function (pv) {
         var a = act("bonjour");
-        lead(pv, "L’IA est ouverte <b>à gauche</b>. On lui écrit comme à une personne : avec des phrases normales, pas besoin de mots-clés.");
-        stepsList(pv, [
-          { html: "Écrivez un premier message dans le champ de saisie, à gauche." },
-          { html: "Envoyez-le : <b>flèche</b> ou touche <b>Entrée</b>." },
-          { html: "Lisez sa réponse." }
+        lead(pv, "L’IA, c’est la partie <b>à gauche</b> de l’écran. On lui écrit comme à une personne.");
+        consigne(pv, [
+          "Écrivez un message dans le cadre <b>« Écrivez ici »</b>, à gauche. Par exemple : « Bonjour, qui es-tu ? »",
+          "Cliquez sur <b>« Envoyer »</b>.",
+          "Lisez la réponse de l’IA.",
+          NEXT
         ], a.done ? 3 : a.sent ? 2 : a.typed ? 1 : 0);
-        if (!a.sent) suggestions(pv, "Pas d’idée ? Cliquez sur une suggestion :", ["Bonjour, qui es-tu ?", "Bonjour ! Que sais-tu faire ?", "Salut ! Présente-toi en deux phrases."]);
-        if (a.retry) fbNew(pv, "ko", "<b>L’IA vous a répondu, mais ce n’est pas encore un premier contact.</b> Dites-lui bonjour, ou demandez-lui qui elle est.");
-        if (a.done) fbNew(pv, "ok", "<b>Premier échange réussi.</b> L’IA répond à ce que vous lui écrivez, comme dans une conversation.");
+        if (!a.sent) suggestions(pv, "Pas d’idée ? Cliquez sur une phrase : elle s’écrit dans le cadre.", ["Bonjour, qui es-tu ?", "Bonjour ! Que sais-tu faire ?"]);
+        if (a.retry) fbNew(pv, "ko", "<b>Ce n’est pas encore un bonjour.</b> Écrivez par exemple « Bonjour, qui es-tu ? », puis cliquez sur « Envoyer ».");
+        if (a.done) fbNew(pv, "ok", "<b>Bravo, premier échange réussi !</b> L’IA vous a répondu.");
       },
       ready: function () { return !!act("bonjour").done; },
       enter: function () { if (!act("bonjour").done) compose(true, "À vous : écrivez un premier message"); },
@@ -1423,13 +1491,13 @@
       onAnswer: function () {
         var a = act("bonjour");
         if (!a.ok) { a.sent = false; a.retry = true; refresh(); compose(true); return; }
-        a.done = true; a.retry = false; refresh(); autoNext(5200);
+        a.done = true; a.retry = false; refresh(); readyNext();
       }
     },
 
     /* Vrai ou faux (cartes à glisser) ------------------------------------------- */
     extend({
-      id: "vraifaux", seq: 0, pill: "Glissez les cartes · 3 points", icon: "hand", title: "Vrai ou faux ?",
+      id: "vraifaux", seq: 0, pill: "Glissez les cartes · 3 points", icon: "hand", title: "Vrai ou faux\u00a0?",
       audio: "pp-vraifaux", say: "Trois idées reçues sur l’intelligence artificielle. Glissez la carte vers la droite si c’est vrai, vers la gauche si c’est faux. Vous pouvez aussi utiliser les boutons."
     }, (function () {
       var w = swipe("vraifaux", [
@@ -1438,13 +1506,18 @@
         ["Ses réponses sont toujours justes.", false, "L’IA peut se tromper, et même inventer. Relisez toujours ses réponses, et vérifiez les faits importants."]
       ]);
       var r = w.render;
-      w.render = function (pv) { lead(pv, "Vrai à droite, faux à gauche. Une carte à la fois."); r(pv); };
+      w.render = function (pv) {
+        var k = (act("vraifaux").res || []).length;
+        lead(pv, "Trois phrases sur l’IA. Pour chacune : vrai ou faux ?");
+        consigne(pv, ["Lisez la phrase, puis cliquez sur <b>« Vrai »</b> ou sur <b>« Faux »</b>.", "Faites de même pour les <b>3 phrases</b>.", NEXT], k === 3 ? 2 : k ? 1 : 0);
+        r(pv);
+      };
       return w;
     })()),
 
     /* Où trouver Claude (illustration) ------------------------------------------ */
     {
-      id: "acces", seq: 0, pill: "Bon à savoir", icon: "eye", title: "Avec quoi utiliser l’IA ?", bare: true, cover: true,
+      off: true, id: "acces", seq: 0, pill: "Bon à savoir", icon: "eye", title: "Avec quoi utiliser l’IA ?", bare: true, cover: true,
       audio: "pp-acces", say: "L’IA s’utilise généralement de trois façons : dans le navigateur, sur le site web de l’IA, avec l’application pour ordinateur, sur Mac et Windows, ou avec l’application mobile, sur iOS et Android.",
       render: function (pv) {
         var cov = h('<div class="cover"><img src="../assets/img/train.jpg" alt=""><div class="cover-in"><h2 class="cover-t">Avec quoi utiliser l’IA ?</h2></div></div>');
@@ -1464,13 +1537,14 @@
       audio: "pp-demander", say: "Le mieux placé pour vous dire à quoi sert l’IA, c’est l’IA. La demande est prête dans son champ. Cliquez sur les cases orange pour la compléter, puis envoyez.",
       render: function (pv) {
         var a = act("demander");
-        lead(pv, "La mieux placée pour vous le dire, c’est l’IA. La demande est prête dans son champ : <b>cliquez sur les cases orange</b> pour la compléter, puis envoyez.");
-        stepsList(pv, [
-          { html: "Cliquez sur les <b>cases orange</b>, dans le champ de saisie, pour les compléter." },
-          { html: "Envoyez la demande." },
-          { html: "Lisez la réponse : l’IA liste ce qu’elle sait faire." }
+        lead(pv, "Le mieux, c’est de le demander à l’IA elle-même. Le message est déjà écrit à gauche : il reste à le compléter.");
+        consigne(pv, [
+          "Dans le cadre <b>« Écrivez ici »</b>, cliquez sur chaque <b>case orange</b> et choisissez une réponse.",
+          "Cliquez sur <b>« Envoyer »</b>.",
+          "Lisez la réponse de l’IA.",
+          NEXT
         ], a.done ? 3 : a.sent ? 2 : a.filled ? 1 : 0);
-        if (a.done) fb(pv, "ok", "<b>Voilà ses usages :</b> écrire, apprendre, résumer, trouver des idées, traduire, analyser une image, programmer. Gardez-les en tête pour l’activité suivante.");
+        if (a.done) fb(pv, "ok", "<b>Voilà ce qu’elle sait faire :</b> écrire, apprendre, résumer, trouver des idées, traduire… Gardez-les en tête pour l’activité suivante.");
       },
       ready: function () { return !!act("demander").done; },
       enter: function () {
@@ -1481,12 +1555,12 @@
       },
       onTemplate: function (vals, done) { var a = act("demander"); if (done && !a.filled) { a.filled = true; refresh(); } },
       onSend: function () { act("demander").sent = true; compose(false); refresh(); },
-      onAnswer: function () { act("demander").done = true; refresh(); autoNext(7000); }
+      onAnswer: function () { act("demander").done = true; refresh(); readyNext(); }
     },
 
     /* Sept usages (relier) ------------------------------------------------------ */
     extend({
-      id: "usages", seq: 1, pill: "Reliez · 5 points", icon: "clock", title: "Le bon usage",
+      id: "usages", seq: 1, pill: "Reliez · 3 points", icon: "clock", title: "Le bon usage",
       audio: "pp-usages", say: "L’intelligence artificielle vient de vous donner ses usages. À vous ! Reliez chaque situation de la vie courante à l’usage qui convient."
     }, (function () {
       var COLORS = { tra: "#1f5cf0", res: "#1f5cf0", ide: "#1f5cf0", app: "#1f5cf0", img: "#1f5cf0" };   // un seul bleu, puis vert ou rouge à la correction
@@ -1495,21 +1569,24 @@
         left: [
           ["Un voisin vous laisse un mot en portugais", "tra"],
           ["Le compte rendu du conseil fait 12 pages", "res"],
-          ["Il faut un nom pour la fête des voisins", "ide"],
-          ["Une ligne de votre fiche de paie vous échappe", "app"],
-          ["Vous avez la photo d’un graphique de consommation", "img"]
+          ["Il faut un nom pour la fête des voisins", "ide"]
         ],
-        right: [["ide", "Trouver des idées"], ["img", "Analyser une image"], ["tra", "Traduire"], ["app", "Apprendre"], ["res", "Résumer"]],
+        right: [["ide", "Trouver des idées"], ["tra", "Traduire"], ["res", "Résumer"]],
         colors: COLORS
       });
       var r = w.render;
-      w.render = function (pv) { lead(pv, "L’IA vient de vous répondre, à gauche. <b>Cliquez sur une situation, puis sur l’usage</b> qui convient."); r(pv); };
+      w.render = function (pv) {
+        var a = act("usages"), n = Object.keys(a.links || {}).length;
+        lead(pv, "À chaque situation, son usage de l’IA.");
+        consigne(pv, ["Cliquez sur une <b>situation</b>, dans la colonne « Situations ».", "Cliquez sur l’<b>usage</b> qui va avec, dans la colonne « Usages ».", "Quand les 3 sont reliées, cliquez sur <b>« Valider »</b>.", NEXT], a.done ? 3 : n === 3 ? 2 : 0);
+        r(pv);
+      };
       return w;
     })()),
 
     /* Essayer pour de vrai ------------------------------------------------------ */
     {
-      id: "essayer", seq: 1, pill: "À vous d’écrire", icon: "pencil", title: "Essayez un usage",
+      off: true, id: "essayer", seq: 1, pill: "À vous d’écrire", icon: "pencil", title: "Essayez un usage",
       audio: "pp-essayer", say: "À vous d’essayer ! Choisissez une situation parmi les exemples à droite de votre écran. La demande apparaîtra dans le champ de l’IA. Vous n’aurez plus qu’à l’envoyer.",
       render: function (pv) {
         var a = act("essayer");
@@ -1535,12 +1612,12 @@
       },
       ready: function () { return !!act("essayer").done; },
       onSend: function () { act("essayer").sent = true; compose(false); refresh(); },
-      onAnswer: function () { act("essayer").done = true; refresh(); autoNext(6000); }
+      onAnswer: function () { act("essayer").done = true; refresh(); readyNext(); }
     },
 
     /* C'est quoi, un prompt (ordre) --------------------------------------------- */
     extend({
-      id: "prompt", seq: 2, pill: "Classez · 1 point", icon: "clock", title: "C’est quoi, un prompt ?",
+      off: true, id: "prompt", seq: 2, pill: "Classez · 1 point", icon: "clock", title: "C’est quoi, un prompt ?",
       audio: "pp-prompt", say: "Un prompt, c’est simplement ce que vous écrivez à l’IA. Il peut être une question toute simple, ou une demande très détaillée. Classez ces trois prompts, du plus simple au plus détaillé."
     }, (function () {
       var w = orderUp("prompt", [
@@ -1558,12 +1635,18 @@
       id: "mail", seq: 2, pill: "La situation", icon: "mail", title: "Le mail de Karim", compact: true,
       audio: "pp-mail", say: "Go ! OK. On va jouer avec de vraies situations, cette fois. Vous avez trois nouveaux mails. Ouvrez celui qui parle du pot de départ de Martine.",
       render: function (pv) {
-        var a = act("mail");
-        var phase = a.done ? 2 : a.open === "pot" ? 1 : 0;
-        pv.appendChild(h('<p class="pv-task"></p>')).innerHTML = phase === 0 ? (a.wrong ? "Pas celui-là : ouvrez le mail du <b>pot de départ</b>." : "Ouvrez le mail du <b>pot de départ</b>.") : phase === 1 ? "À gauche, demandez <b>des idées pour ce pot</b>, en une phrase." : "L’IA a répondu. Ses idées sont-elles adaptées ?";
-        mailApp(pv, phase === 0 ? "open" : "show");
+        var a = act("mail"), open = a.open === "pot";
+        consigne(pv, [
+          "Dans la boîte mail, cliquez sur le mail de <b>Karim</b> : « Pot de départ de Martine ».",
+          "Dans le cadre <b>« Écrivez ici »</b>, à gauche, demandez des idées pour ce pot, en une phrase courte.",
+          "Cliquez sur <b>« Envoyer »</b>, puis lisez la réponse.",
+          NEXT
+        ], a.done ? 3 : a.sent ? 2 : open ? 1 : 0);
+        if (open && !a.sent) suggestions(pv, "Pas d’idée ? Cliquez sur la phrase : elle s’écrit dans le cadre.", ["Donne-moi des idées pour un pot de départ."]);
+        if (a.wrong && !open) fb(pv, "ko", "Pas celui-là : cliquez sur le mail de <b>Karim</b>, « Pot de départ de Martine ».");
         if (a.off) fb(pv, "ko", "Parlez à l’IA du <b>pot de départ</b> : c’est notre situation.");
         if (a.long) fb(pv, "", "Votre demande est déjà détaillée : très bien ! On va quand même voir ce que donne une demande courte.");
+        mailApp(pv, open ? "show" : "open");
       },
       ready: function () { return !!act("mail").done; },
       enter: function () { var a = act("mail"); if (a.open === "pot" && !a.done) startSimple(); },
@@ -1571,14 +1654,13 @@
         var a = act("mail");
         if (id !== "pot" || a.started) return;
         a.started = true;
-        a.waitVoice = true;
         narrate({ audio: "pp-mail-ouvert", text: "Super ! C’est bien celui-là. Premier conseil : commencez simple. Dans l’IA, demandez des idées pour ce pot, en une phrase courte. Par exemple : Donne-moi des idées pour un pot de départ." });
-        if (!S.sound) { a.waitVoice = false; startSimple(); }
-        setTimeout(function () { if (a.waitVoice && st().id === "mail") { a.waitVoice = false; startSimple(); } }, 14000);   // filet si la voix ne se lance pas
+        startSimple();
+        refresh();
       },
-      onVoiceEnd: function () { var a = act("mail"); if (a.waitVoice) { a.waitVoice = false; startSimple(); } },
       onSend: function (c, text) {
         var a = act("mail");
+        a.sent = true;
         c.kind = "pot"; c.title = "Pot de départ";
         a.off = !/\bpot\b|départ|retraite|martine|fête|au revoir/i.test(text);
         a.long = text.split(/\s+/).length > 25;
@@ -1587,26 +1669,31 @@
       },
       onAnswer: function (c) {
         var a = act("mail");
-        if (a.off) { compose(true, "Parlez du pot de départ"); refresh(); return; }
+        if (a.off) { a.sent = false; compose(true, "Parlez du pot de départ"); refresh(); return; }
         a.done = true;
         P.potConv = c.id;
         P.potFirst = (c.messages.filter(function (m) { return m.role === "user"; })[0] || {}).content;
         refresh();
-        autoNext(5200);
+        readyNext();
       }
     },
 
     /* Qu'est-ce qui manque : repérer dans le mail --------------------------------- */
     {
-      id: "manque", seq: 2, pill: "Repérez · 1 point", icon: "eye", title: "Qu’est-ce qui manque ?", compact: true,
+      id: "manque", seq: 2, pill: "Repérez · 1 point", icon: "eye", title: "Qu’est-ce qui manque\u00a0?", compact: true,
       audio: "pp-manque", say: "Voilà. Regardez bien la réponse de l’IA, à gauche. Elle propose un traiteur, un DJ, un voyage… Ce n’est pas vraiment adapté. C’est parce que l’IA ne connaît pas votre situation. Dans le mail de Karim, cliquez sur les trois informations à donner à l’IA pour mieux adapter sa réponse.",
       render: function (pv) {
         var a = act("manque");
         a.found = a.found || {};
         var n = Object.keys(HUNT).filter(function (k) { return a.found[k]; }).length;
-        pv.appendChild(h('<p class="pv-task"></p>')).innerHTML = a.done ? "<b>✓ Bien vu :</b> l’IA ne pouvait pas deviner ces 3 informations." : "Dans le mail, cliquez sur les <b>3 infos à ajouter à votre demande</b>. <span class='pv-count'>" + n + " / 3</span>";
-        mailApp(pv, "hunt");
+        consigne(pv, [
+          "Regardez la réponse de l’IA, à gauche : un traiteur, un DJ, un voyage… Ce n’est pas adapté.",
+          "Dans le mail de Karim, cliquez sur les <b>3 informations</b> que l’IA ne pouvait pas deviner. <span class='pv-count'>" + n + " / 3</span>",
+          NEXT
+        ], a.done ? 2 : 1);
         if (a.why && !a.done) fb(pv, "ko", esc(a.why));
+        if (a.done) fb(pv, "ok", "<b>Bien vu :</b> le nombre de personnes, le budget et le lieu. L’IA ne pouvait pas les deviner.");
+        mailApp(pv, "hunt");
       },
       ready: function () { return !!act("manque").done; },
       enter: function () { if (P.potConv) openConv(P.potConv); setTimeout(function () { markChat(/traiteur|DJ|karaoké|week-end|voyage|restaurant/g); }, 400); },
@@ -1619,10 +1706,14 @@
       audio: "pp-relance", say: "Deuxième conseil : être précis, puis affiner. Pas besoin de tout recommencer. Dans la même conversation, complétez les cases orange avec les informations du mail, puis envoyez.",
       render: function (pv) {
         var a = act("relance");
-        pv.appendChild(h('<p class="pv-task"></p>')).innerHTML = a.done ? "<b>✓</b> L’IA a adapté ses idées." : "À gauche, complétez les <b>cases orange</b> avec les infos du mail.";
+        consigne(pv, [
+          "Dans le cadre <b>« Écrivez ici »</b>, cliquez sur chaque <b>case orange</b> et choisissez l’information qui est dans le mail.",
+          "Cliquez sur <b>« Envoyer »</b>, puis lisez la réponse.",
+          NEXT
+        ], a.done ? 2 : a.filled ? 1 : 0);
+        if (a.wrong && !a.done) fb(pv, "ko", "<b>À vérifier :</b> " + esc(a.wrong) + " ne correspond pas au mail de Karim. Corrigez la case orange, puis cliquez sur « Envoyer ».");
+        if (a.done) fb(pv, "ok", "<b>Réussi :</b> avec ces précisions, les idées de l’IA collent à la situation.");
         mailApp(pv, "show");
-        if (a.wrong && !a.done) fb(pv, "ko", "<b>À vérifier :</b> " + esc(a.wrong) + " ne correspond pas au mail de Karim. Corrigez la case, puis renvoyez.");
-        if (a.done) fb(pv, "ok", "<b>Réussi :</b> avec vos précisions, la réponse colle à votre situation. Vous avez affiné, sans recommencer.");
       },
       ready: function () { return !!act("relance").done; },
       enter: function () {
@@ -1644,19 +1735,23 @@
           P.potBetter = c.id;
           refresh();
           toast("Réponse adaptée à votre situation");
-          autoNext(5200);
+          readyNext();
           return;
         }
         a.wrong = bad.join(", ");
         refresh();
         offerRelance();
       },
-      onTemplate: function (vals) { act("relance").vals = JSON.parse(JSON.stringify(vals)); }
+      onTemplate: function (vals, done) {
+        var a = act("relance");
+        a.vals = JSON.parse(JSON.stringify(vals));
+        if (!!done !== !!a.filled) { a.filled = !!done; refresh(); }
+      }
     },
 
     /* Les repères de l'écran ----------------------------------------------------- */
     {
-      id: "reperes", seq: 3, pill: "Repérez", icon: "eye", title: "Les repères de l’écran",
+      off: true, id: "reperes", seq: 3, pill: "Repérez", icon: "eye", title: "Les repères de l’écran",
       audio: "pp-reperes", say: "Place aux bons gestes. Cinq repères sont signalés sur l’écran de Claude. Cliquez sur chaque pastille orange pour découvrir à quoi elle sert.",
       render: function (pv) { lead(pv, "Regardez à gauche : cinq pastilles orange. Cliquez sur chacune."); },
       primary: function () { return null; },
@@ -1685,7 +1780,7 @@
 
     /* Un sujet, une conversation -------------------------------------------------- */
     {
-      id: "voisin", seq: 3, pill: "À vous de faire", icon: "hand", title: "Un sujet, une conversation",
+      off: true, id: "voisin", seq: 3, pill: "À vous de faire", icon: "hand", title: "Un sujet, une conversation",
       audio: "pp-voisin", say: "Nouveau sujet. Votre voisin Diogo a glissé un mot en portugais sous votre porte. On ne le mélange pas avec le pot de départ. Ouvrez une nouvelle conversation. Copiez le mot en portugais, collez-le dans l’IA, et demandez-lui de le traduire.",
       render: function (pv) {
         var a = act("voisin");
@@ -1726,7 +1821,7 @@
       },
       onAnswer: function () {
         var a = act("voisin");
-        if (!a.noNote && !a.vague) { a.done = true; refresh(); autoNext(5200); return; }
+        if (!a.noNote && !a.vague) { a.done = true; refresh(); readyNext(); return; }
         refresh();
         compose(true, a.noNote ? "Collez le mot de Diogo" : "Demandez la traduction");
       }
@@ -1734,7 +1829,7 @@
 
     /* Défi final ------------------------------------------------------------------- */
     {
-      id: "defi", seq: 4, pill: "Défi · 2 points", icon: "trophy", title: "Le défi : l’exposé de Léna",
+      off: true, id: "defi", seq: 4, pill: "Défi · 2 points", icon: "trophy", title: "Le défi : l’exposé de Léna",
       audio: "pp-defi", say: "Dernier défi, sans aide, cette fois. Léna, votre fille, doit préparer un exposé sur les volcans. Ouvrez une nouvelle conversation et demandez de l’aide à Claude, en une phrase.",
       render: function (pv) {
         var a = act("defi");
@@ -1742,7 +1837,7 @@
         pv.appendChild(h('<div class="sms"><span class="sms-who">Léna</span><p>Tu peux m’aider pour mon exposé sur les volcans ? C’est pour lundi. Je suis en CM2 et je dois parler 5 minutes, avec des images 🙏</p></div>'));
         stepsList(pv, [
           { html: "Ouvrez une <b>nouvelle conversation</b>." },
-          { html: "Écrivez une <b>première demande courte</b>. Par exemple : « Aide-moi à préparer un exposé sur les volcans. »" },
+          { html: "Écrivez une <b>première demande courte</b>. Par exemple : « Aide-moi à préparer un exposé sur les volcans. »" },
           { html: "L’IA répond de façon générale. Envoyez-lui un <b>deuxième message</b> avec les infos de Léna : <b>sa classe</b> (CM2), <b>la durée</b> (5 minutes), <b>les images</b>." }
         ], phase);
         if (a.miss) fb(pv, "ko", "<b>Il manque des infos :</b> donnez au moins deux éléments du message de Léna : sa classe, la durée, les images.");
@@ -1775,13 +1870,13 @@
         if (!/volcan/i.test(a.last) && !a.simple) { refresh(); compose(true, "Parlez de l’exposé sur les volcans"); return; }
         if (!a.simple) {
           a.simple = true;
-          if (volcanPrecisions(a.last) >= 2) { a.done = true; a.best = 2; refresh(); toast("Déjà précis : bravo"); autoNext(5200); return; }
+          if (volcanPrecisions(a.last) >= 2) { a.done = true; a.best = 2; refresh(); toast("Déjà précis : bravo"); readyNext(); return; }
           refresh();
           compose(true, "Donnez les infos de Léna");
           return;
         }
         a.tries = (a.tries || 0) + 1;
-        if (volcanPrecisions(a.last) >= 2) { a.done = true; a.best = 2; a.miss = false; refresh(); toast("Défi réussi"); autoNext(5200); return; }
+        if (volcanPrecisions(a.last) >= 2) { a.done = true; a.best = 2; a.miss = false; refresh(); toast("Défi réussi"); readyNext(); return; }
         a.miss = true;
         refresh();
         if (a.tries < 3) compose(true, "Ajoutez les infos de Léna");
@@ -1827,15 +1922,18 @@
       say: "Voici vos quatre premiers réflexes. Gardez cette fiche : elle vous servira dès votre prochaine conversation avec une IA.",
       render: function (pv) {
         var a = act("fiche");
-        pv.appendChild(h('<div class="pv-card pv-sheet"><ol><li><i>1</i>Commencer simple : une phrase suffit pour démarrer.</li><li><i>2</i>Donner ce que l’IA ne peut pas deviner : budget, nombre, lieu, âge, durée…</li><li><i>3</i>Relancer dans la même conversation pour affiner.</li><li><i>4</i>Un nouveau sujet, une nouvelle conversation.</li></ol></div>'));
+        consigne(pv, ["Lisez vos 4 réflexes.", "Cliquez sur <b>« Enregistrer la fiche »</b> pour la garder.", "Cliquez sur <b>« Terminer »</b>, en bas à droite."], a.saved ? 2 : 0);
+        pv.appendChild(h('<div class="pv-card pv-sheet"><ol><li><i>1</i>Commencer simple : une phrase suffit pour démarrer.</li><li><i>2</i>Donner ce que l’IA ne peut pas deviner : le nombre de personnes, le budget, le lieu…</li><li><i>3</i>Préciser dans la même conversation, sans tout recommencer.</li><li><i>4</i>Relire sa réponse : l’IA peut se tromper.</li></ol></div>'));
         var p = h("<p></p>");
         p.appendChild(button(a.saved ? "Fiche enregistrée" : "Enregistrer la fiche", "check", function () { a.saved = true; refresh(); }));
         pv.appendChild(p);
-        if (a.saved) fb(pv, "ok", "Fiche enregistrée. Prochain module : <b>Le mail mécontent</b>.");
+        if (a.saved) fb(pv, "ok", "<b>Fiche enregistrée.</b> Cliquez sur « Terminer » pour finir le module.");
       },
-      primary: function () { return null; }
+      ready: function () { return true; }
     }
   ];
+  // le parcours allégé : les étapes marquées « off » restent prêtes, mais ne sont pas proposées
+  var STEPS = ALL_STEPS.filter(function (s) { return !s.off; });
 
   var MINI = '<span class="mini"><i class="mini-s"></i><i class="mini-l"></i><i class="mini-l s"></i><i class="mini-in"></i></span>';
   function startSimple() {
@@ -1851,10 +1949,9 @@
     paintTemplate();
   }
   function offerTranslate() {
-    template(["Traduis ce mot de mon voisin en ", { k: "lang", label: "Langue", opts: ["français", "anglais", "espagnol"] }, " : « " + NOTE_PT + " »"], "Choisissez la langue, puis envoyez");
+    template(["Traduis ce mot de mon voisin en ", { k: "lang", label: "Langue", opts: ["français", "anglais", "espagnol"] }, " : « " + NOTE_PT + " »"], "Choisissez la langue, puis envoyez");
   }
 
-  var MAX = 14;
   function copyNote() {
     var done = function () { act("voisin").copied = true; refresh(); };
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(NOTE_PT).then(done, fallback); else fallback();
@@ -1893,17 +1990,14 @@
     var best = a.best;
     P.act[id] = { best: best };
   }
+  var SCORED = [["vraifaux", "Vrai ou faux ?", 3], ["usages", "Le bon usage", 3], ["prompt", "C’est quoi, un prompt ?", 1],
+    ["manque", "Qu’est-ce qui manque ?", 1], ["relance", "Préciser, puis relancer", 2], ["defi", "Le défi : l’exposé de Léna", 2]];
   function scoreItems() {
-    var best = function (id) { return (P.act[id] || {}).best || 0; };
-    return [
-      { id: "vraifaux", idx: stepIdx("vraifaux"), label: "Vrai ou faux ?", pts: best("vraifaux"), max: 3 },
-      { id: "usages", idx: stepIdx("usages"), label: "Le bon usage", pts: best("usages"), max: 5 },
-      { id: "prompt", idx: stepIdx("prompt"), label: "C’est quoi, un prompt ?", pts: best("prompt"), max: 1 },
-      { id: "manque", idx: stepIdx("manque"), label: "Qu’est-ce qui manque ?", pts: best("manque"), max: 1 },
-      { id: "relance", idx: stepIdx("relance"), label: "Préciser, puis relancer", pts: best("relance"), max: 2 },
-      { id: "defi", idx: stepIdx("defi"), label: "Le défi : l’exposé de Léna", pts: best("defi"), max: 2 }
-    ];
+    return SCORED.filter(function (x) { return STEPS.some(function (s) { return s.id === x[0]; }); }).map(function (x) {
+      return { id: x[0], idx: stepIdx(x[0]), label: x[1], pts: (P.act[x[0]] || {}).best || 0, max: x[2] };
+    });
   }
+  var MAX = scoreItems().reduce(function (t, x) { return t + x.max; }, 0);
 
   /* ---------- Mode réel ou simulé ---------- */
 
@@ -1968,78 +2062,11 @@
   }
   $$("[data-tab]").forEach(function (b) { b.addEventListener("click", function () { split.dataset.tab = b.dataset.tab; $$("[data-tab]").forEach(function (x) { x.setAttribute("aria-selected", String(x === b)); }); }); });
 
-  /* ---------- Le parcours : douze modules, du premier contact à l'usage autonome ---------- */
-
-  // [titre, description, (inutilisé), contenu à apprendre] ; modules déjà construits : MOD_URLS
-  var MOD_CURRENT = 1;
-  var MOD_URLS = { 1: "../premiers-pas/", 2: "../structure-prompt/" };
-  var PARCOURS = [
-    ["Démarrer", [
-      ["Première rencontre", "Découvrir l’IA, écrire un premier prompt, commencer simple."]
-    ]],
-    ["Rédiger des prompts", [
-      ["La structure d’un prompt", "Rôle, cible, objectif, contexte, format."],
-      ["Des prompts pour les images", "Décrire un visuel pour un post ou un rapport."]
-    ]],
-    ["Améliorer les contenus", [
-      ["Dialoguer pour affiner", "Enrichir le contexte, corriger sans recommencer."],
-      ["Optimiser un contenu existant", "Réécrire selon un ton, un format, une contrainte."]
-    ]],
-    ["Protéger les données", [
-      ["Ce qu’on ne partage pas", "Repérer les données sensibles, anonymiser un prompt."]
-    ]],
-    ["Des contenus pour tous", [
-      ["Écrire pour tous", "Un texte clair et structuré pour un handicap cognitif."],
-      ["Images, audio, vidéo accessibles", "Texte alternatif, transcription, sous-titres.", false, true]
-    ]],
-    ["Le cadre légal", [
-      ["RGPD et IA Act : l’essentiel", "Les règles utiles au poste de travail.", false, true],
-      ["Biais et risques", "Analyser un cas, proposer des corrections."],
-      ["Tenir sa veille réglementaire", "Sources officielles, dernière version des textes.", false, true]
-    ]],
-    ["Intégrer l’IA à son poste", [
-      ["Cartographier son poste", "Repérer les tâches que l’IA peut optimiser."],
-      ["Choisir ses outils", "Comparer les outils, estimer un budget.", false, true],
-      ["Son plan d’intégration", "Rédiger la stratégie, sans oublier le handicap."]
-    ]],
-    ["Se préparer", [
-      ["Préparer la certification", "Des entraînements au format des six mises en situation."]
-    ]]
-  ];
-  (function buildMenu() {
-    var list = $("[data-menu-list]"), n = 0;
-    PARCOURS.forEach(function (part) {
-      var sec = h('<section class="mm-part"><h3></h3><ol></ol></section>');
-      sec.firstChild.textContent = part[0];
-      part[1].forEach(function (m) {
-        n++;
-        var li = h('<li class="mm-mod"><span class="mm-n"></span><span class="mm-tx"><b></b><small></small></span><em></em></li>');
-        li.querySelector(".mm-n").textContent = String(n).padStart(2, "0");
-        li.querySelector("b").textContent = m[0];
-        if (m[3]) li.querySelector("b").appendChild(h('<sup class="mm-star" title="Module avec du contenu à apprendre">*</sup>'));
-        li.querySelector("small").textContent = m[1];
-        var url = MOD_URLS[n], here = n === MOD_CURRENT;
-        li.querySelector("em").textContent = here ? "En cours" : url ? "Disponible" : "Bientôt";
-        if (here) { li.classList.add("is-on"); li.tabIndex = 0; li.onclick = closeMenu; }
-        else if (url) { li.classList.add("is-open"); li.tabIndex = 0; li.onclick = function () { location.href = url; }; }
-        sec.lastChild.appendChild(li);
-      });
-      list.appendChild(sec);
-    });
-    list.appendChild(h('<p class="mm-note"><sup class="mm-star">*</sup> Module avec du contenu à apprendre.</p>'));
-  })();
-  var menuEl = $("[data-menu]");
-  function openMenu() { menuEl.hidden = false; requestAnimationFrame(function () { menuEl.classList.add("is-on"); }); }
-  function closeMenu() { menuEl.classList.remove("is-on"); setTimeout(function () { menuEl.hidden = true; }, 350); }
-  $("[data-menu-open]").addEventListener("click", openMenu);
-  $$("[data-menu-close]").forEach(function (b) { b.addEventListener("click", closeMenu); });
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !menuEl.hidden) closeMenu(); });
-
   /* ---------- Accueil : l'orbe au centre, le message de bienvenue mot à mot ---------- */
 
   var WELCOME_TEXT = "Bonjour et bienvenue ! Je serai votre assistante pour toute la durée des modules. Aujourd’hui, vous allez… oui, c’est ça : écrire vos premiers messages à une IA. C’est parti !";
   var inWelcome = false, wlStarted = false;
-  // la synthèse vocale a besoin d'un geste : l'accueil (accueil.js), posé par-dessus, s'ouvre sur « Commencer »
+  // la synthèse vocale a besoin d'un geste : l'accueil (accueil.js), posé par-dessus, s'ouvre sur « Commencer »
   function startWelcome() {
     stopVoice();
     cues = [];
@@ -2052,6 +2079,7 @@
     saying(true);
     sayText(WELCOME_TEXT);
     sayReveal(0);
+    paintNext();
   }
   function speakWelcome() {
     var once = false;
@@ -2076,9 +2104,9 @@
     }
     speechSynthesis.cancel();
     speakTTS(WELCOME_TEXT, v, function () { return inWelcome; }, end, end);
-    setTimeout(end, WELCOME_TEXT.length * 95 + 4000);            // filet : certains navigateurs n'émettent pas « end »
+    setTimeout(end, WELCOME_TEXT.length * 95 + 4000);            // filet : certains navigateurs n'émettent pas « end »
   }
-  // « Commencer », sur l'accueil : l'accueil s'efface et l'assistante souhaite la bienvenue
+  // « Commencer », sur l'accueil : l'accueil s'efface et l'assistante souhaite la bienvenue
   document.addEventListener("module:start", function () {
     if (!inWelcome || wlStarted) return;
     wlStarted = true;
@@ -2088,6 +2116,7 @@
     if (!inWelcome) return;
     inWelcome = false;
     if (window.speechSynthesis) speechSynthesis.cancel();
+    audio.pause(); audio.muted = false;
     sayProgress(1);
     app.classList.remove("is-welcome");
     split.classList.remove("panel-away");
@@ -2106,7 +2135,12 @@
   showTab("story");
   setMode("sim");
   probe();
-  startWelcome();
+  (function () {
+    var bar = $("[data-step-bar]");
+    STEPS.forEach(function () { bar.appendChild(document.createElement("li")); });
+  })();
+  var jump = (location.search.match(/[?&]etape=([\w-]+)/) || [])[1];
+  if (jump) { app.hidden = false; go(stepIdx(jump)); } else startWelcome();
 
   window.AtelierTracking = {
     snapshot: function () {
