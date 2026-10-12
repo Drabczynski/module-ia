@@ -15,7 +15,7 @@
 ---
 
 ## Accueil
-L'écran d'accueil (particules, « Module 1 », titre écrit à la machine), puis « Commencer » : l'orbe, au centre de l'IA, souhaite la bienvenue. « Suivant » permet de passer.
+L'écran d'accueil : l'image se forme en particules (« Module 1 » au centre), puis le titre « Premiers pas dans l’IA générative » sur deux bandeaux, la phrase « Vous allez rédiger vos premiers prompts et découvrir les différentes utilisations de l’IA. » et « Commencer » (ou « Suivant », dans la barre d'outils, déjà visible) : l'orbe, au centre de l'IA, souhaite la bienvenue. « Suivant » permet de passer.
 
 ## Étape 1 · Dites bonjour à l'IA
 → *Écrire un message dans le cadre blanc (ou cliquer sur une phrase proposée), cliquer sur « Envoyer », lire la réponse, cliquer sur « Suivant ».*

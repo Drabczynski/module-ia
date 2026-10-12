@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Module 1 · Première rencontre</title>
   <link rel="preload" href="../assets/img/02.png" as="image">
-  <link rel="stylesheet" href="app.css?v=20261012u">
-  <link rel="stylesheet" href="gris.css?v=20261012u">
-  <link rel="stylesheet" href="accueil.css?v=20261012u">
-  <link rel="stylesheet" href="simple.css?v=20261012u">
+  <link rel="stylesheet" href="app.css?v=20261012v">
+  <link rel="stylesheet" href="gris.css?v=20261012v">
+  <link rel="stylesheet" href="accueil.css?v=20261012v">
+  <link rel="stylesheet" href="simple.css?v=20261012v">
 </head>
 <body>
 
@@ -49,43 +49,17 @@
   </defs>
 </svg>
 
-<!-- ============ Accueil : posé par-dessus l'application jusqu'à « Commencer » (accueil.js) ============ -->
+<!-- ============ Accueil : posé par-dessus l'application (la barre d'outils reste visible) jusqu'à « Commencer » (accueil.js) ============ -->
 <div class="acc" data-acc>
-  <header class="bar">
-    <div class="bar-l">
-      <p class="bar-name"><span class="bar-k">Module 1</span><span class="bar-t">Première rencontre</span></p>
-    </div>
-  </header>
-
   <main class="hero" data-acc-hero>
-    <!-- le collage (03) et, devant, les deux personnes (02) : même échelle, calés en bas à droite -->
-    <div class="stage" aria-hidden="true">
-      <div class="layer layer-back"><img class="back" data-acc-back alt="" decoding="async"><canvas class="rectfx" data-acc-rectfx></canvas><video class="sky" data-acc-sky muted loop playsinline preload="auto" aria-hidden="true"><source src="../assets/img/after-loop.webm" type="video/webm"><source src="../assets/img/after-loop.mp4" type="video/mp4"></video></div>
-      <div class="layer layer-dots"><canvas class="globe" data-acc-globe></canvas></div>
-      <div class="layer layer-front"><img class="front" src="../assets/img/02.png" alt="" width="1396" height="818" decoding="async"></div>
-    </div>
-
-    <!-- la lueur du bas : au premier plan, par-dessus l'image et les personnes, sous le bouton « Commencer » -->
-    <div class="glow" aria-hidden="true"><canvas class="band" data-acc-band></canvas></div>
-
-    <div class="copy">
-      <p class="tag">Module 1</p>
-      <!-- le temps de réflexion, avant que le titre s'écrive -->
-      <div class="think" data-acc-think aria-hidden="true">
-        <p class="think-h"><span class="think-l">Réflexion</span><svg><use href="#i-chevron"/></svg></p>
-        <div class="think-b">
-          <p>Lecture de la demande : un premier module, pour quelqu’un qui n’a encore jamais écrit à une IA.</p>
-          <p>Mieux vaut pratiquer tout de suite : lui dire bonjour, lui demander à quoi elle sert, voir ce qu’elle répond.</p>
-          <p>Choix d’un cas concret pour le premier prompt : répondre au mail de Karim pour le pot de départ de Martine.</p>
-          <p>Plan : peu d’étapes, une seule chose à faire à la fois, et toujours le même bouton « Suivant » pour avancer.</p>
-        </div>
-      </div>
-      <h1 class="title">Première rencontre<br>avec l’IA</h1>
-      <p class="sub">Une IA générative s’utilise en lui écrivant, comme à quelqu’un. Dans ce module, vous lui dites bonjour, vous découvrez ce qu’elle sait faire, puis vous écrivez votre premier prompt sur un cas concret&nbsp;: le mail de Karim pour le pot de départ de Martine. À la fin, vous saurez lancer une conversation et la relancer.</p>
+    <!-- l'image (image21, rognée de ses bords transparents) : plein cadre, calée à droite -->
+    <div class="acc-bg" aria-hidden="true"><img class="back" data-acc-back src="../assets/img/accueil-ia.webp" width="1665" height="854" alt="" decoding="async"></div>
+    <div class="copy" data-acc-num="Module 1">
+      <h1 class="title"><span class="hl hl-1">Premiers pas</span><br><span class="hl hl-2">dans l’IA générative</span></h1>
+      <p class="sub">Vous allez rédiger vos premiers prompts et découvrir les différentes utilisations de l’IA.</p>
       <button type="button" class="go" data-acc-start><span class="go-orb" aria-hidden="true"><span></span></span>Commencer</button>
     </div>
   </main>
-
 </div>
 
 <!-- ============ Application : Claude à gauche, formation à droite ============ -->
@@ -181,9 +155,9 @@
 
 <script src="../assets/audio/sous-titres.js"></script>
 <script src="../assets/audio/mots.js"></script>
-<script src="orb.js?v=20261012u"></script>
-<script src="particules.js?v=20261012u"></script>
-<script src="accueil.js?v=20261012u"></script>
-<script src="app.js?v=20261012u"></script>
+<script src="orb.js?v=20261012v"></script>
+<script src="particules.js?v=20261012v"></script>
+<script src="accueil.js?v=20261012v"></script>
+<script src="app.js?v=20261012v"></script>
 </body>
 </html>

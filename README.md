@@ -86,13 +86,18 @@ Parcours court, sur un seul thème : découvrir l'IA, à quoi elle sert, écrire
 Version claire pour un public éloigné du numérique (DAQ, dispositif en amont de la qualification) : peu d'étapes,
 une seule chose à faire à la fois, toujours le même geste pour avancer. Storyboard : `premiers-pas/STORYBOARD.md`.
 
-- Accueil : le même écran que le module « Des prompts pour les images » (`premiers-pas/accueil.css`, `accueil.js`,
-  règles sous `.acc`), posé par-dessus l'application : barre blanche avec le seul nom du module,
-  collage 03 avec le ciel en vidéo, globe de points, lueur animée en bas, réflexion puis titre et description
-  à la machine à écrire. Ouverture en particules (`premiers-pas/particules.js`, partagé avec le module 3) : une boule
-  au centre de l'écran, qui tourne pendant le chargement, explose en milliers de particules (« Module 1 » s'affiche en grand
-  au centre, en Inter semi-gras : chaque lettre défile d'abord en caractères ASCII puis se fixe ; il repart en ASCII et s'efface) ; elles se posent en trame de points pour former l'image, qui apparaît dessous sans bouger.
-  « Commencer » envoie `module:start` : l'accueil s'efface, l'assistante souhaite la bienvenue, puis la première étape s'ouvre.
+- Accueil (`premiers-pas/accueil.css`, `accueil.js`, règles sous `.acc`), posé par-dessus l'application, la barre d'outils
+  restant visible en bas (« Suivant » y fait la même chose que « Commencer ») : l'image `assets/img/accueil-ia.webp`
+  (tirée de `image21.png`, rognée de ses bords transparents, 78 Ko) en plein cadre, calée à droite ; à gauche, le titre
+  « Premiers pas / dans l’IA générative » sur deux bandeaux (bleu, puis lilas), une phrase et « Commencer ». Si le texte
+  risque de passer sur les formes de l'image, elle glisse vers la droite et son bord gauche se fond dans le fond lilas ;
+  sur téléphone ou écran en hauteur, l'image passe en haut et le texte dessous. Ouverture en particules
+  (`premiers-pas/particules.js`, partagé avec le module 3) : une boule au centre, qui tourne pendant le chargement,
+  explose en milliers de particules (« Module 1 » s'affiche en grand au centre, en Inter semi-gras : chaque lettre défile
+  d'abord en caractères ASCII puis se fixe ; il repart en ASCII et s'efface) ; elles se posent en trame de points pour
+  former l'image, qui apparaît dessous sans bouger ; puis les bandeaux du titre se déroulent, la phrase et le bouton
+  apparaissent. « Commencer » envoie `module:start` : l'accueil s'efface, l'assistante souhaite la bienvenue,
+  puis la première étape s'ouvre.
 - Barre d'outils blanche et basse, toujours en bas (`premiers-pas/simple.css`) : Quitter (avec confirmation), le nom du module,
   Réécouter, Son, Précédent, Suivant. On n'avance jamais tout seul : « Suivant » reste éteint tant que l'activité n'est pas faite
   (un clic rappelle ce qu'il reste à faire), puis s'allume en orange.
