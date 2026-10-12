@@ -103,18 +103,16 @@ une seule chose à faire à la fois, toujours le même geste pour avancer. Story
   (un clic rappelle ce qu'il reste à faire), puis s'allume en orange.
 - L'IA, à gauche, sans icônes ni mentions (ni « Nouvelle conversation », ni « Simulation pédagogique », ni « Mode simulé ») :
   le cadre blanc s’allume (bord violet foncé, deux pulsations) quand c'est à l'apprenant d'écrire, et le bouton « Envoyer » est écrit en toutes lettres.
-- Le panneau de droite, en trois temps : le type d'activité (une icône, « À vous d’écrire », « Glissez les cartes »,
-  « Reliez »…) et un grand titre (Inter Tight) ; « À faire » ; puis la zone de travail, jusqu'en bas du panneau,
+- Le panneau de droite, en trois temps : un grand titre (Inter Tight) ; « À faire » ; puis la zone de travail, jusqu'en bas du panneau,
   sur toute sa largeur (gris clair pointillé ; quand l'apprenant a quelque chose à y faire, la lueur colorée de l'accueil, rose, magenta et corail, qui monte du bas), où l'activité est centrée : la carte vrai ou faux et ses boutons,
   les colonnes à relier, la boîte mail. Sur « Demandez-lui », la zone montre les six choses qu'elle sait faire
   (des cartes en attente qui s'allument quand elle a répondu). Au premier écran, pas de zone de travail.
   Une illustration ne fait jamais déborder le panneau : elle se resserre, puis s'efface s'il n'y a pas la place
   (mesurée à l'affichage).
-- « À faire » : une ou deux actions courtes, le verbe en gras, la précision dessous en gris ; les pastilles reliées
-  par un trait ; l'action en cours sur un fond gris très clair, numérotée en violet foncé, les faites cochées en vert.
+- « À faire » : une ou deux actions courtes, le verbe en gras, la précision dessous en gris ; l'action en cours sur un fond gris très clair, numérotée en violet foncé, les faites cochées en vert.
   Une seule exception : « Ouvrez le mail de Karim » disparaît une fois fait, pour laisser la place au mail.
   Le bouton à reconnaître est glissé dans la phrase tel qu'il apparaît à l'écran (« cliquez sur [Vrai] ou [Faux] »,
-  « Complétez chaque [case orange], puis envoyez »). Seul le premier écran se termine par « Cliquez sur [Suivant] ».
+  « Complétez chaque [case orange], puis envoyez »). Seul le premier écran se termine par « Cliquez sur [Suivant] » (et l'apprenant y écrit lui-même son premier message, sans phrases toutes faites). Les boutons recopiés ne sont en couleur que dans l'action en cours.
   L'orange est réservé à « Suivant ». La voix n'est pas écrite à l'écran pendant les étapes (seule la phrase
   de bienvenue s'écrit sous l'orbe). Pas de lignes en pointillés vers les boutons.
   Espaces insécables avant « ? ! : ; » : jamais de ponctuation seule en début de ligne.
@@ -125,7 +123,7 @@ une seule chose à faire à la fois, toujours le même geste pour avancer. Story
 - La boîte mail : une fois le mail de Karim ouvert, il s'affiche seul, en carte de mail à sa taille, avec la photo
   de Karim (Unsplash, photo d'abdullah ali, chargée en ligne ; sans réseau, ses initiales restent).
 - Rien ne dépasse en bas du panneau, de 1280 × 720 à 1920 × 1080, portable à 125 % compris (1536 × 760) :
-  sur les écrans bas, le type d'activité s'efface et les marges se resserrent.
+  sur les écrans bas, les marges se resserrent.
 - 9 étapes : dire bonjour, vrai ou faux, demander à l'IA à quoi elle sert, relier 3 situations à leur usage,
   le mail de Karim (demande courte), ce qui manque, préciser puis relancer, le résultat, la fiche (4 réflexes).
   Mises de côté pour alléger, prêtes à revenir (`off: true` dans `app.js`) : où trouver l'IA, essayer un usage,

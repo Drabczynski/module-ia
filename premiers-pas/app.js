@@ -755,7 +755,6 @@
       side = hero.lastChild;
     }
     if (!s.bare) {
-      if (s.pill) side.appendChild(h('<p class="pv-k"><span class="pv-k-i"><svg><use href="#i-' + s.icon + '"/></svg></span><span>' + esc(s.pill.replace(/\s*·.*$/, "")) + "</span></p>"));
       side.appendChild(h('<h1 class="pv-h1">' + esc(s.title) + "</h1>"));
       side.appendChild(h('<span class="pv-rule"></span>'));
     }
@@ -1554,7 +1553,7 @@
       render: function (pv) {
         var a = act("bonjour");
         consigne(pv, [
-          ["<b>Écrivez</b> un message, puis cliquez sur {envoyer}", "dans le cadre blanc, à gauche", !a.sent && phrases(["Bonjour, qui es-tu ?", "Bonjour ! Que sais-tu faire ?"])],
+          ["<b>Écrivez</b> un message, puis cliquez sur {envoyer}", "dans le cadre blanc, à gauche"],
           ["<b>Lisez</b> la réponse de l’IA"],
           NEXT
         ], a.done ? 2 : a.sent ? 1 : 0);
