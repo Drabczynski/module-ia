@@ -95,12 +95,14 @@ une seule chose à faire à la fois, toujours le même geste pour avancer. Story
   « Commencer » envoie `module:start` : l'accueil s'efface, l'assistante souhaite la bienvenue, puis la première étape s'ouvre.
 - Barre d'outils blanche et basse, toujours en bas (`premiers-pas/simple.css`) : Quitter (avec confirmation), le nom du module,
   Réécouter, Son, Précédent, Suivant. On n'avance jamais tout seul : « Suivant » reste éteint tant que l'activité n'est pas faite
-  (un clic rappelle ce qu'il reste à faire), puis s'allume en noir.
+  (un clic rappelle ce qu'il reste à faire), puis s'allume en bleu.
 - L'IA, à gauche, sans icônes ni mentions (ni « Nouvelle conversation », ni « Simulation pédagogique », ni « Mode simulé ») :
   le cadre blanc s'allume (bord noir, deux pulsations) quand c'est à l'apprenant d'écrire, et le bouton « Envoyer » est écrit en toutes lettres.
-- La consigne, à droite, dans l'esprit de l'accueil (titre léger en Inter Tight, « À vous » en IBM Plex Mono) : des actions
-  numérotées séparées par un filet (l'action en cours en noir, les actions faites cochées en vert), la dernière toujours
-  « Cliquez sur « Suivant » ». Espaces insécables avant « ? ! : ; » : jamais de ponctuation seule en début de ligne.
+- La consigne, à droite, se lit d'un coup d'œil : un titre léger (Inter Tight), « À vous » (IBM Plex Mono), puis des actions
+  de quelques mots, chacune avec son image : une icône (écrire, lire, ouvrir, cliquer) ou la copie du vrai bouton
+  (« Envoyer », la case orange, « Valider », « Suivant »). L'action en cours est sur fond gris, les suivantes atténuées,
+  les faites cochées en vert ; la dernière est toujours « Cliquez sur Suivant ». Les phrases toutes faites se placent
+  sous l'action « Écrivez ». Espaces insécables avant « ? ! : ; » : jamais de ponctuation seule en début de ligne.
   Le bouton de l'activité (« Valider », « Réessayer ») se trouve juste sous l'exercice.
 - 9 étapes : dire bonjour, vrai ou faux, demander à l'IA à quoi elle sert, relier 3 situations à leur usage,
   le mail de Karim (demande courte), ce qui manque, préciser puis relancer, le résultat, la fiche (4 réflexes).
