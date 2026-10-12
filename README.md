@@ -98,12 +98,12 @@ une seule chose à faire à la fois, toujours le même geste pour avancer. Story
   (un clic rappelle ce qu'il reste à faire), puis s'allume en bleu.
 - L'IA, à gauche, sans icônes ni mentions (ni « Nouvelle conversation », ni « Simulation pédagogique », ni « Mode simulé ») :
   le cadre blanc s'allume (bord noir, deux pulsations) quand c'est à l'apprenant d'écrire, et le bouton « Envoyer » est écrit en toutes lettres.
-- La consigne, à droite, se lit d'un coup d'œil : un titre léger (Inter Tight), « À vous » (IBM Plex Mono), puis des actions
-  de quelques mots, chacune avec son image : une icône (écrire, lire, ouvrir, cliquer) ou la copie du vrai bouton
-  (« Envoyer », la case orange, « Valider », « Suivant »). L'action en cours est sur fond gris, les suivantes atténuées,
-  les faites cochées en vert ; la dernière est toujours « Cliquez sur Suivant ». Les phrases toutes faites se placent
-  sous l'action « Écrivez ». Espaces insécables avant « ? ! : ; » : jamais de ponctuation seule en début de ligne.
-  Le bouton de l'activité (« Valider », « Réessayer ») se trouve juste sous l'exercice.
+- La consigne, à droite, se lit d'un coup d'œil : un titre léger (Inter Tight), puis un pas-à-pas d'une seule colonne,
+  les numéros reliés par un trait ; chaque action est une phrase courte, le verbe en gras, et le bouton à reconnaître est
+  glissé dans la phrase tel qu'il apparaît à l'écran (« Cliquez sur [Envoyer] », « Complétez chaque [case orange] »).
+  L'action en cours en noir, les suivantes atténuées, les faites cochées en vert ; la dernière est toujours
+  « Cliquez sur [Suivant] ». Les phrases toutes faites se placent sous l'action « Écrivez ». Espaces insécables avant
+  « ? ! : ; » : jamais de ponctuation seule en début de ligne.
 - 9 étapes : dire bonjour, vrai ou faux, demander à l'IA à quoi elle sert, relier 3 situations à leur usage,
   le mail de Karim (demande courte), ce qui manque, préciser puis relancer, le résultat, la fiche (4 réflexes).
   Mises de côté pour alléger, prêtes à revenir (`off: true` dans `app.js`) : où trouver l'IA, essayer un usage,

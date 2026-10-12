@@ -870,37 +870,30 @@
   // sur les petits écrans, l'IA n'est pas « à gauche » mais dans l'onglet « L'IA »
   function here(html) { return window.innerWidth > 980 ? html : html.replace(/la partie <b>à gauche<\/b> de l’écran/g, "l’onglet <b>« L’IA »</b>").replace(/,? à gauche/g, ", dans l’onglet « L’IA »"); }
   function lead(pv, html) { pv.appendChild(h('<p class="pv-lead">' + here(html) + "</p>")); }
-  // la consigne, à chaque étape la même forme : « À vous », puis des actions courtes, chacune avec son image
-  // (une icône, ou la copie du vrai bouton : « Envoyer », la case orange, « Valider », « Suivant »).
-  // item : [image, texte (le verbe en gras), précision facultative, contenu sous l'action en cours]
-  var VIS = {
-    write: '<span class="ac-ico"><svg><use href="#i-pencil"/></svg></span>',
-    read: '<span class="ac-ico"><svg><use href="#i-eye"/></svg></span>',
-    mail: '<span class="ac-ico"><svg><use href="#i-mail"/></svg></span>',
-    click: '<span class="ac-ico"><svg><use href="#i-hand"/></svg></span>',
-    repeat: '<span class="ac-ico ac-txt">×3</span>',
-    send: '<span class="ui ui-dark">Envoyer<svg><use href="#i-up"/></svg></span>',
-    next: '<span class="ui ui-next">Suivant<svg><use href="#i-arrow"/></svg></span>',
-    end: '<span class="ui ui-next">Terminer<svg><use href="#i-arrow"/></svg></span>',
+  // la consigne, à chaque étape la même forme : un pas-à-pas d'une seule colonne, les numéros reliés par un trait ;
+  // le bouton à reconnaître est glissé dans la phrase ({envoyer}, {suivant}, {case}…), tel qu'il apparaît à l'écran.
+  // item : [texte (le verbe en gras), précision facultative, contenu sous l'action en cours]
+  var UI = {
+    envoyer: '<span class="ui ui-dark">Envoyer<svg><use href="#i-up"/></svg></span>',
+    suivant: '<span class="ui ui-next">Suivant<svg><use href="#i-arrow"/></svg></span>',
+    terminer: '<span class="ui ui-next">Terminer<svg><use href="#i-arrow"/></svg></span>',
     valider: '<span class="ui ui-dark">Valider</span>',
-    slot: '<span class="ui ui-slot">case</span>',
-    vf: '<span class="ui-pair"><span class="ui ui-line is-no">Faux</span><span class="ui ui-line is-yes">Vrai</span></span>',
-    situation: '<span class="ui ui-line">Situation</span>',
-    usage: '<span class="ui ui-line">Usage</span>',
-    save: '<span class="ui ui-line"><svg><use href="#i-check"/></svg>Enregistrer</span>'
+    vrai: '<span class="ui ui-line is-yes">Vrai</span>',
+    faux: '<span class="ui ui-line is-no">Faux</span>',
+    "case": '<span class="ui ui-slot">case orange</span>',
+    enregistrer: '<span class="ui ui-line"><svg><use href="#i-check"/></svg>Enregistrer la fiche</span>'
   };
-  var NEXT = ["next", "<b>Cliquez</b> sur Suivant", "en bas à droite"];
+  function ui(t) { return here(t).replace(/\{(\w+)\}/g, function (m, k) { return UI[k] || m; }); }
+  var NEXT = ["<b>Cliquez</b> sur {suivant}", "en bas à droite"];
   function consigne(pv, items, cur) {
-    pv.appendChild(h('<p class="cs-h">À vous</p>'));
     var ol = h('<ol class="ac"></ol>');
     items.forEach(function (it, k) {
-      var li = h('<li class="ac-i"><span class="ac-n"></span><span class="ac-v"></span><span class="ac-t"></span></li>');
+      var li = h('<li class="ac-i"><span class="ac-n"></span><div class="ac-t"><p></p></div></li>');
       li.classList.toggle("is-done", k < cur);
       li.classList.toggle("is-cur", k === cur);
       li.querySelector(".ac-n").textContent = k < cur ? "✓" : k + 1;
-      li.querySelector(".ac-v").innerHTML = VIS[it[0]] || "";
-      li.querySelector(".ac-t").innerHTML = here(it[1]) + (it[2] ? "<small>" + here(it[2]) + "</small>" : "");
-      if (it[3] && k === cur) { var x = h('<div class="ac-x"></div>'); it[3](x); li.appendChild(x); }
+      li.querySelector("p").innerHTML = ui(it[0]) + (it[1] ? "<small>" + ui(it[1]) + "</small>" : "");
+      if (it[2] && k === cur) { var x = h('<div class="ac-x"></div>'); it[2](x); li.lastChild.appendChild(x); }
       ol.appendChild(li);
     });
     pv.appendChild(ol);
@@ -1506,9 +1499,9 @@
       render: function (pv) {
         var a = act("bonjour");
         consigne(pv, [
-          ["write", "<b>Écrivez</b> un message", "dans le cadre blanc, à gauche", !a.sent && phrases(["Bonjour, qui es-tu ?", "Bonjour ! Que sais-tu faire ?"])],
-          ["send", "<b>Cliquez</b> sur Envoyer"],
-          ["read", "<b>Lisez</b> la réponse"],
+          ["<b>Écrivez</b> un message dans le cadre blanc, à gauche", "", !a.sent && phrases(["Bonjour, qui es-tu ?", "Bonjour ! Que sais-tu faire ?"])],
+          ["<b>Cliquez</b> sur {envoyer}"],
+          ["<b>Lisez</b> la réponse de l’IA"],
           NEXT
         ], a.done ? 3 : a.sent ? 2 : a.typed ? 1 : 0);
         if (a.retry) fbNew(pv, "ko", "<b>Dites-lui bonjour.</b> Par exemple : « Bonjour, qui es-tu ? »");
@@ -1544,7 +1537,7 @@
       var r = w.render;
       w.render = function (pv) {
         var k = (act("vraifaux").res || []).length;
-        consigne(pv, [["vf", "<b>Cliquez</b> sur Vrai ou Faux"], ["repeat", "<b>Faites-le</b> pour les 3 phrases"], NEXT], k === 3 ? 2 : k ? 1 : 0);
+        consigne(pv, [["<b>Lisez</b> la phrase, puis cliquez sur {vrai} ou {faux}"], ["<b>Recommencez</b> pour les 3 phrases"], NEXT], k === 3 ? 2 : k ? 1 : 0);
         r(pv);
       };
       return w;
@@ -1573,9 +1566,9 @@
       render: function (pv) {
         var a = act("demander");
         consigne(pv, [
-          ["slot", "<b>Complétez</b> les cases orange", "dans le cadre blanc, à gauche"],
-          ["send", "<b>Cliquez</b> sur Envoyer"],
-          ["read", "<b>Lisez</b> la réponse"],
+          ["<b>Complétez</b> chaque {case}", "dans le cadre blanc, à gauche"],
+          ["<b>Cliquez</b> sur {envoyer}"],
+          ["<b>Lisez</b> la réponse de l’IA"],
           NEXT
         ], a.done ? 3 : a.sent ? 2 : a.filled ? 1 : 0);
         if (a.done) fb(pv, "ok", "<b>Elle sait :</b> écrire, expliquer, résumer, trouver des idées, traduire…");
@@ -1611,7 +1604,7 @@
       var r = w.render;
       w.render = function (pv) {
         var a = act("usages"), n = Object.keys(a.links || {}).length;
-        consigne(pv, [["situation", "<b>Cliquez</b> sur une situation"], ["usage", "<b>Puis</b> sur son usage"], ["valider", "<b>Cliquez</b> sur Valider", "quand les 3 sont reliées"], NEXT],
+        consigne(pv, [["<b>Cliquez</b> sur une situation, puis sur son usage"], ["<b>Faites-le</b> pour les 3 situations"], ["<b>Cliquez</b> sur {valider}"], NEXT],
           a.done ? 3 : n === 3 ? 2 : n ? 1 : 0);
         r(pv);
       };
@@ -1671,9 +1664,9 @@
       render: function (pv) {
         var a = act("mail"), open = a.open === "pot";
         consigne(pv, [
-          ["mail", "<b>Ouvrez</b> le mail de Karim", "« Pot de départ de Martine »"],
-          ["write", "<b>Demandez</b> des idées pour ce pot", "en une phrase courte, dans le cadre blanc", !a.sent && phrases(["Donne-moi des idées pour un pot de départ."])],
-          ["send", "<b>Cliquez</b> sur Envoyer"],
+          ["<b>Ouvrez</b> le mail de Karim", "« Pot de départ de Martine »"],
+          ["<b>Demandez</b> des idées pour ce pot", "en une phrase, dans le cadre blanc", !a.sent && phrases(["Donne-moi des idées pour un pot de départ."])],
+          ["<b>Cliquez</b> sur {envoyer}"],
           NEXT
         ], a.done ? 3 : a.sent ? 2 : open ? 1 : 0);
         if (a.wrong && !open) fb(pv, "ko", "Pas celui-là : cliquez sur le mail de <b>Karim</b>, « Pot de départ de Martine ».");
@@ -1720,8 +1713,8 @@
         a.found = a.found || {};
         var n = Object.keys(HUNT).filter(function (k) { return a.found[k]; }).length;
         consigne(pv, [
-          ["read", "<b>Lisez</b> la réponse de l’IA", "Un traiteur, un DJ, un voyage… Ce n’est pas adapté."],
-          ["click", "<b>Cliquez</b> sur 3 infos dans le mail <span class='pv-count'>" + n + " / 3</span>", "celles que l’IA ne pouvait pas deviner"],
+          ["<b>Lisez</b> la réponse de l’IA", "Un traiteur, un DJ, un voyage… Ce n’est pas adapté."],
+          ["<b>Cliquez</b> sur 3 infos dans le mail <span class='pv-count'>" + n + " / 3</span>", "celles que l’IA ne pouvait pas deviner"],
           NEXT
         ], a.done ? 2 : 1);
         if (a.why && !a.done) fb(pv, "ko", esc(a.why));
@@ -1740,8 +1733,8 @@
       render: function (pv) {
         var a = act("relance");
         consigne(pv, [
-          ["slot", "<b>Complétez</b> les cases orange", "avec les infos du mail"],
-          ["send", "<b>Cliquez</b> sur Envoyer"],
+          ["<b>Complétez</b> chaque {case}", "avec les infos du mail"],
+          ["<b>Cliquez</b> sur {envoyer}"],
           NEXT
         ], a.done ? 2 : a.filled ? 1 : 0);
         if (a.wrong && !a.done) fb(pv, "ko", "<b>À vérifier :</b> " + esc(a.wrong) + " ne correspond pas au mail de Karim. Corrigez la case orange, puis cliquez sur « Envoyer ».");
@@ -1955,7 +1948,7 @@
       say: "Voici vos quatre premiers réflexes. Gardez cette fiche : elle vous servira dès votre prochaine conversation avec une IA.",
       render: function (pv) {
         var a = act("fiche");
-        consigne(pv, [["save", "<b>Enregistrez</b> la fiche"], ["end", "<b>Cliquez</b> sur Terminer", "en bas à droite"]], a.saved ? 1 : 0);
+        consigne(pv, [["<b>Cliquez</b> sur {enregistrer}"], ["<b>Cliquez</b> sur {terminer}", "en bas à droite"]], a.saved ? 1 : 0);
         pv.appendChild(h('<div class="pv-card pv-sheet"><ol><li><i>1</i>Commencer simple : une phrase suffit pour démarrer.</li><li><i>2</i>Donner ce que l’IA ne peut pas deviner : le nombre de personnes, le budget, le lieu…</li><li><i>3</i>Préciser dans la même conversation, sans tout recommencer.</li><li><i>4</i>Relire sa réponse : l’IA peut se tromper.</li></ol></div>'));
         var p = h("<p></p>");
         p.appendChild(button(a.saved ? "Fiche enregistrée" : "Enregistrer la fiche", "check", function () { a.saved = true; refresh(); }));

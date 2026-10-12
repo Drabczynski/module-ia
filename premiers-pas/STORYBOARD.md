@@ -6,7 +6,7 @@
 **Format :**
 - L'IA simulée à gauche (le cadre blanc, qui s'allume quand c'est à l'apprenant d'écrire, et le bouton « Envoyer »), la consigne à droite, l'orbe qui lit la consigne.
 - Barre d'outils blanche en bas : Quitter, le module, Réécouter, Son, Précédent, Suivant. « Suivant » s'allume en bleu quand l'activité est faite.
-- Chaque consigne : « À vous », puis des actions de quelques mots, chacune avec son image (icône, ou copie du vrai bouton) ; la dernière est toujours « Cliquez sur Suivant ».
+- Chaque consigne : un pas-à-pas d'une seule colonne, des phrases courtes avec le bouton à reconnaître glissé dans la phrase (« Cliquez sur [Envoyer] ») ; la dernière est toujours « Cliquez sur [Suivant] ».
 - Quand il faut compléter une demande, elle apparaît dans le cadre avec des **cases orange à compléter au clic**.
 - Données fictives.
 
