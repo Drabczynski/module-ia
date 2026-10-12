@@ -2,7 +2,7 @@
    Module 1 · Première rencontre — version claire pour un public éloigné du numérique (DAQ).
    Par-dessus app.css (partagée avec le module 2), dans l'esprit de l'écran d'accueil :
    - une barre d'outils blanche et basse, toujours en bas : Quitter, le module, Réécouter, Son, Précédent, Suivant ;
-     « Suivant », en bleu, s'allume quand l'activité est faite ;
+     « Suivant », en orange, s'allume quand l'activité est faite ;
    - l'IA, à gauche, sans icônes ni mentions : le cadre blanc, qui s'allume quand c'est à l'apprenant d'écrire,
      et le bouton « Envoyer » ;
    - la consigne, à droite : un titre léger, une phrase, puis « À vous » et des actions numérotées, toujours la même forme.
@@ -18,8 +18,8 @@
 .app .composer textarea { min-height: 30px; font-size: 17px; line-height: 1.5; }
 .app .composer textarea::placeholder { color: #8b8c93; }
 .app .composer-foot { justify-content: flex-end; margin-top: 8px; }
-.app.focus-compose .composer { border-color: #151517; box-shadow: 0 0 0 4px rgba(21, 21, 23, .07); animation: cz-call 1.6s ease-out 2; }
-@keyframes cz-call { 0% { box-shadow: 0 0 0 0 rgba(21, 21, 23, .22); } 100% { box-shadow: 0 0 0 14px rgba(21, 21, 23, 0); } }
+.app.focus-compose .composer { border: 1.5px solid var(--act); box-shadow: 0 0 0 4px rgba(228, 87, 14, .12); animation: cz-call 1.6s ease-out 2; }
+@keyframes cz-call { 0% { box-shadow: 0 0 0 0 rgba(228, 87, 14, .3); } 100% { box-shadow: 0 0 0 14px rgba(228, 87, 14, 0); } }
 .app .claude.is-locked .composer { opacity: 1; background: #f7f7f8; border-color: #e6e7ea; }
 .app .claude.is-locked .composer textarea::placeholder { color: #a9aab0; }
 .app .send { width: auto; height: 40px; padding: 0 15px 0 17px; gap: 7px; display: inline-flex; align-items: center; border-radius: 999px;
@@ -53,26 +53,23 @@
 .pv .pv-steps li.is-nudge { animation: nudge .45s ease; }
 .pv .pv-count { display: inline-block; margin-left: 4px; padding: 3px 8px; border-radius: 999px; background: #f0f1f3; color: var(--pv-ink); font: 600 13px/1 var(--text); }
 
-/* les actions : un pas-à-pas d'une seule colonne, les numéros reliés par un trait ;
-   l'action en cours en noir, les suivantes atténuées, les faites cochées en vert */
-.ac { list-style: none; margin: 22px 0 26px; padding: 24px 24px 22px; border-radius: 18px; background: #f3f4f6; }
-.ac-i { position: relative; display: grid; grid-template-columns: 28px 1fr; column-gap: 16px; padding-bottom: 22px; transition: opacity .3s; }
-.ac-i:last-child { padding-bottom: 0; }
-.ac-i::before { content: ""; position: absolute; left: 13.25px; top: 34px; bottom: 6px; width: 1.5px; border-radius: 1px; background: #e3e4e8; }
-.ac-i:last-child::before { display: none; }
-.ac-i.is-done::before { background: #9ed3b3; }
-.ac-i:not(.is-cur):not(.is-done) { opacity: .45; }
-.ac-n { position: relative; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: #fff; font: 600 13px/1 var(--text); color: #66676d; box-shadow: inset 0 0 0 1.5px #cfd0d5; }
-.is-cur > .ac-n { background: #151517; color: #fff; box-shadow: none; }
+/* les actions : chacune dans son encart gris ; l'action en cours numérotée en orange (la couleur de « là où agir »),
+   les suivantes atténuées, les faites cochées en vert */
+.ac { list-style: none; margin: 22px 0 26px; padding: 0; display: grid; gap: 8px; }
+.ac-i { display: grid; grid-template-columns: 28px 1fr; column-gap: 14px; align-items: start; padding: 15px 18px 15px 16px; border-radius: 14px; background: #e8e9ed; }
+.ac-n { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: transparent; font: 600 13px/1 var(--text); color: #6f7076; box-shadow: inset 0 0 0 1.5px #b9bac1; }
+.is-cur > .ac-n { background: var(--act); color: #fff; box-shadow: none; }
 .is-done > .ac-n { background: #1f9d55; color: #fff; box-shadow: none; }
 .ac-t { min-width: 0; padding-top: 2px; }
 .ac-t p { margin: 0; font: 400 18px/1.45 var(--text); color: #151517; text-wrap: pretty; }
 .ac-t b { font-weight: 600; }
-.ac-t small { display: block; margin-top: 2px; font-size: 14.5px; line-height: 1.4; color: #7b7c83; }
-.is-done .ac-t p { color: #7b7c83; }
+.ac-t small { display: block; margin-top: 2px; font-size: 14.5px; line-height: 1.4; color: #6f7076; }
+.ac-i:not(.is-cur):not(.is-done) .ac-t, .ac-i:not(.is-cur):not(.is-done) .ac-n { opacity: .55; }
+.is-done .ac-t p { color: #6f7076; }
 .ac-x { margin-top: 14px; }
-.ac-or { margin: 0 0 8px; font-size: 14px; color: #7b7c83; }
+.ac-t .ac-or { margin: 0 0 8px; font-size: 14.5px; color: #6f7076; }
 .ac-x .pv-chips button { min-height: 38px; padding: 8px 14px; font-size: 14.5px; }
+
 /* le bouton à reconnaître, glissé dans la phrase, tel qu'il apparaît à l'écran */
 .ui { display: inline-flex; align-items: center; gap: 5px; height: 28px; margin: 0 2px; padding: 0 12px; border-radius: 999px; vertical-align: 1px;
   font: 600 13.5px/1 var(--text); white-space: nowrap; pointer-events: none; }
@@ -154,7 +151,7 @@
 .app .narr-cap { font-size: 14px; color: #6b6c72; }
 
 /* ---------- la barre d'outils, en bas : blanche, basse ---------- */
-:root { --next: #2563eb; }
+:root { --act: #e4570e; --next: #e4570e; }
 .tools { flex: none; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 20px; min-height: 64px; padding: 9px 14px;
   background: #fff; border-top: 1px solid #e3e4e8; color: #151517; }
 .tl-l, .tl-r { display: flex; align-items: center; gap: 8px; min-width: 0; }
@@ -171,15 +168,15 @@
 .tl-b[aria-pressed="false"] { border-color: #f0b3a0; color: #b2401a; }
 .tl-sep { width: 1px; height: 26px; margin: 0 4px; background: #e3e4e8; }
 .tools :focus-visible { outline: 3px solid #151517; outline-offset: 3px; }
-/* « Suivant » : éteint tant que l'activité n'est pas faite, bleu ensuite */
+/* « Suivant » : éteint tant que l'activité n'est pas faite, orange ensuite */
 .tl-next { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-width: 140px; height: 46px; padding: 0 20px 0 24px; border: 0; border-radius: 999px;
-  background: var(--next); color: #fff; font: 600 16px/1 var(--text); letter-spacing: -.01em; transition: background .2s, color .2s; }
+  background: var(--next); color: #fff; font: 700 16px/1 var(--text); letter-spacing: -.01em; transition: background .2s, color .2s; }
 .tl-next svg { width: 19px; height: 19px; transition: transform .2s var(--ease); }
-.tl-next:hover:not(.is-off) { background: #1d4ed8; }
+.tl-next:hover:not(.is-off) { background: #c94a08; }
 .tl-next:hover:not(.is-off) svg { transform: translateX(3px); }
 .tl-next.is-off { background: #eceef1; color: #9a9ca4; cursor: not-allowed; }
 .tl-next.is-flash { animation: tl-go 1.5s ease-in-out 4; }
-@keyframes tl-go { 0%, 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, .45); } 50% { box-shadow: 0 0 0 9px rgba(37, 99, 235, 0); } }
+@keyframes tl-go { 0%, 100% { box-shadow: 0 0 0 0 rgba(228, 87, 14, .45); } 50% { box-shadow: 0 0 0 9px rgba(228, 87, 14, 0); } }
 .tl-next.is-denied { animation: nudge .45s ease; }
 
 /* la notification apparaît juste au-dessus de « Suivant » */
@@ -223,3 +220,12 @@
   .tl-b { width: 54px; font-size: 10.5px; }
   .tl-next { padding: 0 14px 0 16px; }
 }
+
+/* ---------- le lien entre l'action en cours et l'endroit où agir ---------- */
+.lnk { position: fixed; inset: 0; z-index: 60; width: 100vw; height: 100vh; pointer-events: none; overflow: visible; opacity: 0; transition: opacity .35s var(--ease); }
+.lnk.is-on { opacity: 1; }
+.lnk-p { fill: none; stroke: var(--act); stroke-width: 2; stroke-linecap: round; stroke-dasharray: 2 7; animation: lnk-flow .9s linear infinite; }
+.lnk-a { fill: none; stroke: var(--act); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.lnk-o { fill: var(--act); }
+@keyframes lnk-flow { to { stroke-dashoffset: -18; } }
+@media (prefers-reduced-motion: reduce) { .lnk-p { animation: none; } }

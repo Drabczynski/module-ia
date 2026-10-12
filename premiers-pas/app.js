@@ -872,7 +872,8 @@
   function lead(pv, html) { pv.appendChild(h('<p class="pv-lead">' + here(html) + "</p>")); }
   // la consigne, à chaque étape la même forme : un pas-à-pas d'une seule colonne, les numéros reliés par un trait ;
   // le bouton à reconnaître est glissé dans la phrase ({envoyer}, {suivant}, {case}…), tel qu'il apparaît à l'écran.
-  // item : [texte (le verbe en gras), précision facultative, contenu sous l'action en cours]
+  // item : [texte (le verbe en gras), précision facultative, contenu sous l'action en cours,
+  //         cible à l'écran : "input" (le cadre où écrire), "send" (« Envoyer »), "next" (« Suivant »)]
   var UI = {
     envoyer: '<span class="ui ui-dark">Envoyer<svg><use href="#i-up"/></svg></span>',
     suivant: '<span class="ui ui-next">Suivant<svg><use href="#i-arrow"/></svg></span>',
@@ -884,7 +885,7 @@
     enregistrer: '<span class="ui ui-line"><svg><use href="#i-check"/></svg>Enregistrer la fiche</span>'
   };
   function ui(t) { return here(t).replace(/\{(\w+)\}/g, function (m, k) { return UI[k] || m; }); }
-  var NEXT = ["<b>Cliquez</b> sur {suivant}", "en bas à droite"];
+  var NEXT = ["<b>Cliquez</b> sur {suivant}", "en bas à droite", null, "next"];
   function consigne(pv, items, cur) {
     var ol = h('<ol class="ac"></ol>');
     items.forEach(function (it, k) {
@@ -894,10 +895,40 @@
       li.querySelector(".ac-n").textContent = k < cur ? "✓" : k + 1;
       li.querySelector("p").innerHTML = ui(it[0]) + (it[1] ? "<small>" + ui(it[1]) + "</small>" : "");
       if (it[2] && k === cur) { var x = h('<div class="ac-x"></div>'); it[2](x); li.lastChild.appendChild(x); }
+      if (it[3]) li.dataset.target = it[3];
       ol.appendChild(li);
     });
     pv.appendChild(ol);
   }
+  // le lien entre la consigne et l'écran : une ligne orange en pointillés, de l'action en cours jusqu'à l'endroit
+  // où agir (le cadre où écrire, « Envoyer », « Suivant ») ; sur grand écran seulement
+  var lnk = null, lnkRaf = 0;
+  var TARGETS = { input: function () { return composeOn ? composer : null; }, send: function () { return composeOn ? sendBtn : null; }, next: function () { return nextBtn; } };
+  function linkFrame() {
+    lnkRaf = requestAnimationFrame(linkFrame);
+    var li = $(".ac-i.is-cur[data-target]", bodyEl), get = li && TARGETS[li.dataset.target], t = get && get();
+    var show = !!(t && window.innerWidth > 980 && !inWelcome && !app.hidden && askEl.hidden);
+    if (!lnk) {
+      lnk = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      lnk.setAttribute("class", "lnk"); lnk.setAttribute("aria-hidden", "true");
+      lnk.innerHTML = '<path class="lnk-p"/><circle class="lnk-o" r="4.5"/><path class="lnk-a"/>';
+      document.body.appendChild(lnk);
+    }
+    var a = show && li.getBoundingClientRect(), b = show && t.getBoundingClientRect(), pb = show && bodyEl.getBoundingClientRect();
+    // l'action doit être visible dans le panneau
+    if (show && (!b.width || a.bottom < pb.top + 10 || a.top > pb.bottom - 10)) show = false;
+    lnk.classList.toggle("is-on", show);
+    if (!show) return;
+    var left = b.right < a.left, sx, sy, ex, ey;
+    if (left) { sx = a.left; sy = Math.min(a.top + 26, a.bottom - 10); ex = Math.min(b.right - 28, b.left + b.width * .75); ey = b.top; }
+    else { sx = a.left + a.width * .5; sy = a.bottom; ex = b.left + b.width * .5; ey = b.top; }
+    var c1x = left ? sx - Math.max(60, (sx - ex) * .55) : sx, c1y = left ? sy : sy + (ey - sy) * .5;
+    var c2x = ex, c2y = ey - Math.max(40, (ey - sy) * .45);
+    lnk.querySelector(".lnk-p").setAttribute("d", "M" + sx + " " + sy + " C" + c1x + " " + c1y + " " + c2x + " " + c2y + " " + ex + " " + (ey - 7));
+    var o = lnk.querySelector(".lnk-o"); o.setAttribute("cx", sx); o.setAttribute("cy", sy);
+    lnk.querySelector(".lnk-a").setAttribute("d", "M" + (ex - 6) + " " + (ey - 13) + " L" + ex + " " + (ey - 5) + " L" + (ex + 6) + " " + (ey - 13));
+  }
+  lnkRaf = requestAnimationFrame(linkFrame);
   // phrases toutes faites, à cliquer : elles s'écrivent dans le cadre
   function phrases(list) {
     return function (box) {
@@ -1499,8 +1530,8 @@
       render: function (pv) {
         var a = act("bonjour");
         consigne(pv, [
-          ["<b>Écrivez</b> un message dans le cadre blanc, à gauche", "", !a.sent && phrases(["Bonjour, qui es-tu ?", "Bonjour ! Que sais-tu faire ?"])],
-          ["<b>Cliquez</b> sur {envoyer}"],
+          ["<b>Écrivez</b> un message dans le cadre blanc, à gauche", "", !a.sent && phrases(["Bonjour, qui es-tu ?", "Bonjour ! Que sais-tu faire ?"]), "input"],
+          ["<b>Cliquez</b> sur {envoyer}", "", null, "send"],
           ["<b>Lisez</b> la réponse de l’IA"],
           NEXT
         ], a.done ? 3 : a.sent ? 2 : a.typed ? 1 : 0);
@@ -1566,8 +1597,8 @@
       render: function (pv) {
         var a = act("demander");
         consigne(pv, [
-          ["<b>Complétez</b> chaque {case}", "dans le cadre blanc, à gauche"],
-          ["<b>Cliquez</b> sur {envoyer}"],
+          ["<b>Complétez</b> chaque {case}", "dans le cadre blanc, à gauche", null, "input"],
+          ["<b>Cliquez</b> sur {envoyer}", "", null, "send"],
           ["<b>Lisez</b> la réponse de l’IA"],
           NEXT
         ], a.done ? 3 : a.sent ? 2 : a.filled ? 1 : 0);
@@ -1665,8 +1696,8 @@
         var a = act("mail"), open = a.open === "pot";
         consigne(pv, [
           ["<b>Ouvrez</b> le mail de Karim", "« Pot de départ de Martine »"],
-          ["<b>Demandez</b> des idées pour ce pot", "en une phrase, dans le cadre blanc", !a.sent && phrases(["Donne-moi des idées pour un pot de départ."])],
-          ["<b>Cliquez</b> sur {envoyer}"],
+          ["<b>Demandez</b> des idées pour ce pot", "en une phrase, dans le cadre blanc", !a.sent && phrases(["Donne-moi des idées pour un pot de départ."]), "input"],
+          ["<b>Cliquez</b> sur {envoyer}", "", null, "send"],
           NEXT
         ], a.done ? 3 : a.sent ? 2 : open ? 1 : 0);
         if (a.wrong && !open) fb(pv, "ko", "Pas celui-là : cliquez sur le mail de <b>Karim</b>, « Pot de départ de Martine ».");
@@ -1733,8 +1764,8 @@
       render: function (pv) {
         var a = act("relance");
         consigne(pv, [
-          ["<b>Complétez</b> chaque {case}", "avec les infos du mail"],
-          ["<b>Cliquez</b> sur {envoyer}"],
+          ["<b>Complétez</b> chaque {case}", "avec les infos du mail", null, "input"],
+          ["<b>Cliquez</b> sur {envoyer}", "", null, "send"],
           NEXT
         ], a.done ? 2 : a.filled ? 1 : 0);
         if (a.wrong && !a.done) fb(pv, "ko", "<b>À vérifier :</b> " + esc(a.wrong) + " ne correspond pas au mail de Karim. Corrigez la case orange, puis cliquez sur « Envoyer ».");
@@ -1948,7 +1979,7 @@
       say: "Voici vos quatre premiers réflexes. Gardez cette fiche : elle vous servira dès votre prochaine conversation avec une IA.",
       render: function (pv) {
         var a = act("fiche");
-        consigne(pv, [["<b>Cliquez</b> sur {enregistrer}"], ["<b>Cliquez</b> sur {terminer}", "en bas à droite"]], a.saved ? 1 : 0);
+        consigne(pv, [["<b>Cliquez</b> sur {enregistrer}"], ["<b>Cliquez</b> sur {terminer}", "en bas à droite", null, "next"]], a.saved ? 1 : 0);
         pv.appendChild(h('<div class="pv-card pv-sheet"><ol><li><i>1</i>Commencer simple : une phrase suffit pour démarrer.</li><li><i>2</i>Donner ce que l’IA ne peut pas deviner : le nombre de personnes, le budget, le lieu…</li><li><i>3</i>Préciser dans la même conversation, sans tout recommencer.</li><li><i>4</i>Relire sa réponse : l’IA peut se tromper.</li></ol></div>'));
         var p = h("<p></p>");
         p.appendChild(button(a.saved ? "Fiche enregistrée" : "Enregistrer la fiche", "check", function () { a.saved = true; refresh(); }));

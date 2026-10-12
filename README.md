@@ -95,15 +95,18 @@ une seule chose à faire à la fois, toujours le même geste pour avancer. Story
   « Commencer » envoie `module:start` : l'accueil s'efface, l'assistante souhaite la bienvenue, puis la première étape s'ouvre.
 - Barre d'outils blanche et basse, toujours en bas (`premiers-pas/simple.css`) : Quitter (avec confirmation), le nom du module,
   Réécouter, Son, Précédent, Suivant. On n'avance jamais tout seul : « Suivant » reste éteint tant que l'activité n'est pas faite
-  (un clic rappelle ce qu'il reste à faire), puis s'allume en bleu.
+  (un clic rappelle ce qu'il reste à faire), puis s'allume en orange.
 - L'IA, à gauche, sans icônes ni mentions (ni « Nouvelle conversation », ni « Simulation pédagogique », ni « Mode simulé ») :
   le cadre blanc s'allume (bord noir, deux pulsations) quand c'est à l'apprenant d'écrire, et le bouton « Envoyer » est écrit en toutes lettres.
-- La consigne, à droite, se lit d'un coup d'œil : un titre léger (Inter Tight), puis un pas-à-pas d'une seule colonne,
-  les numéros reliés par un trait ; chaque action est une phrase courte, le verbe en gras, et le bouton à reconnaître est
+- La consigne, à droite, se lit d'un coup d'œil : un grand titre (Inter Tight), puis chaque action dans son encart gris ;
+  chaque action est une phrase courte, le verbe en gras, et le bouton à reconnaître est
   glissé dans la phrase tel qu'il apparaît à l'écran (« Cliquez sur [Envoyer] », « Complétez chaque [case orange] »).
-  L'action en cours en noir, les suivantes atténuées, les faites cochées en vert ; la dernière est toujours
+  L'action en cours numérotée en orange, les suivantes atténuées, les faites cochées en vert ; la dernière est toujours
   « Cliquez sur [Suivant] ». Les phrases toutes faites se placent sous l'action « Écrivez ». Espaces insécables avant
   « ? ! : ; » : jamais de ponctuation seule en début de ligne.
+- L'orange, c'est « là où agir » : une ligne orange en pointillés relie l'action en cours à l'endroit de l'écran où la faire
+  (le cadre où écrire, bordé d'orange quand c'est à l'apprenant, le bouton « Envoyer », le bouton « Suivant », orange lui aussi).
+  Sur grand écran seulement.
 - 9 étapes : dire bonjour, vrai ou faux, demander à l'IA à quoi elle sert, relier 3 situations à leur usage,
   le mail de Karim (demande courte), ce qui manque, préciser puis relancer, le résultat, la fiche (4 réflexes).
   Mises de côté pour alléger, prêtes à revenir (`off: true` dans `app.js`) : où trouver l'IA, essayer un usage,
