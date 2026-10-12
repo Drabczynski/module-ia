@@ -98,7 +98,7 @@ une seule chose à faire à la fois, toujours le même geste pour avancer. Story
   (un clic rappelle ce qu'il reste à faire), puis s'allume en orange.
 - L'IA, à gauche, sans icônes ni mentions (ni « Nouvelle conversation », ni « Simulation pédagogique », ni « Mode simulé ») :
   le cadre blanc s'allume (bord noir, deux pulsations) quand c'est à l'apprenant d'écrire, et le bouton « Envoyer » est écrit en toutes lettres.
-- La consigne, à droite, se lit d'un coup d'œil : un grand titre (Inter Tight), puis chaque action dans son encart gris ;
+- La consigne, à droite, se lit d'un coup d'œil : un grand titre (Inter Tight), puis les actions, celle en cours sur un fond gris très clair ;
   chaque action est une phrase courte, le verbe en gras, et le bouton à reconnaître est
   glissé dans la phrase tel qu'il apparaît à l'écran (« Cliquez sur [Envoyer] », « Complétez chaque [case orange] »).
   L'action en cours numérotée en orange, les suivantes atténuées, les faites cochées en vert ; la dernière est toujours
