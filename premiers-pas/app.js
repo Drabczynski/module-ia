@@ -1530,11 +1530,10 @@
       render: function (pv) {
         var a = act("bonjour");
         consigne(pv, [
-          ["<b>Écrivez</b> un message dans le cadre blanc, à gauche", "", !a.sent && phrases(["Bonjour, qui es-tu ?", "Bonjour ! Que sais-tu faire ?"]), "input"],
-          ["<b>Cliquez</b> sur {envoyer}", "", null, "send"],
+          ["<b>Écrivez</b> un message, puis cliquez sur {envoyer}", "dans le cadre blanc, à gauche", !a.sent && phrases(["Bonjour, qui es-tu ?", "Bonjour ! Que sais-tu faire ?"]), "input"],
           ["<b>Lisez</b> la réponse de l’IA"],
           NEXT
-        ], a.done ? 3 : a.sent ? 2 : a.typed ? 1 : 0);
+        ], a.done ? 2 : a.sent ? 1 : 0);
         if (a.retry) fbNew(pv, "ko", "<b>Dites-lui bonjour.</b> Par exemple : « Bonjour, qui es-tu ? »");
         if (a.done) fbNew(pv, "ok", "<b>Bravo !</b> L’IA vous a répondu.");
       },
