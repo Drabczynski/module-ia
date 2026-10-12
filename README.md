@@ -101,10 +101,10 @@ une seule chose à faire à la fois, toujours le même geste pour avancer. Story
 - Le panneau de droite, en trois temps : le type d'activité (une icône, « À vous d’écrire », « Glissez les cartes »,
   « Reliez »…) et un grand titre (Inter Tight) ; « À faire » ; puis la zone de travail, jusqu'en bas du panneau,
   sur toute sa largeur (fond gris clair pointillé), où l'activité est centrée : la carte vrai ou faux et ses boutons,
-  les colonnes à relier, la boîte mail. Quand l'activité se passe à gauche, la zone montre ce qui s'y passe :
-  la conversation en schéma (« Vous » puis « L’IA », qui se remplit), les six choses qu'elle sait faire (des cartes
-  en attente qui s'allument quand elle a répondu). Une illustration ne fait jamais déborder le panneau : elle se
-  resserre, puis s'efface s'il n'y a pas la place (mesurée à l'affichage).
+  les colonnes à relier, la boîte mail. Sur « Demandez-lui », la zone montre les six choses qu'elle sait faire
+  (des cartes en attente qui s'allument quand elle a répondu). Au premier écran, pas de zone de travail.
+  Une illustration ne fait jamais déborder le panneau : elle se resserre, puis s'efface s'il n'y a pas la place
+  (mesurée à l'affichage).
 - « À faire » : une ou deux actions courtes, le verbe en gras, la précision dessous en gris ; les pastilles reliées
   par un trait ; l'action en cours sur un fond gris très clair, numérotée en violet foncé, les faites cochées en vert.
   Une seule exception : « Ouvrez le mail de Karim » disparaît une fois fait, pour laisser la place au mail.
@@ -117,7 +117,8 @@ une seule chose à faire à la fois, toujours le même geste pour avancer. Story
   sur toute sa largeur, qui monte avec la même animation ; vert quand c'est réussi, violet pour un coup de pouce,
   gris pour une correction. Il ne s'anime que s'il change.
 - Vrai ou faux : la carte et les boutons centrés ; à la fin, le tableau des bonnes réponses (une erreur signalée sur sa ligne).
-- La boîte mail : une fois le mail de Karim ouvert, il s'affiche seul, en carte de mail à sa taille.
+- La boîte mail : une fois le mail de Karim ouvert, il s'affiche seul, en carte de mail à sa taille, avec la photo
+  de Karim (Unsplash, photo d'abdullah ali, chargée en ligne ; sans réseau, ses initiales restent).
 - Rien ne dépasse en bas du panneau, de 1280 × 720 à 1920 × 1080, portable à 125 % compris (1536 × 760) :
   sur les écrans bas, le type d'activité s'efface et les marges se resserrent.
 - 9 étapes : dire bonjour, vrai ou faux, demander à l'IA à quoi elle sert, relier 3 situations à leur usage,

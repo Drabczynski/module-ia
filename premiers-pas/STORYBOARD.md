@@ -7,7 +7,7 @@
 - L'IA simulée à gauche (le cadre blanc, qui s'allume quand c'est à l'apprenant d'écrire, et le bouton « Envoyer »), la consigne à droite, l'orbe qui lit la consigne.
 - Barre d'outils blanche en bas : Quitter, le module, Réécouter, Son, Précédent, Suivant. « Suivant » s'allume en orange quand l'activité est faite.
 - Chaque consigne : « À faire », puis un pas-à-pas d'une seule colonne, des phrases courtes avec le bouton à reconnaître glissé dans la phrase (« Cliquez sur [Envoyer] »). Seul le premier écran se termine par « Cliquez sur [Suivant] ».
-- Le panneau : le type d'activité et le titre, « À faire » (les actions faites cochées en vert), puis la zone de travail jusqu'en bas, où l'activité est centrée ; quand l'activité se passe à gauche, elle y est montrée en schéma.
+- Le panneau : le type d'activité et le titre, « À faire » (les actions faites cochées en vert), puis la zone de travail jusqu'en bas, où l'activité est centrée (pas de zone au premier écran).
 - Le retour sur l'activité : toujours en bas du panneau, sur toute sa largeur, avec la même animation.
 - Quand il faut compléter une demande, elle apparaît dans le cadre avec des **cases orange à compléter au clic**.
 - Données fictives.

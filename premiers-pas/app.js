@@ -762,9 +762,9 @@
     fbQ = [];
     s.render(pv, side);
     // la zone de travail : sous la consigne, jusqu'en bas du panneau ; l'activité y est centrée
-    // (et, quand l'activité se passe à gauche, ce qui s'y passe : s.stage)
+    // (et, quand l'activité se passe à gauche, ce qui s'y passe : s.stage) ; pas de zone vide
     var ac = !s.full && pv.querySelector(":scope > .ac"), stage = null;
-    if (ac) {
+    if (ac && (ac.nextSibling || s.stage)) {
       stage = h('<div class="stage"></div>');
       while (ac.nextSibling) stage.appendChild(ac.nextSibling);
       if (s.stage && !stage.children.length) stage.classList.add("is-deco");   // une illustration : elle s'adapte à la place qui reste
@@ -1445,7 +1445,7 @@
 
   var NOTE_PT = "Olá! No sábado de manhã vou fazer obras no apartamento. Peço desculpa pelo barulho. Obrigado! — Diogo, 3.º andar";
   var MAILS = [
-    { id: "pot", from: "Karim Benali", time: "08:42", subj: "Pot de départ de Martine", prev: "Salut ! Martine part à la retraite…",
+    { id: "pot", from: "Karim Benali", time: "08:42", photo: "https://images.unsplash.com/photo-1765366574945-e2f1b4b1a5b3?crop=faces&fit=crop&w=160&h=160&q=80&fm=jpg", subj: "Pot de départ de Martine", prev: "Salut ! Martine part à la retraite…",
       body: ["Salut !", "Martine {part à la retraite|raison} : son pot est {vendredi à 16 h|date}. Tu peux t’en occuper ?", "On sera {une douzaine|nb}. La cagnotte a récolté {60 €|budget}, et on peut utiliser {la salle de pause|lieu}.", "Merci, tu me sauves !", "Karim"] },
     { id: "rh", from: "Service RH", time: "08:15", subj: "Rappel : entretiens annuels", prev: "Les entretiens annuels commencent lundi…" },
     { id: "lettre", from: "La lettre du quartier", time: "Hier", subj: "Fête des voisins : on cherche un nom !", prev: "Cette année, la fête aura lieu le 6 juin…" }
@@ -1498,6 +1498,13 @@
     } else {
       var mv = h('<div class="mx-mail"><div class="mx-from"><span class="mx-av"></span><div><b></b><small>À : moi</small></div><time></time></div><h3></h3><div class="mx-text"></div></div>');
       mv.querySelector(".mx-av").textContent = cur.from.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2);
+      if (cur.photo) {                                                       // la photo de l'expéditeur ; sans réseau, ses initiales restent
+        var ph = document.createElement("img");
+        ph.alt = ""; ph.referrerPolicy = "no-referrer"; ph.src = cur.photo;
+        ph.onload = function () { ph.parentNode && ph.parentNode.classList.add("has-photo"); };
+        ph.onerror = function () { ph.remove(); };
+        mv.querySelector(".mx-av").appendChild(ph);
+      }
       mv.querySelector(".mx-from b").textContent = cur.from;
       mv.querySelector(".mx-from time").textContent = "Aujourd’hui, " + cur.time;
       mv.querySelector("h3").textContent = cur.subj;
@@ -1551,37 +1558,19 @@
         if (a.retry) fbNew(pv, "ko", "<b>Dites-lui bonjour.</b> Par exemple : « Bonjour, qui es-tu ? »");
         if (a.done) fbNew(pv, "ok", "<b>Bravo !</b> L’IA vous a répondu.");
       },
-      // ce qui se passe à gauche, en schéma : votre message, puis sa réponse
-      stage: function (box) {
-        var a = act("bonjour");
-        var cv = h('<div class="cv"><p class="cv-h">La conversation</p>' +
-          '<div class="cv-row is-me"><div class="cv-b"></div><span class="cv-who">Vous</span></div>' +
-          '<div class="cv-row is-ai"><span class="cv-who"><i class="cv-av"></i>L’IA</span><div class="cv-b"></div></div></div>');
-        var me = cv.querySelector(".is-me"), ai = cv.querySelector(".is-ai");
-        me.classList.toggle("is-on", !!a.sent);
-        me.firstChild.textContent = a.sent ? a.msg : "Votre message s’écrira ici";
-        ai.classList.toggle("is-wait", !!a.sent && !a.done);
-        ai.classList.toggle("is-on", !!a.done);
-        if (a.done) ai.lastChild.textContent = a.reply || "Bonjour !";
-        else ai.lastChild.innerHTML = a.sent ? '<i class="cv-dots"><i></i><i></i><i></i></i>' : "Sa réponse s’affichera ici";
-        box.appendChild(cv);
-      },
       ready: function () { return !!act("bonjour").done; },
       enter: function () { if (!act("bonjour").done) compose(true, "À vous : écrivez un premier message"); },
       onType: function () { var a = act("bonjour"); if (!a.typed) { a.typed = true; refresh(); } },
       onInsert: function () { var a = act("bonjour"); if (!a.typed) { a.typed = true; refresh(); } },
       onSend: function (c, text) {
         var a = act("bonjour");
-        a.sent = true; a.msg = text;
+        a.sent = true;
         a.ok = /bonjour|salut|hello|coucou|bonsoir|hey|qui es|présente|que sais|tu sais|tu peux|aide|\?/i.test(text);
         compose(false); refresh();
       },
-      onAnswer: function (c) {
+      onAnswer: function () {
         var a = act("bonjour");
         if (!a.ok) { a.sent = false; a.retry = true; refresh(); compose(true); return; }
-        var r = c && c.messages ? c.messages.filter(function (m) { return m.role === "assistant"; }).pop() : null;
-        var ph = r ? String(r.content).replace(/[*_#>`]/g, "").split(/(?<=[.!?…])\s+/) : [];
-        a.reply = (ph[0] && ph[0].length < 40 && ph[1] ? ph[0] + " " + ph[1] : ph[0] || "").slice(0, 140);
         a.done = true; a.retry = false; refresh(); readyNext();
       }
     },
