@@ -874,8 +874,7 @@
   function lead(pv, html) { pv.appendChild(h('<p class="pv-lead">' + here(html) + "</p>")); }
   // la consigne, à chaque étape la même forme : un pas-à-pas d'une seule colonne, les numéros reliés par un trait ;
   // le bouton à reconnaître est glissé dans la phrase ({envoyer}, {suivant}, {case}…), tel qu'il apparaît à l'écran.
-  // item : [texte (le verbe en gras), précision facultative, contenu sous l'action en cours,
-  //         cible à l'écran : "input" (le cadre où écrire), "send" (« Envoyer »), "next" (« Suivant »)]
+  // item : [texte (le verbe en gras), précision facultative, contenu sous l'action en cours]
   var UI = {
     envoyer: '<span class="ui ui-dark">Envoyer<svg><use href="#i-up"/></svg></span>',
     suivant: '<span class="ui ui-next">Suivant<svg><use href="#i-arrow"/></svg></span>',
@@ -887,51 +886,24 @@
     enregistrer: '<span class="ui ui-line"><svg><use href="#i-check"/></svg>Enregistrer la fiche</span>'
   };
   function ui(t) { return here(t).replace(/\{(\w+)\}/g, function (m, k) { return UI[k] || m; }); }
-  var NEXT = ["<b>Cliquez</b> sur {suivant}", "en bas à droite", null, "next"];
+  var NEXT = ["<b>Cliquez</b> sur {suivant}", "en bas à droite"];
+  // seules les actions qui restent à faire s'affichent : une action faite disparaît (on gagne de la place, rien ne s'accumule) ;
+  // quand tout est fait, « À faire » disparaît et c'est « Suivant », allumé, qui prend le relais
   function consigne(pv, items, cur) {
+    if (cur >= items.length) return;
     var ol = h('<ol class="ac"></ol>');
     items.forEach(function (it, k) {
+      if (k < cur) return;
       var li = h('<li class="ac-i"><span class="ac-n"></span><div class="ac-t"><p></p></div></li>');
-      li.classList.toggle("is-done", k < cur);
       li.classList.toggle("is-cur", k === cur);
-      li.querySelector(".ac-n").textContent = k < cur ? "✓" : k + 1;
+      li.querySelector(".ac-n").textContent = k + 1;
       li.querySelector("p").innerHTML = ui(it[0]) + (it[1] ? "<small>" + ui(it[1]) + "</small>" : "");
       if (it[2] && k === cur) { var x = h('<div class="ac-x"></div>'); it[2](x); li.lastChild.appendChild(x); }
-      if (it[3]) li.dataset.target = it[3];
       ol.appendChild(li);
     });
     pv.appendChild(h('<p class="ac-h">À faire</p>'));
     pv.appendChild(ol);
   }
-  // le lien entre la consigne et l'écran : une ligne en pointillés, de l'action en cours jusqu'à l'endroit où agir
-  // (le cadre où écrire, « Envoyer », « Suivant ») ; au premier écran seulement, sur grand écran
-  var lnk = null, lnkRaf = 0;
-  var TARGETS = { input: function () { return composeOn ? composer : null; }, send: function () { return composeOn ? sendBtn : null; }, next: function () { return nextBtn; } };
-  function linkFrame() {
-    lnkRaf = requestAnimationFrame(linkFrame);
-    var li = $(".ac-i.is-cur[data-target]", bodyEl), get = li && TARGETS[li.dataset.target], t = get && get();
-    var show = !!(t && st() && st().id === "bonjour" && window.innerWidth > 980 && !inWelcome && !app.hidden && askEl.hidden);   // didactique au premier écran, pas au-delà
-    if (!lnk) {
-      lnk = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-      lnk.setAttribute("class", "lnk"); lnk.setAttribute("aria-hidden", "true");
-      lnk.innerHTML = '<path class="lnk-p"/><circle class="lnk-o" r="4.5"/><path class="lnk-a"/>';
-      document.body.appendChild(lnk);
-    }
-    var a = show && li.getBoundingClientRect(), b = show && t.getBoundingClientRect(), pb = show && bodyEl.getBoundingClientRect();
-    // l'action doit être visible dans le panneau
-    if (show && (!b.width || a.bottom < pb.top + 10 || a.top > pb.bottom - 10)) show = false;
-    lnk.classList.toggle("is-on", show);
-    if (!show) return;
-    var left = b.right < a.left, sx, sy, ex, ey;
-    if (left) { sx = a.left; sy = Math.min(a.top + 26, a.bottom - 10); ex = Math.min(b.right - 28, b.left + b.width * .75); ey = b.top; }
-    else { sx = a.left + a.width * .5; sy = a.bottom; ex = b.left + b.width * .5; ey = b.top; }
-    var c1x = left ? sx - Math.max(60, (sx - ex) * .55) : sx, c1y = left ? sy : sy + (ey - sy) * .5;
-    var c2x = ex, c2y = ey - Math.max(40, (ey - sy) * .45);
-    lnk.querySelector(".lnk-p").setAttribute("d", "M" + sx + " " + sy + " C" + c1x + " " + c1y + " " + c2x + " " + c2y + " " + ex + " " + (ey - 7));
-    var o = lnk.querySelector(".lnk-o"); o.setAttribute("cx", sx); o.setAttribute("cy", sy);
-    lnk.querySelector(".lnk-a").setAttribute("d", "M" + (ex - 6) + " " + (ey - 13) + " L" + ex + " " + (ey - 5) + " L" + (ex + 6) + " " + (ey - 13));
-  }
-  lnkRaf = requestAnimationFrame(linkFrame);
   // phrases toutes faites, à cliquer : elles s'écrivent dans le cadre
   function phrases(list) {
     return function (box) {
@@ -1211,17 +1183,17 @@
           var last = a.res[k - 1];
           fbNew(pv, last.ok ? "ok" : "ko", "<b>" + (last.ok ? "Bien vu, c’est " : "Eh non, c’est ") + (cards[k - 1][1] ? "vrai" : "faux") + ".</b> " + esc(cards[k - 1][2]));
         }
+        // les 3 phrases et leur bonne réponse, telles que sur les boutons ; une erreur est signalée sur sa ligne
         if (k === cards.length) {
-          var ul = h('<ul class="sw-recap is-new"></ul>');
+          var box = h('<div class="sw-sum is-new"><p class="sw-sum-h"><span>Les bonnes réponses</span><b></b></p><ul></ul></div>');
+          box.querySelector("b").textContent = a.best + " / " + cards.length;
           cards.forEach(function (cd, j) {
-            var li = h('<li><span class="st"></span><span></span></li>');
-            li.firstChild.textContent = a.res[j].ok ? "✓" : "✗";
-            li.firstChild.classList.add(a.res[j].ok ? "ok" : "ko");
-            li.lastChild.textContent = cd[0] + " — " + (cd[1] ? "vrai" : "faux");
-            ul.appendChild(li);
+            var li = h('<li><span class="sw-sum-t"></span><span class="ui ui-line ' + (cd[1] ? "is-yes\">Vrai" : "is-no\">Faux") + "</span></li>");
+            li.firstChild.textContent = cd[0];
+            if (!a.res[j].ok) { li.classList.add("is-miss"); li.firstChild.appendChild(h('<small>Vous aviez répondu « ' + (cd[1] ? "Faux" : "Vrai") + " »</small>")); }
+            box.lastChild.appendChild(li);
           });
-          pv.appendChild(ul);
-          pv.appendChild(h('<p class="pv-tries">' + a.best + " bonne" + (a.best > 1 ? "s" : "") + " réponse" + (a.best > 1 ? "s" : "") + " sur " + cards.length + "</p>"));
+          pv.appendChild(box);
         }
       },
       ready: function () { var a = act(id); return a.res && a.res.length === cards.length; },
@@ -1475,6 +1447,7 @@
     if (cur && !cur.body) cur = null;
     var unread = MAILS.filter(function (m) { return !(a.opened && a.opened[m.id]); }).length;
     var box = h('<div class="mx"><div class="mx-list"><div class="mx-h"><b>Réception</b><span></span></div></div><div class="mx-read"></div></div>');
+    if (mode !== "open") box.classList.add("is-solo");                        // le mail ouvert seul, sur toute la largeur : la liste ne sert plus
     box.querySelector(".mx-h span").textContent = unread ? unread + " non lu" + (unread > 1 ? "s" : "") : "Tout est lu";
     MAILS.forEach(function (m) {
       var b = h('<button type="button" class="mx-row"><i class="mx-dot"></i><span class="mx-tx"><span class="mx-top"><b></b><time></time></span><span class="mx-subj"></span><span class="mx-prev"></span></span></button>');
@@ -1547,7 +1520,7 @@
       render: function (pv) {
         var a = act("bonjour");
         consigne(pv, [
-          ["<b>Écrivez</b> un message, puis cliquez sur {envoyer}", "dans le cadre blanc, à gauche", !a.sent && phrases(["Bonjour, qui es-tu ?", "Bonjour ! Que sais-tu faire ?"]), "input"],
+          ["<b>Écrivez</b> un message, puis cliquez sur {envoyer}", "dans le cadre blanc, à gauche", !a.sent && phrases(["Bonjour, qui es-tu ?", "Bonjour ! Que sais-tu faire ?"])],
           ["<b>Lisez</b> la réponse de l’IA"],
           NEXT
         ], a.done ? 2 : a.sent ? 1 : 0);
@@ -1613,7 +1586,7 @@
       render: function (pv) {
         var a = act("demander");
         consigne(pv, [
-          ["<b>Complétez</b> chaque {case}, puis envoyez", "dans le cadre blanc, à gauche", null, "input"],
+          ["<b>Complétez</b> chaque {case}, puis envoyez", "dans le cadre blanc, à gauche", null],
           ["<b>Lisez</b> la réponse de l’IA"]
         ], a.done ? 2 : a.sent ? 1 : 0);
         if (a.done) fb(pv, "ok", "<b>Elle sait :</b> écrire, expliquer, résumer, trouver des idées, traduire…");
@@ -1710,7 +1683,7 @@
         var a = act("mail"), open = a.open === "pot";
         consigne(pv, [
           ["<b>Ouvrez</b> le mail de Karim", "« Pot de départ de Martine »"],
-          ["<b>Demandez</b> des idées pour ce pot, puis envoyez", "en une phrase, dans le cadre blanc", !a.sent && phrases(["Donne-moi des idées pour un pot de départ."]), "input"]
+          ["<b>Demandez</b> des idées pour ce pot, puis envoyez", "en une phrase, dans le cadre blanc", !a.sent && phrases(["Donne-moi des idées pour un pot de départ."])]
         ], a.done ? 2 : open ? 1 : 0);
         if (a.wrong && !open) fb(pv, "ko", "Pas celui-là : cliquez sur le mail de <b>Karim</b>, « Pot de départ de Martine ».");
         if (a.off) fb(pv, "ko", "Parlez à l’IA du <b>pot de départ</b> : c’est notre situation.");
@@ -1755,10 +1728,10 @@
         var a = act("manque");
         a.found = a.found || {};
         var n = Object.keys(HUNT).filter(function (k) { return a.found[k]; }).length;
+        lead(pv, "L’IA propose un traiteur, un DJ, un voyage… <b>Ce n’est pas adapté.</b>");
         consigne(pv, [
-          ["<b>Lisez</b> la réponse de l’IA", "Un traiteur, un DJ, un voyage… Ce n’est pas adapté."],
           ["<b>Cliquez</b> sur 3 infos dans le mail <span class='pv-count'>" + n + " / 3</span>", "celles que l’IA ne pouvait pas deviner"]
-        ], a.done ? 2 : 1);
+        ], a.done ? 1 : 0);
         if (a.why && !a.done) fb(pv, "ko", esc(a.why));
         if (a.done) fb(pv, "ok", "<b>Bien vu :</b> le nombre de personnes, le budget, le lieu.");
         mailApp(pv, "hunt");
@@ -1774,7 +1747,7 @@
       audio: "pp-relance", say: "Deuxième conseil : être précis, puis affiner. Pas besoin de tout recommencer. Dans la même conversation, complétez les cases orange avec les informations du mail, puis envoyez.",
       render: function (pv) {
         var a = act("relance");
-        consigne(pv, [["<b>Complétez</b> chaque {case}, puis envoyez", "avec les infos du mail", null, "input"]], a.done ? 1 : 0);
+        consigne(pv, [["<b>Complétez</b> chaque {case}, puis envoyez", "avec les infos du mail", null]], a.done ? 1 : 0);
         if (a.wrong && !a.done) fb(pv, "ko", "<b>À vérifier :</b> " + esc(a.wrong) + " ne correspond pas au mail de Karim. Corrigez la case orange, puis cliquez sur « Envoyer ».");
         if (a.done) fb(pv, "ok", "<b>Réussi :</b> les idées collent à la situation.");
         mailApp(pv, "show");

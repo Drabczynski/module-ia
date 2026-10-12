@@ -31,7 +31,7 @@
 .app .panel { border-color: #e6e7ea; }
 .app .panel-body { background: #fff; }
 .pv { --pv-ink: #151517; --pv-ink2: #3a3b40; --pv-muted: #7b7c83; padding: 44px 48px 48px; color: var(--pv-ink2); }
-.pv > :not(.mx):not(.res):not(.sw-stack):not(.pv-match) { max-width: 600px; }
+.pv > :not(.mx):not(.res):not(.sw-stack):not(.pv-match):not(.sw-sum) { max-width: 600px; }
 .pv.is-compact { padding: 44px 48px 48px; }
 .pv .pv-h1, .pv.is-compact .pv-h1 { margin: 0 0 14px; font: 560 clamp(40px, 3.9vw, 58px)/1.02 var(--display); letter-spacing: -.03em; color: var(--pv-ink); text-wrap: balance; }
 .pv .pv-rule { display: none; }
@@ -54,8 +54,8 @@
 .pv .pv-steps li.is-nudge { animation: nudge .45s ease; }
 .pv .pv-count { display: inline-block; margin-left: 4px; padding: 3px 8px; border-radius: 999px; background: #f0f1f3; color: var(--pv-ink); font: 600 13px/1 var(--text); }
 
-/* les actions : l'action en cours sur un fond gris très clair, numérotée en violet foncé (l'orange est pour « Suivant »),
-   les suivantes atténuées, les faites cochées en vert ; les pastilles reliées par un trait, alignées sur le titre */
+/* les actions qui restent : l'action en cours sur un fond gris très clair, numérotée en violet foncé (l'orange est pour « Suivant »),
+   les suivantes atténuées ; les pastilles reliées par un trait, alignées sur le titre (une action faite disparaît) */
 .ac-h { display: flex; align-items: center; gap: 14px; margin: 34px 0 12px; font: 500 12.5px/1 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase; color: #8a8b91; }
 .ac-h::after { content: ""; flex: 1; height: 1px; background: #ebecef; }
 .pv > .ac { max-width: 620px; }
@@ -65,18 +65,28 @@
 .ac-i.is-cur { background: #f5f6f8; }
 .ac-n { position: relative; z-index: 1; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: #fff; font: 600 13.5px/1 var(--text); color: #6f7076; box-shadow: inset 0 0 0 1.5px #c3c4ca; }
 .is-cur > .ac-n { background: var(--act); color: #fff; box-shadow: 0 0 0 5px rgba(74, 33, 150, .1); }
-.is-done > .ac-n { background: #1f9d55; color: #fff; box-shadow: none; }
 .ac-t { min-width: 0; padding-top: 3px; }
 .ac-t p { margin: 0; font: 400 19px/1.4 var(--text); letter-spacing: -.01em; color: #151517; text-wrap: pretty; }
 .ac-t b { font-weight: 650; }
 .ac-t small { display: block; margin-top: 7px; font-size: 15px; line-height: 1.4; letter-spacing: 0; color: #74757b; }
-.ac-i:not(.is-cur):not(.is-done) .ac-t, .ac-i:not(.is-cur):not(.is-done) .ac-n { opacity: .5; }
-.is-done .ac-t p { color: #74757b; }
-.is-done .ac-t b { font-weight: 600; }
+.ac-i:not(.is-cur) .ac-t, .ac-i:not(.is-cur) .ac-n { opacity: .5; }
 .ac-i.is-nudge { animation: nudge .45s ease; }
 .ac-x { margin-top: 18px; padding-top: 16px; border-top: 1px solid #e8e9ec; }
 .ac-t .ac-or { margin: 0 0 10px; font-size: 14.5px; color: #74757b; }
 .ac-x .pv-chips button { min-height: 40px; padding: 8px 15px; font-size: 15px; }
+
+/* vrai ou faux, terminé : les bonnes réponses, sans coches ; une erreur est signalée sur sa ligne */
+.pv > .sw-sum { max-width: 540px; margin: 8px auto 0; }
+.sw-sum-h { display: flex; justify-content: space-between; align-items: baseline; margin: 0 0 12px; padding: 0 4px;
+  font: 500 12.5px/1 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase; color: #8a8b91; }
+.sw-sum-h b { font: 600 15px/1 var(--text); letter-spacing: 0; color: #151517; }
+.sw-sum ul { list-style: none; margin: 0; padding: 0; border-radius: 16px; background: #fff; box-shadow: 0 0 0 1px #e3e4e8; overflow: hidden; }
+.sw-sum li { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 16px 18px 16px 20px; font: 400 16.5px/1.4 var(--text); color: #151517; text-wrap: pretty; }
+.sw-sum li + li { border-top: 1px solid #ececef; }
+.sw-sum li.is-miss { background: #fdf5f5; }
+.sw-sum-t small { display: block; margin-top: 4px; font-size: 14px; color: #b03a3a; }
+.sw-sum .ui { flex: none; }
+.pv > .sw-sum.is-new { animation: pv-rise .6s var(--ease) .1s backwards; }
 
 /* le bouton à reconnaître, glissé dans la phrase, tel qu'il apparaît à l'écran */
 .ui { display: inline-flex; align-items: center; gap: 5px; height: 28px; margin: 0 2px; padding: 0 12px; border-radius: 999px; vertical-align: 1px;
@@ -115,11 +125,11 @@
 
 /* vrai ou faux, fiche, boutons */
 /* vrai ou faux : une seule carte (le compteur « 1 / 3 » suffit), les boutons dessous, rien ne se chevauche */
-.pv .sw-stack { height: 200px; max-width: 480px; margin: 4px 0 18px; }
+.pv .sw-stack { height: 200px; max-width: 480px; margin: 8px auto 18px; }
 .pv .sw-card.is-under { display: none; }
 .pv .sw-card { padding: 20px 26px; }
 .pv .sw-foot { display: none; }
-.pv .sw-btns { max-width: 480px; margin: 0 0 8px; gap: 12px; justify-content: center; }
+.pv > .sw-btns { max-width: none; margin: 0 auto 8px; gap: 12px; justify-content: center; }
 .pv .sw-btns span { font-size: 13.5px; color: #8b8c93; }
 .pv .sw-b { height: 48px; padding: 0 24px; border: 1px solid #d6d7dc; background: #fff; box-shadow: none; font: 600 16px/1 var(--text); transition: border-color .15s, background .15s; }
 .pv .sw-b:hover { transform: none; box-shadow: none; }
@@ -183,6 +193,9 @@
 /* la voix n'est plus écrite à l'écran : ni sous-titre en bas du panneau, ni texte sous l'orbe */
 .app .panel-foot, .app .orb-say, .app.is-saying .orb-say { display: none; }
 .app.is-saying .empty-state h2 { display: block; }
+/* sauf à l'accueil : la phrase de bienvenue s'écrit sous l'orbe, mot à mot */
+.app.is-welcome .orb-say, .app.is-welcome.is-saying .orb-say { display: block; }
+.app.is-welcome .empty-state h2 { display: none; }
 
 /* ---------- la barre d'outils, en bas : blanche, basse ---------- */
 :root { --act: #4a2196; --next: #e4570e; }
@@ -230,6 +243,44 @@
 .ask-yes { border: 2px solid #c4c6cc; background: #fff; color: #151517; }
 .ask-yes:hover { border-color: #151517; }
 
+/* ---------- les étapes avec la boîte mail : tout tient dans l'écran ---------- */
+.pv.is-compact { padding-top: 34px; padding-bottom: 32px; }
+.pv.is-compact .pv-h1 { font-size: clamp(36px, 3.2vw, 48px); }
+.pv.is-compact .ac-h { margin-top: 24px; }
+.pv.is-compact .ac { margin-bottom: 22px; }
+.pv.is-compact .pv-lead { margin: 4px 0 0; }
+.pv.is-compact .ac-x { margin-top: 14px; padding-top: 12px; }
+/* le mail ouvert seul, sur toute la largeur, sans la liste */
+.pv .mx.is-solo { grid-template-columns: 1fr; min-height: 0; }
+.pv .mx.is-solo .mx-list { display: none; }
+.pv .mx.is-solo .mx-mail { padding: 20px 26px 18px; }
+.pv .mx.is-solo .mx-from { flex-wrap: nowrap; }
+.pv .mx.is-solo .mx-from time { flex-basis: auto; padding-left: 0; }
+.pv .mx.is-solo .mx-av { width: 36px; height: 36px; font-size: 13px; }
+.pv .mx.is-solo h3 { margin: 14px 0 8px; font-size: 20px; }
+.pv .mx.is-solo .mx-text { font-size: 16px; line-height: 1.55; }
+.pv .mx.is-solo .mx-text p { margin: 0 0 6px; }
+/* écrans bas (portable à 125 %, 1366 × 768…) : un cran plus serré */
+@media (max-height: 820px) and (min-width: 981px) {
+  .pv.is-compact { padding-top: 26px; padding-bottom: 24px; }
+  .pv.is-compact .pv-h1 { font-size: clamp(32px, 2.8vw, 40px); }
+  .pv.is-compact .ac-h { margin-top: 18px; margin-bottom: 8px; }
+  .pv.is-compact .ac-i { padding-top: 14px; padding-bottom: 14px; }
+  .pv.is-compact .ac { margin-bottom: 16px; }
+  .pv .mx.is-solo .mx-mail { padding: 16px 22px 14px; }
+  .pv .mx.is-solo h3 { margin: 10px 0 6px; font-size: 19px; }
+  .pv .mx.is-solo .mx-text { font-size: 15.5px; line-height: 1.5; }
+  .pv .mx.is-solo .mx-text p { margin: 0 0 4px; }
+}
+
+@media (max-height: 760px) and (min-width: 981px) {
+  .pv { padding-top: 26px; padding-bottom: 24px; }
+  .pv .pv-h1 { font-size: clamp(34px, 3vw, 44px); }
+  .ac-h { margin-top: 20px; }
+  .ac { margin-bottom: 18px; }
+  .pv .pv-match { margin-top: 0; }
+}
+
 /* ---------- écrans moyens : le nom du module se resserre ---------- */
 @media (max-width: 1320px) {
   .tl-k { display: none; }
@@ -272,14 +323,7 @@
   .tl-next { padding: 0 14px 0 16px; }
 }
 
-/* ---------- le lien entre l'action en cours et l'endroit où agir (premier écran seulement) ---------- */
-.lnk { position: fixed; inset: 0; z-index: 60; width: 100vw; height: 100vh; pointer-events: none; overflow: visible; opacity: 0; transition: opacity .35s var(--ease); }
-.lnk.is-on { opacity: 1; }
-.lnk-p { fill: none; stroke: var(--act); stroke-width: 2; stroke-linecap: round; stroke-dasharray: 2 7; animation: lnk-flow .9s linear infinite; }
-.lnk-a { fill: none; stroke: var(--act); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-.lnk-o { fill: var(--act); }
-@keyframes lnk-flow { to { stroke-dashoffset: -18; } }
-@media (prefers-reduced-motion: reduce) { .lnk-p, .fbz.is-in, .fbz.is-in .fb-i { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .fbz.is-in, .fbz.is-in .fb-i { animation: none; } }
 
 /* écrans en pleine largeur (résultat, fiche) : le texte du bandeau s'aligne sur la colonne centrée */
 .split.panel-full .fbz .pv-fb { padding-left: max(48px, calc((100% - 980px) / 2 + 48px)); padding-right: max(48px, calc((100% - 980px) / 2 + 48px)); }
