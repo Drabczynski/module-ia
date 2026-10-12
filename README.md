@@ -97,16 +97,14 @@ une seule chose à faire à la fois, toujours le même geste pour avancer. Story
   Réécouter, Son, Précédent, Suivant. On n'avance jamais tout seul : « Suivant » reste éteint tant que l'activité n'est pas faite
   (un clic rappelle ce qu'il reste à faire), puis s'allume en orange.
 - L'IA, à gauche, sans icônes ni mentions (ni « Nouvelle conversation », ni « Simulation pédagogique », ni « Mode simulé ») :
-  le cadre blanc s'allume (bord noir, deux pulsations) quand c'est à l'apprenant d'écrire, et le bouton « Envoyer » est écrit en toutes lettres.
-- La consigne, à droite, se lit d'un coup d'œil : un grand titre (Inter Tight), puis les actions, celle en cours sur un fond gris très clair ;
-  chaque action est une phrase courte, le verbe en gras, et le bouton à reconnaître est
-  glissé dans la phrase tel qu'il apparaît à l'écran (« Cliquez sur [Envoyer] », « Complétez chaque [case orange] »).
-  L'action en cours numérotée en orange, les suivantes atténuées, les faites cochées en vert ; la dernière est toujours
-  « Cliquez sur [Suivant] ». Les phrases toutes faites se placent sous l'action « Écrivez ». Espaces insécables avant
-  « ? ! : ; » : jamais de ponctuation seule en début de ligne.
-- L'orange, c'est « là où agir » : une ligne orange en pointillés relie l'action en cours à l'endroit de l'écran où la faire
-  (le cadre où écrire, bordé d'orange quand c'est à l'apprenant, le bouton « Envoyer », le bouton « Suivant », orange lui aussi).
-  Sur grand écran seulement.
+  le cadre blanc s’allume (bord violet foncé, deux pulsations) quand c'est à l'apprenant d'écrire, et le bouton « Envoyer » est écrit en toutes lettres.
+- La consigne, à droite, se lit d'un coup d'œil : un grand titre (Inter Tight), puis une ou deux actions courtes,
+  le verbe en gras ; l'action en cours sur un fond gris très clair, numérotée en violet foncé, les faites cochées en vert.
+  Le bouton à reconnaître est glissé dans la phrase tel qu'il apparaît à l'écran (« cliquez sur [Vrai] ou [Faux] »,
+  « Complétez chaque [case orange], puis envoyez »). Seul le premier écran détaille les gestes (« Cliquez sur [Envoyer] »,
+  « Cliquez sur [Suivant] »), avec une ligne en pointillés qui relie l'action en cours à l'endroit où la faire ; ensuite,
+  plus d'étape « Cliquez sur Suivant / Valider ». L'orange est réservé à « Suivant ». La voix n'est plus écrite à l'écran.
+  Espaces insécables avant « ? ! : ; » : jamais de ponctuation seule en début de ligne.
 - 9 étapes : dire bonjour, vrai ou faux, demander à l'IA à quoi elle sert, relier 3 situations à leur usage,
   le mail de Karim (demande courte), ce qui manque, préciser puis relancer, le résultat, la fiche (4 réflexes).
   Mises de côté pour alléger, prêtes à revenir (`off: true` dans `app.js`) : où trouver l'IA, essayer un usage,

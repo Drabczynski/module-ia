@@ -18,8 +18,8 @@
 .app .composer textarea { min-height: 30px; font-size: 17px; line-height: 1.5; }
 .app .composer textarea::placeholder { color: #8b8c93; }
 .app .composer-foot { justify-content: flex-end; margin-top: 8px; }
-.app.focus-compose .composer { border: 1.5px solid var(--act); box-shadow: 0 0 0 4px rgba(228, 87, 14, .12); animation: cz-call 1.6s ease-out 2; }
-@keyframes cz-call { 0% { box-shadow: 0 0 0 0 rgba(228, 87, 14, .3); } 100% { box-shadow: 0 0 0 14px rgba(228, 87, 14, 0); } }
+.app.focus-compose .composer { border: 1.5px solid var(--act); box-shadow: 0 0 0 4px rgba(74, 33, 150, .1); animation: cz-call 1.6s ease-out 2; }
+@keyframes cz-call { 0% { box-shadow: 0 0 0 0 rgba(74, 33, 150, .28); } 100% { box-shadow: 0 0 0 14px rgba(74, 33, 150, 0); } }
 .app .claude.is-locked .composer { opacity: 1; background: #f7f7f8; border-color: #e6e7ea; }
 .app .claude.is-locked .composer textarea::placeholder { color: #a9aab0; }
 .app .send { width: auto; height: 40px; padding: 0 15px 0 17px; gap: 7px; display: inline-flex; align-items: center; border-radius: 999px;
@@ -53,7 +53,7 @@
 .pv .pv-steps li.is-nudge { animation: nudge .45s ease; }
 .pv .pv-count { display: inline-block; margin-left: 4px; padding: 3px 8px; border-radius: 999px; background: #f0f1f3; color: var(--pv-ink); font: 600 13px/1 var(--text); }
 
-/* les actions : l'action en cours sur un fond gris très clair, numérotée en orange (la couleur de « là où agir »),
+/* les actions : l'action en cours sur un fond gris très clair, numérotée en violet foncé (l'orange est pour « Suivant »),
    les suivantes atténuées, les faites cochées en vert */
 .ac { list-style: none; margin: 22px 0 26px; padding: 0; display: grid; gap: 8px; }
 .ac-i { display: grid; grid-template-columns: 28px 1fr; column-gap: 14px; align-items: start; padding: 15px 18px 15px 16px; border-radius: 14px; background: transparent; transition: background .3s; }
@@ -96,8 +96,8 @@
 .pv .pv-fb svg { width: 18px; height: 18px; margin-top: 2px; }
 
 /* vrai ou faux, fiche, boutons */
-.pv .sw-stack { height: 220px; margin: 4px auto 14px; }
-.pv .sw-stack + .sw-btns { margin-bottom: 14px; }
+.pv .sw-stack { height: 220px; max-width: 480px; margin: 6px 0 16px; }
+.pv .sw-btns { max-width: 480px; margin: 0 0 14px; justify-content: center; }
 .pv .sw-b { height: 48px; padding: 0 26px; font-size: 16px; }
 .pv .pv-btn { height: 44px; padding: 0 20px; border: 1px solid #d6d7dc; border-radius: 999px; background: #fff; color: var(--pv-ink); font: 500 15px/1 var(--text); }
 .pv .pv-btn:hover { background: #fff; border-color: var(--pv-ink); }
@@ -147,12 +147,12 @@
 .pv-go:hover:not(:disabled) { background: #2a2a2d; }
 .pv-go:disabled { background: #eceef1; color: #9a9ca4; cursor: not-allowed; }
 
-/* le pied du panneau : la voix, en sous-titre */
-.app .panel-foot { border-top-color: #eeeff1; }
-.app .narr-cap { font-size: 14px; color: #6b6c72; }
+/* la voix n'est plus écrite à l'écran : ni sous-titre en bas du panneau, ni texte sous l'orbe */
+.app .panel-foot, .app .orb-say, .app.is-saying .orb-say { display: none; }
+.app.is-saying .empty-state h2 { display: block; }
 
 /* ---------- la barre d'outils, en bas : blanche, basse ---------- */
-:root { --act: #e4570e; --next: #e4570e; }
+:root { --act: #4a2196; --next: #e4570e; }
 .tools { flex: none; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 20px; min-height: 64px; padding: 9px 14px;
   background: #fff; border-top: 1px solid #e3e4e8; color: #151517; }
 .tl-l, .tl-r { display: flex; align-items: center; gap: 8px; min-width: 0; }
@@ -222,7 +222,7 @@
   .tl-next { padding: 0 14px 0 16px; }
 }
 
-/* ---------- le lien entre l'action en cours et l'endroit où agir ---------- */
+/* ---------- le lien entre l'action en cours et l'endroit où agir (premier écran seulement) ---------- */
 .lnk { position: fixed; inset: 0; z-index: 60; width: 100vw; height: 100vh; pointer-events: none; overflow: visible; opacity: 0; transition: opacity .35s var(--ease); }
 .lnk.is-on { opacity: 1; }
 .lnk-p { fill: none; stroke: var(--act); stroke-width: 2; stroke-linecap: round; stroke-dasharray: 2 7; animation: lnk-flow .9s linear infinite; }
