@@ -93,14 +93,14 @@ une seule chose à faire à la fois, toujours le même geste pour avancer. Story
   au centre de l'écran, qui tourne pendant le chargement, explose en milliers de particules (« Module 1 » s'affiche en grand
   au centre, en Inter semi-gras : chaque lettre défile d'abord en caractères ASCII puis se fixe ; il repart en ASCII et s'efface) ; elles se posent en trame de points pour former l'image, qui apparaît dessous sans bouger.
   « Commencer » envoie `module:start` : l'accueil s'efface, l'assistante souhaite la bienvenue, puis la première étape s'ouvre.
-- Barre d'outils sombre, toujours en bas (`premiers-pas/simple.css`) : Quitter (avec confirmation), le nom du module,
-  l'avancement (« Étape 3 sur 9 », une case par étape), Réécouter, Son, Précédent, Suivant. On n'avance jamais tout seul :
-  « Suivant » reste éteint tant que l'activité n'est pas faite (un clic rappelle ce qu'il reste à faire), puis s'allume en vert.
-  Sur tablette et téléphone, l'avancement passe au-dessus des boutons.
+- Barre d'outils blanche et basse, toujours en bas (`premiers-pas/simple.css`) : Quitter (avec confirmation), le nom du module,
+  Réécouter, Son, Précédent, Suivant. On n'avance jamais tout seul : « Suivant » reste éteint tant que l'activité n'est pas faite
+  (un clic rappelle ce qu'il reste à faire), puis s'allume en noir.
 - L'IA, à gauche, sans icônes ni mentions (ni « Nouvelle conversation », ni « Simulation pédagogique », ni « Mode simulé ») :
-  le cadre « Écrivez ici » s'allume en orange quand c'est à l'apprenant d'écrire, et le bouton « Envoyer » est écrit en toutes lettres.
-- La consigne, à droite, toujours de la même forme et sans ombre : « À vous : », des actions numérotées
-  (l'action en cours encadrée, les actions faites cochées en vert), la dernière toujours « Cliquez sur « Suivant » ».
+  le cadre blanc s'allume (bord noir, deux pulsations) quand c'est à l'apprenant d'écrire, et le bouton « Envoyer » est écrit en toutes lettres.
+- La consigne, à droite, dans l'esprit de l'accueil (titre léger en Inter Tight, « À vous » en IBM Plex Mono) : des actions
+  numérotées séparées par un filet (l'action en cours en noir, les actions faites cochées en vert), la dernière toujours
+  « Cliquez sur « Suivant » ». Espaces insécables avant « ? ! : ; » : jamais de ponctuation seule en début de ligne.
   Le bouton de l'activité (« Valider », « Réessayer ») se trouve juste sous l'exercice.
 - 9 étapes : dire bonjour, vrai ou faux, demander à l'IA à quoi elle sert, relier 3 situations à leur usage,
   le mail de Karim (demande courte), ce qui manque, préciser puis relancer, le résultat, la fiche (4 réflexes).

@@ -759,6 +759,7 @@
       side.appendChild(h('<span class="pv-rule"></span>'));
     }
     s.render(pv, side);
+    typo(pv);
     actionBox = pv.appendChild(h('<div class="pv-act"></div>'));
     if (!fresh) Array.prototype.forEach.call(pv.children, function (c) { if (!c.classList.contains("is-new")) c.style.animation = "none"; });
     bodyEl.appendChild(pv);
@@ -767,6 +768,11 @@
     paintNext();
   }
   function refresh() { render(false); }
+  // espaces insécables avant ? ! : ; » et après « : la ponctuation ne se retrouve jamais seule en début de ligne
+  function typo(root) {
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), n;
+    while ((n = w.nextNode())) { var v = n.nodeValue.replace(/ ([?!:;»])/g, "\u00a0$1").replace(/« /g, "«\u00a0"); if (v !== n.nodeValue) n.nodeValue = v; }
+  }
   var backBtn = $("[data-back]"), quitBtn = $("[data-quit]"), actionBox = null;
   // Quitter : signale la fin à la plateforme (SCORM 1.2 ou 2004) si elle est présente, puis ferme la fenêtre
   function findApi(name) {
@@ -827,7 +833,6 @@
     if (p && p.run !== next) return { action: p, ready: false };
     return { action: null, ready: p ? !p.disabled : s.ready ? !!s.ready() : true };
   }
-  var stepLabel = $("[data-step-label]"), stepBar = $("[data-step-bar]");
   function paintNext() {
     var s = st(), n = navState(), last = P.i === STEPS.length - 1;
     if (inWelcome) n = { action: null, ready: true };
@@ -836,11 +841,6 @@
     nextBtn.classList.toggle("is-off", !n.ready);
     nextBtn.setAttribute("aria-disabled", String(!n.ready));
     if (!n.ready) nextBtn.classList.remove("is-flash");
-    // l'avancement : « Étape 3 sur 9 » et une case par étape
-    stepLabel.textContent = inWelcome ? "Bienvenue" : "Étape " + (P.i + 1) + " sur " + STEPS.length;
-    Array.prototype.forEach.call(stepBar.children, function (li, k) {
-      li.className = inWelcome ? "" : k < P.i ? "is-done" : k === P.i ? "is-cur" : "";
-    });
     if (actionBox) {
       actionBox.innerHTML = "";
       if (n.action) {
@@ -873,7 +873,7 @@
   // la consigne, à chaque étape la même forme : « À vous : », des actions numérotées, la dernière est toujours « Suivant »
   var NEXT = "Cliquez sur <b>« Suivant »</b>, en bas à droite.";
   function consigne(pv, items, cur) {
-    pv.appendChild(h('<p class="cs-h">À vous :</p>'));
+    pv.appendChild(h('<p class="cs-h">À vous</p>'));
     stepsList(pv, items.map(function (t) { return { html: here(t) }; }), cur);
   }
   function fbNew(pv, kind, html) { fb(pv, kind, html); pv.lastChild.classList.add("is-new", "fb-pop"); }
@@ -1469,7 +1469,7 @@
         var a = act("bonjour");
         lead(pv, "L’IA, c’est la partie <b>à gauche</b> de l’écran. On lui écrit comme à une personne.");
         consigne(pv, [
-          "Écrivez un message dans le cadre <b>« Écrivez ici »</b>, à gauche. Par exemple : « Bonjour, qui es-tu ? »",
+          "Écrivez un message dans le cadre blanc, à gauche. Par exemple : <span class='nw'>« Bonjour, qui es-tu ? »</span>",
           "Cliquez sur <b>« Envoyer »</b>.",
           "Lisez la réponse de l’IA.",
           NEXT
@@ -1539,7 +1539,7 @@
         var a = act("demander");
         lead(pv, "Le mieux, c’est de le demander à l’IA elle-même. Le message est déjà écrit à gauche : il reste à le compléter.");
         consigne(pv, [
-          "Dans le cadre <b>« Écrivez ici »</b>, cliquez sur chaque <b>case orange</b> et choisissez une réponse.",
+          "Dans le cadre blanc, cliquez sur chaque <b>case orange</b> et choisissez une réponse.",
           "Cliquez sur <b>« Envoyer »</b>.",
           "Lisez la réponse de l’IA.",
           NEXT
@@ -1563,7 +1563,7 @@
       id: "usages", seq: 1, pill: "Reliez · 3 points", icon: "clock", title: "Le bon usage",
       audio: "pp-usages", say: "L’intelligence artificielle vient de vous donner ses usages. À vous ! Reliez chaque situation de la vie courante à l’usage qui convient."
     }, (function () {
-      var COLORS = { tra: "#1f5cf0", res: "#1f5cf0", ide: "#1f5cf0", app: "#1f5cf0", img: "#1f5cf0" };   // un seul bleu, puis vert ou rouge à la correction
+      var COLORS = { tra: "#151517", res: "#151517", ide: "#151517", app: "#151517", img: "#151517" };   // un seul noir, puis vert ou rouge à la correction
       var w = relier("usages", {
         heads: ["Situations", "Usages"],
         left: [
@@ -1638,7 +1638,7 @@
         var a = act("mail"), open = a.open === "pot";
         consigne(pv, [
           "Dans la boîte mail, cliquez sur le mail de <b>Karim</b> : « Pot de départ de Martine ».",
-          "Dans le cadre <b>« Écrivez ici »</b>, à gauche, demandez des idées pour ce pot, en une phrase courte.",
+          "Dans le cadre blanc, à gauche, demandez des idées pour ce pot, en une phrase courte.",
           "Cliquez sur <b>« Envoyer »</b>, puis lisez la réponse.",
           NEXT
         ], a.done ? 3 : a.sent ? 2 : open ? 1 : 0);
@@ -1707,7 +1707,7 @@
       render: function (pv) {
         var a = act("relance");
         consigne(pv, [
-          "Dans le cadre <b>« Écrivez ici »</b>, cliquez sur chaque <b>case orange</b> et choisissez l’information qui est dans le mail.",
+          "Dans le cadre blanc, cliquez sur chaque <b>case orange</b> et choisissez l’information qui est dans le mail.",
           "Cliquez sur <b>« Envoyer »</b>, puis lisez la réponse.",
           NEXT
         ], a.done ? 2 : a.filled ? 1 : 0);
@@ -2135,10 +2135,6 @@
   showTab("story");
   setMode("sim");
   probe();
-  (function () {
-    var bar = $("[data-step-bar]");
-    STEPS.forEach(function () { bar.appendChild(document.createElement("li")); });
-  })();
   var jump = (location.search.match(/[?&]etape=([\w-]+)/) || [])[1];
   if (jump) { app.hidden = false; go(stepIdx(jump)); } else startWelcome();
 

@@ -4,9 +4,9 @@
 **Public :** personnes éloignées du numérique (DAQ, dispositif en amont de la qualification). Tout doit être clair : une seule chose à faire à la fois, toujours la même forme de consigne, toujours le même geste pour avancer.
 **Durée visée :** 8 à 10 minutes. 9 étapes. **Construit dans `premiers-pas/`.**
 **Format :**
-- L'IA simulée à gauche (le cadre « Écrivez ici » et le bouton « Envoyer »), la consigne à droite, l'orbe qui lit la consigne.
-- Barre d'outils sombre en bas : Quitter, le module, « Étape 3 sur 9 », Réécouter, Son, Précédent, Suivant. « Suivant » s'allume en vert quand l'activité est faite.
-- Chaque consigne : « À vous : », des actions numérotées, la dernière est toujours « Cliquez sur « Suivant », en bas à droite ».
+- L'IA simulée à gauche (le cadre blanc, qui s'allume quand c'est à l'apprenant d'écrire, et le bouton « Envoyer »), la consigne à droite, l'orbe qui lit la consigne.
+- Barre d'outils blanche en bas : Quitter, le module, Réécouter, Son, Précédent, Suivant. « Suivant » s'allume quand l'activité est faite.
+- Chaque consigne : « À vous », des actions numérotées, la dernière est toujours « Cliquez sur « Suivant », en bas à droite ».
 - Quand il faut compléter une demande, elle apparaît dans le cadre avec des **cases orange à compléter au clic**.
 - Données fictives.
 
@@ -16,7 +16,7 @@
 L'écran d'accueil (particules, « Module 1 », titre écrit à la machine), puis « Commencer » : l'orbe, au centre de l'IA, souhaite la bienvenue. « Suivant » permet de passer.
 
 ## Étape 1 · Dites bonjour à l'IA
-→ *Écrire un message dans le cadre « Écrivez ici » (ou cliquer sur une phrase proposée), cliquer sur « Envoyer », lire la réponse, cliquer sur « Suivant ».*
+→ *Écrire un message dans le cadre blanc (ou cliquer sur une phrase proposée), cliquer sur « Envoyer », lire la réponse, cliquer sur « Suivant ».*
 
 ## Étape 2 · Vrai ou faux ? (3 points)
 Trois idées reçues : « L'IA connaît mon entreprise », « on lui écrit comme à une personne », « ses réponses sont toujours justes ».
