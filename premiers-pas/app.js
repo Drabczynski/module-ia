@@ -758,8 +758,10 @@
       side.appendChild(h('<h1 class="pv-h1">' + esc(s.title) + "</h1>"));
       side.appendChild(h('<span class="pv-rule"></span>'));
     }
+    fbQ = [];
     s.render(pv, side);
     typo(pv);
+    paintFb();
     actionBox = pv.appendChild(h('<div class="pv-act"></div>'));
     if (!fresh) Array.prototype.forEach.call(pv.children, function (c) { if (!c.classList.contains("is-new")) c.style.animation = "none"; });
     bodyEl.appendChild(pv);
@@ -858,7 +860,7 @@
     if (!navState().ready) {                              // pas encore : on montre ce qu'il reste à faire
       toast("Faites d’abord ce qui est demandé. Le bouton « Suivant » s’allumera ensuite.");
       nextBtn.classList.remove("is-denied"); void nextBtn.offsetWidth; nextBtn.classList.add("is-denied");
-      var cur = $(".pv-steps li.is-cur", bodyEl);
+      var cur = $(".ac-i.is-cur", bodyEl);
       if (cur) { cur.classList.remove("is-nudge"); void cur.offsetWidth; cur.classList.add("is-nudge"); cur.scrollIntoView({ block: "nearest", behavior: "smooth" }); }
       return;
     }
@@ -898,6 +900,7 @@
       if (it[3]) li.dataset.target = it[3];
       ol.appendChild(li);
     });
+    pv.appendChild(h('<p class="ac-h">À faire</p>'));
     pv.appendChild(ol);
   }
   // le lien entre la consigne et l'écran : une ligne en pointillés, de l'action en cours jusqu'à l'endroit où agir
@@ -938,10 +941,23 @@
       box.appendChild(c);
     };
   }
-  function fbNew(pv, kind, html) { fb(pv, kind, html); pv.lastChild.classList.add("is-new", "fb-pop"); }
+  // le retour (« Bravo », « À reprendre »…) : toujours en bas du panneau, sur toute sa largeur, avec la même animation ;
+  // il ne s'anime que s'il change, pas à chaque rafraîchissement de l'étape
+  var fbz = $("[data-fbz]"), fbQ = [], fbShown = "";
   function fb(pv, kind, html) {
     var icon = kind === "ok" ? "check" : kind === "ko" ? "bulb" : "info";
-    pv.appendChild(h('<p class="pv-fb' + (kind ? " is-" + kind : "") + '"><svg><use href="#i-' + icon + '"/></svg><span>' + html + "</span></p>"));
+    fbQ.push('<p class="pv-fb' + (kind ? " is-" + kind : "") + '"><span class="fb-i"><svg><use href="#i-' + icon + '"/></svg></span><span class="fb-t">' + html + "</span></p>");
+  }
+  var fbNew = fb;
+  function paintFb() {
+    var out = fbQ.join("");
+    if (out === fbShown) return;
+    fbShown = out;
+    fbz.innerHTML = out;
+    typo(fbz);
+    fbz.hidden = !out;
+    fbz.classList.remove("is-in"); void fbz.offsetWidth;
+    if (out) fbz.classList.add("is-in");
   }
   function stepsList(pv, items, curIdx) {
     var ol = h('<ol class="pv-steps"></ol>');
@@ -1454,6 +1470,7 @@
   function mailApp(pv, mode) {
     var a = act("mail"), hunt = act("manque");
     hunt.found = hunt.found || {};
+    if (mode !== "open" && !a.open) { a.open = "pot"; a.opened = a.opened || {}; a.opened.pot = true; }   // étape ouverte directement (?etape=)
     var cur = MAILS.filter(function (m) { return m.id === a.open; })[0];
     if (cur && !cur.body) cur = null;
     var unread = MAILS.filter(function (m) { return !(a.opened && a.opened[m.id]); }).length;
@@ -1973,7 +1990,7 @@
         var p = h("<p></p>");
         p.appendChild(button(a.saved ? "Fiche enregistrée" : "Enregistrer la fiche", "check", function () { a.saved = true; refresh(); }));
         pv.appendChild(p);
-        if (a.saved) fb(pv, "ok", "<b>Fiche enregistrée.</b>");
+        if (a.saved) fb(pv, "ok", "<b>C’est enregistré.</b> Gardez ces 4 réflexes en tête.");
       },
       ready: function () { return true; }
     }

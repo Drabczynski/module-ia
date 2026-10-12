@@ -5,8 +5,9 @@
 **Durée visée :** 8 à 10 minutes. 9 étapes. **Construit dans `premiers-pas/`.**
 **Format :**
 - L'IA simulée à gauche (le cadre blanc, qui s'allume quand c'est à l'apprenant d'écrire, et le bouton « Envoyer »), la consigne à droite, l'orbe qui lit la consigne.
-- Barre d'outils blanche en bas : Quitter, le module, Réécouter, Son, Précédent, Suivant. « Suivant » s'allume en bleu quand l'activité est faite.
-- Chaque consigne : un pas-à-pas d'une seule colonne, des phrases courtes avec le bouton à reconnaître glissé dans la phrase (« Cliquez sur [Envoyer] ») ; la dernière est toujours « Cliquez sur [Suivant] ».
+- Barre d'outils blanche en bas : Quitter, le module, Réécouter, Son, Précédent, Suivant. « Suivant » s'allume en orange quand l'activité est faite.
+- Chaque consigne : le titre, « À faire », puis un pas-à-pas d'une seule colonne, des phrases courtes avec le bouton à reconnaître glissé dans la phrase (« Cliquez sur [Envoyer] »). Seul le premier écran se termine par « Cliquez sur [Suivant] ».
+- Le retour sur l'activité : toujours en bas du panneau, sur toute sa largeur, avec la même animation.
 - Quand il faut compléter une demande, elle apparaît dans le cadre avec des **cases orange à compléter au clic**.
 - Données fictives.
 
