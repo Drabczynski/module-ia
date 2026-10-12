@@ -247,7 +247,7 @@
 .ask-yes:hover { border-color: #151517; }
 
 /* ---------- le panneau en trois temps : le type d'activité et le titre, « À faire », puis la zone de travail ----------
-   la zone de travail descend jusqu'en bas du panneau, sur toute sa largeur : un fond gris clair pointillé, l'activité centrée.
+   la zone de travail descend jusqu'en bas du panneau, sur toute sa largeur : la lueur colorée de l'accueil, l'activité centrée.
    Quand l'activité se passe à gauche, elle montre ce qui s'y passe (la conversation, ce que l'IA sait faire). */
 .pv-k { display: flex; align-items: center; gap: 10px; margin: 0 0 16px; font: 600 14.5px/1 var(--text); letter-spacing: -.005em; color: #4b4c52; }
 .pv-k-i { width: 30px; height: 30px; flex: none; display: grid; place-items: center; border-radius: 9px; background: #f1edf9; color: var(--act); }
@@ -256,7 +256,15 @@
 .app .pv.has-stage { padding-bottom: 0; }
 .pv.has-stage > .ac { margin-bottom: 28px; }
 .stage { flex: 1 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 -48px; padding: 34px 48px 38px;
-  border-top: 1px solid #eceef1; background: radial-gradient(circle at 1px 1px, #dcdee3 1px, transparent 1.3px) 0 0 / 20px 20px, #f7f8fa; }
+  border-top: 1px solid #ecebf3;
+  /* la lueur de l'accueil (rose, magenta, corail) qui monte du bas, un voile lavande en haut, et la trame de points par-dessus */
+  background:
+    radial-gradient(circle at 1px 1px, rgba(92, 80, 140, .13) 1px, transparent 1.3px) 0 0 / 20px 20px,
+    radial-gradient(62% 85% at 50% 118%, rgba(246, 98, 126, .46) 0%, rgba(246, 98, 126, 0) 72%),
+    radial-gradient(46% 75% at 8% 112%, rgba(238, 111, 230, .42) 0%, rgba(238, 111, 230, 0) 72%),
+    radial-gradient(46% 75% at 92% 112%, rgba(250, 136, 97, .44) 0%, rgba(250, 136, 97, 0) 72%),
+    radial-gradient(80% 70% at 50% -10%, rgba(196, 184, 246, .5) 0%, rgba(196, 184, 246, 0) 70%),
+    #f8f7fc; }
 .stage > * { width: 100%; }
 .stage > .pv-act:empty { display: none; }
 .stage > .pv-act { display: flex; justify-content: center; margin-top: 18px; }

@@ -100,7 +100,7 @@ une seule chose à faire à la fois, toujours le même geste pour avancer. Story
   le cadre blanc s’allume (bord violet foncé, deux pulsations) quand c'est à l'apprenant d'écrire, et le bouton « Envoyer » est écrit en toutes lettres.
 - Le panneau de droite, en trois temps : le type d'activité (une icône, « À vous d’écrire », « Glissez les cartes »,
   « Reliez »…) et un grand titre (Inter Tight) ; « À faire » ; puis la zone de travail, jusqu'en bas du panneau,
-  sur toute sa largeur (fond gris clair pointillé), où l'activité est centrée : la carte vrai ou faux et ses boutons,
+  sur toute sa largeur (la lueur colorée de l'accueil, rose, magenta et corail, qui monte du bas, sous une trame de points), où l'activité est centrée : la carte vrai ou faux et ses boutons,
   les colonnes à relier, la boîte mail. Sur « Demandez-lui », la zone montre les six choses qu'elle sait faire
   (des cartes en attente qui s'allument quand elle a répondu). Au premier écran, pas de zone de travail.
   Une illustration ne fait jamais déborder le panneau : elle se resserre, puis s'efface s'il n'y a pas la place
