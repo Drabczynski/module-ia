@@ -31,7 +31,7 @@
 .app .panel { border-color: #e6e7ea; }
 .app .panel-body { background: #fff; }
 .pv { --pv-ink: #151517; --pv-ink2: #3a3b40; --pv-muted: #7b7c83; padding: 44px 48px 48px; color: var(--pv-ink2); }
-.pv > :not(.mx):not(.res):not(.sw-stack):not(.pv-match):not(.sw-sum) { max-width: 600px; }
+.pv > :not(.mx):not(.res):not(.sw-stack):not(.pv-match):not(.sw-sum):not(.stage) { max-width: 600px; }
 .pv.is-compact { padding: 44px 48px 48px; }
 .pv .pv-h1, .pv.is-compact .pv-h1 { margin: 0 0 14px; font: 560 clamp(40px, 3.9vw, 58px)/1.02 var(--display); letter-spacing: -.03em; color: var(--pv-ink); text-wrap: balance; }
 .pv .pv-rule { display: none; }
@@ -54,8 +54,8 @@
 .pv .pv-steps li.is-nudge { animation: nudge .45s ease; }
 .pv .pv-count { display: inline-block; margin-left: 4px; padding: 3px 8px; border-radius: 999px; background: #f0f1f3; color: var(--pv-ink); font: 600 13px/1 var(--text); }
 
-/* les actions qui restent : l'action en cours sur un fond gris très clair, numérotée en violet foncé (l'orange est pour « Suivant »),
-   les suivantes atténuées ; les pastilles reliées par un trait, alignées sur le titre (une action faite disparaît) */
+/* les actions : l'action en cours sur un fond gris très clair, numérotée en violet foncé (l'orange est pour « Suivant »),
+   les suivantes atténuées, les faites cochées en vert ; les pastilles reliées par un trait, alignées sur le titre */
 .ac-h { display: flex; align-items: center; gap: 14px; margin: 34px 0 12px; font: 500 12.5px/1 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase; color: #8a8b91; }
 .ac-h::after { content: ""; flex: 1; height: 1px; background: #ebecef; }
 .pv > .ac { max-width: 620px; }
@@ -69,14 +69,17 @@
 .ac-t p { margin: 0; font: 400 19px/1.4 var(--text); letter-spacing: -.01em; color: #151517; text-wrap: pretty; }
 .ac-t b { font-weight: 650; }
 .ac-t small { display: block; margin-top: 7px; font-size: 15px; line-height: 1.4; letter-spacing: 0; color: #74757b; }
-.ac-i:not(.is-cur) .ac-t, .ac-i:not(.is-cur) .ac-n { opacity: .5; }
+.is-done > .ac-n { background: #1f9d55; color: #fff; box-shadow: none; }
+.ac-i:not(.is-cur):not(.is-done) .ac-t, .ac-i:not(.is-cur):not(.is-done) .ac-n { opacity: .5; }
+.is-done .ac-t p { color: #74757b; }
+.is-done .ac-t b { font-weight: 600; }
 .ac-i.is-nudge { animation: nudge .45s ease; }
 .ac-x { margin-top: 18px; padding-top: 16px; border-top: 1px solid #e8e9ec; }
 .ac-t .ac-or { margin: 0 0 10px; font-size: 14.5px; color: #74757b; }
 .ac-x .pv-chips button { min-height: 40px; padding: 8px 15px; font-size: 15px; }
 
 /* vrai ou faux, terminé : les bonnes réponses, sans coches ; une erreur est signalée sur sa ligne */
-.pv > .sw-sum { max-width: 540px; margin: 8px auto 0; }
+.pv .sw-sum { width: 100%; max-width: 540px; margin: 0 auto; }
 .sw-sum-h { display: flex; justify-content: space-between; align-items: baseline; margin: 0 0 12px; padding: 0 4px;
   font: 500 12.5px/1 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase; color: #8a8b91; }
 .sw-sum-h b { font: 600 15px/1 var(--text); letter-spacing: 0; color: #151517; }
@@ -86,7 +89,7 @@
 .sw-sum li.is-miss { background: #fdf5f5; }
 .sw-sum-t small { display: block; margin-top: 4px; font-size: 14px; color: #b03a3a; }
 .sw-sum .ui { flex: none; }
-.pv > .sw-sum.is-new { animation: pv-rise .6s var(--ease) .1s backwards; }
+.pv .sw-sum.is-new { animation: pv-rise .6s var(--ease) .1s backwards; }
 
 /* le bouton à reconnaître, glissé dans la phrase, tel qu'il apparaît à l'écran */
 .ui { display: inline-flex; align-items: center; gap: 5px; height: 28px; margin: 0 2px; padding: 0 12px; border-radius: 999px; vertical-align: 1px;
@@ -243,6 +246,70 @@
 .ask-yes { border: 2px solid #c4c6cc; background: #fff; color: #151517; }
 .ask-yes:hover { border-color: #151517; }
 
+/* ---------- le panneau en trois temps : le type d'activité et le titre, « À faire », puis la zone de travail ----------
+   la zone de travail descend jusqu'en bas du panneau, sur toute sa largeur : un fond gris clair pointillé, l'activité centrée.
+   Quand l'activité se passe à gauche, elle montre ce qui s'y passe (la conversation, ce que l'IA sait faire). */
+.pv-k { display: flex; align-items: center; gap: 10px; margin: 0 0 16px; font: 600 14.5px/1 var(--text); letter-spacing: -.005em; color: #4b4c52; }
+.pv-k-i { width: 30px; height: 30px; flex: none; display: grid; place-items: center; border-radius: 9px; background: #f1edf9; color: var(--act); }
+.pv-k-i svg { width: 16px; height: 16px; }
+.pv.has-stage { min-height: 100%; display: flex; flex-direction: column; box-sizing: border-box; }
+.app .pv.has-stage { padding-bottom: 0; }
+.pv.has-stage > .ac { margin-bottom: 28px; }
+.stage { flex: 1 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 -48px; padding: 34px 48px 38px;
+  border-top: 1px solid #eceef1; background: radial-gradient(circle at 1px 1px, #dcdee3 1px, transparent 1.3px) 0 0 / 20px 20px, #f7f8fa; }
+.stage > * { width: 100%; }
+.stage > .pv-act:empty { display: none; }
+.stage > .pv-act { display: flex; justify-content: center; margin-top: 18px; }
+.stage .sw-stack { margin-top: 0; }
+.stage .sw-btns { margin-bottom: 0; }
+.stage .pv-match { max-width: 720px; margin: 0 auto; }
+.stage .mx { max-width: 760px; margin: 0 auto; }
+
+/* une illustration (et non une activité) ne fait jamais déborder le panneau : selon la place qui reste (mesurée à l'affichage,
+   app.js : fitStage), elle se resserre, puis s'efface */
+.stage.is-deco { flex: 1 1 0; min-height: 0; overflow: hidden; }
+.stage.fit-m .sk-t { flex-direction: row; justify-content: flex-start; gap: 10px; min-height: 0; padding: 10px 12px; text-align: left; }
+.stage.fit-m .sk-i { width: 32px; height: 32px; border-radius: 10px; }
+.stage.fit-m .sk-i svg { width: 17px; height: 17px; }
+.stage.fit-s .cv-h { display: none; }
+.stage.fit-s .cv-b { padding: 11px 16px; font-size: 16px; }
+.stage.fit-s .cv-row + .cv-row { margin-top: 10px; }
+.stage.fit-xs .sk .cv-h { display: none; }
+.stage.fit-0 .cv, .stage.fit-0 .sk { display: none; }
+
+/* titres des zones de travail */
+.cv-h { margin: 0 0 16px; text-align: center; font: 500 12.5px/1 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase; color: #8a8b91; }
+
+/* « Dites bonjour » : la conversation en schéma, votre message puis sa réponse */
+.cv { max-width: 540px; margin: 0 auto; }
+.cv-row { display: flex; align-items: flex-end; gap: 10px; }
+.cv-row + .cv-row { margin-top: 16px; }
+.cv-row.is-me { justify-content: flex-end; }
+.cv-who { flex: none; display: inline-flex; align-items: center; gap: 8px; padding-bottom: 14px; font: 600 14px/1 var(--text); color: #8a8b91; }
+.cv-av { width: 26px; height: 26px; border-radius: 50%; background: radial-gradient(circle at 32% 30%, #fff 0 12%, transparent 30%), conic-gradient(from 200deg, #ffb35c, #ff7a8a, #c79cff, #6fd6f2, #ffb35c); box-shadow: 0 0 0 2px #fff, 0 2px 6px rgba(0, 0, 0, .12); }
+.cv-b { max-width: 400px; padding: 15px 20px; border-radius: 22px; border: 1.5px dashed #c9cbd1; background: rgba(255, 255, 255, .75); font: 400 17px/1.45 var(--text); color: #9a9ba1; transition: background .3s, color .3s, border-color .3s; }
+.is-me .cv-b { border-bottom-right-radius: 6px; }
+.is-ai .cv-b { border-bottom-left-radius: 6px; }
+.cv-row.is-me.is-on .cv-b { border: 1.5px solid transparent; background: #e9e9ed; color: #151517; }
+.cv-row.is-ai.is-wait .cv-b, .cv-row.is-ai.is-on .cv-b { border: 1.5px solid #e3e4e8; background: #fff; color: #151517; box-shadow: 0 12px 26px -20px rgba(21, 21, 23, .4); }
+.cv-row.is-on .cv-who, .cv-row.is-wait .cv-who { color: #151517; }
+.cv-dots { display: inline-flex; gap: 5px; padding: 4px 0; }
+.cv-dots i { width: 7px; height: 7px; border-radius: 50%; background: #a3a4aa; animation: cv-dot 1.1s ease-in-out infinite; }
+.cv-dots i:nth-child(2) { animation-delay: .15s; } .cv-dots i:nth-child(3) { animation-delay: .3s; }
+@keyframes cv-dot { 0%, 60%, 100% { transform: none; opacity: .5; } 30% { transform: translateY(-4px); opacity: 1; } }
+
+/* « Demandez-lui » : ce qu'elle sait faire, des cartes en attente qui s'allument quand elle a répondu */
+.sk { max-width: 540px; margin: 0 auto; }
+.sk-g { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.sk-t { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 108px; padding: 16px 10px; border-radius: 16px;
+  border: 1.5px dashed #d3d4da; background: rgba(255, 255, 255, .7); text-align: center; font: 600 15px/1.25 var(--text); color: #a3a4aa; }
+.sk-i { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 12px; background: #eceef1; color: #b3b4ba; }
+.sk-i svg { width: 20px; height: 20px; }
+.sk.is-on .sk-t { border: 1px solid #e3e4e8; background: #fff; color: #151517; box-shadow: 0 12px 26px -20px rgba(21, 21, 23, .4); }
+.sk.is-on .sk-i { background: #f1edf9; color: var(--act); }
+.sk.is-new .sk-t { animation: sk-in .55s cubic-bezier(.3, 1.4, .5, 1) calc(var(--k) * 90ms + .1s) backwards; }
+@keyframes sk-in { from { opacity: 0; transform: translateY(10px) scale(.94); } }
+
 /* ---------- les étapes avec la boîte mail : tout tient dans l'écran ---------- */
 .pv.is-compact { padding-top: 34px; padding-bottom: 32px; }
 .pv.is-compact .pv-h1 { font-size: clamp(36px, 3.2vw, 48px); }
@@ -250,16 +317,17 @@
 .pv.is-compact .ac { margin-bottom: 22px; }
 .pv.is-compact .pv-lead { margin: 4px 0 0; }
 .pv.is-compact .ac-x { margin-top: 14px; padding-top: 12px; }
-/* le mail ouvert seul, sur toute la largeur, sans la liste */
-.pv .mx.is-solo { grid-template-columns: 1fr; min-height: 0; }
+/* le mail ouvert : une carte de mail à sa taille (la liste ne sert plus), centrée dans la zone de travail */
+.pv .mx.is-solo { display: block; max-width: 620px; min-height: 0; border-radius: 18px; box-shadow: 0 0 0 1px #e3e4e8, 0 18px 40px -30px rgba(21, 21, 23, .45); }
 .pv .mx.is-solo .mx-list { display: none; }
-.pv .mx.is-solo .mx-mail { padding: 20px 26px 18px; }
+.pv .mx.is-solo .mx-mail { padding: 22px 28px 20px; animation: none; }
 .pv .mx.is-solo .mx-from { flex-wrap: nowrap; }
 .pv .mx.is-solo .mx-from time { flex-basis: auto; padding-left: 0; }
-.pv .mx.is-solo .mx-av { width: 36px; height: 36px; font-size: 13px; }
-.pv .mx.is-solo h3 { margin: 14px 0 8px; font-size: 20px; }
-.pv .mx.is-solo .mx-text { font-size: 16px; line-height: 1.55; }
-.pv .mx.is-solo .mx-text p { margin: 0 0 6px; }
+.pv .mx.is-solo .mx-av { width: 38px; height: 38px; font-size: 13px; }
+.pv .mx.is-solo h3 { margin: 16px 0 10px; padding-top: 14px; border-top: 1px solid #eeeff1; font-size: 20px; }
+.pv .mx.is-solo .mx-text { font-size: 16px; line-height: 1.6; }
+.pv .mx.is-solo .mx-text p { margin: 0 0 8px; }
+.pv .mx.is-solo .mx-text p:last-child { margin-bottom: 0; }
 /* écrans bas (portable à 125 %, 1366 × 768…) : un cran plus serré */
 @media (max-height: 820px) and (min-width: 981px) {
   .pv.is-compact { padding-top: 26px; padding-bottom: 24px; }
@@ -271,9 +339,26 @@
   .pv .mx.is-solo h3 { margin: 10px 0 6px; font-size: 19px; }
   .pv .mx.is-solo .mx-text { font-size: 15.5px; line-height: 1.5; }
   .pv .mx.is-solo .mx-text p { margin: 0 0 4px; }
+  .pv-k { margin-bottom: 10px; }
+  .pv.has-stage > .ac { margin-bottom: 18px; }
+  .stage { padding-top: 22px; padding-bottom: 24px; }
+  .cv-h { margin-bottom: 12px; }
+  .pv .mx.is-solo h3 { padding-top: 10px; }
 }
 
+@media (max-height: 920px) and (min-width: 981px) {
+  .pv-k { margin-bottom: 10px; }
+  .pv.has-stage > .ac { margin-bottom: 20px; }
+  .stage { padding-top: 22px; padding-bottom: 22px; }
+  .ac-h { margin-top: 24px; }
+}
+@media (max-height: 800px) and (min-width: 981px) { .pv-k { display: none; } }
 @media (max-height: 760px) and (min-width: 981px) {
+  .stage { padding-top: 14px; padding-bottom: 14px; }
+  .pv.has-stage > .ac { margin-bottom: 14px; }
+  .pv .mx.is-solo .mx-mail { padding: 12px 20px; }
+  .pv .mx.is-solo .mx-text { line-height: 1.42; }
+  .pv .mx.is-solo h3 { margin: 8px 0 4px; padding-top: 8px; font-size: 18px; }
   .pv { padding-top: 26px; padding-bottom: 24px; }
   .pv .pv-h1 { font-size: clamp(34px, 3vw, 44px); }
   .ac-h { margin-top: 20px; }
@@ -308,6 +393,8 @@
   .tl-next { min-width: 0; height: 46px; padding: 0 16px 0 18px; font-size: 16px; }
   .toast { right: 10px; bottom: 76px; }
   .pv { padding: 28px 22px 32px; }
+  .stage { margin: 0 -22px; padding: 24px 22px 28px; }
+  .sk-g { grid-template-columns: repeat(2, 1fr); }
   .ac { margin-left: -14px; }
   .pv > .ac { max-width: 614px; }
   .ac-i { padding: 15px 16px 15px 14px; column-gap: 14px; }

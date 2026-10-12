@@ -98,21 +98,28 @@ une seule chose à faire à la fois, toujours le même geste pour avancer. Story
   (un clic rappelle ce qu'il reste à faire), puis s'allume en orange.
 - L'IA, à gauche, sans icônes ni mentions (ni « Nouvelle conversation », ni « Simulation pédagogique », ni « Mode simulé ») :
   le cadre blanc s’allume (bord violet foncé, deux pulsations) quand c'est à l'apprenant d'écrire, et le bouton « Envoyer » est écrit en toutes lettres.
-- La consigne, à droite, se lit d'un coup d'œil : un grand titre (Inter Tight), le repère « À faire », puis une ou deux
-  actions courtes, le verbe en gras, la précision dessous en gris ; les pastilles reliées par un trait et alignées sur le titre ;
-  l'action en cours sur un fond gris très clair, numérotée en violet foncé. Seules les actions qui restent s'affichent :
-  une action faite disparaît, et quand tout est fait « À faire » disparaît, « Suivant » s'allume.
+- Le panneau de droite, en trois temps : le type d'activité (une icône, « À vous d’écrire », « Glissez les cartes »,
+  « Reliez »…) et un grand titre (Inter Tight) ; « À faire » ; puis la zone de travail, jusqu'en bas du panneau,
+  sur toute sa largeur (fond gris clair pointillé), où l'activité est centrée : la carte vrai ou faux et ses boutons,
+  les colonnes à relier, la boîte mail. Quand l'activité se passe à gauche, la zone montre ce qui s'y passe :
+  la conversation en schéma (« Vous » puis « L’IA », qui se remplit), les six choses qu'elle sait faire (des cartes
+  en attente qui s'allument quand elle a répondu). Une illustration ne fait jamais déborder le panneau : elle se
+  resserre, puis s'efface s'il n'y a pas la place (mesurée à l'affichage).
+- « À faire » : une ou deux actions courtes, le verbe en gras, la précision dessous en gris ; les pastilles reliées
+  par un trait ; l'action en cours sur un fond gris très clair, numérotée en violet foncé, les faites cochées en vert.
+  Une seule exception : « Ouvrez le mail de Karim » disparaît une fois fait, pour laisser la place au mail.
   Le bouton à reconnaître est glissé dans la phrase tel qu'il apparaît à l'écran (« cliquez sur [Vrai] ou [Faux] »,
-  « Complétez chaque [case orange], puis envoyez »). Seul le premier écran se termine par « Cliquez sur [Suivant] » ;
-  ensuite, plus d'étape « Cliquez sur Suivant / Valider ». L'orange est réservé à « Suivant ». La voix n'est plus écrite
-  à l'écran pendant les étapes (seule la phrase de bienvenue s'écrit sous l'orbe).
+  « Complétez chaque [case orange], puis envoyez »). Seul le premier écran se termine par « Cliquez sur [Suivant] ».
+  L'orange est réservé à « Suivant ». La voix n'est pas écrite à l'écran pendant les étapes (seule la phrase
+  de bienvenue s'écrit sous l'orbe). Pas de lignes en pointillés vers les boutons.
   Espaces insécables avant « ? ! : ; » : jamais de ponctuation seule en début de ligne.
 - Le retour (« Bravo ! », « Bien vu », un coup de pouce) : toujours au même endroit, un bandeau en bas du panneau,
   sur toute sa largeur, qui monte avec la même animation ; vert quand c'est réussi, violet pour un coup de pouce,
   gris pour une correction. Il ne s'anime que s'il change.
 - Vrai ou faux : la carte et les boutons centrés ; à la fin, le tableau des bonnes réponses (une erreur signalée sur sa ligne).
-- La boîte mail : une fois le mail de Karim ouvert, il s'affiche seul, sur toute la largeur ; les étapes du mail tiennent
-  dans l'écran jusqu'en 1366 × 768 et sur un portable à 125 % (1536 × 760).
+- La boîte mail : une fois le mail de Karim ouvert, il s'affiche seul, en carte de mail à sa taille.
+- Rien ne dépasse en bas du panneau, de 1280 × 720 à 1920 × 1080, portable à 125 % compris (1536 × 760) :
+  sur les écrans bas, le type d'activité s'efface et les marges se resserrent.
 - 9 étapes : dire bonjour, vrai ou faux, demander à l'IA à quoi elle sert, relier 3 situations à leur usage,
   le mail de Karim (demande courte), ce qui manque, préciser puis relancer, le résultat, la fiche (4 réflexes).
   Mises de côté pour alléger, prêtes à revenir (`off: true` dans `app.js`) : où trouver l'IA, essayer un usage,

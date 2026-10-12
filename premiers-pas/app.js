@@ -755,21 +755,46 @@
       side = hero.lastChild;
     }
     if (!s.bare) {
+      if (s.pill) side.appendChild(h('<p class="pv-k"><span class="pv-k-i"><svg><use href="#i-' + s.icon + '"/></svg></span><span>' + esc(s.pill.replace(/\s*·.*$/, "")) + "</span></p>"));
       side.appendChild(h('<h1 class="pv-h1">' + esc(s.title) + "</h1>"));
       side.appendChild(h('<span class="pv-rule"></span>'));
     }
     fbQ = [];
     s.render(pv, side);
+    // la zone de travail : sous la consigne, jusqu'en bas du panneau ; l'activité y est centrée
+    // (et, quand l'activité se passe à gauche, ce qui s'y passe : s.stage)
+    var ac = !s.full && pv.querySelector(":scope > .ac"), stage = null;
+    if (ac) {
+      stage = h('<div class="stage"></div>');
+      while (ac.nextSibling) stage.appendChild(ac.nextSibling);
+      if (s.stage && !stage.children.length) stage.classList.add("is-deco");   // une illustration : elle s'adapte à la place qui reste
+      if (s.stage) s.stage(stage);
+      pv.appendChild(stage);
+      pv.classList.add("has-stage");
+    }
     typo(pv);
     paintFb();
-    actionBox = pv.appendChild(h('<div class="pv-act"></div>'));
+    actionBox = (stage || pv).appendChild(h('<div class="pv-act"></div>'));
     if (!fresh) Array.prototype.forEach.call(pv.children, function (c) { if (!c.classList.contains("is-new")) c.style.animation = "none"; });
     bodyEl.appendChild(pv);
+    fitStage();
     syncMarks(markT);
     bodyEl.scrollTop = fresh ? 0 : y;
     paintNext();
   }
   function refresh() { render(false); }
+  // l'illustration de la zone de travail selon la place qui reste : complète, resserrée, puis effacée
+  function fitStage() {
+    var g = $(".stage.is-deco", bodyEl);
+    if (!g || !g.offsetParent) return;                                        // panneau caché (onglet, téléphone) : on mesurera à l'ouverture
+    g.classList.remove("fit-m", "fit-s", "fit-xs", "fit-0");
+    var hh = g.clientHeight;
+    if (hh < 330) g.classList.add("fit-m");
+    if (hh < 230) g.classList.add("fit-s");
+    if (hh < 190) g.classList.add("fit-xs");
+    if (hh < 150) g.classList.add("fit-0");
+  }
+  window.addEventListener("resize", fitStage);
   // espaces insécables avant ? ! : ; » et après « : la ponctuation ne se retrouve jamais seule en début de ligne
   function typo(root) {
     var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), n;
@@ -874,7 +899,7 @@
   function lead(pv, html) { pv.appendChild(h('<p class="pv-lead">' + here(html) + "</p>")); }
   // la consigne, à chaque étape la même forme : un pas-à-pas d'une seule colonne, les numéros reliés par un trait ;
   // le bouton à reconnaître est glissé dans la phrase ({envoyer}, {suivant}, {case}…), tel qu'il apparaît à l'écran.
-  // item : [texte (le verbe en gras), précision facultative, contenu sous l'action en cours]
+  // item : [texte (le verbe en gras), précision facultative, contenu sous l'action en cours, "hide" : disparaît une fois faite]
   var UI = {
     envoyer: '<span class="ui ui-dark">Envoyer<svg><use href="#i-up"/></svg></span>',
     suivant: '<span class="ui ui-next">Suivant<svg><use href="#i-arrow"/></svg></span>',
@@ -887,16 +912,15 @@
   };
   function ui(t) { return here(t).replace(/\{(\w+)\}/g, function (m, k) { return UI[k] || m; }); }
   var NEXT = ["<b>Cliquez</b> sur {suivant}", "en bas à droite"];
-  // seules les actions qui restent à faire s'affichent : une action faite disparaît (on gagne de la place, rien ne s'accumule) ;
-  // quand tout est fait, « À faire » disparaît et c'est « Suivant », allumé, qui prend le relais
+  // une action faite reste, cochée en vert ; seule une action marquée « hide » (4e élément) disparaît une fois faite
   function consigne(pv, items, cur) {
-    if (cur >= items.length) return;
     var ol = h('<ol class="ac"></ol>');
     items.forEach(function (it, k) {
-      if (k < cur) return;
+      if (k < cur && it[3] === "hide") return;
       var li = h('<li class="ac-i"><span class="ac-n"></span><div class="ac-t"><p></p></div></li>');
+      li.classList.toggle("is-done", k < cur);
       li.classList.toggle("is-cur", k === cur);
-      li.querySelector(".ac-n").textContent = k + 1;
+      li.querySelector(".ac-n").textContent = k < cur ? "✓" : k + 1;
       li.querySelector("p").innerHTML = ui(it[0]) + (it[1] ? "<small>" + ui(it[1]) + "</small>" : "");
       if (it[2] && k === cur) { var x = h('<div class="ac-x"></div>'); it[2](x); li.lastChild.appendChild(x); }
       ol.appendChild(li);
@@ -1527,19 +1551,37 @@
         if (a.retry) fbNew(pv, "ko", "<b>Dites-lui bonjour.</b> Par exemple : « Bonjour, qui es-tu ? »");
         if (a.done) fbNew(pv, "ok", "<b>Bravo !</b> L’IA vous a répondu.");
       },
+      // ce qui se passe à gauche, en schéma : votre message, puis sa réponse
+      stage: function (box) {
+        var a = act("bonjour");
+        var cv = h('<div class="cv"><p class="cv-h">La conversation</p>' +
+          '<div class="cv-row is-me"><div class="cv-b"></div><span class="cv-who">Vous</span></div>' +
+          '<div class="cv-row is-ai"><span class="cv-who"><i class="cv-av"></i>L’IA</span><div class="cv-b"></div></div></div>');
+        var me = cv.querySelector(".is-me"), ai = cv.querySelector(".is-ai");
+        me.classList.toggle("is-on", !!a.sent);
+        me.firstChild.textContent = a.sent ? a.msg : "Votre message s’écrira ici";
+        ai.classList.toggle("is-wait", !!a.sent && !a.done);
+        ai.classList.toggle("is-on", !!a.done);
+        if (a.done) ai.lastChild.textContent = a.reply || "Bonjour !";
+        else ai.lastChild.innerHTML = a.sent ? '<i class="cv-dots"><i></i><i></i><i></i></i>' : "Sa réponse s’affichera ici";
+        box.appendChild(cv);
+      },
       ready: function () { return !!act("bonjour").done; },
       enter: function () { if (!act("bonjour").done) compose(true, "À vous : écrivez un premier message"); },
       onType: function () { var a = act("bonjour"); if (!a.typed) { a.typed = true; refresh(); } },
       onInsert: function () { var a = act("bonjour"); if (!a.typed) { a.typed = true; refresh(); } },
       onSend: function (c, text) {
         var a = act("bonjour");
-        a.sent = true;
+        a.sent = true; a.msg = text;
         a.ok = /bonjour|salut|hello|coucou|bonsoir|hey|qui es|présente|que sais|tu sais|tu peux|aide|\?/i.test(text);
         compose(false); refresh();
       },
-      onAnswer: function () {
+      onAnswer: function (c) {
         var a = act("bonjour");
         if (!a.ok) { a.sent = false; a.retry = true; refresh(); compose(true); return; }
+        var r = c && c.messages ? c.messages.filter(function (m) { return m.role === "assistant"; }).pop() : null;
+        var ph = r ? String(r.content).replace(/[*_#>`]/g, "").split(/(?<=[.!?…])\s+/) : [];
+        a.reply = (ph[0] && ph[0].length < 40 && ph[1] ? ph[0] + " " + ph[1] : ph[0] || "").slice(0, 140);
         a.done = true; a.retry = false; refresh(); readyNext();
       }
     },
@@ -1589,7 +1631,20 @@
           ["<b>Complétez</b> chaque {case}, puis envoyez", "dans le cadre blanc, à gauche", null],
           ["<b>Lisez</b> la réponse de l’IA"]
         ], a.done ? 2 : a.sent ? 1 : 0);
-        if (a.done) fb(pv, "ok", "<b>Elle sait :</b> écrire, expliquer, résumer, trouver des idées, traduire…");
+        if (a.done) fb(pv, "ok", "<b>Bravo !</b> Elle vous a dit ce qu’elle sait faire.");
+      },
+      // ses usages, en cartes : en attente, puis allumées une à une quand elle a répondu
+      stage: function (box) {
+        var a = act("demander");
+        var g = h('<div class="sk' + (a.done ? " is-on" : "") + (a.done && !a.skSeen ? " is-new" : "") + '"><p class="cv-h">' + (a.done ? "Ce qu’elle sait faire" : "Que sait-elle faire ?") + '</p><div class="sk-g"></div></div>');
+        [["pen", "Écrire"], ["bulb", "Expliquer"], ["doc", "Résumer"], ["spark", "Trouver des idées"], ["globe", "Traduire"], ["image", "Analyser une image"]].forEach(function (x, k) {
+          var t = h('<div class="sk-t"><span class="sk-i"><svg><use href="#i-' + x[0] + '"/></svg></span><span class="sk-l"></span></div>');
+          t.style.setProperty("--k", k);
+          t.lastChild.textContent = a.done ? x[1] : "?";
+          g.lastChild.appendChild(t);
+        });
+        if (a.done) a.skSeen = true;                                          // elles ne s'allument qu'une fois
+        box.appendChild(g);
       },
       ready: function () { return !!act("demander").done; },
       enter: function () {
@@ -1605,7 +1660,7 @@
 
     /* Sept usages (relier) ------------------------------------------------------ */
     extend({
-      id: "usages", seq: 1, pill: "Reliez · 3 points", icon: "clock", title: "Le bon usage",
+      id: "usages", seq: 1, pill: "Reliez · 3 points", icon: "link", title: "Le bon usage",
       audio: "pp-usages", say: "L’intelligence artificielle vient de vous donner ses usages. À vous ! Reliez chaque situation de la vie courante à l’usage qui convient."
     }, (function () {
       var COLORS = { tra: "#151517", res: "#151517", ide: "#151517", app: "#151517", img: "#151517" };   // un seul noir, puis vert ou rouge à la correction
@@ -1682,7 +1737,7 @@
       render: function (pv) {
         var a = act("mail"), open = a.open === "pot";
         consigne(pv, [
-          ["<b>Ouvrez</b> le mail de Karim", "« Pot de départ de Martine »"],
+          ["<b>Ouvrez</b> le mail de Karim", "« Pot de départ de Martine »", null, "hide"],     // une fois ouvert, la place va au mail
           ["<b>Demandez</b> des idées pour ce pot, puis envoyez", "en une phrase, dans le cadre blanc", !a.sent && phrases(["Donne-moi des idées pour un pot de départ."])]
         ], a.done ? 2 : open ? 1 : 0);
         if (a.wrong && !open) fb(pv, "ko", "Pas celui-là : cliquez sur le mail de <b>Karim</b>, « Pot de départ de Martine ».");
@@ -1728,10 +1783,10 @@
         var a = act("manque");
         a.found = a.found || {};
         var n = Object.keys(HUNT).filter(function (k) { return a.found[k]; }).length;
-        lead(pv, "L’IA propose un traiteur, un DJ, un voyage… <b>Ce n’est pas adapté.</b>");
         consigne(pv, [
+          ["<b>Lisez</b> la réponse de l’IA", "Un traiteur, un DJ, un voyage… Ce n’est pas adapté."],
           ["<b>Cliquez</b> sur 3 infos dans le mail <span class='pv-count'>" + n + " / 3</span>", "celles que l’IA ne pouvait pas deviner"]
-        ], a.done ? 1 : 0);
+        ], a.done ? 2 : 1);
         if (a.why && !a.done) fb(pv, "ko", esc(a.why));
         if (a.done) fb(pv, "ok", "<b>Bien vu :</b> le nombre de personnes, le budget, le lieu.");
         mailApp(pv, "hunt");
@@ -2095,8 +2150,9 @@
     if (window.innerWidth > 980 && tab === "claude") return;
     split.dataset.tab = tab;
     $$("[data-tab]").forEach(function (b) { b.setAttribute("aria-selected", String(b.dataset.tab === tab)); });
+    fitStage();
   }
-  $$("[data-tab]").forEach(function (b) { b.addEventListener("click", function () { split.dataset.tab = b.dataset.tab; $$("[data-tab]").forEach(function (x) { x.setAttribute("aria-selected", String(x === b)); }); }); });
+  $$("[data-tab]").forEach(function (b) { b.addEventListener("click", function () { split.dataset.tab = b.dataset.tab; $$("[data-tab]").forEach(function (x) { x.setAttribute("aria-selected", String(x === b)); }); fitStage(); }); });
 
   /* ---------- Accueil : l'orbe au centre, le message de bienvenue mot à mot ---------- */
 
