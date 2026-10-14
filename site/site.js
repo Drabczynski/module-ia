@@ -27,8 +27,17 @@
     return this.v;
   };
 
+  /* ---------- la vidéo d'ouverture : la nouvelle (intro, 10 s), ou l'ancienne avec ?video=bureau (7 s) ----------
+     cible : le point de la dernière image où la caméra plonge (proportions de l'image) ; len : longueur du chapitre,
+     proportionnelle au nombre d'images pour garder la même vitesse de défilement */
+  var VIDEOS = {
+    intro: { dir: "intro", n: 241, len: 14.3, target: { x: .868, y: .549, r: .025 } },   // le bouton d'envoi de « Que souhaitez-vous créer ? »
+    bureau: { dir: "bureau", n: 169, len: 10, target: { x: .4865, y: .485, r: .029 } }    // la sphère, sur l'écran du bureau
+  };
+  var VID = VIDEOS[(location.search.match(/[?&]video=(\w+)/) || [])[1]] || VIDEOS.intro;
+
   /* ---------- chapitres (longueurs en hauteurs d'écran) ---------- */
-  var CH = [["film", 10], ["dive", 1.4], ["sphere", 1.8], ["open", 2.8], ["write", 2.2], ["spot", .0001], ["build", .0001], ["more", 6.5], ["end", 1.6]];   // repérer et construire : retirés du récit
+  var CH = [["film", VID.len], ["dive", 1.4], ["sphere", 1.8], ["open", 2.8], ["write", 2.2], ["spot", .0001], ["build", .0001], ["more", 6.5], ["end", 1.6]];   // repérer et construire : retirés du récit
   var START = {}, LEN = {}, TOTAL = 0;
   CH.forEach(function (c) { START[c[0]] = TOTAL; LEN[c[0]] = c[1]; TOTAL += c[1]; });
   var story = $("[data-story]"), stage = $("[data-stage]");
@@ -175,12 +184,12 @@
   })();
 
   /* =====================================================================
-     La vidéo d'ouverture : 169 images dessinées au fil du défilement
+     La vidéo d'ouverture : ses images dessinées au fil du défilement
      ===================================================================== */
   var film = (function () {
-    var N = 169, el = $("[data-film]"), cv = $("[data-film-cv]"), ctx = cv.getContext("2d"), imgs = new Array(N), loaded = new Array(N), last = -1, lastW = 0;
-    var SPHERE = { x: .4865, y: .485, r: .029 };                // la sphère, dans la dernière image (proportions de l'image)
-    function load(i) { if (imgs[i]) return; var im = new Image(); im.decoding = "async"; im.onload = function () { loaded[i] = true; if (i === 0) last = -1; }; im.src = "../assets/video/bureau/" + String(i).padStart(3, "0") + ".jpg"; imgs[i] = im; }
+    var N = VID.n, el = $("[data-film]"), cv = $("[data-film-cv]"), ctx = cv.getContext("2d"), imgs = new Array(N), loaded = new Array(N), last = -1, lastW = 0;
+    var SPHERE = VID.target;                                    // là où la caméra plonge, dans la dernière image
+    function load(i) { if (imgs[i]) return; var im = new Image(); im.decoding = "async"; im.onload = function () { loaded[i] = true; if (i === 0) last = -1; }; im.src = "../assets/video/" + VID.dir + "/" + String(i).padStart(3, "0") + ".jpg"; imgs[i] = im; }
     load(0); load(N - 1);
     var order = []; for (var step = 32; step >= 1; step = step >> 1) for (var j = 0; j < N; j += step) order.push(j);   // d'abord une image sur 32, puis on affine
     var qi = 0; (function pump() { var k = 0; while (qi < order.length && k < 6) { load(order[qi++]); k++; } if (qi < order.length) setTimeout(pump, 60); })();
