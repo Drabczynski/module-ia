@@ -182,16 +182,18 @@ styles et scripts partagés : `premiers-pas/app.css`, `gris.css`, `accueil.css`,
 
 ## Site vitrine (`site/`)
 
-Page de présentation commerciale, en violet (fond violet très clair, accents violets). Elle s’ouvre sur
-la vidéo `assets/video-intro.mp4`, découpée en 191 images dans `assets/video/intro/` et coupée à la fin
-du désert (7,92 s). Elle est montrée en entière, sans voile ni éclaircissement, sous un menu en verre,
-et avance au défilement : plus lentement pendant les cinq messages, chacun posé à un endroit calme
-de l’image (en blanc sur le ruban violet foncé, en encre ailleurs), rien pendant « Imagine un monde ».
-Le désert s’efface ; l’orbe apparaît au centre de l’interface du module, qui se dessine au trait
-pendant sa phrase (relevée sur l’interface elle-même, `uiLines` dans `site/site.js`) ; l’interface
-apparaît par-dessus, glisse à sa place, et le parcours reprend sur « Une conversation guidée ».
-L’ancienne ouverture (vidéo du bureau, `assets/video/bureau/`, plongée dans l’écran) reste
-visible avec `site/?video=bureau`. Après la démonstration, un immeuble de bureaux dessiné au trait, plein centre (`site/tour.js`, sur le moteur de
+Page de présentation commerciale : fond de page violet très clair, accents violets ; la démonstration
+du module garde son fond crème. Menu en pilule blanche flottante, centrée. Titre : « Formez dès maintenant
+à l’IA en la pratiquant. » Elle s’ouvre sur la vidéo `assets/video-intro.mp4`, découpée en 191 images
+dans `assets/video/intro/` et coupée à la fin du désert (7,92 s), montrée en entier, sans éclaircissement,
+qui avance au défilement : plus lentement pendant les trois messages, écrits pour des débutants
+(« Maîtriser l’IA d’une manière inédite. », l’IA au quotidien, « La question n’est plus… »), en blanc,
+sur un côté de l’image, avec un voile violet foncé à peine perceptible de ce côté-là ; rien pendant
+« Imagine un monde ». L’interface du module se dessine au trait dans le désert (en blanc), le désert
+s’efface (les traits passent en lilas très clair) ; l’orbe apparaît au centre et parle pendant le dessin
+(relevé sur l’interface elle-même, `uiLines` dans `site/site.js`) ; l’interface apparaît par-dessus,
+glisse à sa place, et le parcours reprend sur « Une conversation guidée ». L’ancienne ouverture
+(vidéo du bureau, plongée dans l’écran) reste visible avec `site/?video=bureau`. Après la démonstration, un immeuble de bureaux dessiné au trait, plein centre (`site/tour.js`, sur le moteur de
 [Hairline](https://github.com/lucasmarkes/hairline), licence MIT, embarqué dans `site/vendor/hairline/`) :
 au défilement, il se construit étage par étage, s’ouvre à l’étage présenté (accueil, RH,
 communication, finance, juridique, direction), qui glisse vers le lecteur avec ses postes,
