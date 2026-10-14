@@ -1,7 +1,6 @@
 /* Écran d'accueil du module « Première rencontre », posé par-dessus l'application (la barre d'outils reste visible) :
-   - deux calques en plein cadre, calés à droite : le fond (bg-2) et les formes (bg-1) ; à la souris, ils glissent
-     en parallaxe (les formes, plus proches, davantage), avec une marge pour que leurs bords ne se voient jamais ;
-     si le texte risque de passer sur les formes, l'image glisse vers la droite (le bord gauche du fond se fond
+   - deux calques en plein cadre, calés à droite : le fond (bg-2), fixe, et les formes (bg-1), qui flottent doucement
+     (accueil.css) ; si le texte risque de passer sur les formes, l'image glisse vers la droite (le bord gauche du fond se fond
      dans le fond lilas) ; sur petit écran ou écran en hauteur, elle passe en haut et le texte dessous ;
    - à l'ouverture, l'image se forme à partir de particules (particules.js), le numéro du module au centre ;
      puis les bandeaux du titre se déroulent, la phrase et « Commencer » apparaissent ;
@@ -19,7 +18,6 @@
   var still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
   var IW = 1665, IH = 854;               // les deux calques
   var FORMS = .485;                      // abscisse (part de la largeur) où commencent les formes : le texte reste à gauche
-  var SLACK = 28;                        // marge (px) autour de l'image, pour la parallaxe
   var alive = true, geo = null;
 
   // notre orbe, dans le bouton « Commencer » : dessinée à 64 px puis mise à l'échelle de sa pastille
@@ -46,18 +44,19 @@
     root.classList.toggle("is-mob", mob);
     if (mob) {                                                 // l'image en haut, centrée sur la barre de saisie
       var ah = Math.round(H * .5);
-      s = Math.max((W + 2 * SLACK) / IW, (ah + 2 * SLACK) / IH); bw = IW * s; bh = IH * s;
-      bx = Math.min(-SLACK, Math.max(W + SLACK - bw, W / 2 - .66 * bw)); by = (ah - bh) / 2;
+      s = Math.max(W / IW, ah / IH); bw = IW * s; bh = IH * s;
+      bx = Math.min(0, Math.max(W - bw, W / 2 - .66 * bw)); by = (ah - bh) / 2;
       css("--ah", ah + "px");
     } else {                                                   // plein cadre, calée à droite
-      s = Math.max((W + 2 * SLACK) / IW, (H + 2 * SLACK) / IH); bw = IW * s; bh = IH * s;
-      bx = W + SLACK - bw; by = (H - bh) / 2;
+      s = Math.max(W / IW, H / IH); bw = IW * s; bh = IH * s;
+      bx = W - bw; by = (H - bh) / 2;
       var need = textRight() + Math.max(40, W * .03);          // les formes commencent après le texte
       if (bx + FORMS * bw < need) bx = Math.min(need - FORMS * bw, W * .3);
     }
     geo = { x: bx, y: by, w: bw, h: bh };
     css("--bx", bx.toFixed(1) + "px"); css("--by", by.toFixed(1) + "px");
     css("--bw", bw.toFixed(1) + "px"); css("--bh", bh.toFixed(1) + "px");
+    css("--fo", (bx + .67 * bw).toFixed(1) + "px " + (by + .43 * bh).toFixed(1) + "px");   // le centre des formes, pour leur balancement
     // si l'image a glissé vers la droite, son bord gauche se fond dans le fond
     back.style.webkitMaskImage = back.style.maskImage = bx > 0 ? "linear-gradient(90deg, transparent 0, #000 14%)" : "";
     orbFit();
@@ -71,7 +70,7 @@
   // entrée : l'image se forme à partir de particules (particules.js), puis apparaît ;
   // sans WebGL ou avec moins d'animations, elle apparaît dès qu'elle est prête
   var decoded = Promise.all([back, fore].map(function (im) { return im.decode ? im.decode().catch(function () {}) : Promise.resolve(); }));
-  function enter() { if (!hero.classList.contains("is-in")) { hero.classList.add("is-in"); if (orb) orb.setState("listening"); parallax(); } }
+  function enter() { if (!hero.classList.contains("is-in")) { hero.classList.add("is-in"); if (orb) orb.setState("listening"); } }
   function plain() { decoded.then(function () { requestAnimationFrame(enter); }); setTimeout(enter, 1500); }
   if (still || !window.AccParticles) plain();
   else (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () {
@@ -100,31 +99,6 @@
     window.addEventListener("resize", intro.finish, { once: true });
   });
 
-  /* ---------- parallaxe : les calques suivent la souris, en douceur ----------
-     le fond glisse peu, les formes davantage (elles sont « plus près ») ; à la sortie de la souris, tout revient au centre.
-     Seulement avec une souris, et pas si l'on a demandé moins d'animations. */
-  var parOn = false, tx = 0, ty = 0, cx = 0, cy = 0, raf = 0;
-  var pBack = $(".par-back"), pFore = $(".par-fore");
-  function parTick() {
-    raf = 0;
-    cx += (tx - cx) * .07; cy += (ty - cy) * .07;
-    pBack.style.transform = "translate3d(" + (-cx * 14).toFixed(2) + "px," + (-cy * 10).toFixed(2) + "px,0)";
-    pFore.style.transform = "translate3d(" + (-cx * 30).toFixed(2) + "px," + (-cy * 20).toFixed(2) + "px,0)";
-    if (Math.abs(tx - cx) > .001 || Math.abs(ty - cy) > .001) raf = requestAnimationFrame(parTick);
-  }
-  function parAim(x, y) { tx = x; ty = y; if (!raf) raf = requestAnimationFrame(parTick); }
-  function parMove(e) {
-    var r = hero.getBoundingClientRect();
-    parAim(Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width - .5) * 2)), Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height - .5) * 2)));
-  }
-  function parLeave() { parAim(0, 0); }
-  function parallax() {
-    if (parOn || still || !(window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches)) return;
-    parOn = true;
-    root.addEventListener("pointermove", parMove);
-    root.addEventListener("pointerleave", parLeave);
-  }
-
   /* ---------- « Commencer » (ou « Suivant », dans la barre d'outils) : l'assistante prend la parole (app.js),
      l'accueil s'efface ---------- */
   function start() {
@@ -135,8 +109,6 @@
       alive = false;
       window.removeEventListener("resize", layout);
       document.removeEventListener("click", onNext, true);
-      root.removeEventListener("pointermove", parMove);
-      if (raf) cancelAnimationFrame(raf);
       root.remove();
     }, 750);
   }

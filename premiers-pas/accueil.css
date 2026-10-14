@@ -2,8 +2,8 @@
    Module 1 · Première rencontre — écran d'accueil.
    Posé par-dessus l'application jusqu'à « Commencer » ; la barre d'outils du module reste visible en bas
    (« Suivant » y fait la même chose que « Commencer »). Toutes ses règles restent sous .acc.
-   - deux calques en plein cadre, calés à droite, placés par accueil.js (--bx, --by, --bw, --bh) : le fond (accueil-fond.webp)
-     et les formes (accueil-formes.webp), qui suivent la souris en parallaxe (les formes, plus proches, bougent davantage) ;
+   - deux calques en plein cadre, calés à droite, placés par accueil.js (--bx, --by, --bw, --bh) : le fond (accueil-fond.webp),
+     fixe, et les formes (accueil-formes.webp), qui flottent doucement ;
    - à gauche, les logos, le titre sur deux bandeaux (bleu, puis lilas), une phrase, « Commencer ».
    ========================================================================== */
 @font-face { font-family: "IBM Plex Mono"; src: url("../assets/fonts/ibm-plex-mono-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
@@ -24,9 +24,15 @@
 
 .acc .hero { position: absolute; inset: 0; overflow: hidden; }
 
-/* ---------- les deux calques : plein cadre, calés à droite ; chacun dans son cadre de parallaxe ---------- */
+/* ---------- les deux calques : plein cadre, calés à droite ---------- */
 .acc .acc-bg { position: absolute; inset: 0; }
-.acc .par { position: absolute; inset: 0; will-change: transform; }
+.acc .par { position: absolute; inset: 0; }
+/* les formes flottent : elles montent et redescendent lentement, en se balançant à peine autour de leur centre */
+.acc .is-in .par-fore { transform-origin: var(--fo, 67% 43%); animation: acc-float 7s ease-in-out .9s infinite; will-change: transform; }
+@keyframes acc-float {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50% { transform: translate3d(2px, -11px, 0) rotate(-.6deg); }
+}
 .acc .back, .acc .fore { position: absolute; display: block; left: var(--bx, 0px); top: var(--by, 0px); width: var(--bw, 100%); height: var(--bh, auto); max-width: none;
   user-select: none; -webkit-user-drag: none; }
 
@@ -79,6 +85,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .acc .back, .acc .fore, .acc .logos, .acc .hl, .acc .sub, .acc .go { transition: none !important; }
+  .acc .is-in .par-fore { animation: none; }
 }
 
 /* ---------- après « Commencer » : l'assistante souhaite la bienvenue, sur une interface épurée ---------- */

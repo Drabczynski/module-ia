@@ -89,9 +89,9 @@ une seule chose à faire à la fois, toujours le même geste pour avancer. Story
 - Accueil (`premiers-pas/accueil.css`, `accueil.js`, règles sous `.acc`), posé par-dessus l'application, la barre d'outils
   restant visible en bas (« Suivant » y fait la même chose que « Commencer »). Deux calques en plein cadre, calés à droite :
   le fond `assets/img/accueil-fond.webp` (tiré de `bg-2.png`) et les formes `accueil-formes.webp` (tirées de `bg-1.png`,
-  transparentes), rognés de leurs bords transparents ; à la souris, ils glissent en parallaxe (le fond de 14 px au plus,
-  les formes de 30 px, en douceur ; une marge autour de l'image pour que ses bords ne se voient jamais ; seulement avec
-  une souris, et pas si l'on a demandé moins d'animations). À gauche : les logos des assistants (`logos.png`), le titre
+  transparentes), rognés de leurs bords transparents ; le fond reste fixe, les formes flottent doucement (elles montent
+  et redescendent d'une dizaine de pixels en 7 s, en se balançant à peine ; immobiles si l'on a demandé moins
+  d'animations). À gauche : les logos des assistants (`logos.png`), le titre
   « Premiers pas / dans l’IA générative » sur deux bandeaux (bleu, puis lilas), « Rédigez vos premiers prompts /
   et découvrez les différentes utilisations de l’IA » et « Commencer ». Si le texte risque de passer sur les formes,
   l'image glisse vers la droite et le bord gauche du fond se fond dans le fond lilas ; sur téléphone ou écran en hauteur,
