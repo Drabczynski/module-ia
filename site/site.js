@@ -39,10 +39,10 @@
     // msgs : trois messages, pour des débutants (pas pour les entreprises) : [début, fin] en écrans, place, côté du voile, texte ;
     // tous en blanc, sur un côté, avec un voile violet foncé à peine perceptible de ce côté-là
     intro: { dir: "intro", n: 191, fps: 24, fit: "contain", light: true, drift: .05, target: { x: .5, y: .5, r: .03 },
-      keys: [[0, 0], [1.4, .3], [3.3, 1.35], [3.9, 2.4], [5.3, 4.2], [5.7, 4.45], [7.6, 5.2], [8.2, 5.8], [9.6, 7.3], [9.9, 7.42], [11.6, 7.92]],
+      keys: [[0, 0], [1.4, .3], [3.3, 1.35], [3.9, 2.4], [5.3, 4.2], [5.7, 4.45], [8.7, 5.2], [9.3, 5.8], [10.7, 7.3], [11, 7.42], [12.7, 7.92]],
       msgs: [[1.55, 3.2, "m-l m-big", "l", "<h2>Apprenez l’IA,<br>pas à pas.</h2>"],                      // sur le ruban violet foncé, en bas à gauche
-             [5.75, 7.1, "m-l m-bl", "l", "<h2>14 modules où l’on<br>apprend en faisant.</h2>"],   // en bas à gauche, sous la petite image des dunes
-             [9.95, 11.5, "m-big m-br", "r", "<h2>Des formations<br>100&nbsp;% interactives.</h2>"]] },                                                      // en bas à droite, sur les dunes plus sombres de la dernière image
+             [5.75, 8.05, "m-l m-bl", "l", "<h2>14 modules où l’on<br>apprend en faisant.</h2>"],   // en bas à gauche, sous la petite image des dunes
+             [11.05, 12.6, "m-big m-br", "r", "<h2>Des formations<br>100&nbsp;% interactives.</h2>"]] },                                                      // en bas à droite, sur les dunes plus sombres de la dernière image
     bureau: { dir: "bureau", n: 169, len: 10, end: .985, fit: "cover", target: { x: .4865, y: .485, r: .029 } }               // la sphère, sur l'écran du bureau
   };
   var VID = VIDEOS[(location.search.match(/[?&]video=(\w+)/) || [])[1]] || VIDEOS.intro;
@@ -816,6 +816,45 @@
     var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }); }, { threshold: .12 });
     $$("[data-reveal]").forEach(function (s) { io.observe(s); });
   } else $$("[data-reveal]").forEach(function (s) { s.classList.add("in"); });
+
+  /* =====================================================================
+     La fin (vidéo claire) : l'interface de la démonstration, figée dans son état final (le document produit),
+     grande, qui monte doucement et se fond dans des nuages blancs ; copiée une fois, quand on approche de la fin
+     ===================================================================== */
+  (function finStage() {
+    var stageEl = $("[data-fin]"), shot = $("[data-fin-shot]"), mist = stageEl && stageEl.querySelector(".fin-mist"), copy = null;
+    if (!stageEl || !shot || !VID.light) return;
+    function fit() { if (copy) copy.style.transform = "scale(" + (shot.clientWidth / 1440).toFixed(4) + ")"; }
+    function fill() {
+      if (copy) return;
+      copy = win.cloneNode(true);
+      copy.removeAttribute("style");
+      [copy].concat($$("*", copy)).forEach(function (el) {                // une copie inerte : plus d'identifiants ni de repères pour le récit
+        el.removeAttribute("id");
+        Array.prototype.slice.call(el.attributes).forEach(function (at) { if (at.name.indexOf("data-") === 0) el.removeAttribute(at.name); });
+      });
+      $$("canvas", copy).forEach(function (c) { c.remove(); });          // les orbes ne se copient pas : on recrée la petite
+      shot.appendChild(copy);
+      var mini = copy.querySelector(".w-mini");
+      if (mini && window.SiriOrb) window.SiriOrb(mini, { size: 44, state: "idle" });
+      fit();
+    }
+    if ("IntersectionObserver" in window) {
+      var ob = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { ob.disconnect(); setTimeout(fill, 250); } }, { rootMargin: "900px 0px" });
+      ob.observe(stageEl);
+    } else setTimeout(fill, 1500);
+    window.addEventListener("resize", fit);
+    // en arrivant : l'interface monte, les nuages remontent un peu plus vite
+    var raf = 0;
+    function onScroll() {
+      raf = 0;
+      var r = stageEl.getBoundingClientRect(), p = clamp((innerHeight - r.top) / (innerHeight * .9), 0, 1), e = ease(p);
+      shot.style.setProperty("--rise", ((1 - e) * 80).toFixed(1) + "px");
+      if (mist) mist.style.setProperty("--mist", ((1 - e) * 50).toFixed(1) + "px");
+    }
+    window.addEventListener("scroll", function () { if (!raf) raf = requestAnimationFrame(onScroll); }, { passive: true });
+    onScroll();
+  })();
 
   /* ---------- liste des modules ---------- */
   var PARCOURS = [   // [étape, modules, photo Unsplash, texte alternatif, photographe, compte]
