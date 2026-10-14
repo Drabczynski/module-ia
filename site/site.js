@@ -41,8 +41,8 @@
     intro: { dir: "intro", n: 191, fps: 24, fit: "contain", light: true, drift: .05, target: { x: .5, y: .5, r: .03 },
       keys: [[0, 0], [1.4, .3], [3.3, 1.35], [3.9, 2.4], [5.3, 4.2], [5.7, 4.45], [7.6, 5.2], [8.2, 5.8], [9.6, 7.3], [9.9, 7.42], [11.6, 7.92]],
       msgs: [[1.55, 3.2, "m-l m-big", "l", "<h2>Apprenez l’IA,<br>pas à pas.</h2>"],                      // sur le ruban violet foncé, en bas à gauche
-             [5.85, 7.35, "m-side m-narrow", "l", "<h2>Écrire,<br>chercher,<br>résumer.</h2><p class=\"msg-sub\">L’IA vous aide au quotidien.</p>"],   // à gauche de la petite image des dunes
-             [9.95, 11.5, "m-big m-br", "r", "<h2>Pas besoin<br>d’être expert.</h2>"]] },                                                      // en bas à droite, sur les dunes plus sombres de la dernière image
+             [5.85, 7.35, "m-side m-narrow", "l", "<h2>14 modules</h2><p class=\"msg-sub\">où l’on apprend<br>en faisant.</p>"],   // à gauche de la petite image des dunes
+             [9.95, 11.5, "m-big m-br", "r", "<h2>Des formations<br>100&nbsp;% interactives.</h2>"]] },                                                      // en bas à droite, sur les dunes plus sombres de la dernière image
     bureau: { dir: "bureau", n: 169, len: 10, end: .985, fit: "cover", target: { x: .4865, y: .485, r: .029 } }               // la sphère, sur l'écran du bureau
   };
   var VID = VIDEOS[(location.search.match(/[?&]video=(\w+)/) || [])[1]] || VIDEOS.intro;
@@ -508,7 +508,7 @@
     var tF = L("film"), tD = L("dive"), tS = L("sphere"), tO = L("open");
     // vidéo claire : la barre du haut, en verre, sur la vidéo ; son texte passe en blanc quand le haut de l'image est foncé
     setClass(nav, "over-film", !!VID.light && inStory);         // vidéo claire : le menu en verre sur la vidéo puis sur le désert flou
-    setClass(nav, "on-dark", VID.light ? tF < .09 || (U < START.dive && film.lum() < .5) : U < START.dive + LEN.dive * .6);
+    setClass(nav, "on-dark", VID.light ? tF < .09 || (U < START.dive ? film.lum() < .5 : inStory) : U < START.dive + LEN.dive * .6);   // sur le désert flou : texte blanc
 
     /* --- 1. le hero sur la première image, puis la vidéo défile --- */
     var heroOut = ease(seg(tF, .03, .1));
@@ -564,13 +564,13 @@
     var DR = drawRect(vw, vh);
     var p1 = VID.light ? { x: DR.x + DR.w / 2, y: DR.y + DR.h * .4, s: Math.min(1, DR.h * .3 / ORB) } : { x: vw / 2, y: vh * .4, s: Math.min(1, vw / 520) };
     var slotC = centerOf(slotWin), p2 = { x: slotC.x, y: slotC.y, s: (150 * cam.s.v) / ORB };
-    var tIn = VID.light ? ease(seg(tO, .2, .55)) : ease(seg(tO, .3, .75));
+    var tIn = VID.light ? ease(seg(tO, .55, .8)) : ease(seg(tO, .3, .75));   // vidéo claire : l'interface s'installe (.2 → .55), puis l'orbe y entre
     var tx = lerp(p1.x, p2.x, tIn), ty = lerp(p1.y, p2.y, tIn), ts = lerp(p1.s, p2.s, tIn);
     if (!orbInit) { orbPos.x.v = tx; orbPos.y.v = ty; orbPos.s.v = ts; orbInit = true; }
     orbPos.x.t = tx; orbPos.y.t = ty; orbPos.s.t = ts;
     var ox = orbPos.x.step(dt), oy = orbPos.y.step(dt), os = orbPos.s.step(dt);
     if (tIn > .9) { ox = tx; oy = ty; os = ts; }
-    var handOff = seg(tO, .74, .82);                           // l'orbe de la scène cède la place à celle du module
+    var handOff = VID.light ? seg(tO, .84, .92) : seg(tO, .74, .82);   // l'orbe de la scène cède la place à celle du module (vidéo claire : en fondu, une fois celle-ci apparue)
     orbEl.style.transform = "translate(" + (ox - ORB / 2) + "px," + (oy - ORB / 2) + "px) scale(" + Math.max(.001, os * a) + ")";
     orbEl.style.opacity = String(1 - handOff);
     orbEl.style.visibility = handOff >= 1 || a < .002 ? "hidden" : "visible";
@@ -823,10 +823,9 @@
     ["Rédiger des prompts", [["La structure d’un prompt", "Rôle, cible, objectif, contexte, format."], ["Des prompts pour les images", "Décrire un visuel pour un post ou un rapport."]], "photo-1758876021859-bd2371d8f0a2", "Une femme travaille sur son ordinateur portable dans un bureau moderne", "Vitaly Gariev", "silverkblack"],
     ["Améliorer les contenus", [["Dialoguer pour affiner", "Enrichir le contexte, corriger sans recommencer."], ["Optimiser un contenu existant", "Réécrire selon un ton, un format, une contrainte."]], "photo-1609270460854-e8ea8c0b591f", "Deux collègues relisent ensemble un écran d’ordinateur", "Ilyuza Mingazova", "ilyuza"],
     ["Protéger les données", [["Ce qu’on ne partage pas", "Repérer les données sensibles, anonymiser."]], "photo-1633265486064-086b219458ec", "Un cadenas posé sur un clavier", "Towfiqu barbhuiya", "towfiqu999999"],
-    ["Des contenus pour tous", [["Écrire pour tous", "Un texte clair pour un handicap cognitif."], ["Images, audio, vidéo accessibles", "Texte alternatif, transcription, sous-titres.", 1]], "photo-1573879405559-ee7de4aae2d5", "Des collègues échangent dans un bureau lumineux", "AllGo", "canweallgo"],
+    ["Des contenus pour tous", [["Écrire pour tous", "Un texte clair pour un handicap cognitif."], ["Images, audio, vidéo accessibles", "Texte alternatif, transcription, sous-titres.", 1]], "photo-1730343464372-77500ccd307a", "Une femme travaille sur son ordinateur portable, un casque audio sur les oreilles", "Julio Lopez", "juliolopez"],
     ["Le cadre légal", [["RGPD et IA Act : l’essentiel", "Les règles utiles au poste de travail.", 1], ["Biais et risques", "Analyser un cas, proposer des corrections."], ["Tenir sa veille réglementaire", "Sources officielles, textes à jour.", 1]], "photo-1573164574511-73c773193279", "Une réunion d’équipe dans une salle de conseil", "Christina M", "wocintechchat"],
-    ["Intégrer l’IA à son poste", [["Cartographier son poste", "Repérer les tâches que l’IA peut optimiser."], ["Choisir ses outils", "Comparer les outils, estimer un budget.", 1], ["Son plan d’intégration", "Rédiger la stratégie, sans oublier le handicap."]], "photo-1503551723145-6c040742065b-v2", "Un mur couvert de notes adhésives colorées", "Patrick Perkins", "patrickperkins"],
-    ["Se préparer", [["Préparer la certification", "Entraînements au format des mises en situation."]], "photo-1434030216411-0b793f4b4173", "Une personne prend des notes à son bureau", "Unseen Studio", "uns__nstudio"]
+    ["Intégrer l’IA à son poste", [["Cartographier son poste", "Repérer les tâches que l’IA peut optimiser."], ["Choisir ses outils", "Comparer les outils, estimer un budget.", 1], ["Son plan d’intégration", "Rédiger la stratégie, sans oublier le handicap."]], "photo-1503551723145-6c040742065b-v2", "Un mur couvert de notes adhésives colorées", "Patrick Perkins", "patrickperkins"]
   ];
   var mods = $("[data-mods]"), n = 0, READY = { 1: 1, 2: 1 }, UTM = "?utm_source=atelier_ia&utm_medium=referral";
   if (mods) PARCOURS.forEach(function (part, pi) {
