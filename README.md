@@ -162,8 +162,8 @@ phrase d'exemple à la machine à écrire, ce qui s'allume au moment où la voix
 styles et scripts partagés : `premiers-pas/app.css`, `gris.css`, `accueil.css`, `simple.css`, `orb.js`, `particules.js`,
 `accueil.js` ; styles propres : `structure-prompt/app.css`.
 
-- Accueil d'après la maquette : `assets/img/accueil-module2.webp` (tirée de `module2.png`) en plein cadre, fixe, calée
-  à droite ; le filigrane « IA générative » en haut ; les logos des assistants ; « Structurer / efficacement / un prompt »
+- Accueil d'après la maquette : `assets/img/accueil-module2.webp` (tirée de `modules3-IA-2.png`, filigrane « IA générative »
+  compris) en plein cadre, fixe, calée à droite ; les logos des assistants ; « Structurer / efficacement / un prompt »
   sur trois bandeaux (bleu, puis lilas) ; « Dans ce module, vous apprendrez de quoi est composé un prompt, et comment le
   structurer vous-même. » ; « Commencer » (ou « Suivant »). Ouverture en particules, « Module 2 » au centre.
 - 12 étapes, voix et textes inchangés : une demande trop vague (envoyer la demande préparée), ce que l'IA a inventé

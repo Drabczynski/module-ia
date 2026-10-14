@@ -19,6 +19,7 @@
   var still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
   var IW = +back.getAttribute("width") || 1665, IH = +back.getAttribute("height") || 854;      // les calques, à la même taille
   var FORMS = +root.dataset.forms || .485;   // abscisse (part de la largeur) où commencent les formes : le texte reste à gauche
+  var KEEP = +root.dataset.keep || 0;        // facultatif : abscisse (part de la largeur) d'un détail de l'image à garder visible à gauche (un filigrane)
   var alive = true, geo = null;
 
   // notre orbe, dans le bouton « Commencer » : dessinée à 64 px puis mise à l'échelle de sa pastille
@@ -51,6 +52,7 @@
     } else {                                                   // plein cadre, calée à droite
       s = Math.max(W / IW, H / IH); bw = IW * s; bh = IH * s;
       bx = W - bw; by = (H - bh) / 2;
+      if (KEEP) bx = Math.min(0, Math.max(bx, W * .02 - KEEP * bw));   // l'image glisse un peu à droite (sans quitter le bord droit) pour garder le filigrane entier
       var need = textRight() + Math.max(40, W * .03);          // les formes commencent après le texte
       if (bx + FORMS * bw < need) bx = Math.min(need - FORMS * bw, W * .3);
     }
