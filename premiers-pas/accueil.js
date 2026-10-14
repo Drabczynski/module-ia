@@ -1,4 +1,5 @@
-/* Écran d'accueil du module « Première rencontre », posé par-dessus l'application (la barre d'outils reste visible) :
+/* Écran d'accueil d'un module (Première rencontre, La structure d'un prompt…), posé par-dessus l'application
+   (la barre d'outils reste visible) ; la taille de l'image se lit dans le HTML, le calque des formes est facultatif :
    - deux calques en plein cadre, calés à droite : le fond (bg-2), fixe, et les formes (bg-1), qui flottent doucement
      (accueil.css) ; si le texte risque de passer sur les formes, l'image glisse vers la droite (le bord gauche du fond se fond
      dans le fond lilas) ; sur petit écran ou écran en hauteur, elle passe en haut et le texte dessous ;
@@ -16,8 +17,8 @@
   function css(k, v) { root.style.setProperty(k, v); }
   var hero = $("[data-acc-hero]"), back = $("[data-acc-back]"), fore = $("[data-acc-fore]"), copy = $(".copy"), goBtn = $("[data-acc-start]");
   var still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var IW = 1665, IH = 854;               // les deux calques
-  var FORMS = .485;                      // abscisse (part de la largeur) où commencent les formes : le texte reste à gauche
+  var IW = +back.getAttribute("width") || 1665, IH = +back.getAttribute("height") || 854;      // les calques, à la même taille
+  var FORMS = +root.dataset.forms || .485;   // abscisse (part de la largeur) où commencent les formes : le texte reste à gauche
   var alive = true, geo = null;
 
   // notre orbe, dans le bouton « Commencer » : dessinée à 64 px puis mise à l'échelle de sa pastille
@@ -69,7 +70,8 @@
 
   // entrée : l'image se forme à partir de particules (particules.js), puis apparaît ;
   // sans WebGL ou avec moins d'animations, elle apparaît dès qu'elle est prête
-  var decoded = Promise.all([back, fore].map(function (im) { return im.decode ? im.decode().catch(function () {}) : Promise.resolve(); }));
+  var layers = [back, fore].filter(Boolean);
+  var decoded = Promise.all(layers.map(function (im) { return im.decode ? im.decode().catch(function () {}) : Promise.resolve(); }));
   function enter() { if (!hero.classList.contains("is-in")) { hero.classList.add("is-in"); if (orb) orb.setState("listening"); } }
   function plain() { decoded.then(function () { requestAnimationFrame(enter); }); setTimeout(enter, 1500); }
   if (still || !window.AccParticles) plain();
@@ -88,7 +90,7 @@
       parent: hero,
       center: C,
       area: { x: x0, y: y0, w: Math.min(W, geo.x + geo.w) - x0, h: Math.min(H, geo.y + geo.h) - y0 },
-      picture: decoded.then(function () { return { layers: [back, fore].map(function (im) { return { img: im, x: geo.x, y: geo.y, w: geo.w, h: geo.h }; }) }; }),
+      picture: decoded.then(function () { return { layers: layers.map(function (im) { return { img: im, x: geo.x, y: geo.y, w: geo.w, h: geo.h }; }) }; }),
       gather: 1.35,                                            // les particules se posent une fois « Module 1 » parti
       onBurst: function () { if (window.AccAscii) window.AccAscii(big, { hold: 520 }); else big.remove(); },
       onReveal: enter

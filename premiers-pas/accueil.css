@@ -36,6 +36,13 @@
 .acc .back, .acc .fore { position: absolute; display: block; left: var(--bx, 0px); top: var(--by, 0px); width: var(--bw, 100%); height: var(--bh, auto); max-width: none;
   user-select: none; -webkit-user-drag: none; }
 
+/* ---------- le filigrane (facultatif) : un grand texte blanc, très léger, en haut, coupé par le bord ---------- */
+.acc .acc-mark { position: absolute; left: clamp(20px, 5.4vw, 110px); top: -.2em; margin: 0; white-space: nowrap; pointer-events: none;
+  font: 600 13vw/1 "Inter Tight", "Inter", sans-serif; letter-spacing: -.045em; color: rgba(255, 255, 255, .38);
+  opacity: 0; transition: opacity 1.2s var(--ease) .1s; }
+.acc .is-in .acc-mark { opacity: 1; }
+.acc.is-mob .acc-mark { display: none; }
+
 /* ---------- le texte, à gauche, centré en hauteur ---------- */
 .acc .copy { position: absolute; left: clamp(24px, 7.4vw, 140px); top: 53%; transform: translateY(-50%); width: min(50%, 760px); }
 /* les logos des assistants, au-dessus du titre */
@@ -64,6 +71,7 @@
 .acc .hl { clip-path: inset(0 100% 0 0); transition: clip-path .75s cubic-bezier(.65, 0, .25, 1); }
 .acc .hl-1 { transition-delay: .25s; }
 .acc .hl-2 { transition-delay: .47s; }
+.acc .hl-2 + br + .hl-2 { transition-delay: .69s; }
 .acc .sub, .acc .go { opacity: 0; transform: translateY(12px); }
 .acc .sub { transition: opacity .8s var(--ease) .75s, transform .9s var(--ease) .75s; }
 .acc .go { transition: opacity .8s var(--ease) .9s, transform .9s var(--ease) .9s, background .2s; }
@@ -84,7 +92,7 @@
 .acc.is-mob.is-leaving .copy { transform: translateY(-10px); }
 
 @media (prefers-reduced-motion: reduce) {
-  .acc .back, .acc .fore, .acc .logos, .acc .hl, .acc .sub, .acc .go { transition: none !important; }
+  .acc .back, .acc .fore, .acc .logos, .acc .hl, .acc .sub, .acc .go, .acc .acc-mark { transition: none !important; }
   .acc .is-in .par-fore { animation: none; }
 }
 
