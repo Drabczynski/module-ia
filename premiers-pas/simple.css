@@ -323,6 +323,12 @@
   -webkit-box-decoration-break: clone; box-decoration-break: clone; transition: background .2s; }
 .pv .mk.is-hunt:hover, .pv .mk.is-hunt:focus-visible { background: #e3d8f8; box-shadow: none; outline: none; }
 .pv .mk.is-found { padding: 1px 3px; margin: 0 -1px; border-radius: 5px; text-decoration: none; background: #dcf3e5; box-shadow: none; color: #0f4f2e; font-weight: 600; }
+/* elles n'apparaissent qu'au moment où la voix dit « Dans le mail de Karim, cliquez… » (data-at, voir app.js : syncMarks) */
+.pv .mk.is-hunt[data-at] { transition: background .35s, text-decoration-color .35s; }
+.pv .mk.is-hunt[data-at]:not(.hl-on) { background: transparent; text-decoration-color: transparent; }
+/* à gauche, « un traiteur, un DJ, un voyage… » : chaque mot s'allume en orange au moment où la voix le dit */
+.chat-mk[data-at] { animation: none; transition: background .35s, box-shadow .35s; }
+.chat-mk[data-at]:not(.hl-on) { background: transparent; box-shadow: none; }
 .pv .mk.is-call { animation: mk-call .9s ease-in-out 2; }
 @keyframes mk-call { 50% { background: #d6c7f5; box-shadow: 0 0 0 4px rgba(74, 33, 150, .14); } }
 @media (prefers-reduced-motion: reduce) { .pv .mk.is-call { animation: none; } }

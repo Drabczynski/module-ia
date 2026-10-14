@@ -126,8 +126,11 @@ une seule chose à faire à la fois, toujours le même geste pour avancer. Story
 - La boîte mail : une fois le mail de Karim ouvert, il s'affiche seul, en carte de mail à sa taille, avec la photo
   de Karim (Unsplash, photo de Christian Buehner, chargée en ligne ; une seule image, gardée d'un affichage à l'autre,
   pour qu'elle ne clignote pas ; sans réseau, ses initiales restent). Dans « Qu'est-ce qui manque ? », les cinq infos
-  à repérer se voient comme des boutons (soulignées en violet sur fond très clair, la main au survol) et pulsent deux fois
-  à l'ouverture de l'étape et si l'on clique trop tôt sur « Suivant » ; trouvées, elles passent en vert.
+  à repérer se voient comme des boutons (soulignées en violet sur fond très clair, la main au survol) ; elles apparaissent,
+  en pulsant deux fois, au moment où la voix dit « Dans le mail de Karim, cliquez… » (tout de suite sans le son),
+  et pulsent de nouveau si l'on clique trop tôt sur « Suivant » ; trouvées, elles passent en vert. À gauche, dans la réponse
+  de l'IA, « traiteur », « DJ », « voyage » s'allument en orange au moment où la voix les dit (les mots qu'elle ne dit pas
+  avec le plus proche). Les instants viennent du minutage mot à mot des voix (`assets/audio/mots.js`), pas de valeurs en dur.
 - La phrase proposée par la voix (« Bonjour, qui es-tu ? », « Donne-moi des idées pour un pot de départ. ») s'écrit
   dans le cadre blanc, en texte d'exemple, à la machine à écrire, une fois la voix finie ; pas de phrases à cliquer.
 - Pas de message noir qui surgit en bas à droite pour féliciter : le bandeau du bas suffit (les seuls messages noirs

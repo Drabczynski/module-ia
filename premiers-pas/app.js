@@ -140,17 +140,27 @@
   function caption(text, idle) { capEl.classList.toggle("is-idle", !!idle); sayText(text); sayProgress(1); }
 
   var cues = [], current = null, capRaf = 0, blocked = false, markT = 999;
-  function syncMarks(t) {
+  // ce qui s'allume au moment où la voix le dit (data-at, en secondes), dans le panneau et dans la conversation ;
+  // live : pendant la lecture (les infos à repérer dans le mail pulsent alors en apparaissant)
+  function syncMarks(t, live) {
     markT = t;
-    $$("[data-at]", bodyEl).forEach(function (el) {
-      el.classList.toggle("hl-on", t >= +el.dataset.at && !(el.dataset.until && t >= +el.dataset.until));
+    $$("[data-at]", bodyEl).concat($$("[data-at]", messagesEl)).forEach(function (el) {
+      var on = t >= +el.dataset.at && !(el.dataset.until && t >= +el.dataset.until), was = el.classList.contains("hl-on");
+      el.classList.toggle("hl-on", on);
+      if (live && on && !was && el.classList.contains("mk")) { el.classList.remove("is-call"); void el.offsetWidth; el.classList.add("is-call"); }
     });
+  }
+  // l'instant (s) où la voix dit un mot (mots.js) ; sans minutage : 0
+  function wordAt(id, re) {
+    var W = (window.COURSE_WORDS || {})[id] || [];
+    for (var i = 0; i < W.length; i++) if (re.test(W[i][1])) return W[i][0];
+    return 0;
   }
   function capLoop() {
     capRaf = 0;
     if (audio.paused) return;
     var t = audio.currentTime, i = -1;
-    syncMarks(t);
+    syncMarks(t, true);
     for (var k = 0; k < cues.length; k++) if (cues[k][0] <= t + 0.05) i = k;
     if (i >= 0) {
       var c = cues[i], W = (window.COURSE_WORDS || {})[audio.dataset.id];
@@ -1538,6 +1548,7 @@
           if (HUNT[m[2]] && hunt.found[m[2]] && mode !== "open") sp.classList.add("is-found");
           if (mode === "hunt" && !hunt.done) {
             sp.classList.add("is-hunt");
+            sp.dataset.at = wordAt("pp-manque", /^Dans$/);
             sp.setAttribute("role", "button");
             sp.tabIndex = 0;
             sp.onclick = function () {
@@ -1809,7 +1820,15 @@
         mailApp(pv, "hunt");
       },
       ready: function () { return !!act("manque").done; },
-      enter: function () { if (P.potConv) openConv(P.potConv); setTimeout(function () { markChat(/traiteur|DJ|karaoké|week-end|voyage|restaurant/g); }, 400); setTimeout(callMarks, 900); },
+      enter: function () {
+        if (P.potConv) openConv(P.potConv);
+        // « Elle propose un traiteur, un DJ, un voyage… » : chaque mot s'allume quand la voix le dit ;
+        // ceux qu'elle ne dit pas s'allument avec le plus proche (karaoké avec DJ, week-end et restaurant avec voyage)
+        var tT = wordAt("pp-manque", /^traiteur/), tD = wordAt("pp-manque", /^DJ/), tV = wordAt("pp-manque", /^voyage/);
+        var AT = { traiteur: tT, DJ: tD, "karaoké": tD + .15, voyage: tV, "week-end": tV + .15, restaurant: tV + .3 };
+        setTimeout(function () { markChat(/traiteur|DJ|karaoké|week-end|voyage|restaurant/g, AT); }, 400);
+        if (markT >= 999) setTimeout(callMarks, 900);                         // sans la voix : tout est visible, les infos pulsent tout de suite
+      },
       leave: function () { $$(".chat-mk", messagesEl).forEach(function (m) { m.replaceWith(document.createTextNode(m.textContent)); }); }
     },
 
@@ -2070,7 +2089,7 @@
     }
   }
   // met en évidence des mots dans la réponse de Claude affichée à gauche
-  function markChat(re) {
+  function markChat(re, at) {
     var body = $(".msg--ai .body", messagesEl);
     if (!body) return;
     var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT), nodes = [];
@@ -2082,6 +2101,7 @@
       while ((m = re.exec(n.nodeValue))) {
         frag.appendChild(document.createTextNode(n.nodeValue.slice(last, m.index)));
         var mk = document.createElement("mark"); mk.className = "chat-mk"; mk.textContent = m[0];
+        if (at && at[m[0]] !== undefined) mk.dataset.at = at[m[0]];
         frag.appendChild(mk);
         last = m.index + m[0].length;
       }
@@ -2089,6 +2109,7 @@
       n.replaceWith(frag);
     });
     re.lastIndex = 0;
+    syncMarks(markT);                                                    // déjà dits par la voix : allumés tout de suite
   }
   function stepIdx(id) { for (var i = 0; i < STEPS.length; i++) if (STEPS[i].id === id) return i; return 0; }
   function resetAct(id) {
