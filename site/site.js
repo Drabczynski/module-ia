@@ -31,10 +31,13 @@
      cible : le point de la dernière image où la caméra plonge (proportions de l'image) ; len : longueur du chapitre,
      proportionnelle au nombre d'images pour garder la même vitesse de défilement */
   var VIDEOS = {
-    intro: { dir: "intro", n: 241, len: 14.3, target: { x: .868, y: .549, r: .025 } },   // le bouton d'envoi de « Que souhaitez-vous créer ? »
-    bureau: { dir: "bureau", n: 169, len: 10, target: { x: .4865, y: .485, r: .029 } }    // la sphère, sur l'écran du bureau
+    // claire : montrée en entier sous la barre du haut (fond flou sur les côtés), sans voile ni éclaircissement ;
+    // la dernière image reste un moment avant la plongée (end : part du chapitre où la vidéo se termine)
+    intro: { dir: "intro", n: 241, len: 14.3, end: .9, fit: "contain", light: true, target: { x: .868, y: .549, r: .025 } },   // le bouton d'envoi de « Que souhaitez-vous créer ? »
+    bureau: { dir: "bureau", n: 169, len: 10, end: .985, fit: "cover", target: { x: .4865, y: .485, r: .029 } }               // la sphère, sur l'écran du bureau
   };
   var VID = VIDEOS[(location.search.match(/[?&]video=(\w+)/) || [])[1]] || VIDEOS.intro;
+  document.documentElement.classList.add("v-" + VID.dir);
 
   /* ---------- chapitres (longueurs en hauteurs d'écran) ---------- */
   var CH = [["film", VID.len], ["dive", 1.4], ["sphere", 1.8], ["open", 2.8], ["write", 2.2], ["spot", .0001], ["build", .0001], ["more", 6.5], ["end", 1.6]];   // repérer et construire : retirés du récit
@@ -193,7 +196,25 @@
     load(0); load(N - 1);
     var order = []; for (var step = 32; step >= 1; step = step >> 1) for (var j = 0; j < N; j += step) order.push(j);   // d'abord une image sur 32, puis on affine
     var qi = 0; (function pump() { var k = 0; while (qi < order.length && k < 6) { load(order[qi++]); k++; } if (qi < order.length) setTimeout(pump, 60); })();
-    function cover() { var w = cv.clientWidth, h = cv.clientHeight, s = Math.max(w / 1280, h / 720); return { s: s, x: (w - 1280 * s) / 2, y: (h - 720 * s) / 2, w: w, h: h }; }
+    // là où l'image est dessinée : toute la vidéo sous la barre du haut (contain), ou plein cadre (cover)
+    function cover() {
+      var w = cv.clientWidth, h = cv.clientHeight, s;
+      if (VID.fit === "contain") { var top = 64, ah = h - top; s = Math.min(w / 1280, ah / 720); return { s: s, x: (w - 1280 * s) / 2, y: top + (ah - 720 * s) / 2, w: w, h: h }; }
+      s = Math.max(w / 1280, h / 720); return { s: s, x: (w - 1280 * s) / 2, y: (h - 720 * s) / 2, w: w, h: h };
+    }
+    // autour de la vidéo entière : la même image, très floue (réduite à 48 × 27 puis agrandie), plein cadre
+    var tiny = VID.fit === "contain" ? document.createElement("canvas") : null, tctx = tiny && tiny.getContext("2d");
+    if (tiny) { tiny.width = 48; tiny.height = 27; }
+    // la vidéo se fond dans ce flou sur ses bords gauche et droit (un dégradé de 7 % de sa largeur)
+    var soft = tiny && document.createElement("canvas"), sctx = soft && soft.getContext("2d");
+    function feather(img, w, h) {
+      if (soft.width !== w || soft.height !== h) { soft.width = w; soft.height = h; }
+      sctx.globalCompositeOperation = "source-over"; sctx.clearRect(0, 0, w, h); sctx.drawImage(img, 0, 0, w, h);
+      var g = sctx.createLinearGradient(0, 0, w, 0), e = .07;
+      g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(e, "#000"); g.addColorStop(1 - e, "#000"); g.addColorStop(1, "rgba(0,0,0,0)");
+      sctx.globalCompositeOperation = "destination-in"; sctx.fillStyle = g; sctx.fillRect(0, 0, w, h);
+      return soft;
+    }
     return {
       el: el, N: N, SPHERE: SPHERE, cover: cover,
       draw: function (f) {
@@ -204,7 +225,14 @@
         if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(cv.clientHeight * dpr); last = -1; }
         if (i === last) return; last = i;
         var c = cover(); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        ctx.drawImage(imgs[i], c.x, c.y, 1280 * c.s, 720 * c.s);
+        if (tiny) {
+          tctx.drawImage(imgs[i], 0, 0, 48, 27);
+          var bs = Math.max(c.w / 48, c.h / 27);
+          ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
+          ctx.drawImage(tiny, (c.w - 48 * bs) / 2, (c.h - 27 * bs) / 2, 48 * bs, 27 * bs);
+        }
+        if (tiny && c.w - 1280 * c.s > 2) { var fw = Math.round(1280 * c.s * dpr), fh = Math.round(720 * c.s * dpr); ctx.drawImage(feather(imgs[i], fw, fh), c.x, c.y, 1280 * c.s, 720 * c.s); }
+        else ctx.drawImage(imgs[i], c.x, c.y, 1280 * c.s, 720 * c.s);
       }
     };
   })();
@@ -363,7 +391,7 @@
     var vw = stage.clientWidth, vh = stage.clientHeight, ch = current();
     setClass(nav, "is-solid", window.scrollY > 10);
     var tF = L("film"), tD = L("dive"), tS = L("sphere"), tO = L("open");
-    setClass(nav, "on-dark", U < START.dive + LEN.dive * .6);
+    setClass(nav, "on-dark", VID.light ? tF < .09 : U < START.dive + LEN.dive * .6);   // vidéo claire : barre claire dès que le hero s'efface
 
     /* --- 1. le hero sur la première image, puis la vidéo défile --- */
     var heroOut = ease(seg(tF, .03, .1));
@@ -376,7 +404,7 @@
     filmAurora.style.opacity = String(1 - au);
     filmAurora.style.transform = "scale(" + (1 + .12 * au) + ")";
     filmAurora.style.visibility = au >= 1 ? "hidden" : "visible";
-    film.draw(seg(tF, .08, .985) * (film.N - 1));
+    film.draw(seg(tF, .08, VID.end) * (film.N - 1));
     filmShade.style.opacity = String(1 - .7 * seg(tF, .08, .16) - .3 * seg(tD, 0, .4));
     var anyMsg = false;
     msgs.forEach(function (m, i) {                            // chaque message traverse l'écran pendant sa fenêtre

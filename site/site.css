@@ -703,3 +703,15 @@ html.bg-cream body { background: var(--cream); }
 .nav.is-solid { transition: background-color .9s var(--ease), box-shadow .3s; }
 html.bg-cream .nav.is-solid { background: rgba(250, 249, 245, .92); }
 html.bg-cream .nav-links a:hover { background: #efede6; }
+
+/* ---------- la vidéo d'ouverture claire (video-intro.mp4, html.v-intro) : ni éclaircissement ni voile noir ;
+   les messages passent en encre sombre, avec un léger halo blanc pour rester lisibles sur les rubans violets ---------- */
+.v-intro .film { background: #ece6fb; }
+.v-intro .film canvas { filter: none; }
+.v-intro .film-shade, .v-intro .film-dim { display: none; }
+.v-intro .msg { color: #1c0e3c; }
+.v-intro .msg::before { display: none; }
+.v-intro .msg h2 { text-shadow: 0 0 2px rgba(255,255,255,.7), 0 0 26px rgba(255,255,255,.9); }
+.v-intro .msg-k { color: #6a3fd0; text-shadow: 0 0 14px rgba(255,255,255,.9); }
+.v-intro .msg-sub { color: rgba(28,14,60,.75); text-shadow: 0 0 22px rgba(255,255,255,.9); }
+.v-intro .msg-chips span { background: rgba(255,255,255,.6); box-shadow: inset 0 0 0 1px rgba(28,14,60,.12); color: #1c0e3c; }
