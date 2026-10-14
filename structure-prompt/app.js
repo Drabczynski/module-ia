@@ -866,6 +866,11 @@
   $("[data-ask-yes]").addEventListener("click", function () { askEl.hidden = true; quit(!!askEl.dataset.end); });
   askEl.addEventListener("click", function (e) { if (e.target === askEl) askEl.hidden = true; });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !askEl.hidden) askEl.hidden = true; });
+  // les passages cliquables (role="button" sur un texte) se déclenchent aussi au clavier
+  document.addEventListener("keydown", function (e) {
+    var t = e.target;
+    if ((e.key === "Enter" || e.key === " ") && t.getAttribute && t.getAttribute("role") === "button" && !/^(BUTTON|A|INPUT)$/.test(t.tagName)) { e.preventDefault(); t.click(); }
+  });
   quitBtn.addEventListener("click", askQuit);
 
   // l'étape peut-elle être quittée ? sinon, quel bouton d'activité montrer dans le panneau (« Valider », « Réessayer »…)
@@ -1439,21 +1444,56 @@
 
   /* ---------- Situation (fictive) : l'offre d'emploi de Sophie ---------- */
 
+  // {texte|clé} : les infos de Sophie, que l'on retrouve (ou non) dans l'offre de l'IA à l'étape « Vérifier le résultat »
   var BRIEF = [
     "Peux-tu préparer l’offre d’emploi pour le poste d’assistant·e administratif·ve ?",
-    "CDI, 35 h. Bureaux à Lyon 7e, télétravail 1 jour par semaine.",
-    "Salaire : 24 à 26 k€ brut par an, selon profil. Débutants bienvenus.",
-    "Prise de poste le 3 mars. Candidatures jusqu’au 15 février.",
+    "{CDI, 35 h|contrat}. Bureaux à {Lyon 7e|lieu}, {télétravail 1 jour par semaine|tele}.",
+    "Salaire : {24 à 26 k€ brut par an|salaire}, selon profil. {Débutants bienvenus|debut}.",
+    "Prise de poste {le 3 mars|date}. Candidatures {jusqu’au 15 février|candid}.",
     "Merci ! Sophie"
   ];
+  var SOPHIE_PHOTO = "https://images.unsplash.com/photo-1649768524366-a93840e4c501?crop=faces&fit=crop&w=160&h=160&q=80&fm=jpg";
+  // chaque info de Sophie, telle qu'elle est écrite dans l'offre (pour la surligner à gauche), et où la trouver
+  var IN_OFFRE = {
+    contrat: ["CDI, 35 h", "dans « Ce que nous offrons »"], lieu: ["Lyon 7e", "dans le titre"],
+    tele: ["1 jour de télétravail par semaine", "dans « Ce que nous offrons »"], salaire: ["24 à 26 k€ brut par an", "dans « Ce que nous offrons »"],
+    debut: ["Débutant·e bienvenu·e", "dans « Votre profil »"], candid: ["jusqu’au 15 février", "à la fin de l’offre"]
+  };
   // les passages de la première offre : inventés (1) ou banals pour ce poste (0)
   var INVENTS = [["Paris", 1], ["3 500 € brut par mois", 1], ["13e mois", 1], ["gestion du courrier", 0], ["maîtrise des outils bureautiques", 0]];
   var ADD_HINT = "Ajoute la date de prise de poste : le 3 mars.";
 
-  // le message de Sophie, tel qu'elle l'a envoyé : à garder sous les yeux pendant qu'on écrit
-  function briefCard() {
-    var note = h('<div class="brief"><div class="brief-h"><span class="brief-av">SL</span><div><b>Sophie Laurent</b><small>Responsable · aujourd’hui, 09:12</small></div></div><div class="brief-t"></div></div>');
-    BRIEF.forEach(function (l) { var p = document.createElement("p"); p.textContent = l; note.lastChild.appendChild(p); });
+  // la photo de Sophie ; sans réseau, ses initiales restent
+  var PHOTOS = {};
+  function sophieAv(cls) {
+    var av = h('<span class="' + cls + '">SL</span>'), ph = PHOTOS.sophie;
+    if (!ph) {                                                            // une seule image, déplacée d'un affichage à l'autre : elle ne se recharge pas, ne clignote pas
+      ph = PHOTOS.sophie = document.createElement("img");
+      ph.alt = ""; ph.referrerPolicy = "no-referrer";
+      ph.onload = function () { ph.dataset.ok = "1"; if (ph.parentNode) ph.parentNode.classList.add("has-photo"); };
+      ph.onerror = function () { ph.dataset.ko = "1"; ph.remove(); };
+      ph.src = SOPHIE_PHOTO;
+    }
+    if (!ph.dataset.ko) { if (ph.dataset.ok) av.classList.add("has-photo", "is-ready"); av.appendChild(ph); }
+    return av;
+  }
+  // le message de Sophie, tel qu'elle l'a envoyé : à garder sous les yeux pendant qu'on écrit ;
+  // pick (étape « Vérifier ») : ses infos se cliquent, comme dans le mail de Karim au module 1
+  function briefCard(pick) {
+    var note = h('<div class="brief"><div class="brief-h"><div><b>Sophie Laurent</b><small>Responsable · aujourd’hui, 09:12</small></div></div><div class="brief-t"></div></div>');
+    note.firstChild.insertBefore(sophieAv("brief-av"), note.firstChild.firstChild);
+    BRIEF.forEach(function (l) {
+      var p = document.createElement("p");
+      l.split(/(\{[^}]+\})/).forEach(function (part) {
+        var m = part.match(/^\{([^|]+)\|([a-z]+)\}$/);
+        if (!m || !pick) { p.appendChild(document.createTextNode(m ? m[1] : part)); return; }
+        var sp = h('<span class="mk"></span>');
+        sp.textContent = m[1];
+        pick(sp, m[2], m[1]);
+        p.appendChild(sp);
+      });
+      note.lastChild.appendChild(p);
+    });
     return note;
   }
   // les cinq briques, en pastilles : allumées quand elles sont là
@@ -1575,6 +1615,31 @@
   function unhuntChat() {
     messagesEl.classList.remove("is-hunting");
     $$(".chat-hunt", messagesEl).forEach(function (m) { m.replaceWith(document.createTextNode(m.textContent)); });
+  }
+  // « c'est bien dans l'offre » : le passage s'allume quelques secondes dans la dernière réponse de l'IA, à gauche
+  var flashTimer = 0;
+  function unflashChat() {
+    clearTimeout(flashTimer);
+    $$(".chat-flash", messagesEl).forEach(function (m) { var p = m.parentNode; m.replaceWith(document.createTextNode(m.textContent)); p.normalize(); });
+  }
+  function flashChat(txt) {
+    unflashChat();
+    var bodies = $$(".msg--ai .body", messagesEl), body = bodies[bodies.length - 1];
+    if (!body) return;
+    var want = txt.replace(/[  ]/g, " ");
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT), n;
+    while ((n = walker.nextNode())) {
+      var i = n.nodeValue.replace(/[  ]/g, " ").indexOf(want);    // mêmes longueurs : l'index vaut pour le texte d'origine
+      if (i < 0) continue;
+      var rest = n.splitText(i); rest.splitText(txt.length);
+      var mk = document.createElement("mark");
+      mk.className = "chat-flash";
+      mk.textContent = rest.nodeValue;
+      rest.replaceWith(mk);
+      mk.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      flashTimer = setTimeout(unflashChat, 3200);
+      return;
+    }
   }
 
   /* ---------- Les étapes ---------- */
@@ -1734,26 +1799,45 @@
       onAnswer: function () { act("construire").done = true; refresh(); readyNext(); }
     },
 
-    /* 8 · Vérifier le résultat ------------------------------------------------------------------ */
-    extend({
+    /* 8 · Vérifier le résultat : l'offre à gauche, le message de Sophie à droite ; on clique dans le message
+       sur l'info absente de l'offre (comme dans le mail de Karim, au module 1) ---------------------------------- */
+    {
       id: "verifier", compact: true, seq: 2, title: "Vérifier le résultat", audio: "module-2/verifier",
-      say: "Un prompt structuré donne un bien meilleur résultat. Mais on vérifie toujours. Comparez l’offre, à gauche, avec le message de Sophie. Quelle information manque ?"
-    }, (function () {
-      var w = quiz("verifier", "Quelle information du message de Sophie manque dans l’offre ?", [
-        ["Le contrat : CDI, 35 h", "Non : le contrat est bien dans l’offre. Relisez-la."],
-        ["Le lieu : Lyon 7e", "Non : le lieu est bien dans l’offre. Relisez-la."],
-        ["Le télétravail : 1 jour par semaine", "Non : le télétravail est bien dans l’offre. Relisez-la."],
-        ["Le salaire : 24 à 26 k€", "Non : le salaire est bien dans l’offre. Relisez-la."],
-        ["La date de prise de poste : 3 mars", "Exact : la date manque. Elle n’était pas dans votre contexte : l’IA ne pouvait pas l’inventer… et c’est tant mieux !"]
-      ], 4);
-      var r = w.render;
-      w.render = function (pv) {
-        consigne(pv, [["<b>Comparez</b> l’offre, à gauche, avec le message de Sophie"], ["<b>Cliquez</b> sur l’information qui manque"]], act("verifier").done ? 2 : 1);
-        r(pv);
-      };
-      w.enter = function () { if (P.offreConv) openConv(P.offreConv); };
-      return w;
-    })()),
+      say: "Un prompt structuré donne un bien meilleur résultat. Mais on vérifie toujours. Comparez l’offre, à gauche, avec le message de Sophie. Quelle information manque ?",
+      render: function (pv) {
+        var a = act("verifier");
+        a.seen = a.seen || {};
+        consigne(pv, [
+          ["<b>Comparez</b> l’offre, à gauche, avec le message de Sophie, ci-dessous"],
+          ["<b>Cliquez</b> sur l’information qui manque dans l’offre", "dans le message de Sophie"]
+        ], a.done ? 2 : 1);
+        // ses infos se voient comme des boutons, soulignées en violet, quand la voix demande « Quelle information manque ? »
+        pv.appendChild(briefCard(function (sp, key, txt) {
+          if (a.done) { if (key === "date") sp.classList.add("is-found"); return; }
+          if (a.seen[key]) { sp.classList.add("is-seen"); sp.title = "Bien dans l’offre"; return; }
+          sp.classList.add("is-hunt");
+          sp.dataset.at = wordAt("module-2/verifier", /^Quelle$/);
+          sp.setAttribute("role", "button");
+          sp.tabIndex = 0;
+          sp.onclick = function () {
+            if (key === "date") { a.done = true; a.best = (a.miss || 0) <= 1 ? 1 : 0; a.why = null; unflashChat(); refresh(); readyNext(); return; }
+            a.miss = (a.miss || 0) + 1;
+            a.seen[key] = true;
+            a.why = "<b>« " + esc(txt) + " » est bien dans l’offre</b>, " + IN_OFFRE[key][1] + " : regardez, à gauche. Cherchez ce qui n’y est pas.";
+            refresh();
+            flashChat(IN_OFFRE[key][0]);
+          };
+        }));
+        if (a.why && !a.done) fb(pv, "ko", a.why);
+        if (a.done) fb(pv, "ok", "<b>Bien vu :</b> la date de prise de poste, <b>le 3 mars</b>, manque. Elle n’était pas dans votre contexte : l’IA ne pouvait pas l’inventer… et c’est tant mieux !");
+      },
+      ready: function () { return !!act("verifier").done; },
+      enter: function () {
+        if (P.offreConv) openConv(P.offreConv);
+        if (markT >= 999 && !act("verifier").done) setTimeout(callMarks, 900);   // sans la voix : visibles tout de suite, et elles pulsent
+      },
+      leave: function () { unflashChat(); }
+    },
 
     /* 9 · Compléter, sans tout recommencer -------------------------------------------------------- */
     {
@@ -1796,7 +1880,9 @@
           ["<b>Écrivez</b> un prompt avec les 5 briques, puis envoyez", "dans le cadre blanc, à gauche ; les briques s’allument dessous"],
           ["<b>Lisez</b> la réponse de l’IA"]
         ], a.done ? 2 : a.wait ? 1 : 0);
-        pv.appendChild(h('<div class="sms"><span class="sms-who">Sophie</span><p>La boutique sera fermée le mardi 24 décembre. Tu peux prévenir nos clients par mail ? On rouvre le 26 😊</p></div>'));
+        var sms = h('<div class="sms"><span class="sms-who">Sophie</span><p>La boutique sera fermée le mardi 24 décembre. Tu peux prévenir nos clients par mail ? On rouvre le 26 😊</p></div>');
+        sms.firstChild.insertBefore(sophieAv("sms-av"), sms.firstChild.firstChild);
+        pv.appendChild(sms);
         pv.appendChild(brickRow(bricksIn((a.sent || "") + " " + (a.draft || ""))));
         if (a.missing && !a.done) fb(pv, "ko", "<b>Il manque :</b> " + a.missing + ". Envoyez un message pour compléter : les briques déjà données restent acquises.");
         if (a.done) fb(pv, a.best === 5 ? "ok" : "", "<b>" + a.best + " briques sur 5.</b> " + (a.best === 5 ? "Un prompt complet, écrit par vous. Bravo !" : "Pensez à la brique qui manquait la prochaine fois."));

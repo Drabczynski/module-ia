@@ -170,7 +170,10 @@ styles et scripts partagés : `premiers-pas/app.css`, `gris.css`, `accueil.css`,
   (3 passages à cliquer dans sa réponse, à gauche, soulignés en violet, qui apparaissent quand la voix dit « Dans sa réponse,
   à gauche, cliquez… »), pourquoi ces inventions (QCM : un clic valide, deux essais), les cinq briques (cartes à retourner),
   reconnaître les briques (relier 5 morceaux), la brique oubliée (2 prompts), construire le prompt (5 cases orange, avec
-  le message de Sophie sous les yeux et les briques qui s'allument), vérifier le résultat (QCM), compléter la demande
+  le message de Sophie sous les yeux et les briques qui s'allument), vérifier le résultat (l'offre à gauche, le message de Sophie à droite, avec sa photo ;
+  comme dans le mail de Karim, ses infos se soulignent en violet quand la voix demande « Quelle information manque ? » ;
+  on clique sur celle qui manque, le 3 mars ; une info cliquée par erreur passe en gris cochée et s'allume dans l'offre, à gauche),
+  compléter la demande
   (« Ajoute la date de prise de poste : le 3 mars. » s'écrit dans le cadre une fois la voix finie), à vous sans aide
   (les briques s'allument en direct), le résultat, la fiche R · C · O · C · F.
 - Barème : 20 points (inventé 1, pourquoi 1, relier 5, brique oubliée 2, construire 5, vérifier 1, sans aide 5), seuil 70 %.

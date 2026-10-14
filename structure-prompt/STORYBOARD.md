@@ -17,7 +17,7 @@ en bandeau en bas du panneau, « Suivant » qui s'allume quand l'activité est f
 | 4 | Reconnaître les briques | Relie 5 morceaux de prompt à leur brique | 5 |
 | 5 | La brique oubliée | Pour 2 prompts incomplets, choisit la brique oubliée (format QCM) | 2 |
 | 6 | Construire le prompt | Lit le message de Sophie, puis complète les 5 cases orange du prompt et l’envoie | 5 |
-| 7 | Vérifier le résultat | Compare l’offre au message de Sophie, puis clique sur l’information qui manque (la date de prise de poste) | 1 |
+| 7 | Vérifier le résultat | L’offre reste à gauche, le message de Sophie à droite. Quand la voix demande « Quelle information manque ? », les infos de Sophie se soulignent en violet ; l’apprenant clique sur celle qui manque dans l’offre (le 3 mars). Une info cliquée par erreur passe en gris, cochée, et s’allume dans l’offre, à gauche | 1 |
 | 8 | Compléter la demande | Relance dans la même conversation pour ajouter la date (la phrase d’exemple s’écrit dans le cadre une fois la voix finie) | – |
 | 9 | À vous, sans aide | Écrit seul un prompt complet (fermeture de la boutique le 24 décembre) ; les 5 briques s’allument en direct | 5 |
 | 10 | Votre résultat | Score, détail par activité, « Revoir » | – |

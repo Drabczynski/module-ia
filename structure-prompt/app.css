@@ -59,15 +59,29 @@
 /* ---------- le message de Sophie : une carte de messagerie, à garder sous les yeux ---------- */
 .brief { padding: 18px 22px 16px; border-radius: 18px; background: #fff; box-shadow: 0 0 0 1px #e3e4e8, 0 18px 40px -30px rgba(21, 21, 23, .45); color: #2c2c2e; }
 .brief-h { display: flex; align-items: center; gap: 12px; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid #eeeff1; }
-.brief-av { width: 38px; height: 38px; flex: none; display: grid; place-items: center; border-radius: 50%; background: linear-gradient(160deg, #b9a4ec, #7b5bd0); color: #fff; font: 600 13px/1 var(--text); }
+.brief-av, .sms-av { position: relative; overflow: hidden; width: 38px; height: 38px; flex: none; display: grid; place-items: center; border-radius: 50%; background: linear-gradient(160deg, #b9a4ec, #7b5bd0); color: #fff; font: 600 13px/1 var(--text); }
+/* sa photo (une seule image, déplacée d'un affichage à l'autre : voir app.js, sophieAv) ; sans réseau, les initiales restent */
+.brief-av img, .sms-av img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .3s; }
+.brief-av.has-photo img, .sms-av.has-photo img { opacity: 1; }
+.brief-av.is-ready img, .sms-av.is-ready img { transition: none; }
 .brief-h b { display: block; font-size: 15px; font-weight: 600; color: #151517; }
 .brief-h small { font-size: 12.5px; color: #8e8e93; }
 .brief-t p { margin: 0 0 5px; font-size: 16px; line-height: 1.5; }
 .brief-t p:last-child { margin: 0; }
+/* « Vérifier le résultat » : les infos de Sophie se cliquent (voir simple.css, .mk.is-hunt) ; celles qu'on a retrouvées dans l'offre
+   passent en gris, barrées d'une coche : il en reste moins à regarder */
+.pv .brief .mk.is-hunt, .pv .brief .mk.is-found { margin: 0 -3px; }       /* le fond déborde un peu, le texte ne bouge pas : pas d'espaces en trop avant l'apparition */
+.pv .brief .mk.is-seen { padding: 1px 3px; margin: 0 -3px; border-radius: 5px; background: #f0f0f2; color: #6b6c72; }
+.pv .brief .mk.is-seen::after { content: " ✓"; font-weight: 600; color: #1f9d55; }
+/* … et le passage correspondant s'allume quelques secondes dans l'offre, à gauche */
+.chat-flash { padding: 1px 3px; margin: 0 -1px; border-radius: 5px; color: inherit; background: transparent; animation: chat-flash 3.2s ease forwards; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+@keyframes chat-flash { 0% { background: transparent; } 8%, 78% { background: #fff1c9; box-shadow: 0 0 0 3px #fff1c9; } 100% { background: transparent; box-shadow: none; } }
+@media (prefers-reduced-motion: reduce) { .chat-flash { animation: none; background: #fff1c9; } }
 
 /* le SMS de Sophie, pour l'exercice sans aide */
 .sms { display: grid; gap: 6px; justify-items: start; padding: 0; border-radius: 0; background: none; box-shadow: none; }
-.sms-who { font: 600 13px/1 var(--text); color: #74757b; }
+.sms-who { display: inline-flex; align-items: center; gap: 8px; font: 600 13px/1 var(--text); color: #74757b; }
+.sms-av { width: 28px; height: 28px; font-size: 11px; }
 .sms p { margin: 0; max-width: 460px; padding: 13px 18px; border-radius: 20px 20px 20px 6px; background: #fff; box-shadow: 0 0 0 1px #e3e4e8, 0 14px 30px -26px rgba(21, 21, 23, .45);
   font-size: 16.5px; line-height: 1.45; color: #151517; }
 
