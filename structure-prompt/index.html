@@ -4,8 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Module 2 · La structure d’un prompt</title>
-  <link rel="stylesheet" href="../premiers-pas/app.css">
-  <link rel="stylesheet" href="app.css">
+  <link rel="preload" href="../assets/img/02.png" as="image">
+  <link rel="stylesheet" href="../premiers-pas/app.css?v=20261014a">
+  <link rel="stylesheet" href="../premiers-pas/gris.css?v=20261014a">
+  <link rel="stylesheet" href="../premiers-pas/accueil.css?v=20261014a">
+  <link rel="stylesheet" href="../premiers-pas/simple.css?v=20261014a">
+  <link rel="stylesheet" href="app.css?v=20261014a">
 </head>
 <body>
 
@@ -20,7 +24,7 @@
     <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6.5 3h8L19 7.5V21H6.5z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M14.5 3v4.5H19M9.5 12h6M9.5 15h6M9.5 18h4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
     <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4ZM13.5 6.5l4 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
     <symbol id="i-side" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9.5 4.5v15" stroke="currentColor" stroke-width="1.6"/></symbol>
-    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M5 5h14a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 19 17H10l-4.5 3.5V17H5a1.5 1.5 0 0 1-1.5-1.5v-9A1.5 1.5 0 0 1 5 5Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M10 13.5a4.5 4.5 0 0 0 6.4.4l2.8-2.8a4.5 4.5 0 0 0-6.4-6.4l-1.1 1.1M14 10.5a4.5 4.5 0 0 0-6.4-.4l-2.8 2.8a4.5 4.5 0 0 0 6.4 6.4l1.1-1.1"/></symbol><symbol id="i-chat" viewBox="0 0 24 24"><path d="M5 5h14a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 19 17H10l-4.5 3.5V17H5a1.5 1.5 0 0 1-1.5-1.5v-9A1.5 1.5 0 0 1 5 5Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
     <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
     <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M15.5 8.5V6a1.5 1.5 0 0 0-1.5-1.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
@@ -46,15 +50,22 @@
   </defs>
 </svg>
 
-<!-- bouton de lancement de l'accueil (la voix a besoin d'un premier clic) -->
-<div class="wl-hero" data-wl-hero aria-hidden="false">
-  <div class="wl-main">
-    <h1 class="wl-title">La structure<br>d’un prompt.</h1>
-    <button type="button" class="wl-go" data-wl-go hidden>Commencer<svg><use href="#i-arrow"/></svg></button>
-  </div>
-  <button type="button" class="wl-menu" data-menu-open aria-haspopup="dialog"><svg><use href="#i-menu"/></svg>Les modules</button>
-  <p class="wl-foot-l"><span>Rôle, cible, objectif, contexte, format : cinq briques pour un prompt solide.</span><span>Un cas réel : rédiger une offre d’emploi.</span></p>
-  <p class="wl-foot-r"><b>Module 2</b><br>15 minutes · 9 activités</p>
+<!-- ============ Accueil : posé par-dessus l'application (la barre d'outils reste visible) jusqu'à « Commencer » (accueil.js) ============ -->
+<div class="acc" data-acc data-forms=".49">
+  <main class="hero" data-acc-hero>
+    <!-- l'image (module2.png, rognée de ses bords transparents) : plein cadre, calée à droite, fixe -->
+    <div class="acc-bg" aria-hidden="true">
+      <div class="par par-back"><img class="back" data-acc-back src="../assets/img/accueil-module2.webp" width="1665" height="854" alt="" decoding="async"></div>
+    </div>
+    <!-- le filigrane, en haut, comme sur la maquette -->
+    <p class="acc-mark" aria-hidden="true">IA générative</p>
+    <div class="copy" data-acc-num="Module 2">
+      <img class="logos" src="../assets/img/logos.png" width="228" height="56" alt="ChatGPT, Claude, Le Chat de Mistral et Gemini">
+      <h1 class="title"><span class="hl hl-1">Structurer</span><br><span class="hl hl-2">efficacement</span><br><span class="hl hl-2">un prompt</span></h1>
+      <p class="sub">Dans ce module, vous apprendrez de quoi est composé <br>un prompt, et comment le structurer vous-même.</p>
+      <button type="button" class="go" data-acc-start><span class="go-orb" aria-hidden="true"><span></span></span>Commencer</button>
+    </div>
+  </main>
 </div>
 
 <!-- ============ Application : Claude à gauche, formation à droite ============ -->
@@ -72,8 +83,8 @@
   </header>
 
   <div class="tabs" role="tablist">
-    <button type="button" role="tab" data-tab="claude" aria-selected="false">IA <span class="tab-dot" data-tab-dot hidden></span></button>
-    <button type="button" role="tab" data-tab="story" aria-selected="true">Formation</button>
+    <button type="button" role="tab" data-tab="claude" aria-selected="false">L’IA <span class="tab-dot" data-tab-dot hidden></span></button>
+    <button type="button" role="tab" data-tab="story" aria-selected="true">Consigne</button>
   </div>
 
   <div class="split" data-shell>
@@ -88,11 +99,11 @@
         <div class="messages" data-messages aria-live="polite"></div>
         <form class="composer" data-composer data-fn="input">
           <div class="attach-chip" data-attach-chip hidden><svg><use href="#i-doc"/></svg><span>document-fictif.pdf</span><button type="button" data-attach-remove aria-label="Retirer le fichier"><svg><use href="#i-x"/></svg></button></div>
-          <textarea data-input data-fn="slash" rows="1" placeholder="Écrire à l’IA…" aria-label="Votre message à l’IA"></textarea>
+          <textarea data-input data-fn="slash" rows="1" placeholder="Écrivez votre message ici…" aria-label="Votre message à l’IA"></textarea>
           <div class="composer-foot">
             <button type="button" class="c-icon" data-attach data-fn="attach" aria-label="Ajouter un fichier"><svg><use href="#i-plus"/></svg></button>
             <span class="c-model">Assistant IA</span>
-            <span class="send-wrap" data-fn="send"><button type="submit" class="send" aria-label="Envoyer"><svg><use href="#i-up"/></svg></button></span>
+            <span class="send-wrap" data-fn="send"><button type="submit" class="send"><span>Envoyer</span><svg><use href="#i-up"/></svg></button></span>
           </div>
         </form>
         <p class="work-note" data-work-note></p>
@@ -104,46 +115,55 @@
 
     <!-- Formation -->
     <aside class="panel" data-panel="story" aria-label="Formation">
-      <div class="panel-head">
-        <span class="ph-t">Module 2 · La structure d’un prompt</span>
-        <div class="ph-actions">
-          
-        </div>
-      </div>
-      <div class="ph-prog" aria-hidden="true"><i data-prog></i></div>
       <div class="panel-body" data-p-body></div>
+      <!-- le retour sur l'activité : toujours en bas du panneau, sur toute sa largeur -->
+      <div class="fbz" data-fbz role="status" aria-live="polite" hidden></div>
       <footer class="panel-foot">
         <div class="narr">
           <div class="narr-orb" data-orb></div>
           <p class="narr-cap is-idle" data-cap aria-live="polite"></p>
-          <div class="narr-ctl">
-            <button type="button" class="nc" data-replay aria-label="Réécouter la consigne"><svg><use href="#i-replay"/></svg></button>
-            <button type="button" class="nc" data-sound aria-label="Couper le son"><svg><use href="#i-sound"/></svg></button>
-          </div>
         </div>
-        <button type="button" class="btn-back btn-sm" data-back hidden><svg><use href="#i-back"/></svg>Retour</button>
-        <button type="button" class="btn-quit btn-sm" data-quit hidden>Quitter</button>
-        <button type="button" class="btn-next btn-sm" data-next hidden><span data-next-label>Continuer</span><svg><use href="#i-arrow"/></svg></button>
       </footer>
     </aside>
   </div>
+
+  <!-- ============ Barre d'outils : toujours au même endroit, en bas de l'écran ============ -->
+  <nav class="tools" aria-label="Barre d’outils du module">
+    <div class="tl-l">
+      <button type="button" class="tl-b" data-quit><svg><use href="#i-x"/></svg><span>Quitter</span></button>
+      <p class="tl-name"><span class="tl-k">Module 2</span><span class="tl-t">La structure d’un prompt</span></p>
+    </div>
+    <div class="tl-r">
+      <button type="button" class="tl-b" data-replay><svg><use href="#i-replay"/></svg><span>Réécouter</span></button>
+      <button type="button" class="tl-b" data-sound aria-pressed="true"><svg><use href="#i-sound"/></svg><span data-sound-label>Son activé</span></button>
+      <span class="tl-sep" aria-hidden="true"></span>
+      <button type="button" class="tl-b tl-prev" data-back><svg><use href="#i-back"/></svg><span>Précédent</span></button>
+      <button type="button" class="tl-next" data-next><span data-next-label>Suivant</span><svg><use href="#i-arrow"/></svg></button>
+    </div>
+  </nav>
 </div>
 
-<div class="mm" data-menu hidden>
-  <div class="mm-back" data-menu-close></div>
-  <aside class="mm-panel" role="dialog" aria-label="Les modules du parcours">
-    <div class="mm-head"><div><b>Le parcours</b><span>Certification « Utiliser l’IA générative » · 15 modules</span></div><button type="button" class="mm-x" data-menu-close aria-label="Fermer"><svg><use href="#i-x"/></svg></button></div>
-    <div class="mm-list" data-menu-list></div>
-  </aside>
+<!-- « Quitter » : on demande confirmation -->
+<div class="ask" data-ask hidden>
+  <div class="ask-box" role="dialog" aria-modal="true" aria-labelledby="ask-t">
+    <h2 id="ask-t" data-ask-title>Quitter le module ?</h2>
+    <p data-ask-text></p>
+    <div class="ask-btns">
+      <button type="button" class="ask-no" data-ask-no>Non, je continue</button>
+      <button type="button" class="ask-yes" data-ask-yes>Oui, quitter</button>
+    </div>
+  </div>
 </div>
 
-<div class="end-screen" data-end hidden><div><h2>Formation terminée</h2><p>Merci pour votre participation. Vous pouvez fermer cette fenêtre.</p></div></div>
+<div class="end-screen" data-end hidden><div><h2>À bientôt</h2><p>Merci pour votre participation. Vous pouvez fermer cette fenêtre.</p></div></div>
 <div class="toast" data-toast role="status" aria-live="polite"></div>
 <audio data-audio preload="auto"></audio>
 
 <script src="../assets/audio/sous-titres.js"></script>
 <script src="../assets/audio/mots.js"></script>
-<script src="../premiers-pas/orb.js"></script>
-<script src="app.js"></script>
+<script src="../premiers-pas/orb.js?v=20261014a"></script>
+<script src="../premiers-pas/particules.js?v=20261014a"></script>
+<script src="../premiers-pas/accueil.js?v=20261014a"></script>
+<script src="app.js?v=20261014a"></script>
 </body>
 </html>

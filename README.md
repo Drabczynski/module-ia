@@ -154,8 +154,28 @@ une seule chose à faire à la fois, toujours le même geste pour avancer. Story
 ## Module 2 · La structure d’un prompt (`structure-prompt/`)
 
 Compétence C2 de la certification RS6776 : Rôle, Cible, Objectif, Contexte, Format, sur le cas d’une offre d’emploi.
-Même moteur que le module 1 (styles et orbe partagés avec `premiers-pas/`). Storyboard et textes à enregistrer : `structure-prompt/STORYBOARD.md`.
-Fonction `api/chat.ts`, identifiant `structure-prompt`. Le menu « Les modules » relie les modules déjà construits.
+Storyboard et textes enregistrés : `structure-prompt/STORYBOARD.md`. Fonction `api/chat.ts`, identifiant `structure-prompt`.
+
+Même interface que le module 1, pour le même public (DAQ) : `structure-prompt/app.js` reprend le moteur actuel de
+`premiers-pas/app.js` (barre d'outils, « À faire », zone de travail, bandeau de retour, « Suivant » qui s'allume,
+phrase d'exemple à la machine à écrire, ce qui s'allume au moment où la voix le dit…) avec le contenu du module 2 ;
+styles et scripts partagés : `premiers-pas/app.css`, `gris.css`, `accueil.css`, `simple.css`, `orb.js`, `particules.js`,
+`accueil.js` ; styles propres : `structure-prompt/app.css`.
+
+- Accueil d'après la maquette : `assets/img/accueil-module2.webp` (tirée de `module2.png`) en plein cadre, fixe, calée
+  à droite ; le filigrane « IA générative » en haut ; les logos des assistants ; « Structurer / efficacement / un prompt »
+  sur trois bandeaux (bleu, puis lilas) ; « Dans ce module, vous apprendrez de quoi est composé un prompt, et comment le
+  structurer vous-même. » ; « Commencer » (ou « Suivant »). Ouverture en particules, « Module 2 » au centre.
+- 12 étapes, voix et textes inchangés : une demande trop vague (envoyer la demande préparée), ce que l'IA a inventé
+  (3 passages à cliquer dans sa réponse, à gauche, soulignés en violet, qui apparaissent quand la voix dit « Dans sa réponse,
+  à gauche, cliquez… »), pourquoi ces inventions (QCM : un clic valide, deux essais), les cinq briques (cartes à retourner),
+  reconnaître les briques (relier 5 morceaux), la brique oubliée (2 prompts), construire le prompt (5 cases orange, avec
+  le message de Sophie sous les yeux et les briques qui s'allument), vérifier le résultat (QCM), compléter la demande
+  (« Ajoute la date de prise de poste : le 3 mars. » s'écrit dans le cadre une fois la voix finie), à vous sans aide
+  (les briques s'allument en direct), le résultat, la fiche R · C · O · C · F.
+- Barème : 20 points (inventé 1, pourquoi 1, relier 5, brique oubliée 2, construire 5, vérifier 1, sans aide 5), seuil 70 %.
+- Rien ne dépasse en bas du panneau de 1280 × 720 à 1920 × 1080 : les étapes denses sont resserrées, et davantage
+  sur les écrans bas.
 
 ## Site vitrine (`site/`)
 

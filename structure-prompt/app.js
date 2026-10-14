@@ -140,17 +140,27 @@
   function caption(text, idle) { capEl.classList.toggle("is-idle", !!idle); sayText(text); sayProgress(1); }
 
   var cues = [], current = null, capRaf = 0, blocked = false, markT = 999;
-  function syncMarks(t) {
+  // ce qui s'allume au moment où la voix le dit (data-at, en secondes), dans le panneau et dans la conversation ;
+  // live : pendant la lecture (les infos à repérer dans le mail pulsent alors en apparaissant)
+  function syncMarks(t, live) {
     markT = t;
-    $$("[data-at]", bodyEl).forEach(function (el) {
-      el.classList.toggle("hl-on", t >= +el.dataset.at && !(el.dataset.until && t >= +el.dataset.until));
+    $$("[data-at]", bodyEl).concat($$("[data-at]", messagesEl)).forEach(function (el) {
+      var on = t >= +el.dataset.at && !(el.dataset.until && t >= +el.dataset.until), was = el.classList.contains("hl-on");
+      el.classList.toggle("hl-on", on);
+      if (live && on && !was && (el.classList.contains("mk") || el.classList.contains("chat-hunt"))) { el.classList.remove("is-call"); void el.offsetWidth; el.classList.add("is-call"); }
     });
+  }
+  // l'instant (s) où la voix dit un mot (mots.js) ; sans minutage : 0
+  function wordAt(id, re) {
+    var W = (window.COURSE_WORDS || {})[id] || [];
+    for (var i = 0; i < W.length; i++) if (re.test(W[i][1])) return W[i][0];
+    return 0;
   }
   function capLoop() {
     capRaf = 0;
     if (audio.paused) return;
     var t = audio.currentTime, i = -1;
-    syncMarks(t);
+    syncMarks(t, true);
     for (var k = 0; k < cues.length; k++) if (cues[k][0] <= t + 0.05) i = k;
     if (i >= 0) {
       var c = cues[i], W = (window.COURSE_WORDS || {})[audio.dataset.id];
@@ -215,7 +225,7 @@
   var voiceId = 0;
   function speakTTS(text, v, alive, onEnd, onErr) {
     var u = new SpeechSynthesisUtterance(text);
-    speakTTS.u = u;                                   // garder une référence, sinon « end » peut ne jamais arriver
+    speakTTS.u = u;                                   // garder une référence, sinon « end » peut ne jamais arriver
     u.voice = v; u.lang = v.lang; u.rate = 1.02;
     var t0 = 0, best = 0, done = false;
     function prog(p) { best = Math.max(best, Math.min(1, p)); sayProgress(best); }
@@ -226,7 +236,7 @@
       requestAnimationFrame(loop);
     })();
     u.onstart = begin;
-    setTimeout(begin, 800);                             // certains navigateurs n'émettent pas « start »
+    setTimeout(begin, 800);                             // certains navigateurs n'émettent pas « start »
     u.onboundary = function (ev) { begin(); if (alive() && ev.charIndex !== undefined) prog((ev.charIndex + (ev.charLength || 1)) / text.length); };
     u.onend = function () { if (done || !alive()) return; done = true; prog(1); onEnd(); };
     u.onerror = function (ev) { if (done || !alive()) return; done = true; (onErr || onEnd)(ev); };
@@ -236,14 +246,16 @@
   audio.addEventListener("pause", function () { if (!audio.ended) { speaking = false; orbMood(); } });
   audio.addEventListener("ended", ended);
 
-  $("[data-replay]").addEventListener("click", function () { narrate(current); });
+  $("[data-replay]").addEventListener("click", function () { if (!inWelcome) narrate(current); });
   var soundBtn = $("[data-sound]");
   function paintSound() {
     soundBtn.querySelector("use").setAttribute("href", S.sound ? "#i-sound" : "#i-mute");
-    soundBtn.setAttribute("aria-label", S.sound ? "Couper le son" : "Remettre le son");
+    soundBtn.setAttribute("aria-pressed", String(!!S.sound));
+    $("[data-sound-label]").textContent = S.sound ? "Son activé" : "Son coupé";
   }
   soundBtn.addEventListener("click", function () {
     S.sound = !S.sound; save(); paintSound();
+    if (inWelcome) { audio.muted = !S.sound; if (!S.sound && window.speechSynthesis) speechSynthesis.cancel(); return; }   // la bienvenue continue, sans la voix
     if (!S.sound) { stopVoice(); if (current) caption(current.text, true); } else narrate(current);
   });
   paintSound();
@@ -308,7 +320,7 @@
     $("[data-conv-title]").textContent = c && c.messages.length ? c.title : "Nouvelle conversation";
     messagesEl.innerHTML = "";
     if (big) {
-      messagesEl.innerHTML = '<div class="empty-state"><h2>Comment puis-je vous aider ?</h2><p>Environnement de formation · dossiers fictifs uniquement</p></div>';
+      messagesEl.innerHTML = '<div class="empty-state"><h2>Comment puis-je vous aider ?</h2></div>';
       messagesEl.firstChild.insertBefore(bigSay, messagesEl.firstChild.firstChild);
       messagesEl.firstChild.insertBefore(bigHost, messagesEl.firstChild.firstChild);
     } else c.messages.forEach(function (m) { messagesEl.appendChild(msgNode(m)); });
@@ -324,7 +336,7 @@
     ul.innerHTML = "";
     var list = P.convs.filter(function (c) { return c.messages.length; });
     if (demoRecents) {
-      // exemples fictifs, pour illustrer le repère « Échanges précédents »
+      // exemples fictifs, pour illustrer le repère « Échanges précédents »
       ["Idées pour l’affiche", "Relance du fournisseur", "Ordre du jour du point équipe"].forEach(function (t) {
         var li = h('<li><button type="button" class="is-demo" tabindex="-1"><svg><use href="#i-chat"/></svg><span></span></button></li>');
         li.querySelector("span").textContent = t;
@@ -497,15 +509,30 @@
   /* ---------- Champ de Claude : actif seulement quand c'est à l'apprenant d'écrire ---------- */
 
   var composeOn = false, composeTip = null;
+  // la phrase proposée par la voix (« par exemple : … ») s'écrit dans le cadre, en texte d'exemple, à la machine à écrire,
+  // une fois la voix finie ; avant, et sans phrase proposée : « Écrivez votre message ici… »
+  var hintText = "", hintShown = "", hintTimer = 0;
+  function typeHint(text) {
+    clearTimeout(hintTimer);
+    if (!composeOn) return;
+    hintText = text; hintShown = "";
+    var i = 0;
+    (function step() {
+      hintShown = text.slice(0, ++i); paintComposer();
+      if (i < text.length) hintTimer = setTimeout(step, 30 + Math.random() * 45);
+    })();
+  }
+  function clearHint() { clearTimeout(hintTimer); hintText = hintShown = ""; }
   function paintComposer() {
     var on = composeOn && !busy;
     input.disabled = !on;
-    sendBtn.disabled = !on || !!(tpl && !tplDone());
+    sendBtn.disabled = !on || (tpl ? !tplDone() : !input.value.trim());     // « Envoyer » s'allume quand il y a quelque chose à envoyer
     claudeEl.classList.toggle("is-locked", !composeOn);
-    input.placeholder = composeOn ? "Écrire à l’IA…" : "Le champ s’activera quand ce sera à vous d’écrire.";
+    input.placeholder = composeOn ? (hintText ? hintShown : "Écrivez votre message ici…") : "Ce cadre s’activera quand ce sera à vous d’écrire.";
   }
   function compose(on, tip) {
     composeOn = !!on;
+    if (!composeOn) clearHint();
     app.classList.toggle("focus-compose", composeOn);
     if (composeTip) { composeTip.remove(); composeTip = null; }
     if (false && composeOn && tip) {
@@ -519,6 +546,7 @@
   function insert(text) {
     input.value = text;
     autosize();
+    paintComposer();
     input.focus();
     input.setSelectionRange(input.value.length, input.value.length);
     hook("onInsert");
@@ -625,6 +653,7 @@
   });
   input.addEventListener("input", function () {
     autosize();
+    paintComposer();
     clearTimeout(typingTimer);
     typingTimer = setTimeout(function () { typingTimer = null; orbMood(); }, 1400);
     orbMood();
@@ -641,8 +670,8 @@
 
   var REPERES = [
     ["input", "Zone de saisie", "Vous y écrivez votre message, comme dans une messagerie.", false],
-    ["slash", "Commandes « / »", "Tapez « / » au début du champ pour afficher des commandes supplémentaires.", true],
-    ["attach", "Bouton « + »", "Ajoute un fichier ou une image à votre message, et donne accès à d’autres options.", false],
+    ["slash", "Commandes « / »", "Tapez « / » au début du champ pour afficher des commandes supplémentaires.", true],
+    ["attach", "Bouton « + »", "Ajoute un fichier ou une image à votre message, et donne accès à d’autres options.", false],
     ["send", "Envoyer", "La flèche envoie le message. La touche Entrée aussi.", false],
     ["new", "Nouvelle conversation", "Un nouveau sujet ? Repartez d’une page blanche.", false]
   ];
@@ -722,7 +751,8 @@
     narrate({ audio: s.audio || null, text: s.say });
   }
   function next() { go(P.i + 1); }
-  function autoNext(delay) { clearTimeout(autoTimer); autoTimer = setTimeout(next, delay || 2600); }
+  // activité réussie : on n'avance pas tout seul, le bouton « Suivant » s'allume (même geste à chaque étape)
+  function readyNext() { paintNext(); nextBtn.classList.remove("is-flash"); void nextBtn.offsetWidth; nextBtn.classList.add("is-flash"); }
 
   function render(fresh) {
     var s = st();
@@ -740,17 +770,51 @@
       side.appendChild(h('<h1 class="pv-h1">' + esc(s.title) + "</h1>"));
       side.appendChild(h('<span class="pv-rule"></span>'));
     }
+    fbQ = [];
     s.render(pv, side);
+    // la zone de travail : sous la consigne, jusqu'en bas du panneau ; l'activité y est centrée
+    // (et, quand l'activité se passe à gauche, ce qui s'y passe : s.stage) ; pas de zone vide
+    var ac = !s.full && pv.querySelector(":scope > .ac"), stage = null;
+    if (ac && (ac.nextSibling || s.stage)) {
+      stage = h('<div class="stage"></div>');
+      while (ac.nextSibling) stage.appendChild(ac.nextSibling);
+      if (s.stage && !stage.children.length) stage.classList.add("is-deco");   // une illustration : elle s'adapte à la place qui reste
+      if (s.stage) s.stage(stage);
+      // le dégradé coloré seulement quand l'apprenant a quelque chose à faire dans la zone (un bouton actif, une info à repérer) ;
+      // sinon (une illustration, un récapitulatif, le mail gardé sous les yeux), le gris
+      stage.classList.toggle("is-act", !!stage.querySelector("button:not(:disabled), .is-hunt"));
+      pv.appendChild(stage);
+      pv.classList.add("has-stage");
+    }
+    typo(pv);
+    paintFb();
+    actionBox = (stage || pv).appendChild(h('<div class="pv-act"></div>'));
     if (!fresh) Array.prototype.forEach.call(pv.children, function (c) { if (!c.classList.contains("is-new")) c.style.animation = "none"; });
     bodyEl.appendChild(pv);
+    fitStage();
     syncMarks(markT);
     bodyEl.scrollTop = fresh ? 0 : y;
-    $("[data-prog]").style.width = ((P.i + 1) / STEPS.length * 100) + "%";
     paintNext();
   }
   function refresh() { render(false); }
-  var backBtn = $("[data-back]"), quitBtn = $("[data-quit]");
-  quitBtn.addEventListener("click", quit);
+  // l'illustration de la zone de travail selon la place qui reste : complète, resserrée, puis effacée
+  function fitStage() {
+    var g = $(".stage.is-deco", bodyEl);
+    if (!g || !g.offsetParent) return;                                        // panneau caché (onglet, téléphone) : on mesurera à l'ouverture
+    g.classList.remove("fit-m", "fit-s", "fit-xs", "fit-0");
+    var hh = g.clientHeight;
+    if (hh < 330) g.classList.add("fit-m");
+    if (hh < 230) g.classList.add("fit-s");
+    if (hh < 190) g.classList.add("fit-xs");
+    if (hh < 150) g.classList.add("fit-0");
+  }
+  window.addEventListener("resize", fitStage);
+  // espaces insécables avant ? ! : ; » et après « : la ponctuation ne se retrouve jamais seule en début de ligne
+  function typo(root) {
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), n;
+    while ((n = w.nextNode())) { var v = n.nodeValue.replace(/ ([?!:;»])/g, "\u00a0$1").replace(/« /g, "«\u00a0"); if (v !== n.nodeValue) n.nodeValue = v; }
+  }
+  var backBtn = $("[data-back]"), quitBtn = $("[data-quit]"), actionBox = null;
   // Quitter : signale la fin à la plateforme (SCORM 1.2 ou 2004) si elle est présente, puis ferme la fenêtre
   function findApi(name) {
     for (var w = window, n = 0; w && n < 8; n++) {
@@ -759,21 +823,28 @@
     }
     return null;
   }
-  function quit() {
+  // done : le module est fini (score et réussite) ; sinon, la session reste en cours
+  function quit(done) {
     stopVoice();
     var snap = window.AtelierTracking.snapshot(), pct = Math.round(snap.score / snap.max * 100);
     var api12 = findApi("API"), api04 = findApi("API_1484_11");
     try {
-      if (api04) {
+      if (api04 && done) {
         api04.SetValue("cmi.score.scaled", String(snap.score / snap.max));
         api04.SetValue("cmi.score.raw", String(snap.score)); api04.SetValue("cmi.score.min", "0"); api04.SetValue("cmi.score.max", String(snap.max));
         api04.SetValue("cmi.completion_status", "completed");
         api04.SetValue("cmi.success_status", snap.validated ? "passed" : "failed");
         api04.SetValue("cmi.exit", "normal");
         api04.Commit(""); api04.Terminate("");
-      } else if (api12) {
+      } else if (api04) {
+        api04.SetValue("cmi.completion_status", "incomplete"); api04.SetValue("cmi.exit", "suspend");
+        api04.Commit(""); api04.Terminate("");
+      } else if (api12 && done) {
         api12.LMSSetValue("cmi.core.score.raw", String(pct)); api12.LMSSetValue("cmi.core.score.min", "0"); api12.LMSSetValue("cmi.core.score.max", "100");
         api12.LMSSetValue("cmi.core.lesson_status", snap.validated ? "passed" : "failed");
+        api12.LMSCommit(""); api12.LMSFinish("");
+      } else if (api12) {
+        api12.LMSSetValue("cmi.core.lesson_status", "incomplete"); api12.LMSSetValue("cmi.core.exit", "suspend");
         api12.LMSCommit(""); api12.LMSFinish("");
       }
     } catch (e) {}
@@ -781,25 +852,118 @@
     try { window.close(); } catch (e) {}
     setTimeout(function () { $("[data-end]").hidden = false; }, 250);
   }
-  backBtn.addEventListener("click", function () { if (P.i > 0) go(P.i - 1); });
-  function paintNext() {
-    backBtn.hidden = P.i === 0;
-    quitBtn.hidden = !st().full;
-    var s = st(), p = s.primary ? s.primary() : { label: "Continuer", disabled: s.ready ? !s.ready() : false, run: next };
-    if (!p) { nextBtn.hidden = true; return; }
-    nextBtn.hidden = false;
-    $("[data-next-label]").textContent = p.label;
-    nextBtn.disabled = !!p.disabled;
-    nextBtn.classList.toggle("is-success", !!p.success);
-    nextBtn.onclick = function () { if (!p.disabled && p.run) p.run(); };
+  // « Quitter » demande confirmation : un clic de trop ne doit pas faire perdre le module
+  var askEl = $("[data-ask]");
+  function askQuit() {
+    var end = !!st().full && !inWelcome;
+    $("[data-ask-title]").textContent = end ? "Terminer le module ?" : "Quitter le module ?";
+    $("[data-ask-text]").textContent = end ? "Votre résultat est enregistré." : "Si vous quittez maintenant, vous recommencerez le module depuis le début.";
+    askEl.hidden = false;
+    askEl.dataset.end = end ? "1" : "";
+    $("[data-ask-no]").focus();
   }
+  $("[data-ask-no]").addEventListener("click", function () { askEl.hidden = true; quitBtn.focus(); });
+  $("[data-ask-yes]").addEventListener("click", function () { askEl.hidden = true; quit(!!askEl.dataset.end); });
+  askEl.addEventListener("click", function (e) { if (e.target === askEl) askEl.hidden = true; });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !askEl.hidden) askEl.hidden = true; });
+  quitBtn.addEventListener("click", askQuit);
+
+  // l'étape peut-elle être quittée ? sinon, quel bouton d'activité montrer dans le panneau (« Valider », « Réessayer »…)
+  function navState() {
+    var s = st(), p = s.primary ? s.primary() : null;
+    if (p && p.run !== next) return { action: p, ready: false };
+    return { action: null, ready: p ? !p.disabled : s.ready ? !!s.ready() : true };
+  }
+  function paintNext() {
+    var s = st(), n = navState(), last = P.i === STEPS.length - 1;
+    if (inWelcome) n = { action: null, ready: true };
+    backBtn.disabled = inWelcome || P.i === 0;
+    $("[data-next-label]").textContent = last && !inWelcome ? "Terminer" : "Suivant";
+    nextBtn.classList.toggle("is-off", !n.ready);
+    nextBtn.setAttribute("aria-disabled", String(!n.ready));
+    if (!n.ready) nextBtn.classList.remove("is-flash");
+    if (actionBox) {
+      actionBox.innerHTML = "";
+      if (n.action) {
+        var b = h('<button type="button" class="pv-go"></button>');
+        b.textContent = n.action.label;
+        b.disabled = !!n.action.disabled;
+        b.onclick = function () { if (!n.action.disabled && n.action.run) n.action.run(); };
+        actionBox.appendChild(b);
+      }
+    }
+  }
+  backBtn.addEventListener("click", function () { if (!backBtn.disabled && P.i > 0) go(P.i - 1); });
+  nextBtn.addEventListener("click", function () {
+    if (inWelcome) { leaveWelcome(); return; }
+    if (!navState().ready) {                              // pas encore : on montre ce qu'il reste à faire
+      toast("Faites d’abord ce qui est demandé. Le bouton « Suivant » s’allumera ensuite.");
+      nextBtn.classList.remove("is-denied"); void nextBtn.offsetWidth; nextBtn.classList.add("is-denied");
+      var cur = $(".ac-i.is-cur", bodyEl);
+      if (cur) { cur.classList.remove("is-nudge"); void cur.offsetWidth; cur.classList.add("is-nudge"); cur.scrollIntoView({ block: "nearest", behavior: "smooth" }); }
+      callMarks();
+      return;
+    }
+    if (P.i === STEPS.length - 1) { quit(true); return; }
+    next();
+  });
 
   /* petits constructeurs de contenu */
-  function lead(pv, html) { pv.appendChild(h('<p class="pv-lead">' + html + "</p>")); }
-  function fbNew(pv, kind, html) { fb(pv, kind, html); pv.lastChild.classList.add("is-new", "fb-pop"); }
+  // sur les petits écrans, l'IA n'est pas « à gauche » mais dans l'onglet « L'IA »
+  function here(html) { return window.innerWidth > 980 ? html : html.replace(/la partie <b>à gauche<\/b> de l’écran/g, "l’onglet <b>« L’IA »</b>").replace(/,? à gauche/g, ", dans l’onglet « L’IA »"); }
+  function lead(pv, html) { pv.appendChild(h('<p class="pv-lead">' + here(html) + "</p>")); }
+  // la consigne, à chaque étape la même forme : un pas-à-pas d'une seule colonne, les numéros reliés par un trait ;
+  // le bouton à reconnaître est glissé dans la phrase ({envoyer}, {suivant}, {case}…), tel qu'il apparaît à l'écran.
+  // item : [texte (le verbe en gras), précision facultative, contenu sous l'action en cours, "hide" : disparaît une fois faite]
+  var UI = {
+    envoyer: '<span class="ui ui-dark">Envoyer<svg><use href="#i-up"/></svg></span>',
+    suivant: '<span class="ui ui-next">Suivant<svg><use href="#i-arrow"/></svg></span>',
+    terminer: '<span class="ui ui-next">Terminer<svg><use href="#i-arrow"/></svg></span>',
+    valider: '<span class="ui ui-dark">Valider</span>',
+    vrai: '<span class="ui ui-line is-yes">Vrai</span>',
+    faux: '<span class="ui ui-line is-no">Faux</span>',
+    "case": '<span class="ui ui-slot">case orange</span>',
+    enregistrer: '<span class="ui ui-line"><svg><use href="#i-check"/></svg>Enregistrer la fiche</span>'
+  };
+  function ui(t) { return here(t).replace(/\{(\w+)\}/g, function (m, k) { return UI[k] || m; }); }
+  var NEXT = ["<b>Cliquez</b> sur {suivant}", "en bas à droite"];
+  // une action faite reste, cochée en vert ; seule une action marquée « hide » (4e élément) disparaît une fois faite
+  function consigne(pv, items, cur) {
+    var ol = h('<ol class="ac"></ol>');
+    items.forEach(function (it, k) {
+      if (k < cur && it[3] === "hide") return;
+      var li = h('<li class="ac-i"><span class="ac-n"></span><div class="ac-t"><p></p></div></li>');
+      li.classList.toggle("is-done", k < cur);
+      li.classList.toggle("is-cur", k === cur);
+      li.querySelector(".ac-n").textContent = k < cur ? "✓" : k + 1;
+      li.querySelector("p").innerHTML = ui(it[0]) + (it[1] ? "<small>" + ui(it[1]) + "</small>" : "");
+      if (it[2] && k === cur) { var x = h('<div class="ac-x"></div>'); it[2](x); li.lastChild.appendChild(x); }
+      ol.appendChild(li);
+    });
+    pv.appendChild(h('<p class="ac-h">À faire</p>'));
+    pv.appendChild(ol);
+  }
+  // les infos à repérer dans le mail pulsent deux fois : « c'est ici qu'on clique »
+  function callMarks() {
+    $$(".mk.is-hunt", bodyEl).concat($$(".chat-hunt:not(.is-found)", messagesEl)).forEach(function (m) { m.classList.remove("is-call"); void m.offsetWidth; m.classList.add("is-call"); });
+  }
+  // le retour (« Bravo », « À reprendre »…) : toujours en bas du panneau, sur toute sa largeur, avec la même animation ;
+  // il ne s'anime que s'il change, pas à chaque rafraîchissement de l'étape
+  var fbz = $("[data-fbz]"), fbQ = [], fbShown = "";
   function fb(pv, kind, html) {
     var icon = kind === "ok" ? "check" : kind === "ko" ? "bulb" : "info";
-    pv.appendChild(h('<p class="pv-fb' + (kind ? " is-" + kind : "") + '"><svg><use href="#i-' + icon + '"/></svg><span>' + html + "</span></p>"));
+    fbQ.push('<p class="pv-fb' + (kind ? " is-" + kind : "") + '"><span class="fb-i"><svg><use href="#i-' + icon + '"/></svg></span><span class="fb-t">' + html + "</span></p>");
+  }
+  var fbNew = fb;
+  function paintFb() {
+    var out = fbQ.join("");
+    if (out === fbShown) return;
+    fbShown = out;
+    fbz.innerHTML = out;
+    typo(fbz);
+    fbz.hidden = !out;
+    fbz.classList.remove("is-in"); void fbz.offsetWidth;
+    if (out) fbz.classList.add("is-in");
   }
   function stepsList(pv, items, curIdx) {
     var ol = h('<ol class="pv-steps"></ol>');
@@ -821,54 +985,40 @@
   }
 
   /* quiz à choix unique : 1 point, deux essais avant le corrigé */
+  // QCM : un clic sur une réponse la valide aussitôt (deux essais) ; une mauvaise réponse reste barrée
   function quiz(id, q, opts, answer) {
+    var L = "ABCDEFG";
     return {
       render: function (pv) {
         var a = act(id);
         a.tries = a.tries || [];
         pv.appendChild(h('<p class="pv-q"></p>')).textContent = q;
-        var box = h('<div class="pv-opts" role="radiogroup"></div>');
-        var checked = a.checked;
+        var box = h('<div class="pv-opts"></div>');
         opts.forEach(function (o, k) {
-          var b = h('<button type="button" class="qo" role="radio"><span class="r"></span><span><b>' + "ABC"[k] + ".</b> " + esc(o[0]) + "</span></button>");
-          var chosen = checked ? a.tries[a.tries.length - 1] === k : a.sel === k;
-          b.setAttribute("aria-checked", String(chosen && !checked));
-          if (a.done && k === answer) b.classList.add("is-right");
-          else if (checked && chosen) b.classList.add(k === answer ? "is-right" : "is-wrong");
-          else if (a.done && a.tries.indexOf(k) >= 0) b.classList.add("is-wrong");
+          var b = h('<button type="button" class="qo"><span class="r"></span><span><b>' + L[k] + ".</b> " + esc(o[0]) + "</span></button>");
+          var tried = a.tries.indexOf(k) >= 0;
+          if (tried) b.classList.add(k === answer ? "is-right" : "is-wrong");
+          else if (a.done && k === answer) b.classList.add("is-right");
           else if (a.done) b.classList.add("is-dim");
-          b.disabled = !!(checked || a.done);
-          b.onclick = function () { a.sel = k; refresh(); };
+          b.disabled = !!(a.done || tried);
+          b.onclick = function () {
+            a.tries.push(k);
+            var ok = k === answer;
+            a.best = ok ? 1 : (a.best || 0);
+            if (ok || a.tries.length >= 2) a.done = true;
+            refresh();
+            if (a.done) readyNext();
+          };
           box.appendChild(b);
         });
         pv.appendChild(box);
         if (a.tries.length) {
           var last = a.tries[a.tries.length - 1], ok = last === answer;
           fb(pv, ok ? "ok" : "ko", "<b>" + (ok ? "Correct" : "À reprendre") + " :</b> " + esc(opts[last][1]));
-          if (a.done && !ok) fb(pv, "", "<b>Correction :</b> " + "ABC"[answer] + ". " + esc(opts[answer][0]) + " · " + esc(opts[answer][1]));
+          if (a.done && !ok) fb(pv, "", "<b>Correction :</b> " + L[answer] + ". " + esc(opts[answer][0]) + " · " + esc(opts[answer][1]));
         }
-        if (checked && !a.done) {
-          var l = h('<p class="pv-hint"></p>');
-          l.appendChild(button("Voir la correction", "eye", function () { a.corrected = true; a.done = true; a.checked = false; refresh(); }));
-          pv.appendChild(l);
-        }
-        pv.appendChild(h('<p class="pv-tries">1 point · essai ' + Math.min(a.tries.length + (a.done || checked ? 0 : 1), 2) + " sur 2</p>"));
       },
-      primary: function () {
-        var a = act(id);
-        a.tries = a.tries || [];
-        if (a.done) return { label: "Continuer", run: next, success: a.best === 1 };
-        if (a.checked) return { label: "Réessayer", run: function () { a.checked = false; a.sel = null; refresh(); } };
-        return { label: "Valider", disabled: a.sel === null || a.sel === undefined, run: function () {
-          a.tries.push(a.sel);
-          var ok = a.sel === answer;
-          a.best = ok ? 1 : (a.best || 0);
-          a.checked = true;
-          if (ok || a.tries.length >= 2) { a.done = true; a.checked = ok; }
-          refresh();
-          if (ok) autoNext(2600);
-        } };
-      }
+      ready: function () { return !!act(id).done; }
     };
   }
   function extend(base, more) { Object.keys(more).forEach(function (k) { base[k] = more[k]; }); return base; }
@@ -984,7 +1134,7 @@
           a.best = Math.max(a.best || 0, score);
           if (score === n || a.tries.length >= 2) a.done = true; else a.checked = true;
           refresh();
-          if (score === n) autoNext(3000);
+          if (score === n) readyNext();
         } };
       }
     };
@@ -1053,17 +1203,17 @@
           var last = a.res[k - 1];
           fbNew(pv, last.ok ? "ok" : "ko", "<b>" + (last.ok ? "Bien vu, c’est " : "Eh non, c’est ") + (cards[k - 1][1] ? "vrai" : "faux") + ".</b> " + esc(cards[k - 1][2]));
         }
+        // les 3 phrases et leur bonne réponse, telles que sur les boutons ; une erreur est signalée sur sa ligne
         if (k === cards.length) {
-          var ul = h('<ul class="sw-recap is-new"></ul>');
+          var box = h('<div class="sw-sum is-new"><p class="sw-sum-h"><span>Les bonnes réponses</span><b></b></p><ul></ul></div>');
+          box.querySelector("b").textContent = a.best + " / " + cards.length;
           cards.forEach(function (cd, j) {
-            var li = h('<li><span class="st"></span><span></span></li>');
-            li.firstChild.textContent = a.res[j].ok ? "✓" : "✗";
-            li.firstChild.classList.add(a.res[j].ok ? "ok" : "ko");
-            li.lastChild.textContent = cd[0] + " — " + (cd[1] ? "vrai" : "faux");
-            ul.appendChild(li);
+            var li = h('<li><span class="sw-sum-t"></span><span class="ui ui-line ' + (cd[1] ? "is-yes\">Vrai" : "is-no\">Faux") + "</span></li>");
+            li.firstChild.textContent = cd[0];
+            if (!a.res[j].ok) { li.classList.add("is-miss"); li.firstChild.appendChild(h('<small>Vous aviez répondu « ' + (cd[1] ? "Faux" : "Vrai") + " »</small>")); }
+            box.lastChild.appendChild(li);
           });
-          pv.appendChild(ul);
-          pv.appendChild(h('<p class="pv-tries">' + a.best + " bonne" + (a.best > 1 ? "s" : "") + " réponse" + (a.best > 1 ? "s" : "") + " sur " + cards.length + "</p>"));
+          pv.appendChild(box);
         }
       },
       ready: function () { var a = act(id); return a.res && a.res.length === cards.length; },
@@ -1090,7 +1240,7 @@
         shown.forEach(function (k) {
           var pos = a.seq.indexOf(k);
           var b = h('<button type="button" class="ord-card"><span class="ord-n"></span><span class="ord-t"></span></button>');
-          b.querySelector(".ord-t").textContent = "« " + items[k] + " »";
+          b.querySelector(".ord-t").textContent = "« " + items[k] + " »";
           b.querySelector(".ord-n").textContent = pos >= 0 ? pos + 1 : "";
           if (pos >= 0) b.classList.add("is-on");
           if (locked && pos >= 0) b.classList.add(pos === k ? "is-good" : "is-bad");
@@ -1107,7 +1257,7 @@
           var ok = a.tries[a.tries.length - 1];
           fb(pv, ok ? "ok" : "ko", ok ? "<b>Réussi :</b> plus on donne de précisions, plus la réponse sera adaptée. Les trois restent des prompts." : "<b>À reprendre :</b> comparez la quantité de précisions dans chaque prompt.");
         }
-        if (a.done && !a.best) fb(pv, "", "<b>Correction :</b> " + items.map(function (t, k) { return (k + 1) + ". « " + esc(t) + " »"; }).join(" · "));
+        if (a.done && !a.best) fb(pv, "", "<b>Correction :</b> " + items.map(function (t, k) { return (k + 1) + ". « " + esc(t) + " »"; }).join(" · "));
         triesLine(pv, a, 1);
       },
       primary: function () {
@@ -1121,7 +1271,7 @@
           a.best = ok ? 1 : (a.best || 0);
           if (ok || a.tries.length >= 2) a.done = true; else a.checked = true;
           refresh();
-          if (ok) autoNext(3000);
+          if (ok) readyNext();
         } };
       }
     };
@@ -1169,7 +1319,7 @@
           a.best = ok ? 1 : (a.best || 0);
           if (ok || a.tries.length >= 2) a.done = true; else a.checked = true;
           refresh();
-          if (ok) autoNext(3200);
+          if (ok) readyNext();
         } };
       },
       count: goodCount
@@ -1230,7 +1380,7 @@
           }
           b.disabled = !!locked;
           b.onclick = function () {
-            if (a.sel === null || a.sel === undefined) { toast("Choisissez d’abord un élément, à gauche."); return; }
+            if (a.sel === null || a.sel === undefined) { toast("Cliquez d’abord sur une situation."); return; }
             Object.keys(a.links).forEach(function (k) { if (a.links[k] === f[0] && !(a.good && a.good[k])) delete a.links[k]; });
             a.links[a.sel] = f[0];
             var nk = cfg.left.map(function (x, k) { return k; }).filter(function (k) { return !a.links[k]; })[0];
@@ -1266,7 +1416,7 @@
           a.sel = null;
           if (score === n || a.tries.length >= 2) a.done = true; else a.checked = true;
           refresh();
-          if (score === n) autoNext(3000);
+          if (score === n) readyNext();
         } };
       },
       leave: function () { redrawLinks = null; }
@@ -1287,7 +1437,7 @@
     pv.appendChild(box);
   }
 
-  /* ---------- Situation (fictive) : l'offre d'emploi ---------- */
+  /* ---------- Situation (fictive) : l'offre d'emploi de Sophie ---------- */
 
   var BRIEF = [
     "Peux-tu préparer l’offre d’emploi pour le poste d’assistant·e administratif·ve ?",
@@ -1296,9 +1446,394 @@
     "Prise de poste le 3 mars. Candidatures jusqu’au 15 février.",
     "Merci ! Sophie"
   ];
+  // les passages de la première offre : inventés (1) ou banals pour ce poste (0)
   var INVENTS = [["Paris", 1], ["3 500 € brut par mois", 1], ["13e mois", 1], ["gestion du courrier", 0], ["maîtrise des outils bureautiques", 0]];
+  var ADD_HINT = "Ajoute la date de prise de poste : le 3 mars.";
 
-  var RESULT_STEP = {
+  // le message de Sophie, tel qu'elle l'a envoyé : à garder sous les yeux pendant qu'on écrit
+  function briefCard() {
+    var note = h('<div class="brief"><div class="brief-h"><span class="brief-av">SL</span><div><b>Sophie Laurent</b><small>Responsable · aujourd’hui, 09:12</small></div></div><div class="brief-t"></div></div>');
+    BRIEF.forEach(function (l) { var p = document.createElement("p"); p.textContent = l; note.lastChild.appendChild(p); });
+    return note;
+  }
+  // les cinq briques, en pastilles : allumées quand elles sont là
+  function brickRow(got) {
+    var row = h('<div class="bk-row"></div>');
+    BRICKS.forEach(function (b) {
+      var c = h('<span class="bk' + (got[b.k] ? " is-on" : "") + '"><i></i></span>');
+      c.appendChild(document.createTextNode(b.name));
+      c.title = b.q;
+      row.appendChild(c);
+    });
+    return row;
+  }
+
+  /* cartes à retourner : chaque carte montre une brique, puis, retournée, à quoi elle sert ------------------------ */
+  function flipCards(id, cards) {
+    return {
+      render: function (pv) {
+        var a = act(id);
+        a.seen = a.seen || {};
+        consigne(pv, [["<b>Cliquez</b> sur chaque carte pour la retourner <span class='pv-count'>" + Object.keys(a.seen).length + " / " + cards.length + "</span>"]], a.all ? 1 : 0);
+        var g = h('<div class="flip-grid"></div>');
+        cards.forEach(function (c, k) {
+          var b = h('<button type="button" class="flip"><span class="flip-in"><span class="flip-f"><em></em><b></b></span><span class="flip-b"><em></em><span class="flip-txt"><span class="flip-q"></span><span class="flip-ex"></span></span></span></span></button>');
+          b.querySelector(".flip-f em").textContent = c[0];
+          b.querySelector(".flip-f b").textContent = c[1];
+          b.querySelector(".flip-b em").textContent = c[1];
+          b.querySelector(".flip-q").textContent = c[2];
+          b.querySelector(".flip-ex").textContent = c[3];
+          if (a.seen[k]) { b.classList.add("is-on"); b.disabled = true; }
+          b.onclick = function () {
+            if (a.seen[k]) return;
+            a.seen[k] = true;
+            b.classList.add("is-on"); b.disabled = true;                    // la carte se retourne (sans tout redessiner)
+            var n = Object.keys(a.seen).length, cnt = $(".pv-count", bodyEl);
+            if (cnt) cnt.textContent = n + " / " + cards.length;
+            if (n === cards.length && !a.all) { a.all = true; setTimeout(function () { refresh(); readyNext(); }, 650); }
+          };
+          g.appendChild(b);
+        });
+        pv.appendChild(g);
+        if (a.all) fb(pv, "ok", "<b>Retenez l’ordre : R · C · O · C · F.</b> Rôle, Cible, Objectif, Contexte, Format.");
+      },
+      ready: function () { return !!act(id).all; }
+    };
+  }
+
+  /* quelle brique manque ? un prompt à la fois, les cinq briques en boutons ------------------------------------ */
+  function whichMissing(id, items) {
+    return {
+      render: function (pv) {
+        var a = act(id);
+        a.ans = a.ans || {};
+        var n = Object.keys(a.ans).length;
+        consigne(pv, [["<b>Lisez</b> le prompt, puis cliquez sur la brique oubliée"], ["<b>Faites-le</b> pour les " + items.length + " prompts"]], n === items.length ? 2 : n ? 1 : 0);
+        items.forEach(function (it, k) {
+          var box = h('<div class="wm"><p class="wm-n"></p><p class="wm-p"></p><div class="wm-opts"></div></div>');
+          box.querySelector(".wm-n").textContent = "Prompt " + (k + 1);
+          box.querySelector(".wm-p").textContent = "« " + it[0] + " »";
+          var picked = a.ans[k];
+          BRICKS.forEach(function (b) {
+            var o = h('<button type="button" class="wm-o"></button>');
+            o.textContent = b.name;
+            if (picked !== undefined) {
+              o.disabled = true;
+              if (b.k === it[1]) o.classList.add("is-right");
+              else if (picked === b.k) o.classList.add("is-wrong");
+              else o.classList.add("is-dim");
+            }
+            o.onclick = function () {
+              a.ans[k] = b.k; a.last = k;
+              a.best = items.filter(function (x, j) { return a.ans[j] === x[1]; }).length;
+              refresh();
+              if (Object.keys(a.ans).length === items.length) readyNext();
+            };
+            box.querySelector(".wm-opts").appendChild(o);
+          });
+          pv.appendChild(box);
+        });
+        if (a.last !== undefined) {
+          var it = items[a.last], ok = a.ans[a.last] === it[1], name = BRICKS.filter(function (b) { return b.k === it[1]; })[0].name.toLowerCase();
+          fb(pv, ok ? "ok" : "ko", "<b>" + (ok ? "Exact, c’est " : "C’était ") + "le " + name + ".</b> " + esc(it[2]));
+        }
+      },
+      ready: function () { return Object.keys(act(id).ans || {}).length === items.length; }
+    };
+  }
+
+  /* repérer des passages dans la réponse de l'IA, à gauche : ils se voient comme des boutons,
+     et apparaissent quand la voix dit de cliquer (at, en secondes) ------------------------------------------- */
+  function huntChat(list, onPick, found, at) {
+    var body = $(".msg--ai .body", messagesEl);
+    if (!body) return;
+    list.forEach(function (it) {
+      var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT), n;
+      while ((n = walker.nextNode())) {
+        var i = n.nodeValue.indexOf(it[0]);
+        if (i < 0) continue;
+        var rest = n.splitText(i); rest.splitText(it[0].length);
+        var mk = document.createElement("mark");
+        mk.className = "chat-hunt" + (found && found[it[0]] ? " is-found" : "");
+        mk.textContent = it[0];
+        mk.setAttribute("role", "button"); mk.tabIndex = 0;
+        if (at) mk.dataset.at = at;
+        (function (mk) {
+          mk.onclick = function () {
+            if (mk.classList.contains("is-found")) return;
+            if (it[1]) mk.classList.add("is-found"); else { mk.classList.remove("is-nope"); void mk.offsetWidth; mk.classList.add("is-nope"); }
+            onPick(it[0], !!it[1]);
+          };
+        })(mk);
+        rest.replaceWith(mk);
+        break;
+      }
+    });
+    messagesEl.classList.add("is-hunting");
+    syncMarks(markT);                                                   // déjà dit par la voix : visibles tout de suite
+  }
+  function unhuntChat() {
+    messagesEl.classList.remove("is-hunting");
+    $$(".chat-hunt", messagesEl).forEach(function (m) { m.replaceWith(document.createTextNode(m.textContent)); });
+  }
+
+  /* ---------- Les étapes ---------- */
+
+  var ALL_STEPS = [
+    /* 1 · Une demande trop vague -------------------------------------------------------------- */
+    {
+      id: "vague", seq: 0, title: "Une demande trop vague", audio: "module-2/vague",
+      say: "Sophie, votre responsable, vous demande de rédiger une offre d’emploi. Premier réflexe : on demande directement à l’IA. La demande est prête dans le champ. Envoyez-la, et regardez le résultat.",
+      render: function (pv) {
+        var a = act("vague");
+        consigne(pv, [
+          ["<b>Cliquez</b> sur {envoyer}", "la demande est déjà écrite dans le cadre blanc, à gauche"],
+          ["<b>Lisez</b> la réponse de l’IA"],
+          NEXT
+        ], a.done ? 2 : a.sent ? 1 : 0);
+        if (a.done) fb(pv, "", "L’offre a l’air correcte… Mais d’où viennent <b>la ville, le salaire et le 13e mois</b> ? Vous ne les avez jamais donnés.");
+      },
+      ready: function () { return !!act("vague").done; },
+      enter: function () {
+        if (act("vague").done) return;
+        newConv(); renderConv();
+        template(["Écris une offre d’emploi pour un poste d’assistant administratif."]);
+      },
+      onSend: function () { act("vague").sent = true; compose(false); refresh(); },
+      onAnswer: function (c) { act("vague").done = true; P.vagueConv = c.id; refresh(); readyNext(); }
+    },
+
+    /* 2 · Ce que l'IA a inventé (clic dans la réponse) ----------------------------------------- */
+    {
+      id: "invente", seq: 0, title: "Ce que l’IA a inventé", audio: "module-2/invente",
+      say: "L’IA ne connaît pas votre poste. Alors elle a comblé les trous. Dans sa réponse, à gauche, cliquez sur les trois informations qu’elle a inventées.",
+      render: function (pv) {
+        var a = act("invente");
+        a.found = a.found || {};
+        consigne(pv, [
+          ["<b>Cliquez</b> sur les 3 infos inventées <span class='pv-count'>" + Object.keys(a.found).length + " / 3</span>", "dans la réponse de l’IA, à gauche"]
+        ], a.done ? 1 : 0);
+        if (a.why && !a.done) fb(pv, "ko", a.why);
+        if (a.done) fb(pv, "ok", "<b>Bien vu.</b> Sans informations, l’IA invente ce qui manque : une ville, un salaire, un avantage. Pour l’éviter, il faut lui donner un <b>contexte</b>.");
+      },
+      ready: function () { return !!act("invente").done; },
+      enter: function () {
+        var a = act("invente");
+        if (P.vagueConv) openConv(P.vagueConv);
+        // les passages apparaissent quand la voix dit « Dans sa réponse, à gauche, cliquez… »
+        setTimeout(function () {
+          huntChat(INVENTS, function (txt, ok) {
+            if (ok) { a.found[txt] = true; a.why = null; }
+            else { a.miss = (a.miss || 0) + 1; a.why = "« " + esc(txt) + " » : c’est une tâche ou une compétence banale pour ce poste, pas une information inventée."; }
+            if (Object.keys(a.found).length === 3 && !a.done) { a.done = true; a.best = (a.miss || 0) <= 1 ? 1 : 0; readyNext(); }
+            refresh();
+          }, a.found, wordAt("module-2/invente", /^Dans$/));
+          if (markT >= 999) callMarks();                                // sans la voix : visibles et pulsants tout de suite
+        }, 350);
+      },
+      leave: function () { unhuntChat(); }
+    },
+
+    /* 3 · Pourquoi ces inventions ? (QCM) ------------------------------------------------------- */
+    extend({
+      id: "pourquoi", seq: 0, title: "Pourquoi ces inventions ?", audio: "module-2/pourquoi",
+      say: "Une question pour bien comprendre. Pourquoi l’IA a-t-elle inventé une ville, un salaire et un 13e mois ?"
+    }, (function () {
+      var w = quiz("pourquoi", "Pourquoi l’IA a-t-elle inventé la ville, le salaire et le 13e mois ?", [
+        ["Elle se trompe à chaque fois : il ne faut pas s’en servir.", "Non : avec les bonnes informations, elle fait un travail utile. Le problème vient de la demande."],
+        ["On ne lui a donné aucun contexte : elle a comblé les trous.", "Exact : sans informations, l’IA complète avec ce qui lui semble plausible. D’où l’importance du contexte."],
+        ["Elle a copié une vraie offre trouvée sur Internet.", "Non : elle a produit un texte plausible, pas une copie. Mais les détails ne viennent pas de vous."]
+      ], 1);
+      var r = w.render;
+      w.render = function (pv) { consigne(pv, [["<b>Lisez</b> la question, puis cliquez sur la bonne réponse"]], act("pourquoi").done ? 1 : 0); r(pv); };
+      return w;
+    })()),
+
+    /* 4 · Les cinq briques (cartes à retourner) -------------------------------------------------- */
+    extend({
+      id: "briques", compact: true, seq: 1, title: "Les cinq briques d’un prompt", audio: "module-2/briques",
+      say: "Un bon prompt se construit avec cinq briques : le rôle, la cible, l’objectif, le contexte et le format. Retournez chaque carte pour découvrir à quoi elle sert."
+    }, flipCards("briques", [
+      ["R", "Rôle", "Qui l’IA doit-elle être ?", "« Tu es chargé·e de recrutement dans une PME. »"],
+      ["C", "Cible", "Pour qui est le texte ?", "« …pour des candidats débutants. »"],
+      ["O", "Objectif", "Que doit-il produire, et pourquoi ?", "« Rédige une offre qui donne envie de postuler. »"],
+      ["C", "Contexte", "Quelles informations doit-il connaître ?", "« CDI, 35 h, Lyon, 24 à 26 k€… »"],
+      ["F", "Format", "Sous quelle forme ?", "« 150 mots, 3 rubriques, ton chaleureux. »"]
+    ])),
+
+    /* 5 · Reconnaître les briques (relier) ------------------------------------------------------- */
+    extend({
+      id: "relier", compact: true, seq: 1, title: "Reconnaître les briques", audio: "module-2/relier",
+      say: "Voici un prompt découpé en morceaux. Reliez chaque morceau à la brique qui lui correspond."
+    }, (function () {
+      var K = "#151517";                                                // un seul noir, puis vert ou rouge à la correction
+      var w = relier("relier", {
+        heads: ["Morceaux du prompt", "Briques"],
+        left: [
+          ["« Tu es chargé·e de recrutement »", "role"],
+          ["« pour des candidats débutants »", "cible"],
+          ["« Rédige une offre qui donne envie de postuler »", "obj"],
+          ["« CDI, Lyon 7e, télétravail 1 jour par semaine »", "ctx"],
+          ["« 150 mots, 3 rubriques, ton chaleureux »", "fmt"]
+        ],
+        right: [["ctx", "Contexte"], ["role", "Rôle"], ["fmt", "Format"], ["obj", "Objectif"], ["cible", "Cible"]],
+        colors: { role: K, cible: K, obj: K, ctx: K, fmt: K }
+      });
+      var r = w.render;
+      w.render = function (pv) {
+        var a = act("relier"), n = Object.keys(a.links || {}).length;
+        consigne(pv, [["<b>Cliquez</b> sur un morceau, puis sur sa brique"], ["<b>Faites-le</b> pour les 5 morceaux"]], a.done ? 2 : n ? 1 : 0);
+        r(pv);
+      };
+      return w;
+    })()),
+
+    /* 6 · La brique oubliée ------------------------------------------------------------------------ */
+    extend({
+      id: "manque", compact: true, seq: 1, title: "La brique oubliée", audio: "module-2/manque",
+      say: "Chaque prompt a oublié une brique. Laquelle ?"
+    }, whichMissing("manque", [
+      ["Rédige une publication pour les abonnés de notre boulangerie, afin d’annoncer la nouvelle galette. En 3 phrases, ton gourmand.", "role", "Qui écrit ? Un community manager, par exemple."],
+      ["Tu es juriste. Résume ce contrat en 5 points clairs, pour un nouveau salarié.", "ctx", "Le contrat n’est pas donné : rien à résumer."]
+    ])),
+
+    /* 7 · Construire le prompt, avec le message de Sophie ----------------------------------------- */
+    {
+      id: "construire", compact: true, seq: 2, title: "Construire le prompt", audio: "module-2/construire",
+      say: "Voici le message de Sophie. À gauche, le prompt est prêt en cinq cases, une par brique. Cliquez sur chaque case orange, choisissez la bonne réponse ou écrivez la vôtre, puis envoyez.",
+      render: function (pv) {
+        var a = act("construire");
+        consigne(pv, [
+          ["<b>Complétez</b> chaque {case} avec le message de Sophie, puis envoyez", "dans le cadre blanc, à gauche"],
+          ["<b>Lisez</b> la réponse de l’IA"]
+        ], a.done ? 2 : a.sent ? 1 : 0);
+        pv.appendChild(briefCard());
+        pv.appendChild(brickRow(a.vals || {}));
+        if (a.done) fb(pv, a.best === 5 ? "ok" : "", "<b>" + a.best + " brique" + (a.best > 1 ? "s" : "") + " bien choisie" + (a.best > 1 ? "s" : "") + " sur 5.</b> " + (a.best === 5 ? "Comparez avec la première offre : rien n’est inventé." : "Comparez avec le message de Sophie : les bonnes briques reprennent ses informations."));
+      },
+      ready: function () { return !!act("construire").done; },
+      enter: function () {
+        if (act("construire").done) return;
+        var c = newConv(); c.title = "Offre d’emploi"; P.offreConv = c.id; renderConv();
+        template([
+          "Tu es ", { k: "role", label: "Rôle", opts: ["chargé·e de recrutement dans une PME", "poète", "avocat·e en droit du travail"] },
+          ". Rédige une offre d’emploi pour ", { k: "cible", label: "Cible", opts: ["des candidats débutants ou en reconversion", "les clients de l’entreprise", "des experts avec 10 ans d’expérience"] },
+          ", afin de ", { k: "obj", label: "Objectif", opts: ["donner envie de postuler", "présenter l’histoire de l’entreprise", "décourager les candidats"] },
+          ". Contexte : ", { k: "ctx", label: "Contexte", opts: ["CDI, 35 h, Lyon 7e, télétravail 1 jour par semaine, 24 à 26 k€ brut par an", "CDD de 3 mois à Paris", "aucune précision"] },
+          ". Format : ", { k: "fmt", label: "Format", opts: ["environ 150 mots, 3 rubriques (missions, profil, avantages), ton chaleureux", "un poème en alexandrins", "10 pages détaillées"] }, "."
+        ]);
+      },
+      onTemplate: function (vals) { act("construire").vals = JSON.parse(JSON.stringify(vals)); refresh(); },
+      onSend: function () {
+        var a = act("construire"), v = a.vals || {};
+        var good = { role: /recrutement|rh|ressources humaines/i, cible: /débutant|reconversion|candidat/i, obj: /postuler|candidat|attir/i, ctx: /cdi|lyon|35|télétravail|26/i, fmt: /mots|rubrique|ton/i };
+        a.best = BRICKS.filter(function (b) { return v[b.k] && good[b.k].test(v[b.k]); }).length;
+        a.sent = true;
+        compose(false); refresh();
+      },
+      onAnswer: function () { act("construire").done = true; refresh(); readyNext(); }
+    },
+
+    /* 8 · Vérifier le résultat ------------------------------------------------------------------ */
+    extend({
+      id: "verifier", compact: true, seq: 2, title: "Vérifier le résultat", audio: "module-2/verifier",
+      say: "Un prompt structuré donne un bien meilleur résultat. Mais on vérifie toujours. Comparez l’offre, à gauche, avec le message de Sophie. Quelle information manque ?"
+    }, (function () {
+      var w = quiz("verifier", "Quelle information du message de Sophie manque dans l’offre ?", [
+        ["Le contrat : CDI, 35 h", "Non : le contrat est bien dans l’offre. Relisez-la."],
+        ["Le lieu : Lyon 7e", "Non : le lieu est bien dans l’offre. Relisez-la."],
+        ["Le télétravail : 1 jour par semaine", "Non : le télétravail est bien dans l’offre. Relisez-la."],
+        ["Le salaire : 24 à 26 k€", "Non : le salaire est bien dans l’offre. Relisez-la."],
+        ["La date de prise de poste : 3 mars", "Exact : la date manque. Elle n’était pas dans votre contexte : l’IA ne pouvait pas l’inventer… et c’est tant mieux !"]
+      ], 4);
+      var r = w.render;
+      w.render = function (pv) {
+        consigne(pv, [["<b>Comparez</b> l’offre, à gauche, avec le message de Sophie"], ["<b>Cliquez</b> sur l’information qui manque"]], act("verifier").done ? 2 : 1);
+        r(pv);
+      };
+      w.enter = function () { if (P.offreConv) openConv(P.offreConv); };
+      return w;
+    })()),
+
+    /* 9 · Compléter, sans tout recommencer -------------------------------------------------------- */
+    {
+      id: "completer", compact: true, seq: 2, title: "Compléter la demande", audio: "module-2/completer",
+      say: "Pas besoin de tout recommencer. Dans la même conversation, demandez à l’IA d’ajouter la date de prise de poste.",
+      render: function (pv) {
+        var a = act("completer");
+        consigne(pv, [
+          ["<b>Demandez</b> d’ajouter la date de prise de poste, puis envoyez", "le 3 mars, dans la même conversation, à gauche"],
+          ["<b>Lisez</b> la réponse de l’IA"]
+        ], a.done ? 2 : a.sent ? 1 : 0);
+        pv.appendChild(briefCard());                                    // le message de Sophie, sous les yeux : la date y est
+        if (a.miss) fb(pv, "ko", "Précisez la date : <b>le 3 mars</b>.");
+        if (a.done) fb(pv, "ok", "<b>Réussi :</b> l’offre est complète. Une relance courte suffit quand la base est bonne.");
+      },
+      ready: function () { return !!act("completer").done; },
+      enter: function () {
+        if (P.offreConv) openConv(P.offreConv);
+        if (act("completer").done) return;
+        compose(true);
+        if (!S.sound) setTimeout(function () { typeHint(ADD_HINT); }, 500);
+      },
+      // la voix a fini (« demandez à l’IA d’ajouter la date… ») : la phrase s'écrit dans le cadre
+      onVoiceEnd: function () { var a = act("completer"); if (!a.sent && !a.done) typeHint(ADD_HINT); },
+      onSend: function (c, text) { var a = act("completer"); a.sent = true; a.miss = !/3 mars/i.test(text); compose(false); refresh(); },
+      onAnswer: function () {
+        var a = act("completer");
+        if (a.miss) { a.sent = false; refresh(); compose(true); typeHint(ADD_HINT); return; }
+        a.done = true; refresh(); readyNext();
+      }
+    },
+
+    /* 10 · À vous, sans aide -------------------------------------------------------------------- */
+    {
+      id: "seul", compact: true, seq: 3, title: "À vous, sans aide", audio: "module-2/seul",
+      say: "Dernière étape, sans cases à compléter. La boutique sera fermée le 24 décembre. Écrivez vous-même un prompt complet, avec les cinq briques, pour prévenir les clients. Les briques s’allument à droite, au fur et à mesure que vous écrivez.",
+      render: function (pv) {
+        var a = act("seul");
+        consigne(pv, [
+          ["<b>Écrivez</b> un prompt avec les 5 briques, puis envoyez", "dans le cadre blanc, à gauche ; les briques s’allument dessous"],
+          ["<b>Lisez</b> la réponse de l’IA"]
+        ], a.done ? 2 : a.wait ? 1 : 0);
+        pv.appendChild(h('<div class="sms"><span class="sms-who">Sophie</span><p>La boutique sera fermée le mardi 24 décembre. Tu peux prévenir nos clients par mail ? On rouvre le 26 😊</p></div>'));
+        pv.appendChild(brickRow(bricksIn((a.sent || "") + " " + (a.draft || ""))));
+        if (a.missing && !a.done) fb(pv, "ko", "<b>Il manque :</b> " + a.missing + ". Envoyez un message pour compléter : les briques déjà données restent acquises.");
+        if (a.done) fb(pv, a.best === 5 ? "ok" : "", "<b>" + a.best + " briques sur 5.</b> " + (a.best === 5 ? "Un prompt complet, écrit par vous. Bravo !" : "Pensez à la brique qui manquait la prochaine fois."));
+      },
+      ready: function () { return !!act("seul").done; },
+      enter: function () {
+        var a = act("seul");
+        if (a.done) return;
+        var c = newConv(); c.title = "Fermeture du 24 décembre"; renderConv();
+        compose(true);
+      },
+      onType: function () {
+        var a = act("seul"), before = JSON.stringify(bricksIn((a.sent || "") + " " + (a.draft || "")));
+        a.draft = input.value;
+        if (JSON.stringify(bricksIn((a.sent || "") + " " + a.draft)) !== before) refresh();
+      },
+      onSend: function (c, text) {
+        var a = act("seul");
+        a.sent = (a.sent || "") + " " + text;
+        a.draft = ""; a.wait = true;
+        var got = bricksIn(a.sent);
+        a.tries = (a.tries || 0) + 1;
+        a.best = Math.max(a.best || 0, BRICKS.filter(function (b) { return got[b.k]; }).length);
+        var miss = BRICKS.filter(function (b) { return !got[b.k]; }).map(function (b) { return b.name.toLowerCase(); });
+        a.missing = miss.join(", ");
+        if (!miss.length || a.tries >= 3) a.done = true;
+        compose(false); refresh();
+      },
+      onAnswer: function () {
+        var a = act("seul");
+        a.wait = false;
+        if (!a.done) { a.draft = ""; compose(true); refresh(); } else { refresh(); readyNext(); }
+      }
+    },
+
+    /* 11 · Résultat --------------------------------------------------------------------------------- */
+    {
       id: "resultat", seq: 4, title: "Votre résultat", full: true, bare: true,
       audio: "module-2/resultat", say: "Voici votre résultat, activité par activité. Si une activité n’est pas réussie, vous pouvez la revoir.",
       render: function (pv) {
@@ -1328,245 +1863,9 @@
           (function count(t) { var p = Math.min(1, ((t || performance.now()) - t0) / 1400); num.textContent = fmt(Math.round(total * (1 - Math.pow(1 - p, 3)) * 2) / 2); if (p < 1) requestAnimationFrame(count); })();
         }, 250);
       }
-    };
-
-  var STEPS = [
-    /* 1 · Le problème --------------------------------------------------------------- */
-    {
-      id: "vague", seq: 0, title: "Une demande trop vague", audio: "module-2/vague",
-      say: "Sophie, votre responsable, vous demande de rédiger une offre d’emploi. Premier réflexe : on demande directement à l’IA. La demande est prête dans le champ. Envoyez-la, et regardez le résultat.",
-      render: function (pv) {
-        var a = act("vague");
-        lead(pv, "Sophie vous demande de rédiger une <b>offre d’emploi</b>. Premier réflexe : on demande directement à l’IA.");
-        stepsList(pv, [
-          { html: "La demande est prête dans le champ, à gauche : <b>envoyez-la</b>." },
-          { html: "Lisez la réponse de l’IA." }
-        ], a.done ? 2 : a.sent ? 1 : 0);
-        if (a.done) fbNew(pv, "", "L’offre a l’air correcte… Mais d’où viennent la ville, le salaire et le 13e mois ? Vous ne les avez jamais donnés.");
-      },
-      ready: function () { return !!act("vague").done; },
-      enter: function () {
-        if (act("vague").done) return;
-        newConv(); renderConv();
-        template(["Écris une offre d’emploi pour un poste d’assistant administratif."]);
-      },
-      onSend: function () { act("vague").sent = true; compose(false); refresh(); },
-      onAnswer: function (c) { act("vague").done = true; P.vagueConv = c.id; refresh(); }
     },
 
-    /* 2 · Ce que l'IA a inventé (clic dans la réponse) ----------------------------------- */
-    {
-      id: "invente", seq: 0, title: "Ce que l’IA a inventé", audio: "module-2/invente",
-      say: "L’IA ne connaît pas votre poste. Alors elle a comblé les trous. Dans sa réponse, à gauche, cliquez sur les trois informations qu’elle a inventées.",
-      render: function (pv) {
-        var a = act("invente");
-        a.found = a.found || {};
-        var n = Object.keys(a.found).length;
-        lead(pv, "Dans la réponse, à gauche, <b>cliquez sur les 3 informations inventées</b> par l’IA. <span class='pv-count'>" + n + " / 3</span>");
-        if (a.why && !a.done) fbNew(pv, "ko", a.why);
-        if (a.done) fbNew(pv, "ok", "<b>Bien vu.</b> Sans informations, l’IA invente ce qui manque : une ville, un salaire, un avantage. Pour l’éviter, il faut lui donner un <b>contexte</b>, et plus largement une demande structurée.");
-      },
-      ready: function () { return !!act("invente").done; },
-      enter: function () {
-        var a = act("invente");
-        if (P.vagueConv) openConv(P.vagueConv);
-        setTimeout(function () {
-          huntChat(INVENTS, function (txt, ok) {
-            if (ok) { a.found[txt] = true; a.why = null; }
-            else { a.miss = (a.miss || 0) + 1; a.why = "« " + esc(txt) + " » : c’est une tâche ou une compétence banale pour ce poste, pas une information inventée."; }
-            if (Object.keys(a.found).length === 3 && !a.done) { a.done = true; a.best = (a.miss || 0) <= 1 ? 1 : 0; autoNext(5200); }
-            refresh();
-          }, a.found);
-        }, 350);
-      },
-      leave: function () { unhuntChat(); }
-    },
-
-    /* 2 bis · Pourquoi ces inventions ? (QCM) --------------------------------------------- */
-    extend({
-      id: "pourquoi", seq: 0, title: "Pourquoi ces inventions ?", audio: "module-2/pourquoi",
-      say: "Une question pour bien comprendre. Pourquoi l’IA a-t-elle inventé une ville, un salaire et un 13e mois ?"
-    }, quiz("pourquoi", "Pourquoi l’IA a-t-elle inventé la ville, le salaire et le 13e mois ?", [
-      ["Elle se trompe à chaque fois : il ne faut pas s’en servir.", "Non : avec les bonnes informations, elle fait un travail utile. Le problème vient de la demande."],
-      ["On ne lui a donné aucun contexte : elle a comblé les trous.", "Exact : sans informations, l’IA complète avec ce qui lui semble plausible. D’où l’importance du contexte."],
-      ["Elle a copié une vraie offre trouvée sur Internet.", "Non : elle a produit un texte plausible, pas une copie. Mais les détails ne viennent pas de vous."]
-    ], 1)),
-
-    /* 3 · Les cinq briques (cartes à retourner) ----------------------------------------- */
-    extend({
-      id: "briques", seq: 1, title: "Les cinq briques d’un prompt", audio: "module-2/briques",
-      say: "Un bon prompt se construit avec cinq briques : le rôle, la cible, l’objectif, le contexte et le format. Retournez chaque carte pour découvrir à quoi elle sert."
-    }, flipCards("briques", [
-      ["R", "Rôle", "Qui l’IA doit-elle être ?", "« Tu es chargé·e de recrutement dans une PME. »"],
-      ["C", "Cible", "Pour qui est le texte ?", "« …pour des candidats débutants. »"],
-      ["O", "Objectif", "Que doit-il produire, et pourquoi ?", "« Rédige une offre qui donne envie de postuler. »"],
-      ["C", "Contexte", "Quelles informations doit-il connaître ?", "« CDI, 35 h, Lyon, 24 à 26 k€… »"],
-      ["F", "Format", "Sous quelle forme ?", "« 150 mots, 3 rubriques, ton chaleureux. »"]
-    ])),
-
-    /* 4 · Reconnaître les briques (relier) --------------------------------------------- */
-    extend({
-      id: "relier", seq: 1, title: "Reconnaître les briques", audio: "module-2/relier",
-      say: "Voici un prompt découpé en morceaux. Reliez chaque morceau à la brique qui lui correspond."
-    }, (function () {
-      var B = "#1f5cf0";
-      var w = relier("relier", {
-        heads: ["Morceaux du prompt", "Briques"],
-        left: [
-          ["« Tu es chargé·e de recrutement »", "role"],
-          ["« pour des candidats débutants »", "cible"],
-          ["« Rédige une offre qui donne envie de postuler »", "obj"],
-          ["« CDI, Lyon 7e, télétravail 1 jour par semaine »", "ctx"],
-          ["« 150 mots, 3 rubriques, ton chaleureux »", "fmt"]
-        ],
-        right: [["ctx", "Contexte"], ["role", "Rôle"], ["fmt", "Format"], ["obj", "Objectif"], ["cible", "Cible"]],
-        colors: { role: B, cible: B, obj: B, ctx: B, fmt: B }
-      });
-      var r = w.render;
-      w.render = function (pv) { lead(pv, "<b>Cliquez sur un morceau, puis sur sa brique.</b>"); r(pv); };
-      return w;
-    })()),
-
-    /* 5 · Quelle brique manque ? ------------------------------------------------------- */
-    extend({
-      id: "manque", seq: 1, title: "La brique oubliée", audio: "module-2/manque",
-      say: "Chaque prompt a oublié une brique. Laquelle ?"
-    }, whichMissing("manque", [
-      ["Rédige une publication pour les abonnés de notre boulangerie, afin d’annoncer la nouvelle galette. En 3 phrases, ton gourmand.", "role", "Qui écrit ? Un community manager, par exemple."],
-      ["Tu es juriste. Résume ce contrat en 5 points clairs, pour un nouveau salarié.", "ctx", "Le contrat n’est pas donné : rien à résumer."]
-    ])),
-
-    /* 6 · Le brief de Sophie, puis le prompt à construire ---------------------------------- */
-    {
-      id: "construire", seq: 2, title: "Construire le prompt", audio: "module-2/construire",
-      say: "Voici le message de Sophie. À gauche, le prompt est prêt en cinq cases, une par brique. Cliquez sur chaque case orange, choisissez la bonne réponse ou écrivez la vôtre, puis envoyez.",
-      render: function (pv) {
-        var a = act("construire");
-        var note = h('<div class="brief"><div class="brief-h"><span class="brief-av">S</span><div><b>Sophie Laurent</b><small>Responsable · aujourd’hui, 09:12</small></div></div></div>');
-        BRIEF.forEach(function (l) { var p = document.createElement("p"); p.textContent = l; note.appendChild(p); });
-        pv.appendChild(note);
-        var chips = h('<div class="bk-row"></div>');
-        BRICKS.forEach(function (b) {
-          var on = a.vals && a.vals[b.k];
-          var c = h('<span class="bk' + (on ? " is-on" : "") + '"><i></i></span>');
-          c.appendChild(document.createTextNode(b.name));
-          chips.appendChild(c);
-        });
-        pv.appendChild(chips);
-        if (a.done) fbNew(pv, a.best === 5 ? "ok" : "", "<b>" + a.best + " brique" + (a.best > 1 ? "s" : "") + " bien choisie" + (a.best > 1 ? "s" : "") + " sur 5.</b> " + (a.best === 5 ? "Regardez la différence avec la première offre : rien n’est inventé." : "Comparez avec le brief de Sophie : les bonnes briques reprennent ses informations."));
-      },
-      ready: function () { return !!act("construire").done; },
-      enter: function () {
-        if (act("construire").done) return;
-        var c = newConv(); c.title = "Offre d’emploi"; P.offreConv = c.id; renderConv();
-        template([
-          "Tu es ", { k: "role", label: "Rôle", opts: ["chargé·e de recrutement dans une PME", "poète", "avocat·e en droit du travail"] },
-          ". Rédige une offre d’emploi pour ", { k: "cible", label: "Cible", opts: ["des candidats débutants ou en reconversion", "les clients de l’entreprise", "des experts avec 10 ans d’expérience"] },
-          ", afin de ", { k: "obj", label: "Objectif", opts: ["donner envie de postuler", "présenter l’histoire de l’entreprise", "décourager les candidats"] },
-          ". Contexte : ", { k: "ctx", label: "Contexte", opts: ["CDI, 35 h, Lyon 7e, télétravail 1 jour par semaine, 24 à 26 k€ brut par an", "CDD de 3 mois à Paris", "aucune précision"] },
-          ". Format : ", { k: "fmt", label: "Format", opts: ["environ 150 mots, 3 rubriques (missions, profil, avantages), ton chaleureux", "un poème en alexandrins", "10 pages détaillées"] }, "."
-        ]);
-      },
-      onTemplate: function (vals) { act("construire").vals = JSON.parse(JSON.stringify(vals)); refresh(); },
-      onSend: function () {
-        var a = act("construire"), v = a.vals || {};
-        var good = { role: /recrutement|rh|ressources humaines/i, cible: /débutant|reconversion|candidat/i, obj: /postuler|candidat|attir/i, ctx: /cdi|lyon|35|télétravail|26/i, fmt: /mots|rubrique|ton/i };
-        a.best = BRICKS.filter(function (b) { return v[b.k] && good[b.k].test(v[b.k]); }).length;
-        compose(false); refresh();
-      },
-      onAnswer: function () { act("construire").done = true; refresh(); autoNext(7000); }
-    },
-
-    /* 7 · Vérifier le résultat ------------------------------------------------------------ */
-    extend({
-      id: "verifier", seq: 2, title: "Vérifier le résultat", audio: "module-2/verifier",
-      say: "Un prompt structuré donne un bien meilleur résultat. Mais on vérifie toujours. Comparez l’offre, à gauche, avec le message de Sophie. Quelle information manque ?"
-    }, (function () {
-      var w = pickMany("verifier", [
-        ["Le contrat : CDI, 35 h", false],
-        ["Le lieu : Lyon 7e", false],
-        ["Le télétravail : 1 jour par semaine", false],
-        ["Le salaire : 24 à 26 k€", false],
-        ["La date de prise de poste : 3 mars", true]
-      ], "<b>Bien vu :</b> la date de prise de poste manque. Elle n’était pas dans votre contexte : l’IA ne pouvait pas l’inventer… et c’est tant mieux !");
-      var r = w.render;
-      w.render = function (pv) { lead(pv, "Comparez l’offre, à gauche, avec le brief de Sophie. <b>Cochez ce qui manque.</b>"); r(pv); };
-      w.enter = function () { if (P.offreConv) openConv(P.offreConv); };
-      return w;
-    })()),
-
-    /* 8 · Compléter, sans tout recommencer --------------------------------------------------- */
-    {
-      id: "completer", seq: 2, title: "Compléter la demande", audio: "module-2/completer",
-      say: "Pas besoin de tout recommencer. Dans la même conversation, demandez à l’IA d’ajouter la date de prise de poste.",
-      render: function (pv) {
-        var a = act("completer");
-        lead(pv, "Dans <b>la même conversation</b>, écrivez un court message pour ajouter la <b>date de prise de poste : le 3 mars</b>.");
-        if (a.miss) fbNew(pv, "ko", "Précisez la date : <b>le 3 mars</b>.");
-        if (a.done) fbNew(pv, "ok", "<b>Réussi :</b> l’offre est complète. Une relance courte suffit quand la base est bonne.");
-      },
-      ready: function () { return !!act("completer").done; },
-      enter: function () { if (P.offreConv) openConv(P.offreConv); if (!act("completer").done) compose(true); },
-      onSend: function (c, text) { var a = act("completer"); a.miss = !/3 mars/i.test(text); compose(false); refresh(); },
-      onAnswer: function () { var a = act("completer"); if (a.miss) { refresh(); compose(true); return; } a.done = true; refresh(); autoNext(5200); }
-    },
-
-    /* 9 · À vous, sans aide ------------------------------------------------------------------ */
-    {
-      id: "seul", seq: 3, title: "À vous, sans aide", audio: "module-2/seul",
-      say: "Dernière étape, sans cases à compléter. La boutique sera fermée le 24 décembre. Écrivez vous-même un prompt complet, avec les cinq briques, pour prévenir les clients. Les briques s’allument à droite, au fur et à mesure que vous écrivez.",
-      render: function (pv) {
-        var a = act("seul");
-        pv.appendChild(h('<div class="sms"><span class="sms-who">Sophie</span><p>La boutique sera fermée le mardi 24 décembre. Tu peux prévenir nos clients par mail ? On rouvre le 26 😊</p></div>'));
-        lead(pv, "Écrivez un prompt complet dans le champ, à gauche. <b>Les briques s’allument</b> quand l’IA les repère.");
-        var chips = h('<div class="bk-row bk-live"></div>'), got = bricksIn((a.sent || "") + " " + (a.draft || ""));
-        BRICKS.forEach(function (b) {
-          var c = h('<span class="bk' + (got[b.k] ? " is-on" : "") + '"><i></i></span>');
-          c.appendChild(document.createTextNode(b.name));
-          c.title = b.q;
-          chips.appendChild(c);
-        });
-        pv.appendChild(chips);
-        if (a.missing && !a.done) fbNew(pv, "ko", "<b>Il manque :</b> " + a.missing + ". Envoyez un message pour compléter : les briques déjà données restent acquises.");
-        if (a.done) fbNew(pv, a.best === 5 ? "ok" : "", "<b>" + a.best + " briques sur 5.</b> " + (a.best === 5 ? "Un prompt complet, écrit par vous. Bravo !" : "Pensez à la brique qui manquait la prochaine fois."));
-      },
-      ready: function () { return !!act("seul").done; },
-      primary: function () {
-        var a = act("seul");
-        if (a.done) return { label: "Continuer", run: next, success: a.best === 5 };
-        if ((a.tries || 0) >= 3) return { label: "Voir mon résultat", run: function () { a.done = true; next(); } };
-        return { label: "Continuer", disabled: true, run: next };
-      },
-      enter: function () {
-        var a = act("seul");
-        if (a.done) return;
-        var c = newConv(); c.title = "Fermeture du 24 décembre"; renderConv();
-        compose(true);
-      },
-      onType: function () {
-        var a = act("seul"), before = JSON.stringify(bricksIn((a.sent || "") + " " + (a.draft || "")));
-        a.draft = input.value;
-        if (JSON.stringify(bricksIn((a.sent || "") + " " + a.draft)) !== before) refresh();
-      },
-      onSend: function (c, text) {
-        var a = act("seul");
-        a.sent = (a.sent || "") + " " + text;
-        a.draft = "";
-        var got = bricksIn(a.sent);
-        a.tries = (a.tries || 0) + 1;
-        a.best = Math.max(a.best || 0, BRICKS.filter(function (b) { return got[b.k]; }).length);
-        var miss = BRICKS.filter(function (b) { return !got[b.k]; }).map(function (b) { return b.name.toLowerCase(); });
-        a.missing = miss.join(", ");
-        if (!miss.length || a.tries >= 3) a.done = true;
-        compose(false); refresh();
-      },
-      onAnswer: function () { var a = act("seul"); if (!a.done) { a.draft = ""; compose(true); refresh(); } else if (a.best === 5) autoNext(6500); }
-    },
-
-    /* 10 · Résultat ---------------------------------------------------------------------------- */
-    RESULT_STEP,
-
-    /* 11 · Fiche -------------------------------------------------------------------------------- */
+    /* 12 · Fiche -------------------------------------------------------------------------------------- */
     {
       id: "fiche", seq: 4, title: "Ma structure de prompt", audio: "module-2/fiche", full: true,
       say: "Voici votre structure en cinq briques. Gardez-la sous la main : elle vous servira pour tous vos prompts.",
@@ -1576,121 +1875,27 @@
         var p = h("<p></p>");
         p.appendChild(button(a.saved ? "Fiche enregistrée" : "Enregistrer la fiche", "check", function () { a.saved = true; refresh(); }));
         pv.appendChild(p);
-        if (a.saved) fb(pv, "ok", "Fiche enregistrée. Prochain module : <b>Des prompts pour les images</b>.");
+        if (a.saved) fb(pv, "ok", "<b>C’est enregistré.</b> Gardez ces 5 briques en tête : elles servent pour tous vos prompts.");
       },
-      primary: function () { return null; }
+      ready: function () { return true; }
     }
   ];
+  var STEPS = ALL_STEPS.filter(function (s) { return !s.off; });
 
   function stepIdx(id) { for (var i = 0; i < STEPS.length; i++) if (STEPS[i].id === id) return i; return 0; }
-  function resetAct(id) { var best = act(id).best; P.act[id] = { best: best }; }
-  var MAX = 20;
+  function resetAct(id) {
+    var a = act(id);
+    var best = a.best;
+    P.act[id] = { best: best };
+  }
+  var SCORED = [["invente", "Ce que l’IA a inventé", 1], ["pourquoi", "Pourquoi ces inventions ?", 1], ["relier", "Reconnaître les briques", 5],
+    ["manque", "La brique oubliée", 2], ["construire", "Construire le prompt", 5], ["verifier", "Vérifier le résultat", 1], ["seul", "À vous, sans aide", 5]];
   function scoreItems() {
-    var best = function (id) { return (P.act[id] || {}).best || 0; };
-    return [
-      { id: "invente", idx: stepIdx("invente"), label: "Ce que l’IA a inventé", pts: best("invente"), max: 1 },
-      { id: "pourquoi", idx: stepIdx("pourquoi"), label: "Pourquoi ces inventions ?", pts: best("pourquoi"), max: 1 },
-      { id: "relier", idx: stepIdx("relier"), label: "Reconnaître les briques", pts: best("relier"), max: 5 },
-      { id: "manque", idx: stepIdx("manque"), label: "La brique oubliée", pts: best("manque"), max: 2 },
-      { id: "construire", idx: stepIdx("construire"), label: "Construire le prompt", pts: best("construire"), max: 5 },
-      { id: "verifier", idx: stepIdx("verifier"), label: "Vérifier le résultat", pts: best("verifier"), max: 1 },
-      { id: "seul", idx: stepIdx("seul"), label: "À vous, sans aide", pts: best("seul"), max: 5 }
-    ];
-  }
-
-  /* cartes à retourner ------------------------------------------------------------------------ */
-  function flipCards(id, cards) {
-    return {
-      render: function (pv) {
-        var a = act(id);
-        a.seen = a.seen || {};
-        var g = h('<div class="flip-grid"></div>');
-        cards.forEach(function (c, k) {
-          var b = h('<button type="button" class="flip"><span class="flip-in"><span class="flip-f"><em></em><b></b><small>Cliquer pour retourner</small></span><span class="flip-b"><em></em><span class="flip-txt"><span class="flip-q"></span><span class="flip-ex"></span></span></span></span></button>');
-          b.querySelector(".flip-b em").textContent = c[1];
-          b.querySelector(".flip-f em").textContent = c[0];
-          b.querySelector(".flip-f b").textContent = c[1];
-          b.querySelector(".flip-q").textContent = c[2];
-          b.querySelector(".flip-ex").textContent = c[3];
-          if (a.seen[k]) b.classList.add("is-on");
-          b.onclick = function () { a.seen[k] = !a.seen[k] || true; b.classList.add("is-on"); if (Object.keys(a.seen).length === cards.length && !a.all) { a.all = true; setTimeout(refresh, 700); } };
-          g.appendChild(b);
-        });
-        lead(pv, "<b>Retournez les 5 cartes.</b>");
-        pv.appendChild(g);
-        if (a.all) fbNew(pv, "", "Retenez l’ordre : <b>R · C · O · C · F</b>. Rôle, Cible, Objectif, Contexte, Format.");
-      },
-      ready: function () { return !!act(id).all; }
-    };
-  }
-
-  /* quelle brique manque ? --------------------------------------------------------------------- */
-  function whichMissing(id, items) {
-    return {
-      render: function (pv) {
-        var a = act(id);
-        a.ans = a.ans || {};
-        lead(pv, "Chaque prompt a oublié une brique. <b>Laquelle ?</b>");
-        items.forEach(function (it, k) {
-          var box = h('<div class="wm"><p class="wm-p"></p><div class="wm-opts"></div></div>');
-          box.querySelector(".wm-p").textContent = "« " + it[0] + " »";
-          BRICKS.forEach(function (b) {
-            var o = h('<button type="button" class="qo"><span class="r"></span><span></span></button>');
-            o.lastChild.textContent = b.name;
-            var picked = a.ans[k];
-            if (picked !== undefined) {
-              o.disabled = true;
-              if (b.k === it[1]) o.classList.add("is-right");
-              else if (picked === b.k) o.classList.add("is-wrong");
-              else o.classList.add("is-dim");
-            }
-            o.onclick = function () {
-              a.ans[k] = b.k;
-              a.best = items.filter(function (x, j) { return a.ans[j] === x[1]; }).length;
-              refresh();
-              if (Object.keys(a.ans).length === items.length && a.best === items.length) autoNext(4200);
-            };
-            box.querySelector(".wm-opts").appendChild(o);
-          });
-          if (a.ans[k] !== undefined) {
-            var ok = a.ans[k] === it[1], name = BRICKS.filter(function (b) { return b.k === it[1]; })[0].name.toLowerCase();
-            box.appendChild(h('<p class="wm-fb ' + (ok ? "ok" : "ko") + '"></p>')).textContent = (ok ? "✓ " : "✗ C’était le " + name + ". ") + it[2];
-          }
-          pv.appendChild(box);
-        });
-      },
-      ready: function () { return Object.keys(act(id).ans || {}).length === items.length; }
-    };
-  }
-
-  /* repérer des passages dans la réponse de l'IA, à gauche --------------------------------------- */
-  function huntChat(list, onPick, found) {
-    var body = $(".msg--ai .body", messagesEl);
-    if (!body) return;
-    list.forEach(function (it) {
-      var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT), n;
-      while ((n = walker.nextNode())) {
-        var i = n.nodeValue.indexOf(it[0]);
-        if (i < 0) continue;
-        var rest = n.splitText(i); rest.splitText(it[0].length);
-        var mk = document.createElement("mark");
-        mk.className = "chat-hunt" + (found && found[it[0]] ? " is-found" : "");
-        mk.textContent = it[0];
-        mk.onclick = function () {
-          if (mk.classList.contains("is-found")) return;
-          if (it[1]) mk.classList.add("is-found"); else { mk.classList.remove("is-nope"); void mk.offsetWidth; mk.classList.add("is-nope"); }
-          onPick(it[0], !!it[1]);
-        };
-        rest.replaceWith(mk);
-        break;
-      }
+    return SCORED.filter(function (x) { return STEPS.some(function (s) { return s.id === x[0]; }); }).map(function (x) {
+      return { id: x[0], idx: stepIdx(x[0]), label: x[1], pts: (P.act[x[0]] || {}).best || 0, max: x[2] };
     });
-    messagesEl.classList.add("is-hunting");
   }
-  function unhuntChat() {
-    messagesEl.classList.remove("is-hunting");
-    $$(".chat-hunt", messagesEl).forEach(function (m) { m.replaceWith(document.createTextNode(m.textContent)); });
-  }
+  var MAX = scoreItems().reduce(function (t, x) { return t + x.max; }, 0);
 
   /* ---------- Mode réel ou simulé ---------- */
 
@@ -1732,11 +1937,14 @@
       split.classList.remove("is-resizing");
       resizer.removeEventListener("pointermove", move);
       resizer.removeEventListener("pointerup", up);
+      resizer.removeEventListener("pointercancel", up);
       setPanelW($(".panel").getBoundingClientRect().width, true);
       if (redrawLinks) redrawLinks();
+      fitStage();
     }
     resizer.addEventListener("pointermove", move);
     resizer.addEventListener("pointerup", up);
+    resizer.addEventListener("pointercancel", up);
   });
   resizer.addEventListener("dblclick", function () { setPanelW(null, true); });
   resizer.addEventListener("keydown", function (e) {
@@ -1752,130 +1960,15 @@
     if (window.innerWidth > 980 && tab === "claude") return;
     split.dataset.tab = tab;
     $$("[data-tab]").forEach(function (b) { b.setAttribute("aria-selected", String(b.dataset.tab === tab)); });
+    fitStage();
   }
-  $$("[data-tab]").forEach(function (b) { b.addEventListener("click", function () { split.dataset.tab = b.dataset.tab; $$("[data-tab]").forEach(function (x) { x.setAttribute("aria-selected", String(x === b)); }); }); });
-
-  /* ---------- Accueil : nuage de points autour de l'orbe, qui tourbillonne sous la souris ---------- */
-
-  var cloud = (function () {
-    var cv = document.createElement("canvas"), ctx = cv.getContext("2d"), pts = [], raf = 0, on = false;
-    var mx = -9999, my = -9999, R = 0, Rt = 1, A = 1, At = 1, rot = 0, dpr = Math.min(2, window.devicePixelRatio || 1);
-    cv.className = "wl-canvas";
-    claudeEl.insertBefore(cv, claudeEl.firstChild);
-    for (var i = 0; i < 2600; i++) {
-      var u = Math.random() * 2 - 1, th = Math.random() * Math.PI * 2, r = 0.5 + 0.5 * Math.pow(Math.random(), 0.35), q = Math.sqrt(1 - u * u);
-      pts.push({ x: q * Math.cos(th) * r, y: u * r, z: q * Math.sin(th) * r, ox: 0, oy: 0, s: Math.random() < 0.08 ? 1.9 : 1.1 });
-    }
-    window.addEventListener("pointermove", function (e) { var b = cv.getBoundingClientRect(); mx = e.clientX - b.left; my = e.clientY - b.top; });
-    function size() { var b = cv.getBoundingClientRect(); cv.width = b.width * dpr; cv.height = b.height * dpr; }
-    function frame() {
-      if (!on) return;
-      raf = requestAnimationFrame(frame);
-      if (cv.width !== Math.round(cv.getBoundingClientRect().width * dpr)) size();
-      var b = cv.getBoundingClientRect(), o = bigHost.getBoundingClientRect();
-      var cx = o.width ? o.left + o.width / 2 - b.left : b.width / 2, cy = o.width ? o.top + o.height / 2 - b.top : b.height / 2;
-      var base = Math.min(330, Math.min(b.width, b.height) * 0.36);
-      R += (base * Rt - R) * 0.05; A += (At - A) * 0.05; rot += 0.0016;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.clearRect(0, 0, b.width, b.height);
-      var cs = Math.cos(rot), sn = Math.sin(rot), cT = Math.cos(0.35), sT = Math.sin(0.35);
-      for (var k = 0; k < pts.length; k++) {
-        var p = pts[k];
-        var x = p.x * cs - p.z * sn, z = p.x * sn + p.z * cs, y = p.y * cT - z * sT; z = p.y * sT + z * cT;
-        var px = cx + x * R, py = cy + y * R;
-        var dx = px + p.ox - mx, dy = py + p.oy - my, d = Math.sqrt(dx * dx + dy * dy);
-        if (d < 150 && d > 0.5) {                        // tourbillon autour du curseur
-          var f = (1 - d / 150);
-          p.ox += (-dy / d * 3.2 + dx / d * 1.1) * f * f * 6;
-          p.oy += (dx / d * 3.2 + dy / d * 1.1) * f * f * 6;
-        }
-        p.ox *= 0.93; p.oy *= 0.93;
-        var al = (0.18 + 0.5 * (z + 1) / 2) * A;
-        ctx.fillStyle = "rgba(31, 30, 28," + al.toFixed(3) + ")";
-        ctx.fillRect(px + p.ox, py + p.oy, p.s, p.s);
-      }
-    }
-    return {
-      start: function () { if (on) return; on = true; cv.classList.remove("is-off"); size(); R = 0; Rt = 1; A = 0; At = 1; frame(); },
-      gather: function () { Rt = 0.62; At = 0.55; },
-      stop: function () { cv.classList.add("is-off"); setTimeout(function () { on = false; cancelAnimationFrame(raf); }, 950); }
-    };
-  })();
-  var wlHero = $("[data-wl-hero]");
-
-  /* ---------- Le parcours : douze modules, du premier contact à l'usage autonome ---------- */
-
-  // [titre, description, (inutilisé), contenu à apprendre] ; modules déjà construits : MOD_URLS
-  var MOD_CURRENT = 2;
-  var MOD_URLS = { 1: "../premiers-pas/", 2: "../structure-prompt/" };
-  var PARCOURS = [
-    ["Démarrer", [
-      ["Première rencontre", "Découvrir l’IA, écrire un premier prompt, commencer simple."]
-    ]],
-    ["Rédiger des prompts", [
-      ["La structure d’un prompt", "Rôle, cible, objectif, contexte, format."],
-      ["Des prompts pour les images", "Décrire un visuel pour un post ou un rapport."]
-    ]],
-    ["Améliorer les contenus", [
-      ["Dialoguer pour affiner", "Enrichir le contexte, corriger sans recommencer."],
-      ["Optimiser un contenu existant", "Réécrire selon un ton, un format, une contrainte."]
-    ]],
-    ["Protéger les données", [
-      ["Ce qu’on ne partage pas", "Repérer les données sensibles, anonymiser un prompt."]
-    ]],
-    ["Des contenus pour tous", [
-      ["Écrire pour tous", "Un texte clair et structuré pour un handicap cognitif."],
-      ["Images, audio, vidéo accessibles", "Texte alternatif, transcription, sous-titres.", false, true]
-    ]],
-    ["Le cadre légal", [
-      ["RGPD et IA Act : l’essentiel", "Les règles utiles au poste de travail.", false, true],
-      ["Biais et risques", "Analyser un cas, proposer des corrections."],
-      ["Tenir sa veille réglementaire", "Sources officielles, dernière version des textes.", false, true]
-    ]],
-    ["Intégrer l’IA à son poste", [
-      ["Cartographier son poste", "Repérer les tâches que l’IA peut optimiser."],
-      ["Choisir ses outils", "Comparer les outils, estimer un budget.", false, true],
-      ["Son plan d’intégration", "Rédiger la stratégie, sans oublier le handicap."]
-    ]],
-    ["Se préparer", [
-      ["Préparer la certification", "Des entraînements au format des six mises en situation."]
-    ]]
-  ];
-  (function buildMenu() {
-    var list = $("[data-menu-list]"), n = 0;
-    PARCOURS.forEach(function (part) {
-      var sec = h('<section class="mm-part"><h3></h3><ol></ol></section>');
-      sec.firstChild.textContent = part[0];
-      part[1].forEach(function (m) {
-        n++;
-        var li = h('<li class="mm-mod"><span class="mm-n"></span><span class="mm-tx"><b></b><small></small></span><em></em></li>');
-        li.querySelector(".mm-n").textContent = String(n).padStart(2, "0");
-        li.querySelector("b").textContent = m[0];
-        if (m[3]) li.querySelector("b").appendChild(h('<sup class="mm-star" title="Module avec du contenu à apprendre">*</sup>'));
-        li.querySelector("small").textContent = m[1];
-        var url = MOD_URLS[n], here = n === MOD_CURRENT;
-        li.querySelector("em").textContent = here ? "En cours" : url ? "Disponible" : "Bientôt";
-        if (here) { li.classList.add("is-on"); li.tabIndex = 0; li.onclick = closeMenu; }
-        else if (url) { li.classList.add("is-open"); li.tabIndex = 0; li.onclick = function () { location.href = url; }; }
-        sec.lastChild.appendChild(li);
-      });
-      list.appendChild(sec);
-    });
-    list.appendChild(h('<p class="mm-note"><sup class="mm-star">*</sup> Module avec du contenu à apprendre.</p>'));
-  })();
-  var menuEl = $("[data-menu]");
-  function openMenu() { menuEl.hidden = false; requestAnimationFrame(function () { menuEl.classList.add("is-on"); }); }
-  function closeMenu() { menuEl.classList.remove("is-on"); setTimeout(function () { menuEl.hidden = true; }, 350); }
-  $("[data-menu-open]").addEventListener("click", openMenu);
-  $$("[data-menu-close]").forEach(function (b) { b.addEventListener("click", closeMenu); });
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !menuEl.hidden) closeMenu(); });
+  $$("[data-tab]").forEach(function (b) { b.addEventListener("click", function () { split.dataset.tab = b.dataset.tab; $$("[data-tab]").forEach(function (x) { x.setAttribute("aria-selected", String(x === b)); }); fitStage(); }); });
 
   /* ---------- Accueil : l'orbe au centre, le message de bienvenue mot à mot ---------- */
 
   var WELCOME_TEXT = "Bon retour ! Dans ce module, vous allez apprendre à construire un prompt solide, avec cinq briques : le rôle, la cible, l’objectif, le contexte et le format. Fini les réponses inventées. C’est parti !";
-  var wlGo = $("[data-wl-go]");
   var inWelcome = false, wlStarted = false;
-  // la synthèse vocale a besoin d'un geste : l'accueil s'ouvre sur « Commencer »
+  // la synthèse vocale a besoin d'un geste : l'accueil (accueil.js), posé par-dessus, s'ouvre sur « Commencer »
   function startWelcome() {
     stopVoice();
     cues = [];
@@ -1888,9 +1981,7 @@
     saying(true);
     sayText(WELCOME_TEXT);
     sayReveal(0);
-    wlHero.classList.add("is-on");
-    cloud.start();
-    showGo("Commencer");
+    paintNext();
   }
   function speakWelcome() {
     var once = false;
@@ -1915,28 +2006,22 @@
     }
     speechSynthesis.cancel();
     speakTTS(WELCOME_TEXT, v, function () { return inWelcome; }, end, end);
-    setTimeout(end, WELCOME_TEXT.length * 95 + 4000);            // filet : certains navigateurs n'émettent pas « end »
+    setTimeout(end, WELCOME_TEXT.length * 95 + 4000);            // filet : certains navigateurs n'émettent pas « end »
   }
-  function showGo(label) { wlGo.firstChild.textContent = label; wlGo.hidden = false; requestAnimationFrame(function () { wlGo.classList.add("is-on"); }); }
-  wlGo.addEventListener("click", function () {
-    if (!inWelcome) return;
-    if (wlStarted) { leaveWelcome(); return; }
+  // « Commencer », sur l'accueil : l'accueil s'efface et l'assistante souhaite la bienvenue
+  document.addEventListener("module:start", function () {
+    if (!inWelcome || wlStarted) return;
     wlStarted = true;
-    wlGo.classList.remove("is-on");
-    wlHero.classList.add("is-started");
-    cloud.gather();
     speakWelcome();
   });
   function leaveWelcome() {
     if (!inWelcome) return;
     inWelcome = false;
     if (window.speechSynthesis) speechSynthesis.cancel();
+    audio.pause(); audio.muted = false;
     sayProgress(1);
-    wlGo.classList.remove("is-on");
     app.classList.remove("is-welcome");
     split.classList.remove("panel-away");
-    wlHero.classList.remove("is-on");
-    cloud.stop();
     saying(false);
     setTimeout(function () { go(0); }, 800);
   }
@@ -1952,7 +2037,8 @@
   showTab("story");
   setMode("sim");
   probe();
-  startWelcome();
+  var jump = (location.search.match(/[?&]etape=([\w-]+)/) || [])[1];
+  if (jump) { app.hidden = false; go(stepIdx(jump)); } else startWelcome();
 
   window.AtelierTracking = {
     snapshot: function () {
