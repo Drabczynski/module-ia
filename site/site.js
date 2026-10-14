@@ -33,14 +33,26 @@
   var VIDEOS = {
     // claire : montrée en entier sous la barre du haut (fond flou sur les côtés), sans voile ni éclaircissement ;
     // la dernière image reste un moment avant la plongée (end : part du chapitre où la vidéo se termine)
-    intro: { dir: "intro", n: 241, len: 14.3, end: .9, fit: "contain", light: true, target: { x: .868, y: .549, r: .025 } },   // le bouton d'envoi de « Que souhaitez-vous créer ? »
+    // keys : [écran de défilement, seconde de la vidéo] ; la vidéo ralentit pendant les messages et passe plus vite entre eux ;
+    // rien pendant « Imagine un monde » (2,4 à 4,2 s), la vidéo parle seule ; elle s'arrête à la fin du désert (image 190, 7,92 s) :
+    // pas de plongée, l'interface du module se dessine ensuite au trait pendant que l'orbe parle (uiLines) ;
+    // msgs : [début, fin] en écrans, et la place de chaque message, choisie là où l'image est calme
+    // (en blanc sur le ruban violet foncé, en encre sur les fonds clairs)
+    intro: { dir: "intro", n: 191, fps: 24, fit: "contain", light: true, drift: .06, target: { x: .5, y: .5, r: .03 },
+      keys: [[0, 0], [1.4, .3], [3.3, 1.35], [3.9, 2.4], [5.3, 4.2], [5.7, 4.45], [7.6, 5.2], [8.2, 5.8], [10, 6.75], [10.6, 7.3], [12.3, 7.92], [14, 7.92]],
+      msgs: [[1.55, 3.2, "m-l is-white"],        // 8 h 30, un lundi : sur le ruban violet foncé, en bas à gauche
+             [5.85, 7.35, "m-top"],             // toutes les tâches : en haut, au-dessus de la petite image des dunes
+             [8.35, 9.85, "m-c m-sky"],         // la question : dans l'arche, au-dessus du soleil
+             [10.75, 12.2, "m-side m-high"],    // ce qui fait la différence : à gauche, dans le ciel du désert
+             [12.4, 13.9, "m-c m-sky"]] },      // ça s'apprend : dans le ciel, sur la dernière image du désert
     bureau: { dir: "bureau", n: 169, len: 10, end: .985, fit: "cover", target: { x: .4865, y: .485, r: .029 } }               // la sphère, sur l'écran du bureau
   };
   var VID = VIDEOS[(location.search.match(/[?&]video=(\w+)/) || [])[1]] || VIDEOS.intro;
   document.documentElement.classList.add("v-" + VID.dir);
 
   /* ---------- chapitres (longueurs en hauteurs d'écran) ---------- */
-  var CH = [["film", VID.len], ["dive", 1.4], ["sphere", 1.8], ["open", 2.8], ["write", 2.2], ["spot", .0001], ["build", .0001], ["more", 6.5], ["end", 1.6]];   // repérer et construire : retirés du récit
+  if (VID.keys) VID.len = VID.keys[VID.keys.length - 1][0];
+  var CH = [["film", VID.len], ["dive", VID.light ? 1 : 1.4], ["sphere", VID.light ? 2.6 : 1.8], ["open", 2.8], ["write", 2.2], ["spot", .0001], ["build", .0001], ["more", 6.5], ["end", 1.6]];   // repérer et construire : retirés du récit
   var START = {}, LEN = {}, TOTAL = 0;
   CH.forEach(function (c) { START[c[0]] = TOTAL; LEN[c[0]] = c[1]; TOTAL += c[1]; });
   var story = $("[data-story]"), stage = $("[data-stage]");
@@ -215,8 +227,16 @@
       sctx.globalCompositeOperation = "destination-in"; sctx.fillStyle = g; sctx.fillRect(0, 0, w, h);
       return soft;
     }
+    var topLum = 1;
+    // l'image à montrer : le long des repères (keys), ou au fil du chapitre
+    function frameAt(tF) {
+      if (!VID.keys) return seg(tF, .08, VID.end) * (N - 1);
+      var u = tF * VID.len, K = VID.keys;
+      for (var k = 1; k < K.length; k++) if (u <= K[k][0]) { var a = K[k - 1], b = K[k]; return Math.min(N - 1, (a[1] + (b[1] - a[1]) * (u - a[0]) / Math.max(1e-6, b[0] - a[0])) * VID.fps); }
+      return N - 1;
+    }
     return {
-      el: el, N: N, SPHERE: SPHERE, cover: cover,
+      el: el, N: N, SPHERE: SPHERE, cover: cover, frameAt: frameAt, lum: function () { return topLum; },
       draw: function (f) {
         var i = clamp(Math.round(f), 0, N - 1);
         if (!loaded[i]) { for (var d = 1; d < N; d++) { if (loaded[i - d]) { i = i - d; break; } if (loaded[i + d]) { i = i + d; break; } } }
@@ -230,6 +250,9 @@
           var bs = Math.max(c.w / 48, c.h / 27);
           ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
           ctx.drawImage(tiny, (c.w - 48 * bs) / 2, (c.h - 27 * bs) / 2, 48 * bs, 27 * bs);
+          var px = tctx.getImageData(0, 1, 48, 3).data, sum = 0;                    // sous la barre du haut : clair ou foncé ?
+          for (var q = 0; q < px.length; q += 4) sum += .2126 * px[q] + .7152 * px[q + 1] + .0722 * px[q + 2];
+          topLum = sum / (px.length / 4) / 255;
         }
         if (tiny && c.w - 1280 * c.s > 2) { var fw = Math.round(1280 * c.s * dpr), fh = Math.round(720 * c.s * dpr); ctx.drawImage(feather(imgs[i], fw, fh), c.x, c.y, 1280 * c.s, 720 * c.s); }
         else ctx.drawImage(imgs[i], c.x, c.y, 1280 * c.s, 720 * c.s);
@@ -238,6 +261,14 @@
   })();
   var filmAurora = $("[data-film-aurora]"), filmDim = $("[data-film-dim]"), filmShade = $("[data-film-shade]"), filmFlash = $("[data-film-flash]"), msgs = $$("[data-msg]");
   var MSG = [[.1, .3], [.28, .5], [.47, .68], [.65, .84], [.81, .99]];
+  if (VID.msgs) {                                              // vidéo claire : ses propres fenêtres et places
+    MSG = VID.msgs.map(function (m) { return [m[0] / VID.len, m[1] / VID.len]; });
+    msgs.forEach(function (m, i) {
+      if (!VID.msgs[i]) return;
+      m.className = "msg " + VID.msgs[i][2];
+      if (/m-top/.test(m.className)) $$("br", m).forEach(function (br) { br.replaceWith(document.createTextNode(" ")); });   // en haut : deux lignes équilibrées
+    });
+  }
 
   /* =====================================================================
      Hero : le titre se pose mot à mot, l'orbe apparaît au survol
@@ -335,6 +366,84 @@
   var fwS = new Spring(0, 120, 20), fwInit = false;
   var cam = { x: new Spring(0, 90, 19), y: new Spring(0, 90, 19), s: new Spring(.5, 90, 19) }, camInit = false;
 
+  // où l'interface se dessine (vidéo claire) : l'écran du module, agrandi et centré ; il glisse ensuite à sa place (F)
+  function drawRect(vw, vh) {
+    var k = Math.min(Math.min(vw * .62, 1080) / F.w, (vh - 64 - 70) / F.h), w = F.w * k, h = F.h * k;
+    return { x: (vw - w) / 2, y: 64 + (vh - 64 - h) / 2, w: w, h: h, k: k };
+  }
+
+  /* =====================================================================
+     L'interface au trait (vidéo claire) : pendant que l'orbe parle, l'écran du module se dessine en lignes fines,
+     façon Hairline : ses blocs, ses textes, ses icônes, relevés sur l'interface elle-même (une seule fois),
+     tracés trait par trait ; puis l'interface apparaît exactement par-dessus
+     ===================================================================== */
+  var uiLines = (function () {
+    if (!VID.light) return null;
+    var NS = "http://www.w3.org/2000/svg", box = document.createElement("div"), svg = document.createElementNS(NS, "svg");
+    box.className = "ui-lines"; box.setAttribute("aria-hidden", "true");
+    svg.setAttribute("viewBox", "0 0 1440 860"); svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+    box.appendChild(svg); frame.parentNode.insertBefore(box, frame);
+    var items = [], traced = false, lastP = -1, out = null;
+    function add(tag, attrs, cls, s0, d) {
+      var e = document.createElementNS(NS, tag);
+      for (var k in attrs) e.setAttribute(k, typeof attrs[k] === "number" ? attrs[k].toFixed(1) : attrs[k]);
+      e.setAttribute("pathLength", "1"); e.setAttribute("class", cls); svg.appendChild(e);
+      var it = { el: e, s: s0, d: d }; items.push(it); return it;
+    }
+    function shown(el) { for (var n = el; n && n !== frame; n = n.parentElement) { var cs = getComputedStyle(n); if (cs.display === "none" || cs.visibility === "hidden" || +cs.opacity < .4) return false; } return true; }
+    function trace() {
+      var wr = win.getBoundingClientRect(), sc = wr.width / 1440;
+      if (!sc) return;
+      traced = true;
+      var vis = frame.style.visibility; frame.style.visibility = "visible";   // l'écran est encore masqué : on le relève tel qu'il apparaîtra (le rendu le remasque)
+      var boxes = [], lines = [], icons = [], rg = document.createRange();
+      var R = function (r) { return { x: (r.left - wr.left) / sc, y: (r.top - wr.top) / sc, w: r.width / sc, h: r.height / sc }; };
+      var inside = function (b) { return b.w > 4 && b.h > 3 && b.x > -2 && b.y > -2 && b.x + b.w < 1442 && b.y + b.h < 862; };
+      $$("*", win).forEach(function (el) {
+        if (el.closest("svg") && el.tagName.toLowerCase() !== "svg") return;
+        if (el.closest("[data-slot-win], [data-slot-mini]")) return;            // la place de l'orbe : l'orbe y entrera
+        if (!shown(el)) return;
+        var cs = getComputedStyle(el), b = R(el.getBoundingClientRect());
+        if (!inside(b)) return;
+        if (el.tagName.toLowerCase() === "svg") { icons.push(b); return; }
+        var bg = cs.backgroundColor.match(/[\d.]+/g) || [], bgA = bg.length === 4 ? +bg[3] : bg.length ? 1 : 0;
+        var hasBox = el !== win && (bgA > .05 || parseFloat(cs.borderTopWidth) > 0 || parseFloat(cs.borderBottomWidth) > 0 || parseFloat(cs.borderLeftWidth) > 0 || cs.boxShadow !== "none");
+        if (hasBox && b.w > 10 && b.h > 6) boxes.push({ b: b, r: Math.min(parseFloat(cs.borderTopLeftRadius) || 0, b.h / 2, b.w / 2), hi: el.matches(".pv-rule, .task.cur, .w-send, .send, .btn, .w-comp") });
+        Array.prototype.forEach.call(el.childNodes, function (t) {
+          if (t.nodeType !== 3 || !t.nodeValue.trim()) return;
+          rg.selectNodeContents(t);
+          Array.prototype.forEach.call(rg.getClientRects(), function (r) { var q = R(r); if (q.w > 3 && inside(q)) lines.push(q); });
+        });
+      });
+      // l'ordre du dessin : le cadre, puis les grands blocs (du haut à gauche vers le bas à droite), puis les textes et les icônes
+      out = add("rect", { x: 0, y: 0, width: 1440, height: 860, rx: 22 }, "out", 0, .22);
+      boxes.sort(function (a, b) { return (a.b.y + a.b.x * .35) - (b.b.y + b.b.x * .35); });
+      boxes.forEach(function (o, i) { var q = o.b; add("rect", { x: q.x, y: q.y, width: q.w, height: q.h, rx: o.r }, o.hi ? "hi" : "bx", .06 + .5 * i / Math.max(1, boxes.length), .22); });
+      lines.sort(function (a, b) { return (a.y + a.x * .2) - (b.y + b.x * .2); });
+      lines.forEach(function (q, i) { var y = q.y + q.h * .55; add("line", { x1: q.x, y1: y, x2: q.x + q.w, y2: y }, "tx", .32 + .5 * i / Math.max(1, lines.length), .14); });
+      frame.style.visibility = vis;
+      icons.forEach(function (q, i) { add("circle", { cx: q.x + q.w / 2, cy: q.y + q.h / 2, r: Math.max(2, Math.min(q.w, q.h) * .42) }, "ic", .4 + .45 * i / Math.max(1, icons.length), .12); });
+    }
+    return {
+      update: function (p, op, fw, fh, txo) {
+        box.style.setProperty("--tx", String(txo == null ? 1 : txo));   // les traits de texte s'effacent les premiers : ils ne barrent pas les vrais textes
+        box.style.left = frame.style.left; box.style.top = frame.style.top; box.style.width = frame.style.width; box.style.height = frame.style.height;
+        box.style.transform = frame.style.transform; box.style.opacity = String(op);
+        box.style.visibility = op <= .001 ? "hidden" : "visible";
+        if (op <= .001) return;
+        if (!traced) trace();
+        if (out && fw) {                                      // le contour de l'écran, à son format (l'interface y est centrée)
+          var s = Math.min(fw / 1440, fh / 860), ow = fw / s, oh = fh / s;
+          out.el.setAttribute("x", ((1440 - ow) / 2).toFixed(1)); out.el.setAttribute("y", ((860 - oh) / 2).toFixed(1));
+          out.el.setAttribute("width", ow.toFixed(1)); out.el.setAttribute("height", oh.toFixed(1)); out.el.setAttribute("rx", (22 / s).toFixed(1));
+        }
+        if (Math.abs(p - lastP) < .002) return;
+        lastP = p;
+        items.forEach(function (it) { it.el.style.strokeDashoffset = (1 - ease(clamp((p - it.s) / it.d, 0, 1))).toFixed(4); });
+      }
+    };
+  })();
+
   function centerOf(el) { var r = el.getBoundingClientRect(), s = stage.getBoundingClientRect(); return { x: r.left + r.width / 2 - s.left, y: r.top + r.height / 2 - s.top, w: r.width }; }
   function inWin(el) {
     var r = el.getBoundingClientRect(), w = win.getBoundingClientRect(), k = w.width / W;
@@ -391,7 +500,9 @@
     var vw = stage.clientWidth, vh = stage.clientHeight, ch = current();
     setClass(nav, "is-solid", window.scrollY > 10);
     var tF = L("film"), tD = L("dive"), tS = L("sphere"), tO = L("open");
-    setClass(nav, "on-dark", VID.light ? tF < .09 : U < START.dive + LEN.dive * .6);   // vidéo claire : barre claire dès que le hero s'efface
+    // vidéo claire : la barre du haut, en verre, sur la vidéo ; son texte passe en blanc quand le haut de l'image est foncé
+    setClass(nav, "over-film", !!VID.light && U < START.dive + LEN.dive * .4);
+    setClass(nav, "on-dark", VID.light ? tF < .09 || (U < START.dive && film.lum() < .5) : U < START.dive + LEN.dive * .6);
 
     /* --- 1. le hero sur la première image, puis la vidéo défile --- */
     var heroOut = ease(seg(tF, .03, .1));
@@ -404,25 +515,32 @@
     filmAurora.style.opacity = String(1 - au);
     filmAurora.style.transform = "scale(" + (1 + .12 * au) + ")";
     filmAurora.style.visibility = au >= 1 ? "hidden" : "visible";
-    film.draw(seg(tF, .08, VID.end) * (film.N - 1));
+    film.draw(film.frameAt(tF));
     filmShade.style.opacity = String(1 - .7 * seg(tF, .08, .16) - .3 * seg(tD, 0, .4));
     var anyMsg = false;
     msgs.forEach(function (m, i) {                            // chaque message traverse l'écran pendant sa fenêtre
       var w = MSG[i], on = U < START.dive + .3 && tF >= w[0] && tF < w[1], t = seg(tF, w[0], w[1]);
       setClass(m, "on", on); if (on) anyMsg = true;
-      m.style.transform = "translateY(" + ((.5 - t) * vh * .28).toFixed(1) + "px)";
+      m.style.transform = "translateY(" + ((.5 - t) * vh * (VID.drift || .28)).toFixed(1) + "px)";   // vidéo claire : presque immobile, plus facile à lire
     });
     setClass(filmDim, "on", anyMsg);
 
     /* --- 2. la plongée dans l'écran : la sphère de la vidéo grossit jusqu'à la taille de la nôtre --- */
     var R = Math.min(vw, vh) * .27, cx0 = vw / 2, cy0 = vh * .4;
     var fc = film.cover(), sx = fc.x + film.SPHERE.x * 1280 * fc.s, sy = fc.y + film.SPHERE.y * 720 * fc.s, r0 = film.SPHERE.r * 1280 * fc.s;
-    var kEnd = Math.max(1, R * 1.05 / r0), z = ease(seg(tD, 0, .78)), k = Math.pow(kEnd, z);
-    film.el.style.transformOrigin = sx + "px " + sy + "px";
-    film.el.style.transform = "translate(" + ((cx0 - sx) * z) + "px," + ((cy0 - sy) * z) + "px) scale(" + k + ")";
-    filmFlash.style.opacity = String(seg(tD, .45, .78));
-    film.el.style.opacity = String(1 - seg(tD, .78, .96));
-    film.el.style.visibility = tD >= .97 ? "hidden" : "visible";
+    if (VID.light) {                                          // vidéo claire : pas de plongée ; le désert s'efface sur le fond violet clair
+      film.el.style.transform = "none";
+      filmFlash.style.opacity = "0";
+      film.el.style.opacity = String(1 - ease(seg(tD, 0, .5)));
+      film.el.style.visibility = tD >= .5 ? "hidden" : "visible";
+    } else {
+      var kEnd = Math.max(1, R * 1.05 / r0), z = ease(seg(tD, 0, .78)), k = Math.pow(kEnd, z);
+      film.el.style.transformOrigin = sx + "px " + sy + "px";
+      film.el.style.transform = "translate(" + ((cx0 - sx) * z) + "px," + ((cy0 - sy) * z) + "px) scale(" + k + ")";
+      filmFlash.style.opacity = String(seg(tD, .45, .78));
+      film.el.style.opacity = String(1 - seg(tD, .78, .96));
+      film.el.style.visibility = tD >= .97 ? "hidden" : "visible";
+    }
 
     /* --- 3. notre sphère prend le relais, tourne, éclate --- */
     var burst = ease(seg(tS, .3, .56));
@@ -430,11 +548,12 @@
     sphere.draw(cx0, cy0, R, 1, burst, rot, 0);                // plus de sphère : on entre directement dans l'assistant
 
     /* --- 3. l'orbe naît de l'éclatement, puis entre dans l'écran --- */
-    appear.t = tD > .72 ? 1 : 0;                               // l'orbe surgit de l'écran blanc
+    appear.t = tD > (VID.light ? .45 : .72) ? 1 : 0;           // l'orbe surgit de l'écran blanc (vidéo claire : au centre du dessin)
     var a = appear.step(dt);
-    var p1 = { x: vw / 2, y: vh * .4, s: Math.min(1, vw / 520) };
+    var DR = drawRect(vw, vh);
+    var p1 = VID.light ? { x: DR.x + DR.w / 2, y: DR.y + DR.h * .4, s: Math.min(1, DR.h * .3 / ORB) } : { x: vw / 2, y: vh * .4, s: Math.min(1, vw / 520) };
     var slotC = centerOf(slotWin), p2 = { x: slotC.x, y: slotC.y, s: (150 * cam.s.v) / ORB };
-    var tIn = ease(seg(tO, .3, .75));
+    var tIn = VID.light ? ease(seg(tO, .2, .55)) : ease(seg(tO, .3, .75));
     var tx = lerp(p1.x, p2.x, tIn), ty = lerp(p1.y, p2.y, tIn), ts = lerp(p1.s, p2.s, tIn);
     if (!orbInit) { orbPos.x.v = tx; orbPos.y.v = ty; orbPos.s.v = ts; orbInit = true; }
     orbPos.x.t = tx; orbPos.y.t = ty; orbPos.s.t = ts;
@@ -444,11 +563,11 @@
     orbEl.style.transform = "translate(" + (ox - ORB / 2) + "px," + (oy - ORB / 2) + "px) scale(" + Math.max(.001, os * a) + ")";
     orbEl.style.opacity = String(1 - handOff);
     orbEl.style.visibility = handOff >= 1 || a < .002 ? "hidden" : "visible";
-    if (orb) orb.setState(tD > .85 && tO < .9 ? "speaking" : "idle");
+    if (orb) orb.setState(tD > (VID.light ? .5 : .85) && tO < .9 ? "speaking" : "idle");
 
     /* --- sa phrase --- */
-    say.style.top = (vh * .4 + Math.min(150, vh * .17) * (vw < 600 ? .8 : 1)) + "px";
-    say.style.opacity = String(seg(tD, .85, 1) * (1 - seg(tO, .05, .25)));
+    say.style.top = (VID.light ? p1.y + ORB * p1.s / 2 + 18 : vh * .4 + Math.min(150, vh * .17) * (vw < 600 ? .8 : 1)) + "px";
+    say.style.opacity = String((VID.light ? seg(tD, .55, .9) : seg(tD, .85, 1)) * (1 - seg(tO, .05, .25)));
     reveal(sayW, seg(tS, .02, .9));
 
     /* --- le fond --- */
@@ -456,9 +575,13 @@
     shader.draw(time, shaderI.step(dt), ch === "sphere" ? 1 : .4, mouse.x < -999 ? innerWidth / 2 : mouse.x, mouse.y < -999 ? innerHeight / 2 : mouse.y);
 
     /* --- l'écran --- */
-    var fIn = ease(seg(tO, 0, .5));
+    var fIn = ease(seg(tO, VID.light ? .08 : 0, .5));
     frame.style.opacity = String(fIn);
-    frame.style.transform = "translateY(" + (40 * (1 - fIn)) + "px) scale(" + (.94 + .06 * fIn) + ")";
+    if (VID.light) {
+      var mv = 1 - ease(seg(tO, .2, .55));                     // l'écran glisse à sa place, puis les étapes apparaissent à gauche
+      frame.style.transformOrigin = "0 0";
+      frame.style.transform = "translate(" + ((DR.x - F.x) * mv).toFixed(1) + "px," + ((DR.y - F.y) * mv).toFixed(1) + "px) scale(" + (1 + (DR.k - 1) * mv).toFixed(4) + ")";
+    } else frame.style.transform = "translateY(" + (40 * (1 - fIn)) + "px) scale(" + (.94 + .06 * fIn) + ")";
     frame.style.visibility = fIn <= 0 ? "hidden" : "visible";
     fwS.t = F.w;
     if (!fwInit) { fwS.v = fwS.t; fwInit = true; }
@@ -469,11 +592,13 @@
     cam.x.t = c.x; cam.y.t = c.y; cam.s.t = c.s;
     var cx = cam.x.step(dt), cy = cam.y.step(dt), cs = cam.s.step(dt);
     win.style.transform = "translate(" + cx + "px," + cy + "px) scale(" + cs + ")";
+    // l'interface au trait : elle se dessine pendant la phrase de l'orbe, puis s'efface quand l'écran apparaît par-dessus
+    if (uiLines) uiLines.update(seg(U, START.dive + LEN.dive * .45, START.sphere + LEN.sphere * .9), (U >= START.dive + LEN.dive * .4 ? 1 : 0) * (1 - seg(tO, .25, .55)), fw, F.h, 1 - seg(tO, 0, .16));
 
     /* --- les étapes, à gauche --- */
     var mp = L("more") * 6.5, si = ch === "open" ? 0 : ch === "write" ? 1 : ch === "more" ? (mp < 2 ? 2 : mp < 4.2 ? 3 : 4) : ch === "end" ? 5 : -1;
     if (inStory) tintTo(si >= 0 ? [1, 2, 3, 4, 5, 6][si] : 0);
-    setClass(steps, "on", si >= 0 && (si > 0 || tO > .35));
+    setClass(steps, "on", si >= 0 && (si > 0 || tO > (VID.light ? .5 : .35)));
     stItems.forEach(function (el, i) { setClass(el, "on", i === si); setClass(el, "done", i < si); });
     if (si >= 0 && !stacked) {                                // la ligne relie les pastilles, et se remplit jusqu'à l'étape active
       var sr0 = steps.getBoundingClientRect(), cy0 = function (el) { var r = el.querySelector(".st-n").getBoundingClientRect(); return r.top + r.height / 2 - sr0.top; };
@@ -497,7 +622,7 @@
     if (orbIn) orbIn.setState(U >= START.write && tw > .12 && tw < .62 ? "listening" : "speaking");
     // ÉTAPE 1 · écrire
     if (!inBuild) { setWsay("Sophie vous demande une offre d’emploi."); reveal(wsayW, seg(tO, .78, 1)); }
-    else { setWsay("Complétez chaque case orange."); reveal(wsayW, seg(tb, .06, .14)); }
+    else { setWsay(VID.light ? "Complétez chaque case violette." : "Complétez chaque case orange."); reveal(wsayW, seg(tb, .06, .14)); }
     wsay.style.opacity = String(U >= START.more ? 0 : inBuild ? 1 : 1 - seg(tw, .6, .64));
     setClass(comp, "on", (tw >= .1 && !sent && !inBuild) || (inBuild && U < START.more));
     var inMore = U >= START.more;
@@ -609,7 +734,7 @@
     card2.style.transform = "scale(" + (.94 + .06 * swp) + ") translateY(" + (14 * (1 - swp)) + "px)";
     setClass(bfaux, "press", tsw >= .3 && tsw < .75); clickAt("faux", tsw >= .3);
     // pied du panneau
-    var ps = U < START.spot ? (sent ? "Lisez la réponse de l’IA." : "Envoyez-la, et regardez le résultat.") : U < START.build ? "Trouvez les trois inventions." : U < START.more ? "Complétez les cases orange." : ["Glissez la carte.", "Choisissez la bonne réponse.", "Générez l’image.", "Demandez le document."][Math.max(0, gk)];
+    var ps = U < START.spot ? (sent ? "Lisez la réponse de l’IA." : "Envoyez-la, et regardez le résultat.") : U < START.build ? "Trouvez les trois inventions." : U < START.more ? (VID.light ? "Complétez les cases violettes." : "Complétez les cases orange.") : ["Glissez la carte.", "Choisissez la bonne réponse.", "Générez l’image.", "Demandez le document."][Math.max(0, gk)];
     if (psay.textContent !== ps) psay.textContent = ps;
     setClass(next, "on", (ch === "write" && tw >= .94) || (ch === "spot" && tsp >= .8) || (ch === "build" && tb >= .92) || (ch === "more" && gu >= .85));
     prog.style.width = (8 + 85 * seg(U, START.write, START.more + LEN.more)) + "%";

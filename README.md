@@ -182,10 +182,16 @@ styles et scripts partagés : `premiers-pas/app.css`, `gris.css`, `accueil.css`,
 
 ## Site vitrine (`site/`)
 
-Page de présentation commerciale. Elle s’ouvre sur la vidéo du bureau
-(`assets/Photorealistic-cinematic-16-9-opening-fr.mp4`, découpée en 169 images dans
-`assets/video/bureau/`) qui avance au défilement, avec des messages sur l’IA au travail, puis
-plonge dans l’écran, d’où surgit directement l’orbe. Après la démonstration, un immeuble de bureaux dessiné au trait, plein centre (`site/tour.js`, sur le moteur de
+Page de présentation commerciale, en violet (fond violet très clair, accents violets). Elle s’ouvre sur
+la vidéo `assets/video-intro.mp4`, découpée en 191 images dans `assets/video/intro/` et coupée à la fin
+du désert (7,92 s). Elle est montrée en entière, sans voile ni éclaircissement, sous un menu en verre,
+et avance au défilement : plus lentement pendant les cinq messages, chacun posé à un endroit calme
+de l’image (en blanc sur le ruban violet foncé, en encre ailleurs), rien pendant « Imagine un monde ».
+Le désert s’efface ; l’orbe apparaît au centre de l’interface du module, qui se dessine au trait
+pendant sa phrase (relevée sur l’interface elle-même, `uiLines` dans `site/site.js`) ; l’interface
+apparaît par-dessus, glisse à sa place, et le parcours reprend sur « Une conversation guidée ».
+L’ancienne ouverture (vidéo du bureau, `assets/video/bureau/`, plongée dans l’écran) reste
+visible avec `site/?video=bureau`. Après la démonstration, un immeuble de bureaux dessiné au trait, plein centre (`site/tour.js`, sur le moteur de
 [Hairline](https://github.com/lucasmarkes/hairline), licence MIT, embarqué dans `site/vendor/hairline/`) :
 au défilement, il se construit étage par étage, s’ouvre à l’étage présenté (accueil, RH,
 communication, finance, juridique, direction), qui glisse vers le lecteur avec ses postes,

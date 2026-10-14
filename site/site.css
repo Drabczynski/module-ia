@@ -704,14 +704,74 @@ html.bg-cream body { background: var(--cream); }
 html.bg-cream .nav.is-solid { background: rgba(250, 249, 245, .92); }
 html.bg-cream .nav-links a:hover { background: #efede6; }
 
-/* ---------- la vidéo d'ouverture claire (video-intro.mp4, html.v-intro) : ni éclaircissement ni voile noir ;
-   les messages passent en encre sombre, avec un léger halo blanc pour rester lisibles sur les rubans violets ---------- */
+/* ---------- la vidéo d'ouverture claire (video-intro.mp4, html.v-intro) : ni éclaircissement ni voile noir ---------- */
 .v-intro .film { background: #ece6fb; }
 .v-intro .film canvas { filter: none; }
 .v-intro .film-shade, .v-intro .film-dim { display: none; }
-.v-intro .msg { color: #1c0e3c; }
 .v-intro .msg::before { display: none; }
-.v-intro .msg h2 { text-shadow: 0 0 2px rgba(255,255,255,.7), 0 0 26px rgba(255,255,255,.9); }
+
+/* les messages : chacun à un endroit calme de l'image (site.js, VIDEOS.intro.msgs), presque immobiles ;
+   encre foncée sur les fonds clairs, avec un léger halo blanc ; en blanc sur le ruban violet foncé (is-white) */
+.v-intro .msg { color: #1c0e3c; }
+.v-intro .msg h2 { font-weight: 500; text-shadow: 0 0 2px rgba(255,255,255,.6), 0 0 26px rgba(255,255,255,.85); }
 .v-intro .msg-k { color: #6a3fd0; text-shadow: 0 0 14px rgba(255,255,255,.9); }
-.v-intro .msg-sub { color: rgba(28,14,60,.75); text-shadow: 0 0 22px rgba(255,255,255,.9); }
-.v-intro .msg-chips span { background: rgba(255,255,255,.6); box-shadow: inset 0 0 0 1px rgba(28,14,60,.12); color: #1c0e3c; }
+.v-intro .msg-sub { color: rgba(28,14,60,.78); text-shadow: 0 0 22px rgba(255,255,255,.9); }
+.v-intro .msg-chips span { background: rgba(255,255,255,.62); box-shadow: inset 0 0 0 1px rgba(28,14,60,.1); backdrop-filter: blur(8px); color: #1c0e3c; }
+.v-intro .msg.is-white { color: #fff; }
+.v-intro .msg.is-white h2 { text-shadow: 0 1px 2px rgba(30,0,70,.3), 0 2px 24px rgba(30,0,70,.35); }
+.v-intro .msg.is-white .msg-k { color: rgba(255,255,255,.88); text-shadow: 0 1px 10px rgba(30,0,70,.4); }
+/* en haut, au centre, sur deux lignes */
+.v-intro .m-top { left: 50%; right: auto; top: calc(64px + 2.5vh); bottom: auto; translate: -50% 0; text-align: center; max-width: min(1080px, 90vw); }
+.v-intro .m-top h2 { font-size: clamp(24px, 2.5vw, 40px); }
+.v-intro .m-top .msg-chips { justify-content: center; }
+/* dans le ciel, au-dessus du soleil */
+.v-intro .m-sky { top: 32%; }
+/* à gauche, au milieu, sans toucher la barre « Que souhaitez-vous créer ? » */
+.v-intro .m-side { left: clamp(20px, 7vw, 120px); right: auto; top: 47%; bottom: auto; translate: 0 -50%; text-align: left; max-width: min(600px, 34vw); }
+.v-intro .m-side h2 { font-size: clamp(24px, 2.4vw, 38px); }
+
+/* la barre du haut, sur la vidéo : du verre, pas un bandeau blanc ; texte foncé ou blanc selon l'image dessous */
+.v-intro .nav.over-film.is-solid { background: rgba(255,255,255,.16); backdrop-filter: blur(18px) saturate(1.3); -webkit-backdrop-filter: blur(18px) saturate(1.3); box-shadow: inset 0 -1px 0 rgba(255,255,255,.3); }
+.v-intro .nav.over-film .brand, .v-intro .nav.over-film .nav-links a:not(.btn) { transition: color .4s; }
+
+/* ---------- avec la vidéo claire, le site passe au violet : fond violet très clair (au lieu du crème), violet à la place de l'orange ---------- */
+html.v-intro {
+  --cream: #f5f2fc; --line: #e4dff0; --line-2: #eeeaf7; --c-line: #e3ddf0; --c-user: #eeeaf8; --c-ink: #231d33;
+  --orange: #6d3fd6; --claude: #7b4ae2;
+}
+html.v-intro ::selection { background: #e2d6ff; }
+html.v-intro.bg-cream .nav.is-solid { background: rgba(245, 242, 252, .92); }
+html.v-intro.bg-cream .nav-links a:hover { background: #ebe6f7; }
+html.v-intro .veil { background: linear-gradient(90deg, rgba(245,242,252,.85), rgba(245,242,252,0) 7%, rgba(245,242,252,0) 93%, rgba(245,242,252,.85)), linear-gradient(180deg, rgba(245,242,252,.7), rgba(245,242,252,0) 12%, rgba(245,242,252,0) 88%, rgba(245,242,252,.7)); }
+html.v-intro .hero-k i { box-shadow: 0 0 0 4px rgba(109, 63, 214, .15); }
+html.v-intro .tag { box-shadow: 0 10px 24px -10px rgba(109, 63, 214, .7); }
+html.v-intro .m-body mark.on { background: #e4d8ff; box-shadow: 0 0 0 2px #b79cf2; }
+html.v-intro .w-comp.on { box-shadow: 0 0 0 5px rgba(109, 63, 214, .14), 0 10px 30px -10px rgba(109, 63, 214, .4); }
+html.v-intro .task.cur { box-shadow: inset 0 0 0 1.5px var(--orange), 0 0 0 3px rgba(109, 63, 214, .12); }
+html.v-intro .brief-av { background: linear-gradient(160deg, #b9a4ec, #7b5bd0); }
+html.v-intro .gen-in { box-shadow: inset 0 0 0 1.5px var(--orange), 0 0 0 4px rgba(109, 63, 214, .12); }
+html.v-intro .hero-pill { box-shadow: inset 0 0 0 1px rgba(255,255,255,.18), 0 8px 30px -10px rgba(170, 130, 255, .4); }
+html.v-intro .pc-name { color: #c9b3ff; }
+html.v-intro .found span.on { background: #f1ebff; box-shadow: inset 0 0 0 1.5px #b79cf2; color: #5b2fc4; }
+html.v-intro .cursor::after { border-color: rgba(109, 63, 214, .7); }
+html.v-intro .pv-rule { background: linear-gradient(90deg, #9b7bf0, #5b2fc4); }
+html.v-intro .sw-card::before { background: linear-gradient(90deg, #9b7bf0, #6d3fd6 55%, #b83fc4); }
+html.v-intro .feat-i, html.v-intro .lc-ic { background: #f1ebff; color: #5b2fc4; }
+html.v-intro .tg-n, html.v-intro .badges .badge.cur { background: #f1ebff; color: #5b2fc4; }
+html.v-intro .tg { background: #efecf7; }
+html.v-intro .pc:hover { box-shadow: 0 0 0 1px #d9d2ec, 0 24px 44px -30px rgba(40,16,90,.35); }
+html.v-intro .badge { background: #f1ebff; color: #5b2fc4; }
+
+/* ---------- vidéo claire : le récit continue sur un fond violet très clair ; l'interface se dessine au trait (site.js, uiLines) ---------- */
+html.v-intro { --bg: #faf8ff; --hairline-edge: #7d72a0; --hairline-mid: #b0a8c9; --hairline-lo: #cfc8e3; }
+.v-intro .stage { background: var(--cream); }
+.v-intro .m-high { top: 30%; }
+.ui-lines { position: absolute; z-index: 4; pointer-events: none; transform-origin: 0 0; visibility: hidden; }
+.ui-lines svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.ui-lines svg * { fill: none; stroke: #a49ac2; stroke-width: 1; vector-effect: non-scaling-stroke; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1 1; stroke-dashoffset: 1; }
+.ui-lines .out { stroke: #7d72a0; stroke-width: 1.2; }
+.ui-lines .hi { stroke: var(--orange); stroke-width: 1.3; }
+.ui-lines .tx { stroke: #cbc3e2; stroke-width: 2.2; opacity: var(--tx, 1); }
+.ui-lines .ic { stroke: #b3a9d1; }
+/* la phrase de l'orbe, posée sur le dessin : un halo de la couleur du fond pour la détacher des traits */
+.v-intro .say { text-shadow: 0 0 10px var(--cream), 0 0 22px var(--cream), 0 0 2px var(--cream); }
