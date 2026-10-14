@@ -189,8 +189,8 @@ dans `assets/video/intro/` et coupée à la fin du désert (7,92 s), montrée en
 qui avance au défilement : plus lentement pendant les trois messages, écrits pour des débutants
 (« Apprenez l’IA, pas à pas. », « Écrire, chercher, résumer. », « Pas besoin d’être expert. »), en très grand et en blanc,
 sur un côté de l’image, avec un voile violet foncé à peine perceptible de ce côté-là ; rien pendant
-« Imagine un monde ». L’interface du module se dessine au trait dans le désert (en blanc), le désert
-s’efface (les traits passent en lilas très clair) ; l’orbe apparaît au centre et parle pendant le dessin
+« Imagine un monde ». L’interface du module se dessine au trait, en blanc, dans le désert, qui se floute et reste
+en fond, très flou, pendant toute la présentation (étapes à gauche en texte clair) ; l’orbe apparaît au centre et parle pendant le dessin
 (relevé sur l’interface elle-même, `uiLines` dans `site/site.js`) ; l’interface apparaît par-dessus,
 glisse à sa place, et le parcours reprend sur « Une conversation guidée ». L’ancienne ouverture
 (vidéo du bureau, plongée dans l’écran) reste visible avec `site/?video=bureau`. Après la démonstration, un immeuble de bureaux dessiné au trait, plein centre (`site/tour.js`, sur le moteur de

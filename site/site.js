@@ -202,7 +202,11 @@
   var film = (function () {
     var N = VID.n, el = $("[data-film]"), cv = $("[data-film-cv]"), ctx = cv.getContext("2d"), imgs = new Array(N), loaded = new Array(N), last = -1, lastW = 0;
     var SPHERE = VID.target;                                    // là où la caméra plonge, dans la dernière image
-    function load(i) { if (imgs[i]) return; var im = new Image(); im.decoding = "async"; im.onload = function () { loaded[i] = true; if (i === 0) last = -1; }; im.src = "../assets/video/" + VID.dir + "/" + String(i).padStart(3, "0") + ".jpg"; imgs[i] = im; }
+    // vidéo claire : après la vidéo, la dernière image du désert reste en fond, très floue, pendant toute la présentation de l'interface
+    var blur = VID.light ? document.createElement("canvas") : null;
+    if (blur) { blur.className = "film-blur"; blur.width = 96; blur.height = 54; blur.setAttribute("aria-hidden", "true"); el.parentNode.insertBefore(blur, el.nextSibling); }
+    function paintBlur(im) { if (blur) blur.getContext("2d").drawImage(im, 0, 0, 96, 54); }
+    function load(i) { if (imgs[i]) return; var im = new Image(); im.decoding = "async"; im.onload = function () { loaded[i] = true; if (i === 0) last = -1; if (i === N - 1) paintBlur(im); }; im.src = "../assets/video/" + VID.dir + "/" + String(i).padStart(3, "0") + ".jpg"; imgs[i] = im; }
     load(0); load(N - 1);
     var order = []; for (var step = 32; step >= 1; step = step >> 1) for (var j = 0; j < N; j += step) order.push(j);   // d'abord une image sur 32, puis on affine
     var qi = 0; (function pump() { var k = 0; while (qi < order.length && k < 6) { load(order[qi++]); k++; } if (qi < order.length) setTimeout(pump, 60); })();
@@ -236,6 +240,7 @@
     }
     return {
       el: el, N: N, SPHERE: SPHERE, cover: cover, frameAt: frameAt, lum: function () { return topLum; },
+      blur: function (op) { if (blur) { blur.style.opacity = String(op); blur.style.visibility = op <= .001 ? "hidden" : "visible"; } },
       draw: function (f) {
         var i = clamp(Math.round(f), 0, N - 1);
         if (!loaded[i]) { for (var d = 1; d < N; d++) { if (loaded[i - d]) { i = i - d; break; } if (loaded[i + d]) { i = i + d; break; } } }
@@ -502,7 +507,7 @@
     setClass(nav, "is-solid", window.scrollY > 10);
     var tF = L("film"), tD = L("dive"), tS = L("sphere"), tO = L("open");
     // vidéo claire : la barre du haut, en verre, sur la vidéo ; son texte passe en blanc quand le haut de l'image est foncé
-    setClass(nav, "over-film", !!VID.light && U < START.dive + LEN.dive * .4);
+    setClass(nav, "over-film", !!VID.light && inStory);         // vidéo claire : le menu en verre sur la vidéo puis sur le désert flou
     setClass(nav, "on-dark", VID.light ? tF < .09 || (U < START.dive && film.lum() < .5) : U < START.dive + LEN.dive * .6);
 
     /* --- 1. le hero sur la première image, puis la vidéo défile --- */
@@ -536,7 +541,8 @@
     if (VID.light) {                                          // vidéo claire : pas de plongée ; le désert s'efface sur le fond violet clair
       film.el.style.transform = "none";
       filmFlash.style.opacity = "0";
-      film.el.style.opacity = String(1 - ease(seg(tD, .35, 1)));   // l'interface commence à se dessiner dans le désert, puis le désert s'efface
+      film.el.style.opacity = String(1 - ease(seg(tD, .35, 1)));   // l'interface commence à se dessiner dans le désert, qui se floute
+      film.blur(ease(seg(U, START.dive + LEN.dive * .05, START.dive + LEN.dive * .7)));
       film.el.style.visibility = tD >= 1 ? "hidden" : "visible";
     } else {
       var kEnd = Math.max(1, R * 1.05 / r0), z = ease(seg(tD, 0, .78)), k = Math.pow(kEnd, z);
@@ -598,7 +604,7 @@
     var cx = cam.x.step(dt), cy = cam.y.step(dt), cs = cam.s.step(dt);
     win.style.transform = "translate(" + cx + "px," + cy + "px) scale(" + cs + ")";
     // l'interface au trait : elle se dessine pendant la phrase de l'orbe, puis s'efface quand l'écran apparaît par-dessus
-    if (uiLines) uiLines.update(seg(U, START.dive + LEN.dive * .05, START.sphere + LEN.sphere * .9), (U >= START.dive ? 1 : 0) * (1 - seg(tO, .25, .55)), fw, F.h, 1 - seg(tO, 0, .16), ease(seg(tD, .35, 1)));
+    if (uiLines) uiLines.update(seg(U, START.dive + LEN.dive * .05, START.sphere + LEN.sphere * .9), (U >= START.dive ? 1 : 0) * (1 - seg(tO, .25, .55)), fw, F.h, 1 - seg(tO, 0, .16), 0);   // sur le désert flou : des traits blancs
 
     /* --- les étapes, à gauche --- */
     var mp = L("more") * 6.5, si = ch === "open" ? 0 : ch === "write" ? 1 : ch === "more" ? (mp < 2 ? 2 : mp < 4.2 ? 3 : 4) : ch === "end" ? 5 : -1;
