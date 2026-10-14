@@ -732,6 +732,9 @@ html.bg-cream .nav-links a:hover { background: #efede6; }
 .v-intro .m-narrow { left: clamp(20px, 4vw, 80px); max-width: min(560px, 30vw); }
 .v-intro .m-narrow h2 { font-size: clamp(36px, 4.5vw, 88px); line-height: .98; letter-spacing: -.035em; }   /* presque aussi grand que le premier : des mots courts */
 .v-intro .m-narrow .msg-sub { margin-top: 14px; font-size: clamp(24px, 2.5vw, 46px); line-height: 1.05; letter-spacing: -.02em; }
+/* en bas à gauche, sous la petite image des dunes : deux lignes, toutes deux à la taille de « 14 modules » */
+.v-intro .m-bl { bottom: 4.5vh; max-width: min(1100px, 80vw); }
+.v-intro .m-bl h2 { font-size: clamp(36px, 4.5vw, 88px); line-height: .98; letter-spacing: -.035em; }
 /* en bas à droite, en très grand */
 .v-intro .m-br { left: auto; right: clamp(20px, 6vw, 110px); top: auto; bottom: 13vh; translate: none; text-align: right; }
 
@@ -831,3 +834,9 @@ html.v-intro .w-comp { background: #f3f1f8; }                            /* le c
 html.v-intro .m-img { width: 420px; height: 420px; }
 /* l'orbe du module apparaît en fondu, sans rebond : l'orbe de la scène le rejoint à la même taille */
 .v-intro .w-orbslot, .v-intro .w-orbslot.on { transform: translate(-50%, -50%); }
+
+/* ---------- les titres de section, façon SaaS (Framer) : plus grands, plus gras, serrés ---------- */
+html.v-intro .sec h2 { font-weight: 600; font-size: clamp(40px, 4.8vw, 76px); line-height: 1.02; letter-spacing: -.045em; }
+html.v-intro .final h2 { font-weight: 600; font-size: clamp(44px, 6vw, 96px); line-height: 1; letter-spacing: -.05em; max-width: 1000px; }
+html.v-intro .pc-b h3 { font-weight: 600; letter-spacing: -.03em; }
+html.v-intro .sec-lead { text-wrap: balance; }                         /* des lignes équilibrées, pas de mot isolé */

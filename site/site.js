@@ -41,7 +41,7 @@
     intro: { dir: "intro", n: 191, fps: 24, fit: "contain", light: true, drift: .05, target: { x: .5, y: .5, r: .03 },
       keys: [[0, 0], [1.4, .3], [3.3, 1.35], [3.9, 2.4], [5.3, 4.2], [5.7, 4.45], [7.6, 5.2], [8.2, 5.8], [9.6, 7.3], [9.9, 7.42], [11.6, 7.92]],
       msgs: [[1.55, 3.2, "m-l m-big", "l", "<h2>Apprenez l’IA,<br>pas à pas.</h2>"],                      // sur le ruban violet foncé, en bas à gauche
-             [5.85, 7.35, "m-side m-narrow", "l", "<h2>14 modules</h2><p class=\"msg-sub\">où l’on apprend<br>en faisant.</p>"],   // à gauche de la petite image des dunes
+             [5.75, 7.1, "m-l m-bl", "l", "<h2>14 modules où l’on<br>apprend en faisant.</h2>"],   // en bas à gauche, sous la petite image des dunes
              [9.95, 11.5, "m-big m-br", "r", "<h2>Des formations<br>100&nbsp;% interactives.</h2>"]] },                                                      // en bas à droite, sur les dunes plus sombres de la dernière image
     bureau: { dir: "bureau", n: 169, len: 10, end: .985, fit: "cover", target: { x: .4865, y: .485, r: .029 } }               // la sphère, sur l'écran du bureau
   };
