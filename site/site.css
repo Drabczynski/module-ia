@@ -721,27 +721,28 @@ html.bg-cream .nav-links a:hover { background: #efede6; }
 .v-intro .msg-sub { color: rgba(255,255,255,.9); text-shadow: 0 1px 2px rgba(30,8,70,.3), 0 2px 20px rgba(30,8,70,.45); }
 /* sur un côté, au milieu de la hauteur */
 .v-intro .m-side { left: clamp(20px, 6vw, 110px); right: auto; top: 50%; bottom: auto; translate: 0 -50%; text-align: left; max-width: min(460px, 30vw); }
-.v-intro .m-side h2 { font-size: clamp(22px, 2vw, 34px); }
-.v-intro .m-side .msg-sub { font-size: clamp(18px, 1.6vw, 26px); }
+.v-intro .m-side { max-width: min(640px, 38vw); }
+.v-intro .m-side h2 { font-size: clamp(30px, 3vw, 54px); line-height: 1.08; }
+.v-intro .m-side .msg-sub { font-size: clamp(20px, 1.9vw, 32px); }
+/* le premier message, en très grand, sur le ruban violet */
+.v-intro .m-big { max-width: min(1200px, 80vw); bottom: 13vh; }
+.v-intro .m-big h2 { font-size: clamp(46px, 6.4vw, 118px); line-height: .98; letter-spacing: -.035em; }
 .v-intro .m-right { left: auto; right: clamp(20px, 6vw, 110px); text-align: right; }
 /* à gauche de la petite image des dunes : la bande libre est étroite */
-.v-intro .m-narrow { left: clamp(20px, 4vw, 80px); max-width: min(400px, 21vw); }
-.v-intro .m-narrow h2 { font-size: clamp(20px, 1.8vw, 30px); }
+.v-intro .m-narrow { left: clamp(20px, 4vw, 80px); max-width: min(470px, 26vw); }
+.v-intro .m-narrow h2 { font-size: clamp(24px, 2.45vw, 44px); line-height: 1.08; }
+.v-intro .m-narrow .msg-sub { font-size: clamp(17px, 1.45vw, 26px); }
 
-/* le menu : une pilule blanche, décollée du bord et centrée, comme les navigations récentes ; même texte foncé partout */
-.v-intro .nav, .v-intro .nav.is-solid, .v-intro .nav.on-dark.is-solid, html.v-intro.bg-cream .nav.is-solid {
-  inset: 14px auto auto 50%; transform: translateX(-50%); width: auto; height: 54px; gap: 40px; padding: 0 7px 0 20px; border-radius: 999px;
-  background: rgba(255,255,255,.84); backdrop-filter: blur(16px) saturate(1.4); -webkit-backdrop-filter: blur(16px) saturate(1.4);
-  box-shadow: 0 12px 34px -16px rgba(40,16,90,.38), 0 0 0 1px rgba(255,255,255,.7); }
-.v-intro .nav.on-dark .brand, .v-intro .nav.on-dark .nav-links a:not(.btn) { color: var(--ink); }
-.v-intro .nav .nav-links a:not(.btn):hover { background: #f1eef8; }
-.v-intro .nav.on-dark .nav-links a.btn { background: #141413; color: #fff; }
-.v-intro .nav .nav-links a.btn { border-radius: 999px; }
-@media (max-width: 600px) { .v-intro .nav, .v-intro .nav.is-solid { width: calc(100% - 24px); gap: 8px; justify-content: space-between; } }
+/* le menu : la barre pleine largeur ; sur la vidéo, un verre léger (pas un bandeau blanc), texte foncé ou blanc selon l'image dessous */
+.v-intro .nav.over-film.is-solid { background: rgba(255,255,255,.16); backdrop-filter: blur(18px) saturate(1.3); -webkit-backdrop-filter: blur(18px) saturate(1.3); box-shadow: inset 0 -1px 0 rgba(255,255,255,.3); }
+.v-intro .nav .brand, .v-intro .nav .nav-links a:not(.btn) { transition: color .4s; }
+html.v-intro.bg-cream .nav.is-solid { background: rgba(245, 242, 252, .92); }
+html.v-intro.bg-cream .nav-links a:hover { background: #ebe6f7; }
 
 /* ---------- avec la vidéo claire, la page passe au violet : fond de page violet très clair, violet à la place de l'orange ;
    le module, lui, garde son fond crème (--cream) ---------- */
 html.v-intro { --page: #f5f2fc; --bg: #faf8ff; --orange: #6d3fd6; --claude: #7b4ae2;
+  --cream: #fbfaff; --line: #e6e3ee; --line-2: #f0eef5; --c-line: #e6e2ef; --c-user: #f0eef7;
   --hairline-plate: var(--page); --hairline-edge: #7d72a0; --hairline-mid: #b0a8c9; --hairline-lo: #cfc8e3; }
 html.v-intro.bg-cream body { background: var(--page); }
 .v-intro .stage { background: var(--page); }
@@ -782,3 +783,20 @@ html.v-intro .badge { background: #f1ebff; color: #5b2fc4; }
 .v-intro .say { isolation: isolate; text-shadow: 0 0 10px var(--page), 0 0 22px var(--page), 0 0 2px var(--page); }
 .v-intro .say::before { content: ""; position: absolute; inset: -22px -48px; z-index: -1; pointer-events: none;
   background: radial-gradient(closest-side, var(--page) 55%, rgba(245,242,252,0)); }    /* les traits s'effacent derrière la phrase */
+
+/* ---------- le module dans la page violette : un blanc à peine teinté au lieu du crème, plus d'orange ---------- */
+html.v-intro .veil { background: linear-gradient(90deg, rgba(251,250,255,.85), rgba(251,250,255,0) 7%, rgba(251,250,255,0) 93%, rgba(251,250,255,.85)), linear-gradient(180deg, rgba(251,250,255,.7), rgba(251,250,255,0) 12%, rgba(251,250,255,0) 88%, rgba(251,250,255,.7)); }
+html.v-intro .w-send { background: #d9cdf3; }
+html.v-intro .slot:not(.set) { border-color: #9b7bf0; background: #f5f0ff; color: #5b2fc4; }
+html.v-intro .slot.open { background: #ece4ff; box-shadow: 0 0 0 4px rgba(109, 63, 214, .15); }
+html.v-intro .pop-o.on { background: #f4efff; }
+html.v-intro .sw-q { color: #c4b2f2; }
+html.v-intro .hp-new { background: linear-gradient(90deg, #9b7bf0, #d36fd0); }
+html.v-intro .badges .badge, html.v-intro .tg, html.v-intro .vg-m { background: #efecf6; }
+html.v-intro .gen-out { background: #eeebf5; }
+html.v-intro .ring .bg { stroke: #e7e3f0; }
+html.v-intro .res-row i { background: #e7e3f0; }
+html.v-intro .pm:hover { background: #faf9fd; }
+html.v-intro .vg-ph, html.v-intro .pc-ph { background: #ebe7f3; }
+/* le titre du hero, plus long (« Formez dès maintenant à l'IA ») : un peu plus petit, pour laisser la boule libre */
+html.v-intro .hero.on-film h1 { font-size: clamp(36px, 4.05vw, 68px); }

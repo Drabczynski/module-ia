@@ -183,7 +183,7 @@ styles et scripts partagés : `premiers-pas/app.css`, `gris.css`, `accueil.css`,
 ## Site vitrine (`site/`)
 
 Page de présentation commerciale : fond de page violet très clair, accents violets ; la démonstration
-du module garde son fond crème. Menu en pilule blanche flottante, centrée. Titre : « Formez dès maintenant
+du module passe sur un blanc à peine teinté (plus de crème ni d’orange). Menu pleine largeur, en verre léger sur la vidéo. Titre : « Formez dès maintenant
 à l’IA en la pratiquant. » Elle s’ouvre sur la vidéo `assets/video-intro.mp4`, découpée en 191 images
 dans `assets/video/intro/` et coupée à la fin du désert (7,92 s), montrée en entier, sans éclaircissement,
 qui avance au défilement : plus lentement pendant les trois messages, écrits pour des débutants
