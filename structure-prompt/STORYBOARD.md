@@ -10,10 +10,10 @@ en bandeau en bas du panneau, « Suivant » qui s'allume quand l'activité est f
 
 | # | Étape | Ce que fait l’apprenant | Points |
 |---|---|---|---|
-| 1 | Une demande trop vague | Envoie la demande préparée (« Écris une offre d’emploi… ») et lit la réponse | – |
-| 2 | Ce que l’IA a inventé | Clique, dans la réponse de l’IA, sur les 3 informations inventées (Paris, 3 500 €, 13e mois) | 1 |
+| 1 | Une demande trop vague | Lit le message de Sophie (à droite), envoie la demande préparée (« Écris une offre d’emploi… ») et lit la réponse | – |
+| 2 | Ce que l’IA a inventé | Compare la réponse de l’IA au message de Sophie, gardé à droite, et clique, dans la réponse, sur les 3 informations inventées (Paris, 3 500 €, 13e mois) | 1 |
 | 2 bis | Pourquoi ces inventions ? | QCM (un clic valide, deux essais) : l’IA a comblé les trous faute de contexte | 1 |
-| 3 | Les cinq briques d’un prompt | Retourne 5 cartes : Rôle, Cible, Objectif, Contexte, Format | – |
+| 3 | Les cinq briques d’un prompt | Retourne 5 cartes : Rôle, Cible, Objectif, Contexte, Format (dos rose-lilas ; la zone garde son fond coloré) | – |
 | 4 | Reconnaître les briques | Relie 5 morceaux de prompt à leur brique | 5 |
 | 5 | La brique oubliée | Pour 2 prompts incomplets, choisit la brique oubliée (format QCM) | 2 |
 | 6 | Construire le prompt | Lit le message de Sophie, puis complète les 5 cases orange du prompt et l’envoie | 5 |

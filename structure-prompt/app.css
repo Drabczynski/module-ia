@@ -37,7 +37,8 @@
 .flip-f b { flex: 1; font: 600 19px/1.1 var(--display); letter-spacing: -.01em; color: #151517; }
 .flip-f::after { content: "Retourner"; flex: none; padding: 7px 12px; border-radius: 999px; box-shadow: inset 0 0 0 1px #d6d7dc; font: 600 13px/1 var(--text); color: #4b4c52; }
 .flip:hover:not(:disabled) .flip-f { box-shadow: 0 0 0 1.5px var(--act), 0 14px 30px -24px rgba(74, 33, 150, .4); }
-.flip-b { background: #f6f3fd; transform: rotateX(180deg); box-shadow: 0 0 0 1px #ddd3f3; }
+/* le dos : rose-lilas, bien distinct de la face blanche et du fond */
+.flip-b { background: linear-gradient(100deg, #efe6ff, #fde4f1); transform: rotateX(180deg); box-shadow: 0 0 0 1px #d9c6f3, 0 14px 30px -24px rgba(74, 33, 150, .45); }
 .flip-b em { width: 92px; flex: none; font: 600 16px/1.15 var(--display); font-style: normal; color: var(--act); }
 .flip-txt { flex: 1; min-width: 0; display: grid; gap: 3px; }
 .flip-q { font: 600 15.5px/1.3 var(--text); color: #151517; }

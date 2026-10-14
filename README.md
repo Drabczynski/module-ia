@@ -166,8 +166,8 @@ styles et scripts partagés : `premiers-pas/app.css`, `gris.css`, `accueil.css`,
   compris) en plein cadre, fixe, calée à droite ; les logos des assistants ; « Structurer / efficacement / un prompt »
   sur trois bandeaux (bleu, puis lilas) ; « Dans ce module, vous apprendrez de quoi est composé un prompt, et comment le
   structurer vous-même. » ; « Commencer » (ou « Suivant »). Ouverture en particules, « Module 2 » au centre.
-- 12 étapes, voix et textes inchangés : une demande trop vague (envoyer la demande préparée), ce que l'IA a inventé
-  (3 passages à cliquer dans sa réponse, à gauche, soulignés en violet, qui apparaissent quand la voix dit « Dans sa réponse,
+- 12 étapes, voix et textes inchangés : une demande trop vague (envoyer la demande préparée, le message de Sophie
+  sous les yeux), ce que l'IA a inventé (on compare avec le message de Sophie ; 3 passages à cliquer dans sa réponse, à gauche, soulignés en violet, qui apparaissent quand la voix dit « Dans sa réponse,
   à gauche, cliquez… »), pourquoi ces inventions (QCM : un clic valide, deux essais), les cinq briques (cartes à retourner),
   reconnaître les briques (relier 5 morceaux), la brique oubliée (2 prompts), construire le prompt (5 cases orange, avec
   le message de Sophie sous les yeux et les briques qui s'allument), vérifier le résultat (l'offre à gauche, le message de Sophie à droite, avec sa photo ;

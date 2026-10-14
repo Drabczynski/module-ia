@@ -782,7 +782,7 @@
       if (s.stage) s.stage(stage);
       // le dégradé coloré seulement quand l'apprenant a quelque chose à faire dans la zone (un bouton actif, une info à repérer) ;
       // sinon (une illustration, un récapitulatif, le mail gardé sous les yeux), le gris
-      stage.classList.toggle("is-act", !!stage.querySelector("button:not(:disabled), .is-hunt"));
+      stage.classList.toggle("is-act", !!stage.querySelector("button:not(:disabled), .is-hunt, [data-tint]"));
       pv.appendChild(stage);
       pv.classList.add("has-stage");
     }
@@ -1452,7 +1452,8 @@
     "Prise de poste {le 3 mars|date}. Candidatures {jusqu’au 15 février|candid}.",
     "Merci ! Sophie"
   ];
-  var SOPHIE_PHOTO = "https://images.unsplash.com/photo-1649768524366-a93840e4c501?crop=faces&fit=crop&w=160&h=160&q=80&fm=jpg";
+  // cadrée en portrait (tête et épaules) autour de son visage : x 2745, y 499, 479 × 643 px dans l'image de 6000 × 4000
+  var SOPHIE_PHOTO = "https://images.unsplash.com/photo-1649768524366-a93840e4c501?fit=crop&crop=focalpoint&fp-x=.497&fp-y=.25&fp-z=2.3&w=160&h=160&q=80&fm=jpg";
   // chaque info de Sophie, telle qu'elle est écrite dans l'offre (pour la surligner à gauche), et où la trouver
   var IN_OFFRE = {
     contrat: ["CDI, 35 h", "dans « Ce que nous offrons »"], lieu: ["Lyon 7e", "dans le titre"],
@@ -1515,7 +1516,7 @@
         var a = act(id);
         a.seen = a.seen || {};
         consigne(pv, [["<b>Cliquez</b> sur chaque carte pour la retourner <span class='pv-count'>" + Object.keys(a.seen).length + " / " + cards.length + "</span>"]], a.all ? 1 : 0);
-        var g = h('<div class="flip-grid"></div>');
+        var g = h('<div class="flip-grid" data-tint></div>');               // retournées, elles restent sur le fond coloré
         cards.forEach(function (c, k) {
           var b = h('<button type="button" class="flip"><span class="flip-in"><span class="flip-f"><em></em><b></b></span><span class="flip-b"><em></em><span class="flip-txt"><span class="flip-q"></span><span class="flip-ex"></span></span></span></span></button>');
           b.querySelector(".flip-f em").textContent = c[0];
@@ -1647,7 +1648,7 @@
   var ALL_STEPS = [
     /* 1 · Une demande trop vague -------------------------------------------------------------- */
     {
-      id: "vague", seq: 0, title: "Une demande trop vague", audio: "module-2/vague",
+      id: "vague", compact: true, seq: 0, title: "Une demande trop vague", audio: "module-2/vague",
       say: "Sophie, votre responsable, vous demande de rédiger une offre d’emploi. Premier réflexe : on demande directement à l’IA. La demande est prête dans le champ. Envoyez-la, et regardez le résultat.",
       render: function (pv) {
         var a = act("vague");
@@ -1656,6 +1657,7 @@
           ["<b>Lisez</b> la réponse de l’IA"],
           NEXT
         ], a.done ? 2 : a.sent ? 1 : 0);
+        pv.appendChild(briefCard());                                    // le message de départ : ce que Sophie vous a demandé
         if (a.done) fb(pv, "", "L’offre a l’air correcte… Mais d’où viennent <b>la ville, le salaire et le 13e mois</b> ? Vous ne les avez jamais donnés.");
       },
       ready: function () { return !!act("vague").done; },
@@ -1670,14 +1672,15 @@
 
     /* 2 · Ce que l'IA a inventé (clic dans la réponse) ----------------------------------------- */
     {
-      id: "invente", seq: 0, title: "Ce que l’IA a inventé", audio: "module-2/invente",
+      id: "invente", compact: true, seq: 0, title: "Ce que l’IA a inventé", audio: "module-2/invente",
       say: "L’IA ne connaît pas votre poste. Alors elle a comblé les trous. Dans sa réponse, à gauche, cliquez sur les trois informations qu’elle a inventées.",
       render: function (pv) {
         var a = act("invente");
         a.found = a.found || {};
         consigne(pv, [
-          ["<b>Cliquez</b> sur les 3 infos inventées <span class='pv-count'>" + Object.keys(a.found).length + " / 3</span>", "dans la réponse de l’IA, à gauche"]
+          ["<b>Cliquez</b> sur les 3 infos inventées <span class='pv-count'>" + Object.keys(a.found).length + " / 3</span>", "dans la réponse de l’IA, à gauche ; comparez avec le message de Sophie, ci-dessous"]
         ], a.done ? 1 : 0);
+        pv.appendChild(briefCard());                                    // ce que Sophie a vraiment demandé : la comparaison saute aux yeux
         if (a.why && !a.done) fb(pv, "ko", a.why);
         if (a.done) fb(pv, "ok", "<b>Bien vu.</b> Sans informations, l’IA invente ce qui manque : une ville, un salaire, un avantage. Pour l’éviter, il faut lui donner un <b>contexte</b>.");
       },
