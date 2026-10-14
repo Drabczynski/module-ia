@@ -115,7 +115,7 @@ une seule chose à faire à la fois, toujours le même geste pour avancer. Story
 - « À faire » : une ou deux actions courtes, le verbe en gras, la précision dessous en gris ; l'action en cours sur un fond gris très clair, numérotée en violet foncé, les faites cochées en vert.
   Une seule exception : « Ouvrez le mail de Karim » disparaît une fois fait, pour laisser la place au mail.
   Le bouton à reconnaître est glissé dans la phrase tel qu'il apparaît à l'écran (« cliquez sur [Vrai] ou [Faux] »,
-  « Complétez chaque [case orange], puis envoyez »). Seul le premier écran se termine par « Cliquez sur [Suivant] » (et l'apprenant y écrit lui-même son premier message, sans phrases toutes faites). Les boutons recopiés ne sont en couleur que dans l'action en cours.
+  « Complétez chaque [case orange], puis envoyez »). Seul le premier écran se termine par « Cliquez sur [Suivant] ». Les boutons recopiés ne sont en couleur que dans l'action en cours.
   L'orange est réservé à « Suivant ». La voix n'est pas écrite à l'écran pendant les étapes (seule la phrase
   de bienvenue s'écrit sous l'orbe). Pas de lignes en pointillés vers les boutons.
   Espaces insécables avant « ? ! : ; » : jamais de ponctuation seule en début de ligne.
@@ -124,7 +124,16 @@ une seule chose à faire à la fois, toujours le même geste pour avancer. Story
   gris pour une correction. Il ne s'anime que s'il change.
 - Vrai ou faux : la carte et les boutons centrés ; à la fin, le tableau des bonnes réponses (une erreur signalée sur sa ligne).
 - La boîte mail : une fois le mail de Karim ouvert, il s'affiche seul, en carte de mail à sa taille, avec la photo
-  de Karim (Unsplash, photo d'abdullah ali, chargée en ligne ; sans réseau, ses initiales restent).
+  de Karim (Unsplash, photo de Christian Buehner, chargée en ligne ; une seule image, gardée d'un affichage à l'autre,
+  pour qu'elle ne clignote pas ; sans réseau, ses initiales restent). Dans « Qu'est-ce qui manque ? », les cinq infos
+  à repérer se voient comme des boutons (soulignées en violet sur fond très clair, la main au survol) et pulsent deux fois
+  à l'ouverture de l'étape et si l'on clique trop tôt sur « Suivant » ; trouvées, elles passent en vert.
+- La phrase proposée par la voix (« Bonjour, qui es-tu ? », « Donne-moi des idées pour un pot de départ. ») s'écrit
+  dans le cadre blanc, en texte d'exemple, à la machine à écrire, une fois la voix finie ; pas de phrases à cliquer.
+- Pas de message noir qui surgit en bas à droite pour féliciter : le bandeau du bas suffit (les seuls messages noirs
+  restants guident : « Faites d’abord ce qui est demandé… », « Cliquez d’abord sur une situation. »).
+- La poignée entre l'IA et la consigne : le panneau suit la souris au pixel (pas d'animation pendant le glissement),
+  zone à attraper de 28 px ; double-clic pour revenir à la largeur d'origine.
 - Rien ne dépasse en bas du panneau, de 1280 × 720 à 1920 × 1080, portable à 125 % compris (1536 × 760) :
   sur les écrans bas, les marges se resserrent.
 - 9 étapes : dire bonjour, vrai ou faux, demander à l'IA à quoi elle sert, relier 3 situations à leur usage,

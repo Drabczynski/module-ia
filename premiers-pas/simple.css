@@ -74,8 +74,6 @@
 .is-done .ac-t b { font-weight: 600; }
 .ac-i.is-nudge { animation: nudge .45s ease; }
 .ac-x { margin-top: 18px; padding-top: 16px; border-top: 1px solid #e8e9ec; }
-.ac-t .ac-or { margin: 0 0 10px; font-size: 14.5px; color: #74757b; }
-.ac-x .pv-chips button { min-height: 40px; padding: 8px 15px; font-size: 15px; }
 
 /* vrai ou faux, terminé : les bonnes réponses, sans coches ; une erreur est signalée sur sa ligne */
 .pv .sw-sum { width: 100%; max-width: 540px; margin: 0 auto; }
@@ -317,6 +315,17 @@
 .pv .mx-av { position: relative; overflow: hidden; }
 .pv .mx-av img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .3s; }
 .pv .mx-av.has-photo img { opacity: 1; }
+.pv .mx-av.is-ready img { transition: none; }                 /* déjà chargée : elle s'affiche tout de suite, sans fondu */
+/* « Qu'est-ce qui manque ? » : les infos à repérer se voient comme des boutons, soulignées en violet sur fond très clair ;
+   elles pulsent deux fois à l'ouverture de l'étape (et si l'on clique trop tôt sur « Suivant ») ; trouvées, elles passent en vert */
+.pv .mk.is-hunt { padding: 1px 3px; margin: 0 -1px; border-radius: 5px; background: #f1ecfb; box-shadow: none; cursor: pointer;
+  text-decoration: underline; text-decoration-color: var(--act); text-decoration-thickness: 2px; text-underline-offset: 4px;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone; transition: background .2s; }
+.pv .mk.is-hunt:hover, .pv .mk.is-hunt:focus-visible { background: #e3d8f8; box-shadow: none; outline: none; }
+.pv .mk.is-found { padding: 1px 3px; margin: 0 -1px; border-radius: 5px; text-decoration: none; background: #dcf3e5; box-shadow: none; color: #0f4f2e; font-weight: 600; }
+.pv .mk.is-call { animation: mk-call .9s ease-in-out 2; }
+@keyframes mk-call { 50% { background: #d6c7f5; box-shadow: 0 0 0 4px rgba(74, 33, 150, .14); } }
+@media (prefers-reduced-motion: reduce) { .pv .mk.is-call { animation: none; } }
 .pv .mx.is-solo h3 { margin: 16px 0 10px; padding-top: 14px; border-top: 1px solid #eeeff1; font-size: 20px; }
 .pv .mx.is-solo .mx-text { font-size: 16px; line-height: 1.6; }
 .pv .mx.is-solo .mx-text p { margin: 0 0 8px; }
@@ -403,3 +412,40 @@
 
 /* écrans en pleine largeur (résultat, fiche) : le texte du bandeau s'aligne sur la colonne centrée */
 .split.panel-full .fbz .pv-fb { padding-left: max(48px, calc((100% - 980px) / 2 + 48px)); padding-right: max(48px, calc((100% - 980px) / 2 + 48px)); }
+
+/* ---------- étapes avec la boîte mail, sur les écrans bas : tout tient, retour compris ----------
+   le retour (« Bien vu », un coup de pouce) s'affiche sous la zone de travail : les marges sont resserrées d'emblée,
+   pour que rien ne saute quand il apparaît et que le mail reste entier */
+@media (max-height: 920px) and (min-width: 981px) {
+  .pv.is-compact .ac-h { margin-top: 18px; margin-bottom: 8px; }
+  .pv.is-compact .ac-i { padding-top: 10px; padding-bottom: 10px; }
+  .pv.is-compact.has-stage > .ac { margin-bottom: 12px; }
+  .pv.is-compact .stage { padding-top: 12px; padding-bottom: 12px; }
+  .fbz .pv-fb { padding-top: 12px; padding-bottom: 12px; }
+  .pv .mx.is-solo .mx-mail { padding: 14px 22px 12px; }
+  .pv .mx.is-solo h3 { margin: 10px 0 6px; padding-top: 10px; font-size: 19px; }
+  .pv .mx.is-solo .mx-text { font-size: 15.5px; line-height: 1.5; }
+  .pv .mx.is-solo .mx-text p { margin: 0 0 3px; }
+}
+@media (max-height: 800px) and (min-width: 981px) {
+  .pv.is-compact { padding-top: 20px; }
+  .pv.is-compact .pv-h1 { margin-bottom: 6px; }
+  .pv.is-compact .ac-h { margin-top: 12px; margin-bottom: 4px; }
+  .pv.is-compact .ac-i { padding-top: 8px; padding-bottom: 8px; }
+  .pv.is-compact .ac-t small { margin-top: 3px; }
+  .pv.is-compact .stage { padding-top: 10px; padding-bottom: 10px; }
+  .fbz .pv-fb { padding-top: 9px; padding-bottom: 9px; font-size: 15.5px; }
+  .fb-i { width: 30px; height: 30px; }
+  .pv .mx.is-solo .mx-from { gap: 10px; }
+  .pv .mx.is-solo .mx-av { width: 34px; height: 34px; }
+  .pv .mx.is-solo h3 { margin: 6px 0 4px; padding-top: 6px; font-size: 18px; }
+  .pv .mx.is-solo .mx-text { line-height: 1.42; }
+  .pv .mx.is-solo .mx-text p { margin: 0 0 2px; }
+}
+
+/* ---------- la poignée entre l'IA et la consigne ----------
+   pendant le glissement, plus d'animation : le panneau suit la souris au pixel ; la zone à attraper est élargie (28 px)
+   au-delà du petit trait visible */
+.split.is-resizing { transition: none; }
+.resizer { z-index: 5; }
+.resizer::before { content: ""; position: absolute; top: 0; bottom: 0; left: -8px; right: -8px; }

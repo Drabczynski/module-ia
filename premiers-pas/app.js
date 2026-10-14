@@ -512,15 +512,30 @@
   /* ---------- Champ de Claude : actif seulement quand c'est à l'apprenant d'écrire ---------- */
 
   var composeOn = false, composeTip = null;
+  // la phrase proposée par la voix (« par exemple : … ») s'écrit dans le cadre, en texte d'exemple, à la machine à écrire,
+  // une fois la voix finie ; avant, et sans phrase proposée : « Écrivez votre message ici… »
+  var hintText = "", hintShown = "", hintTimer = 0;
+  function typeHint(text) {
+    clearTimeout(hintTimer);
+    if (!composeOn) return;
+    hintText = text; hintShown = "";
+    var i = 0;
+    (function step() {
+      hintShown = text.slice(0, ++i); paintComposer();
+      if (i < text.length) hintTimer = setTimeout(step, 30 + Math.random() * 45);
+    })();
+  }
+  function clearHint() { clearTimeout(hintTimer); hintText = hintShown = ""; }
   function paintComposer() {
     var on = composeOn && !busy;
     input.disabled = !on;
     sendBtn.disabled = !on || (tpl ? !tplDone() : !input.value.trim());     // « Envoyer » s'allume quand il y a quelque chose à envoyer
     claudeEl.classList.toggle("is-locked", !composeOn);
-    input.placeholder = composeOn ? "Écrivez votre message ici…" : "Ce cadre s’activera quand ce sera à vous d’écrire.";
+    input.placeholder = composeOn ? (hintText ? hintShown : "Écrivez votre message ici…") : "Ce cadre s’activera quand ce sera à vous d’écrire.";
   }
   function compose(on, tip) {
     composeOn = !!on;
+    if (!composeOn) clearHint();
     app.classList.toggle("focus-compose", composeOn);
     if (composeTip) { composeTip.remove(); composeTip = null; }
     if (false && composeOn && tip) {
@@ -889,6 +904,7 @@
       nextBtn.classList.remove("is-denied"); void nextBtn.offsetWidth; nextBtn.classList.add("is-denied");
       var cur = $(".ac-i.is-cur", bodyEl);
       if (cur) { cur.classList.remove("is-nudge"); void cur.offsetWidth; cur.classList.add("is-nudge"); cur.scrollIntoView({ block: "nearest", behavior: "smooth" }); }
+      callMarks();
       return;
     }
     if (P.i === STEPS.length - 1) { quit(true); return; }
@@ -930,14 +946,9 @@
     pv.appendChild(h('<p class="ac-h">À faire</p>'));
     pv.appendChild(ol);
   }
-  // phrases toutes faites, à cliquer : elles s'écrivent dans le cadre
-  function phrases(list) {
-    return function (box) {
-      box.appendChild(h('<p class="ac-or">Ou cliquez sur une phrase :</p>'));
-      var c = h('<div class="pv-chips"></div>');
-      list.forEach(function (t) { var b = document.createElement("button"); b.type = "button"; b.textContent = t; b.onclick = function () { insert(t); }; c.appendChild(b); });
-      box.appendChild(c);
-    };
+  // les infos à repérer dans le mail pulsent deux fois : « c'est ici qu'on clique »
+  function callMarks() {
+    $$(".mk.is-hunt", bodyEl).forEach(function (m) { m.classList.remove("is-call"); void m.offsetWidth; m.classList.add("is-call"); });
   }
   // le retour (« Bravo », « À reprendre »…) : toujours en bas du panneau, sur toute sa largeur, avec la même animation ;
   // il ne s'anime que s'il change, pas à chaque rafraîchissement de l'étape
@@ -1447,11 +1458,13 @@
 
   var NOTE_PT = "Olá! No sábado de manhã vou fazer obras no apartamento. Peço desculpa pelo barulho. Obrigado! — Diogo, 3.º andar";
   var MAILS = [
-    { id: "pot", from: "Karim Benali", time: "08:42", photo: "https://images.unsplash.com/photo-1765366574945-e2f1b4b1a5b3?crop=faces&fit=crop&w=160&h=160&q=80&fm=jpg", subj: "Pot de départ de Martine", prev: "Salut ! Martine part à la retraite…",
+    { id: "pot", from: "Karim Benali", time: "08:42", photo: "https://images.unsplash.com/photo-1562124638-724e13052daf?crop=faces&fit=crop&w=160&h=160&q=80&fm=jpg", subj: "Pot de départ de Martine", prev: "Salut ! Martine part à la retraite…",
       body: ["Salut !", "Martine {part à la retraite|raison} : son pot est {vendredi à 16 h|date}. Tu peux t’en occuper ?", "On sera {une douzaine|nb}. La cagnotte a récolté {60 €|budget}, et on peut utiliser {la salle de pause|lieu}.", "Merci, tu me sauves !", "Karim"] },
     { id: "rh", from: "Service RH", time: "08:15", subj: "Rappel : entretiens annuels", prev: "Les entretiens annuels commencent lundi…" },
     { id: "lettre", from: "La lettre du quartier", time: "Hier", subj: "Fête des voisins : on cherche un nom !", prev: "Cette année, la fête aura lieu le 6 juin…" }
   ];
+  var PHOTOS = {};
+  var POT_HINT = "Donne-moi des idées pour un pot de départ.", HELLO_HINT = "Bonjour, qui es-tu\u00a0?";
   var HUNT = { nb: "Le nombre de personnes", budget: "Le budget", lieu: "Le lieu" };
   var HUNT_WHY = { raison: "C’est le contexte : il ne change pas les idées proposées.", date: "Utile pour le jour J, mais il ne change pas les idées proposées." };
   var ESSAIS = [
@@ -1501,11 +1514,15 @@
       var mv = h('<div class="mx-mail"><div class="mx-from"><span class="mx-av"></span><div><b></b><small>À : moi</small></div><time></time></div><h3></h3><div class="mx-text"></div></div>');
       mv.querySelector(".mx-av").textContent = cur.from.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2);
       if (cur.photo) {                                                       // la photo de l'expéditeur ; sans réseau, ses initiales restent
-        var ph = document.createElement("img");
-        ph.alt = ""; ph.referrerPolicy = "no-referrer"; ph.src = cur.photo;
-        ph.onload = function () { ph.parentNode && ph.parentNode.classList.add("has-photo"); };
-        ph.onerror = function () { ph.remove(); };
-        mv.querySelector(".mx-av").appendChild(ph);
+        var av = mv.querySelector(".mx-av"), ph = PHOTOS[cur.photo];
+        if (!ph) {                                                           // une seule image, déplacée d'un affichage à l'autre : elle ne se recharge pas, ne clignote pas
+          ph = PHOTOS[cur.photo] = document.createElement("img");
+          ph.alt = ""; ph.referrerPolicy = "no-referrer";
+          ph.onload = function () { ph.dataset.ok = "1"; if (ph.parentNode) ph.parentNode.classList.add("has-photo"); };
+          ph.onerror = function () { ph.dataset.ko = "1"; ph.remove(); };
+          ph.src = cur.photo;
+        }
+        if (!ph.dataset.ko) { if (ph.dataset.ok) av.classList.add("has-photo", "is-ready"); av.appendChild(ph); }
       }
       mv.querySelector(".mx-from b").textContent = cur.from;
       mv.querySelector(".mx-from time").textContent = "Aujourd’hui, " + cur.time;
@@ -1561,7 +1578,13 @@
         if (a.done) fbNew(pv, "ok", "<b>Bravo !</b> L’IA vous a répondu.");
       },
       ready: function () { return !!act("bonjour").done; },
-      enter: function () { if (!act("bonjour").done) compose(true, "À vous : écrivez un premier message"); },
+      enter: function () {
+        if (act("bonjour").done) return;
+        compose(true, "À vous : écrivez un premier message");
+        if (!S.sound) setTimeout(function () { typeHint(HELLO_HINT); }, 500);
+      },
+      // la voix a fini (« par exemple : Bonjour, qui es-tu ? ») : la phrase s'écrit dans le cadre
+      onVoiceEnd: function () { var a = act("bonjour"); if (!a.sent && !a.done) typeHint(HELLO_HINT); },
       onType: function () { var a = act("bonjour"); if (!a.typed) { a.typed = true; refresh(); } },
       onInsert: function () { var a = act("bonjour"); if (!a.typed) { a.typed = true; refresh(); } },
       onSend: function (c, text) {
@@ -1729,7 +1752,7 @@
         var a = act("mail"), open = a.open === "pot";
         consigne(pv, [
           ["<b>Ouvrez</b> le mail de Karim", "« Pot de départ de Martine »", null, "hide"],     // une fois ouvert, la place va au mail
-          ["<b>Demandez</b> des idées pour ce pot, puis envoyez", "en une phrase, dans le cadre blanc", !a.sent && phrases(["Donne-moi des idées pour un pot de départ."])]
+          ["<b>Demandez</b> des idées pour ce pot, puis envoyez", "en une phrase, dans le cadre blanc"]
         ], a.done ? 2 : open ? 1 : 0);
         if (a.wrong && !open) fb(pv, "ko", "Pas celui-là : cliquez sur le mail de <b>Karim</b>, « Pot de départ de Martine ».");
         if (a.off) fb(pv, "ko", "Parlez à l’IA du <b>pot de départ</b> : c’est notre situation.");
@@ -1738,12 +1761,15 @@
       },
       ready: function () { return !!act("mail").done; },
       enter: function () { var a = act("mail"); if (a.open === "pot" && !a.done) startSimple(); },
+      // la voix a fini (« Par exemple : Donne-moi des idées… ») : la phrase s'écrit dans le cadre
+      onVoiceEnd: function () { var a = act("mail"); if (a.open === "pot" && !a.sent && !a.done) typeHint(POT_HINT); },
       onMailOpen: function (id) {
         var a = act("mail");
         if (id !== "pot" || a.started) return;
         a.started = true;
         narrate({ audio: "pp-mail-ouvert", text: "Super ! C’est bien celui-là. Premier conseil : commencez simple. Dans l’IA, demandez des idées pour ce pot, en une phrase courte. Par exemple : Donne-moi des idées pour un pot de départ." });
         startSimple();
+        if (!S.sound) setTimeout(function () { typeHint(POT_HINT); }, 500);
         refresh();
       },
       onSend: function (c, text) {
@@ -1783,7 +1809,7 @@
         mailApp(pv, "hunt");
       },
       ready: function () { return !!act("manque").done; },
-      enter: function () { if (P.potConv) openConv(P.potConv); setTimeout(function () { markChat(/traiteur|DJ|karaoké|week-end|voyage|restaurant/g); }, 400); },
+      enter: function () { if (P.potConv) openConv(P.potConv); setTimeout(function () { markChat(/traiteur|DJ|karaoké|week-end|voyage|restaurant/g); }, 400); setTimeout(callMarks, 900); },
       leave: function () { $$(".chat-mk", messagesEl).forEach(function (m) { m.replaceWith(document.createTextNode(m.textContent)); }); }
     },
 
@@ -1817,7 +1843,6 @@
           a.best = a.tries === 1 ? 2 : 1;
           P.potBetter = c.id;
           refresh();
-          toast("Réponse adaptée à votre situation");
           readyNext();
           return;
         }
@@ -1851,7 +1876,6 @@
               showTip(b, r[1], r[2]);
               if (repSeen.length === REPERES.length) {
                 act("reperes").done = true;
-                setTimeout(function () { toast("Les cinq repères sont vus"); }, 900);
                 setTimeout(function () { next(); }, 2800);
               }
             }, r[3]);
@@ -1953,13 +1977,13 @@
         if (!/volcan/i.test(a.last) && !a.simple) { refresh(); compose(true, "Parlez de l’exposé sur les volcans"); return; }
         if (!a.simple) {
           a.simple = true;
-          if (volcanPrecisions(a.last) >= 2) { a.done = true; a.best = 2; refresh(); toast("Déjà précis : bravo"); readyNext(); return; }
+          if (volcanPrecisions(a.last) >= 2) { a.done = true; a.best = 2; refresh(); readyNext(); return; }
           refresh();
           compose(true, "Donnez les infos de Léna");
           return;
         }
         a.tries = (a.tries || 0) + 1;
-        if (volcanPrecisions(a.last) >= 2) { a.done = true; a.best = 2; a.miss = false; refresh(); toast("Défi réussi"); readyNext(); return; }
+        if (volcanPrecisions(a.last) >= 2) { a.done = true; a.best = 2; a.miss = false; refresh(); readyNext(); return; }
         a.miss = true;
         refresh();
         if (a.tries < 3) compose(true, "Ajoutez les infos de Léna");
@@ -2121,11 +2145,14 @@
       split.classList.remove("is-resizing");
       resizer.removeEventListener("pointermove", move);
       resizer.removeEventListener("pointerup", up);
+      resizer.removeEventListener("pointercancel", up);
       setPanelW($(".panel").getBoundingClientRect().width, true);
       if (redrawLinks) redrawLinks();
+      fitStage();
     }
     resizer.addEventListener("pointermove", move);
     resizer.addEventListener("pointerup", up);
+    resizer.addEventListener("pointercancel", up);
   });
   resizer.addEventListener("dblclick", function () { setPanelW(null, true); });
   resizer.addEventListener("keydown", function (e) {
