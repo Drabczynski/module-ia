@@ -729,9 +729,11 @@ html.bg-cream .nav-links a:hover { background: #efede6; }
 .v-intro .m-big h2 { font-size: clamp(46px, 6.4vw, 118px); line-height: .98; letter-spacing: -.035em; }
 .v-intro .m-right { left: auto; right: clamp(20px, 6vw, 110px); text-align: right; }
 /* à gauche de la petite image des dunes : la bande libre est étroite */
-.v-intro .m-narrow { left: clamp(20px, 4vw, 80px); max-width: min(470px, 26vw); }
-.v-intro .m-narrow h2 { font-size: clamp(24px, 2.45vw, 44px); line-height: 1.08; }
-.v-intro .m-narrow .msg-sub { font-size: clamp(17px, 1.45vw, 26px); }
+.v-intro .m-narrow { left: clamp(20px, 4vw, 80px); max-width: min(560px, 30vw); }
+.v-intro .m-narrow h2 { font-size: clamp(40px, 5.1vw, 96px); line-height: .98; letter-spacing: -.035em; }   /* presque aussi grand que le premier : des mots courts */
+.v-intro .m-narrow .msg-sub { margin-top: 16px; font-size: clamp(18px, 1.6vw, 28px); }
+/* en bas à droite, en très grand */
+.v-intro .m-br { left: auto; right: clamp(20px, 6vw, 110px); top: auto; bottom: 13vh; translate: none; text-align: right; }
 
 /* le menu : la barre pleine largeur ; sur la vidéo, un verre léger (pas un bandeau blanc), texte foncé ou blanc selon l'image dessous */
 .v-intro .nav.over-film.is-solid { background: rgba(255,255,255,.16); backdrop-filter: blur(18px) saturate(1.3); -webkit-backdrop-filter: blur(18px) saturate(1.3); box-shadow: inset 0 -1px 0 rgba(255,255,255,.3); }
@@ -800,3 +802,5 @@ html.v-intro .pm:hover { background: #faf9fd; }
 html.v-intro .vg-ph, html.v-intro .pc-ph { background: #ebe7f3; }
 /* le titre du hero, plus long (« Formez dès maintenant à l'IA ») : un peu plus petit, pour laisser la boule libre */
 html.v-intro .hero.on-film h1 { font-size: clamp(36px, 4.05vw, 68px); }
+html.v-intro .w-comp { background: #f3f1f8; }                            /* le champ de saisie inactif : plus de jaune */
+.v-intro [data-ai2] .m-sim { display: none; }                          /* sous l'image générée : pas de crédit */

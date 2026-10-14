@@ -187,7 +187,7 @@ du module passe sur un blanc à peine teinté (plus de crème ni d’orange). Me
 à l’IA en la pratiquant. » Elle s’ouvre sur la vidéo `assets/video-intro.mp4`, découpée en 191 images
 dans `assets/video/intro/` et coupée à la fin du désert (7,92 s), montrée en entier, sans éclaircissement,
 qui avance au défilement : plus lentement pendant les trois messages, écrits pour des débutants
-(« Maîtriser l’IA d’une manière inédite. », l’IA au quotidien, « La question n’est plus… »), en blanc,
+(« Apprenez l’IA, pas à pas. », « Écrire, chercher, résumer. », « Pas besoin d’être expert. »), en très grand et en blanc,
 sur un côté de l’image, avec un voile violet foncé à peine perceptible de ce côté-là ; rien pendant
 « Imagine un monde ». L’interface du module se dessine au trait dans le désert (en blanc), le désert
 s’efface (les traits passent en lilas très clair) ; l’orbe apparaît au centre et parle pendant le dessin

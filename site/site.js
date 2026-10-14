@@ -40,9 +40,9 @@
     // tous en blanc, sur un côté, avec un voile violet foncé à peine perceptible de ce côté-là
     intro: { dir: "intro", n: 191, fps: 24, fit: "contain", light: true, drift: .05, target: { x: .5, y: .5, r: .03 },
       keys: [[0, 0], [1.4, .3], [3.3, 1.35], [3.9, 2.4], [5.3, 4.2], [5.7, 4.45], [7.6, 5.2], [8.2, 5.8], [9.6, 7.3], [9.9, 7.42], [11.6, 7.92]],
-      msgs: [[1.55, 3.2, "m-l m-big", "l", "<h2>Maîtriser l’IA<br>d’une manière inédite.</h2>"],                      // sur le ruban violet foncé, en bas à gauche
-             [5.85, 7.35, "m-side m-narrow", "l", "<p class=\"msg-k\">Pour tout le monde</p><h2>Un message à écrire.<br>Une idée à trouver.<br>Un texte à résumer.</h2><p class=\"msg-sub\">L’IA vous aide au quotidien.</p>"],   // à gauche de la petite image des dunes
-             [9.95, 11.5, "m-side m-right", "r", null]] },                                                      // la question : à droite, dans le ciel du désert
+      msgs: [[1.55, 3.2, "m-l m-big", "l", "<h2>Apprenez l’IA,<br>pas à pas.</h2>"],                      // sur le ruban violet foncé, en bas à gauche
+             [5.85, 7.35, "m-side m-narrow", "l", "<h2>Écrire,<br>chercher,<br>résumer.</h2><p class=\"msg-sub\">L’IA vous aide au quotidien.</p>"],   // à gauche de la petite image des dunes
+             [9.95, 11.5, "m-big m-br", "r", "<h2>Pas besoin<br>d’être expert.</h2>"]] },                                                      // en bas à droite, sur les dunes plus sombres de la dernière image
     bureau: { dir: "bureau", n: 169, len: 10, end: .985, fit: "cover", target: { x: .4865, y: .485, r: .029 } }               // la sphère, sur l'écran du bureau
   };
   var VID = VIDEOS[(location.search.match(/[?&]video=(\w+)/) || [])[1]] || VIDEOS.intro;
