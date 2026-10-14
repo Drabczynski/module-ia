@@ -87,17 +87,20 @@ Version claire pour un public éloigné du numérique (DAQ, dispositif en amont 
 une seule chose à faire à la fois, toujours le même geste pour avancer. Storyboard : `premiers-pas/STORYBOARD.md`.
 
 - Accueil (`premiers-pas/accueil.css`, `accueil.js`, règles sous `.acc`), posé par-dessus l'application, la barre d'outils
-  restant visible en bas (« Suivant » y fait la même chose que « Commencer ») : l'image `assets/img/accueil-ia.webp`
-  (tirée de `image21.png`, rognée de ses bords transparents, 78 Ko) en plein cadre, calée à droite ; à gauche, le titre
-  « Premiers pas / dans l’IA générative » sur deux bandeaux (bleu, puis lilas), une phrase et « Commencer ». Si le texte
-  risque de passer sur les formes de l'image, elle glisse vers la droite et son bord gauche se fond dans le fond lilas ;
-  sur téléphone ou écran en hauteur, l'image passe en haut et le texte dessous. Ouverture en particules
-  (`premiers-pas/particules.js`, partagé avec le module 3) : une boule au centre, qui tourne pendant le chargement,
-  explose en milliers de particules (« Module 1 » s'affiche en grand au centre, en Inter semi-gras : chaque lettre défile
-  d'abord en caractères ASCII puis se fixe ; il repart en ASCII et s'efface) ; elles se posent en trame de points pour
-  former l'image, qui apparaît dessous sans bouger ; puis les bandeaux du titre se déroulent, la phrase et le bouton
-  apparaissent. « Commencer » envoie `module:start` : l'accueil s'efface, l'assistante souhaite la bienvenue,
-  puis la première étape s'ouvre.
+  restant visible en bas (« Suivant » y fait la même chose que « Commencer »). Deux calques en plein cadre, calés à droite :
+  le fond `assets/img/accueil-fond.webp` (tiré de `bg-2.png`) et les formes `accueil-formes.webp` (tirées de `bg-1.png`,
+  transparentes), rognés de leurs bords transparents ; à la souris, ils glissent en parallaxe (le fond de 14 px au plus,
+  les formes de 30 px, en douceur ; une marge autour de l'image pour que ses bords ne se voient jamais ; seulement avec
+  une souris, et pas si l'on a demandé moins d'animations). À gauche : les logos des assistants (`logos.png`), le titre
+  « Premiers pas / dans l’IA générative » sur deux bandeaux (bleu, puis lilas), « Rédigez vos premiers prompts /
+  et découvrez les différentes utilisations de l’IA » et « Commencer ». Si le texte risque de passer sur les formes,
+  l'image glisse vers la droite et le bord gauche du fond se fond dans le fond lilas ; sur téléphone ou écran en hauteur,
+  l'image passe en haut et le texte dessous. Ouverture en particules (`premiers-pas/particules.js`, partagé avec
+  le module 3) : une boule au centre, qui tourne pendant le chargement, explose en milliers de particules (« Module 1 »
+  s'affiche en grand au centre, en Inter semi-gras : chaque lettre défile d'abord en caractères ASCII puis se fixe ;
+  il repart en ASCII et s'efface) ; elles se posent en trame de points pour former les deux calques, qui apparaissent
+  dessous sans bouger ; puis les logos, les bandeaux du titre se déroulent, la phrase et le bouton apparaissent.
+  « Commencer » envoie `module:start` : l'accueil s'efface, l'assistante souhaite la bienvenue, puis la première étape s'ouvre.
 - Barre d'outils blanche et basse, toujours en bas (`premiers-pas/simple.css`) : Quitter (avec confirmation), le nom du module,
   Réécouter, Son, Précédent, Suivant. On n'avance jamais tout seul : « Suivant » reste éteint tant que l'activité n'est pas faite
   (un clic rappelle ce qu'il reste à faire), puis s'allume en orange.

@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Module 1 · Première rencontre</title>
   <link rel="preload" href="../assets/img/02.png" as="image">
-  <link rel="stylesheet" href="app.css?v=20261012y">
-  <link rel="stylesheet" href="gris.css?v=20261012y">
-  <link rel="stylesheet" href="accueil.css?v=20261012y">
-  <link rel="stylesheet" href="simple.css?v=20261012y">
+  <link rel="stylesheet" href="app.css?v=20261014c">
+  <link rel="stylesheet" href="gris.css?v=20261014c">
+  <link rel="stylesheet" href="accueil.css?v=20261014c">
+  <link rel="stylesheet" href="simple.css?v=20261014c">
 </head>
 <body>
 
@@ -52,11 +52,15 @@
 <!-- ============ Accueil : posé par-dessus l'application (la barre d'outils reste visible) jusqu'à « Commencer » (accueil.js) ============ -->
 <div class="acc" data-acc>
   <main class="hero" data-acc-hero>
-    <!-- l'image (image21, rognée de ses bords transparents) : plein cadre, calée à droite -->
-    <div class="acc-bg" aria-hidden="true"><img class="back" data-acc-back src="../assets/img/accueil-ia.webp" width="1665" height="854" alt="" decoding="async"></div>
+    <!-- deux calques (bg-2 : le fond ; bg-1 : les formes), plein cadre, calés à droite ; ils suivent la souris (parallaxe) -->
+    <div class="acc-bg" aria-hidden="true">
+      <div class="par par-back"><img class="back" data-acc-back src="../assets/img/accueil-fond.webp" width="1665" height="854" alt="" decoding="async"></div>
+      <div class="par par-fore"><img class="fore" data-acc-fore src="../assets/img/accueil-formes.webp" width="1665" height="854" alt="" decoding="async"></div>
+    </div>
     <div class="copy" data-acc-num="Module 1">
+      <img class="logos" src="../assets/img/logos.png" width="228" height="56" alt="ChatGPT, Claude, Le Chat de Mistral et Gemini">
       <h1 class="title"><span class="hl hl-1">Premiers pas</span><br><span class="hl hl-2">dans l’IA générative</span></h1>
-      <p class="sub">Vous allez rédiger vos premiers prompts et découvrir les différentes utilisations de l’IA.</p>
+      <p class="sub">Rédigez vos premiers prompts <br>et découvrez les différentes utilisations de l’IA</p>
       <button type="button" class="go" data-acc-start><span class="go-orb" aria-hidden="true"><span></span></span>Commencer</button>
     </div>
   </main>
@@ -155,9 +159,9 @@
 
 <script src="../assets/audio/sous-titres.js"></script>
 <script src="../assets/audio/mots.js"></script>
-<script src="orb.js?v=20261012y"></script>
-<script src="particules.js?v=20261012y"></script>
-<script src="accueil.js?v=20261012y"></script>
-<script src="app.js?v=20261012y"></script>
+<script src="orb.js?v=20261014c"></script>
+<script src="particules.js?v=20261014c"></script>
+<script src="accueil.js?v=20261014c"></script>
+<script src="app.js?v=20261014c"></script>
 </body>
 </html>

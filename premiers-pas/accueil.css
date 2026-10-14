@@ -2,8 +2,9 @@
    Module 1 · Première rencontre — écran d'accueil.
    Posé par-dessus l'application jusqu'à « Commencer » ; la barre d'outils du module reste visible en bas
    (« Suivant » y fait la même chose que « Commencer »). Toutes ses règles restent sous .acc.
-   - l'image (accueil-ia.webp) en plein cadre, calée à droite, placée par accueil.js (--bx, --by, --bw, --bh) ;
-   - à gauche, le titre sur deux bandeaux (bleu, puis lilas), une phrase, « Commencer ».
+   - deux calques en plein cadre, calés à droite, placés par accueil.js (--bx, --by, --bw, --bh) : le fond (accueil-fond.webp)
+     et les formes (accueil-formes.webp), qui suivent la souris en parallaxe (les formes, plus proches, bougent davantage) ;
+   - à gauche, les logos, le titre sur deux bandeaux (bleu, puis lilas), une phrase, « Commencer ».
    ========================================================================== */
 @font-face { font-family: "IBM Plex Mono"; src: url("../assets/fonts/ibm-plex-mono-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
 
@@ -23,19 +24,22 @@
 
 .acc .hero { position: absolute; inset: 0; overflow: hidden; }
 
-/* ---------- l'image : plein cadre, calée à droite ---------- */
+/* ---------- les deux calques : plein cadre, calés à droite ; chacun dans son cadre de parallaxe ---------- */
 .acc .acc-bg { position: absolute; inset: 0; }
-.acc .back { position: absolute; display: block; left: var(--bx, 0px); top: var(--by, 0px); width: var(--bw, 100%); height: var(--bh, auto); max-width: none;
+.acc .par { position: absolute; inset: 0; will-change: transform; }
+.acc .back, .acc .fore { position: absolute; display: block; left: var(--bx, 0px); top: var(--by, 0px); width: var(--bw, 100%); height: var(--bh, auto); max-width: none;
   user-select: none; -webkit-user-drag: none; }
 
 /* ---------- le texte, à gauche, centré en hauteur ---------- */
-.acc .copy { position: absolute; left: clamp(24px, 7.5vw, 140px); top: 50%; transform: translateY(-50%); width: min(46%, 640px); }
-.acc .title { margin: 0; font: 600 clamp(36px, 3.9vw, 66px)/1.1 "Inter Tight", "Inter", sans-serif; letter-spacing: -.035em; color: #fff; }
-/* les deux bandeaux, chacun à la taille de son texte */
-.acc .hl { display: inline-block; padding: .02em .2em .1em; }
+.acc .copy { position: absolute; left: clamp(24px, 7.4vw, 140px); top: 53%; transform: translateY(-50%); width: min(50%, 760px); }
+/* les logos des assistants, au-dessus du titre */
+.acc .logos { display: block; width: auto; height: clamp(34px, 3.4vw, 56px); margin: 0 0 clamp(18px, 2vw, 30px); }
+.acc .title { margin: 0; font: 600 clamp(38px, 4.4vw, 76px)/1.1 "Inter Tight", "Inter", sans-serif; letter-spacing: -.035em; color: #fff; }
+/* les deux bandeaux, chacun à la taille de son texte, un peu plus larges à droite */
+.acc .hl { display: inline-block; padding: .03em .4em .1em .2em; }
 .acc .hl-1 { background: #0c47b7; }
-.acc .hl-2 { margin-top: .12em; background: #c58ff6; }
-.acc .sub { margin: clamp(22px, 2.2vw, 34px) 0 0; max-width: 25em; font: 500 clamp(15px, 1.2vw, 20px)/1.45 "Inter", sans-serif; letter-spacing: -.005em; color: var(--ink); text-wrap: pretty; }
+.acc .hl-2 { margin-top: .11em; background: #c58ff6; }
+.acc .sub { margin: clamp(22px, 2.2vw, 34px) 0 0; font: 500 clamp(15px, 1.28vw, 21px)/1.4 "Inter", sans-serif; letter-spacing: -.005em; color: var(--ink); }
 .acc .go {
   margin-top: clamp(24px, 2.4vw, 38px); display: inline-flex; align-items: center; gap: 12px;
   height: clamp(44px, 3.2vw, 52px); padding: 0 26px 0 8px;
@@ -48,15 +52,16 @@
 .acc .go:hover { background: #222; }
 .acc .go:focus-visible { outline-offset: 3px; }
 
-/* ---------- entrée : l'image en fondu, les bandeaux se déroulent, puis la phrase et le bouton ---------- */
-.acc .back { opacity: 0; transform: scale(1.02); transform-origin: 70% 50%; transition: opacity 1.3s var(--ease), transform 1.8s var(--ease); }
+/* ---------- entrée : l'image en fondu, les logos, les bandeaux se déroulent, puis la phrase et le bouton ---------- */
+.acc .back, .acc .fore { opacity: 0; transform: scale(1.02); transform-origin: 70% 50%; transition: opacity 1.3s var(--ease), transform 1.8s var(--ease); }
+.acc .logos { opacity: 0; transform: translateY(10px); transition: opacity .7s var(--ease) .05s, transform .8s var(--ease) .05s; }
 .acc .hl { clip-path: inset(0 100% 0 0); transition: clip-path .75s cubic-bezier(.65, 0, .25, 1); }
-.acc .hl-1 { transition-delay: .2s; }
-.acc .hl-2 { transition-delay: .42s; }
+.acc .hl-1 { transition-delay: .25s; }
+.acc .hl-2 { transition-delay: .47s; }
 .acc .sub, .acc .go { opacity: 0; transform: translateY(12px); }
 .acc .sub { transition: opacity .8s var(--ease) .75s, transform .9s var(--ease) .75s; }
 .acc .go { transition: opacity .8s var(--ease) .9s, transform .9s var(--ease) .9s, background .2s; }
-.acc .is-in .back { opacity: 1; transform: none; }
+.acc .is-in .back, .acc .is-in .fore, .acc .is-in .logos { opacity: 1; transform: none; }
 .acc .is-in .hl { clip-path: inset(0 0 0 0); }
 .acc .is-in .sub, .acc .is-in .go { opacity: 1; transform: none; }
 .acc .is-in .go:active { transform: scale(.97); transition-delay: 0s; }
@@ -67,11 +72,13 @@
 .acc.is-mob .copy { left: 24px; right: 24px; top: auto; bottom: 28px; width: auto; transform: none; }
 .acc.is-mob .title { font-size: clamp(32px, 8.4vw, 46px); }
 .acc.is-mob .sub { margin-top: 18px; font-size: 16px; }
+.acc.is-mob .sub br { display: none; }
+.acc.is-mob .logos { height: 30px; margin-bottom: 16px; }
 .acc.is-mob .go { margin-top: 22px; height: 46px; }
 .acc.is-mob.is-leaving .copy { transform: translateY(-10px); }
 
 @media (prefers-reduced-motion: reduce) {
-  .acc .back, .acc .hl, .acc .sub, .acc .go { transition: none !important; }
+  .acc .back, .acc .fore, .acc .logos, .acc .hl, .acc .sub, .acc .go { transition: none !important; }
 }
 
 /* ---------- après « Commencer » : l'assistante souhaite la bienvenue, sur une interface épurée ---------- */
@@ -97,4 +104,4 @@
 .acc .acc-big .s.on { opacity: 1; filter: none; }
 .acc .acc-big .s.x { font-family: "IBM Plex Mono", ui-monospace, monospace; font-weight: 400; letter-spacing: 0; }
 /* après les particules, la vraie image apparaît exactement sous la trame : un simple fondu, sans zoomer */
-.acc .is-gen .back { transform: none; transition: opacity .9s var(--ease); }
+.acc .is-gen .back, .acc .is-gen .fore { transform: none; transition: opacity .9s var(--ease); }
