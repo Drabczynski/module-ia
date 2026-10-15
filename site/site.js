@@ -205,6 +205,9 @@
     // vidéo claire : après la vidéo, la dernière image du désert reste en fond, très floue, pendant toute la présentation de l'interface
     var blur = VID.light ? document.createElement("canvas") : null;
     if (blur) { blur.className = "film-blur"; blur.width = 96; blur.height = 54; blur.setAttribute("aria-hidden", "true"); el.parentNode.insertBefore(blur, el.nextSibling); }
+    // puis le fond du tout premier écran (le dégradé violet-bleu) revient en fondu par-dessus le désert flou : l'interface se présente sur un fond foncé
+    var aurora = VID.light ? document.createElement("div") : null;
+    if (aurora) { aurora.className = "film-aurora story-aurora"; aurora.setAttribute("aria-hidden", "true"); blur.parentNode.insertBefore(aurora, blur.nextSibling); }
     function paintBlur(im) { if (blur) blur.getContext("2d").drawImage(im, 0, 0, 96, 54); }
     function load(i) { if (imgs[i]) return; var im = new Image(); im.decoding = "async"; im.onload = function () { loaded[i] = true; if (i === 0) last = -1; if (i === N - 1) paintBlur(im); }; im.src = "../assets/video/" + VID.dir + "/" + String(i).padStart(3, "0") + ".jpg"; imgs[i] = im; }
     load(0); load(N - 1);
@@ -241,6 +244,7 @@
     return {
       el: el, N: N, SPHERE: SPHERE, cover: cover, frameAt: frameAt, lum: function () { return topLum; },
       blur: function (op) { if (blur) { blur.style.opacity = String(op); blur.style.visibility = op <= .001 ? "hidden" : "visible"; } },
+      aurora: function (op) { if (aurora) { aurora.style.opacity = String(op); aurora.style.visibility = op <= .001 ? "hidden" : "visible"; } },
       draw: function (f) {
         var i = clamp(Math.round(f), 0, N - 1);
         if (!loaded[i]) { for (var d = 1; d < N; d++) { if (loaded[i - d]) { i = i - d; break; } if (loaded[i + d]) { i = i + d; break; } } }
@@ -558,6 +562,7 @@
       filmFlash.style.opacity = "0";
       film.el.style.opacity = String(1 - ease(seg(tD, .35, 1)));   // l'interface commence à se dessiner dans le désert, qui se floute
       film.blur(ease(seg(U, START.dive + LEN.dive * .05, START.dive + LEN.dive * .7)));
+      film.aurora(ease(seg(U, START.dive + LEN.dive * .55, START.sphere + LEN.sphere * .35)));   // le désert flou laisse place au fond du premier écran
       film.el.style.visibility = tD >= 1 ? "hidden" : "visible";
     } else {
       var kEnd = Math.max(1, R * 1.05 / r0), z = ease(seg(tD, 0, .78)), k = Math.pow(kEnd, z);
@@ -836,6 +841,17 @@
      La fin (vidéo claire) : l'interface de la démonstration, figée dans son état final (le document produit),
      grande, qui monte doucement et se fond dans des nuages blancs ; copiée une fois, quand on approche de la fin
      ===================================================================== */
+  /* le coach, au-dessus du dernier titre : il apparaît en particules et regarde le bouton « Tester un module » */
+  var finCoach = $("[data-fin-coach]");
+  if (finCoach) onCoach(function () {
+    var m = mascot(finCoach, 132, "idle"), btn = $(".final > .btn");
+    m.coach.lookAt(function () { return btn; });
+    if (!("IntersectionObserver" in window)) return;
+    m.coach.host.classList.add("is-gone");
+    var ob = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { ob.disconnect(); m.coach.appear(); } }, { threshold: .9 });
+    ob.observe(finCoach);
+  });
+
   (function finStage() {
     var stageEl = $("[data-fin]"), shot = $("[data-fin-shot]"), mist = stageEl && stageEl.querySelector(".fin-mist"), copy = null;
     if (!stageEl || !shot || !VID.light) return;

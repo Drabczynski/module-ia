@@ -8,7 +8,7 @@
   <link rel="preload" href="../assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="../assets/fonts/inter-tight.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="coach/coach.css">
-  <link rel="stylesheet" href="site.css?v=20261015e">
+  <link rel="stylesheet" href="site.css?v=20261015f">
 </head>
 <body>
 
@@ -286,6 +286,7 @@
   </section>
 
   <section class="final" id="contact" data-reveal data-tint="6">
+    <div class="fin-coach" data-fin-coach></div>
     <h2>Voyez la différence en quinze&nbsp;minutes.</h2>
     <p>On vous montre un module en direct, puis on parle de votre public et de votre LMS.</p>
     <a class="btn" href="../premiers-pas/">Tester un module<svg><use href="#i-arrow"/></svg></a> <a class="btn btn-line" href="mailto:contact@exemple.fr?subject=Demande%20de%20d%C3%A9mo">Nous contacter</a>
@@ -299,7 +300,7 @@
 
 <footer class="foot"><span>© Atelier IA</span><span>Interfaces et réponses simulées à des fins de formation. Photo de paysage&nbsp;: Liang Zhao, Unsplash.</span></footer>
 
-<script src="site.js?v=20261015e"></script>
+<script src="site.js?v=20261015f"></script>
 <!-- la mascotte (le coach des modules) : prête après site.js, qui l'attend (événement coach-ready) -->
 <script type="module">import { Coach } from "./coach/coach.js"; window.Coach = Coach; dispatchEvent(new Event("coach-ready"));</script>
 </body>

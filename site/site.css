@@ -818,7 +818,7 @@ html.v-intro .sec-lead { text-wrap: balance; }                         /* des li
 /* ---------- les titres : un dégradé et un reflet de lumière qui passe, façon Framer ---------- */
 html.v-intro .sec h2:not(.pv-h1), html.v-intro .final > h2 {
   color: transparent; -webkit-text-fill-color: transparent;
-  background-image: linear-gradient(105deg, rgba(185,160,255,0) 40%, rgba(185,160,255,.95) 50%, rgba(185,160,255,0) 60%), linear-gradient(180deg, #2c2356 15%, #6650c8 115%);
+  background-image: linear-gradient(105deg, rgba(236,228,255,0) 40%, rgba(236,228,255,.95) 50%, rgba(236,228,255,0) 60%), linear-gradient(180deg, #574a9e 10%, #9580ea 115%);
   background-size: 260% 100%, 100% 100%; background-repeat: no-repeat; background-position: 100% 0, 0 0;
   -webkit-background-clip: text; background-clip: text;
   animation: title-shine 7s cubic-bezier(.45, 0, .25, 1) 1s infinite; }
@@ -907,3 +907,15 @@ html.v-intro .foot { border-top-color: #e6e0f6; }
 
 /* ---------- la mascotte (coach/coach.js) dans ses emplacements ---------- */
 .orb-host > .coach, .w-orbslot > .coach, .w-mini > .coach { display: block; }
+
+/* le fond du premier écran, de retour sous la présentation de l'interface (au-dessus du désert flou) */
+.story-aurora { z-index: 2; opacity: 0; visibility: hidden; }
+/* le texte du parcours sur une seule ligne */
+html.v-intro .parc-side .sec-lead { max-width: none; white-space: nowrap; }
+/* le coach au-dessus du dernier titre */
+.fin-coach { width: 132px; height: 132px; margin: 0 auto 6px; }
+.fin-coach > .coach { display: block; }
+/* la fin du récit se fond dans le fond clair de la page (plus de coupure nette sous le fond foncé) */
+html.v-intro .story { position: relative; }
+html.v-intro .story::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; z-index: 30; height: 42vh; pointer-events: none;
+  background: linear-gradient(180deg, rgba(245,242,252,0), rgba(245,242,252,.55) 45%, var(--page)); }
