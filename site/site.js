@@ -280,6 +280,12 @@
      ===================================================================== */
   var hero = $("[data-hero]"), title = $("[data-title]"), hint = $("[data-hint]"), nav = $("[data-nav]");
   requestAnimationFrame(function () { requestAnimationFrame(function () { document.body.classList.add("is-ready"); }); });
+  var eyes = $("[data-eyes]");                                // l'icône du hero : ses yeux suivent la souris
+  if (eyes) addEventListener("pointermove", function (e) {
+    if (scrollY > innerHeight) return;
+    var b = eyes.getBoundingClientRect(), dx = e.clientX - (b.left + b.width / 2), dy = e.clientY - (b.top + b.height / 2), d = Math.hypot(dx, dy) || 1, k = Math.min(1, d / 300);
+    eyes.style.transform = "translate(" + (dx / d * 5 * k).toFixed(1) + "px," + (dy / d * 3.5 * k).toFixed(1) + "px)";
+  }, { passive: true });
   var orbEl = $("[data-orb]"), ORB = 240;
   var orb = window.SiriOrb ? window.SiriOrb(orbEl, { size: ORB, state: "idle" }) : null;
 
