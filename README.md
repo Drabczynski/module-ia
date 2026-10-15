@@ -193,13 +193,7 @@ sur un côté de l’image, avec un voile violet foncé à peine perceptible de 
 en fond, très flou, pendant toute la présentation (étapes à gauche en texte clair, bulles violettes) ; l’orbe apparaît au centre et parle pendant le dessin
 (relevé sur l’interface elle-même, `uiLines` dans `site/site.js`) ; l’interface apparaît par-dessus,
 glisse à sa place, et le parcours reprend sur « Une conversation guidée ». L’ancienne ouverture
-(vidéo du bureau, plongée dans l’écran) reste visible avec `site/?video=bureau`. Après la démonstration, un immeuble de bureaux dessiné au trait, plein centre (`site/tour.js`, sur le moteur de
-[Hairline](https://github.com/lucasmarkes/hairline), licence MIT, embarqué dans `site/vendor/hairline/`) :
-au défilement, il se construit étage par étage, s’ouvre à l’étage présenté (accueil, RH,
-communication, finance, juridique, direction), qui glisse vers le lecteur avec ses postes,
-ses écrans et ses collaborateurs, et fait un tour complet sur lui-même. Les encarts arrivent
-une fois à gauche, une fois à droite ; chacun affiche une photo Unsplash liée à l’étape
-(chargée depuis images.unsplash.com, avec le crédit du photographe). Ensuite, le défilement
+(vidéo du bureau, plongée dans l’écran) reste visible avec `site/?video=bureau`. Ensuite, le défilement
 raconte un module par chapitres : le titre, puis une sphère de particules qui se forme,
 tourne et éclate pour laisser place à l’orbe qui parle, puis le module dans un écran
 dont une caméra cadre la zone utile, avec cinq gestes de l’apprenant (écrire, repérer,

@@ -145,12 +145,12 @@
     };
   })();
 
-  /* le fond passe au jaune pâle à l'arrivée sur l'immeuble, et le reste ensuite */
+  /* le fond passe au clair à l'arrivée sur le parcours, et le reste ensuite */
   (function () {
-    var vg = $("[data-voyage]"); if (!vg) return;
+    var vg = $("#modules"); if (!vg) return;
     var on = false;
     function check() {
-      var r = vg.getBoundingClientRect(), mid = innerHeight / 2, want = r.top < mid;   // à partir de l'immeuble, et jusqu'en bas
+      var r = vg.getBoundingClientRect(), mid = innerHeight / 2, want = r.top < mid;   // à partir du parcours, et jusqu'en bas
       if (want !== on) { on = want; document.documentElement.classList.toggle("bg-cream", on); }
     }
     addEventListener("scroll", check, { passive: true }); addEventListener("resize", check); check();

@@ -568,37 +568,6 @@ main, .foot { position: relative; z-index: 1; }
 .film-dim { position: absolute; inset: 0; background: rgba(5,9,18,.38); opacity: 0; transition: opacity .6s; pointer-events: none; }
 .film-dim.on { opacity: 1; }
 
-/* ---------- L’immeuble : l’IA à tous les étages ---------- */
-.voyage { position: relative; z-index: 2; height: 900vh; }
-.vg-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
-/* le dessin au trait (Hairline) : plein centre sur ordinateur, en haut sur mobile */
-.vg-hl { position: absolute; top: 64px; bottom: 0; left: 0; right: 0; aspect-ratio: auto;
-  --hairline-plate: var(--cream); --hairline-hi: var(--orange); --hairline-edge: #7f7c75; --hairline-mid: #b4b1a9; --hairline-lo: #c9c6be; --hairline-stroke: 1; }
-.vg-hl svg { overflow: visible; }
-.vg-caps { position: absolute; inset: 0; pointer-events: none; }
-.vg-cap { position: absolute; left: clamp(20px, 7vw, 120px); top: 50%; translate: 0 -50%; max-width: min(400px, 86vw); padding: 30px 32px; border-radius: 24px; background: rgba(255,255,255,.82); backdrop-filter: blur(14px); box-shadow: 0 0 0 1px var(--line), 0 30px 60px -40px rgba(16,24,56,.4); opacity: 0; transform: translateX(-32px); transition: opacity .35s, transform .35s; }
-.vg-cap:nth-child(even) { left: auto; right: clamp(20px, 7vw, 120px); transform: translateX(32px); }   /* une fois sur deux, à droite */
-.vg-cap.on, .vg-cap:nth-child(even).on { opacity: 1; transform: none; transition: opacity .7s var(--ease), transform .9s var(--spring); }
-.vg-k { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; font: 600 12.5px/1 var(--text); letter-spacing: .14em; text-transform: uppercase; color: var(--orange); }
-.vg-k b { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--orange); color: #fff; letter-spacing: 0; font-size: 12px; }
-.vg-cap h2 { margin: 0; font: 400 clamp(26px, 2.6vw, 38px)/1.14 var(--display); letter-spacing: -.015em; color: var(--ink); text-wrap: balance; }
-.vg-s { margin: 12px 0 0; font-size: 16.5px; line-height: 1.5; color: var(--ink-2); }
-.vg-m { display: inline-block; margin-top: 18px; padding: 6px 12px; border-radius: 99px; background: #f2f0ea; font: 600 12.5px/1 var(--text); color: var(--ink-2); }
-.voyage.no-gl { height: auto; }
-.voyage.no-gl .vg-stage { position: static; height: auto; padding: 80px 20px; display: grid; gap: 16px; }
-.voyage.no-gl .vg-caps { position: static; display: grid; gap: 16px; }
-.voyage.no-gl .vg-cap { position: static; translate: none; opacity: 1; transform: none; margin: 0 auto; }
-@media (max-width: 800px) { .vg-hl { left: 0; right: 0; top: 56px; bottom: 34%; } .vg-cap, .vg-cap:nth-child(even) { top: auto; bottom: 18px; left: 16px; right: 16px; translate: none; max-width: none; padding: 22px; transform: translateY(16px); } }
-.vg-s strong { color: var(--ink); font-weight: 600; }
-.vg-k b { width: auto; min-width: 28px; padding: 0 8px; border-radius: 99px; }
-/* la photo de chaque étape, en tête de l'encart */
-.vg-ph { position: relative; margin: -14px -16px 20px; border-radius: 16px; overflow: hidden; aspect-ratio: 2 / 1; background: #ece6da; }
-.vg-ph img { display: block; width: 100%; height: 100%; object-fit: cover; color: transparent; }   /* pas de texte alternatif visible si la photo ne charge pas */
-.vg-ph figcaption { position: absolute; right: 8px; bottom: 8px; padding: 3px 8px; border-radius: 99px; background: rgba(20,18,15,.55); backdrop-filter: blur(6px); font: 500 10.5px/1.3 var(--text); color: rgba(255,255,255,.88); }
-.vg-ph figcaption a { color: inherit; text-decoration: none; }
-.vg-cap.on .vg-ph figcaption { pointer-events: auto; }
-@media (max-width: 800px) { .vg-ph { margin: -8px -8px 14px; aspect-ratio: 3 / 1; border-radius: 14px; } }
-
 /* ---------- Le parcours, aéré : en-tête centré, huit étapes illustrées sur deux colonnes ---------- */
 .parc { display: block; }
 .parc-side { position: static; max-width: 760px; margin: 0 auto clamp(48px, 7vw, 80px); text-align: center; }
@@ -686,18 +655,12 @@ main, .foot { position: relative; z-index: 1; }
 }
 @media (prefers-reduced-motion: reduce) { .sc-btn svg { animation: none; } }
 
-/* ---------- fond blanc après la vidéo ; jaune pâle le temps de l'immeuble ---------- */
+/* ---------- après la vidéo, le fond passe au clair (dès le parcours) ---------- */
 .tint { display: none; }
 body { transition: background-color .9s var(--ease); }
 html.bg-cream body { background: var(--cream); }
 
-/* les encarts de l'immeuble : titre plus petit et plus appuyé */
-.vg-cap h2 { font: 650 clamp(20px, 1.6vw, 25px)/1.22 var(--text); letter-spacing: -.012em; }
-@media (max-width: 800px) { .vg-cap h2 { font-size: 19px; } }
 
-/* les étages nommés dans le dessin */
-.vg-hl svg text { font: 600 5.2px/1 var(--text); letter-spacing: .01em; fill: #6f6c66; transition: fill .3s; }
-.vg-hl svg text.on { fill: var(--orange); font-weight: 700; }
 
 /* le menu prend la couleur du fond quand celui-ci passe au jaune pâle */
 .nav.is-solid { transition: background-color .9s var(--ease), box-shadow .3s; }
@@ -749,8 +712,7 @@ html.v-intro.bg-cream .nav-links a:hover { background: #ebe6f7; }
 /* ---------- avec la vidéo claire, la page passe au violet : fond de page violet très clair, violet à la place de l'orange ;
    le module, lui, garde son fond crème (--cream) ---------- */
 html.v-intro { --page: #f5f2fc; --bg: #faf8ff; --orange: #6d3fd6; --claude: #7b4ae2;
-  --cream: #fbfaff; --line: #e6e3ee; --line-2: #f0eef5; --c-line: #e6e2ef; --c-user: #f0eef7;
-  --hairline-plate: var(--page); --hairline-edge: #7d72a0; --hairline-mid: #b0a8c9; --hairline-lo: #cfc8e3; }
+  --cream: #fbfaff; --line: #e6e3ee; --line-2: #f0eef5; --c-line: #e6e2ef; --c-user: #f0eef7; }
 html.v-intro.bg-cream body { background: var(--page); }
 .v-intro .stage { background: var(--page); }
 .v-intro .st-n { background: var(--page); }
@@ -799,12 +761,12 @@ html.v-intro .slot.open { background: #ece4ff; box-shadow: 0 0 0 4px rgba(109, 6
 html.v-intro .pop-o.on { background: #f4efff; }
 html.v-intro .sw-q { color: #c4b2f2; }
 html.v-intro .hp-new { background: linear-gradient(90deg, #9b7bf0, #d36fd0); }
-html.v-intro .badges .badge, html.v-intro .tg, html.v-intro .vg-m { background: #efecf6; }
+html.v-intro .badges .badge, html.v-intro .tg { background: #efecf6; }
 html.v-intro .gen-out { background: #eeebf5; }
 html.v-intro .ring .bg { stroke: #e7e3f0; }
 html.v-intro .res-row i { background: #e7e3f0; }
 html.v-intro .pm:hover { background: #faf9fd; }
-html.v-intro .vg-ph, html.v-intro .pc-ph { background: #ebe7f3; }
+html.v-intro .pc-ph { background: #ebe7f3; }
 /* le titre du hero, plus long (« Formez dès maintenant à l'IA ») : un peu plus petit, pour laisser la boule libre */
 html.v-intro .hero.on-film h1 { font-size: clamp(36px, 4.05vw, 68px); }
 html.v-intro .w-comp { background: #f3f1f8; }                            /* le champ de saisie inactif : plus de jaune */
