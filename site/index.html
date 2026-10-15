@@ -56,6 +56,7 @@
       <div class="film" data-film><canvas data-film-cv aria-hidden="true"></canvas><div class="film-shade" data-film-shade></div><div class="film-aurora" data-film-aurora aria-hidden="true"></div><div class="film-dim" data-film-dim></div><div class="film-flash" data-film-flash></div></div>
 
       <div class="hero on-film hc" data-hero>
+        <canvas class="hero-orb" data-hero-orb aria-hidden="true"></canvas>
         <img class="hero-ic rise" style="--d:.05s" src="../assets/img/logo.png" width="88" height="88" alt="">
         <p class="hero-pill rise" style="--d:.2s"><span class="hp-new">Nouveau</span><span>Le parcours IA en 14&nbsp;modules</span></p>
         <h1 data-title><span class="hw" style="--i:0">Apprenez</span> <span class="hw" style="--i:1">l’IA</span><br><span class="hw" style="--i:2">de</span> <span class="hw" style="--i:3">manière</span> <span class="hw" style="--i:4">interactive</span></h1>
@@ -300,7 +301,7 @@
 
 <footer class="foot"><span>© Atelier IA</span><span>Interfaces et réponses simulées à des fins de formation. Photo de paysage&nbsp;: Liang Zhao, Unsplash.</span></footer>
 
-<script src="site.js?v=20261015g"></script>
+<script src="site.js?v=20261015j"></script>
 <!-- la mascotte (le coach des modules) : prête après site.js, qui l'attend (événement coach-ready) -->
 <script type="module">import { Coach } from "./coach/coach.js"; window.Coach = Coach; dispatchEvent(new Event("coach-ready"));</script>
 </body>

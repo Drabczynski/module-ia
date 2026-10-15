@@ -39,10 +39,10 @@
     // msgs : trois messages, pour des débutants (pas pour les entreprises) : [début, fin] en écrans, place, côté du voile, texte ;
     // tous en blanc, sur un côté, avec un voile violet foncé à peine perceptible de ce côté-là
     intro: { dir: "intro", n: 191, fps: 24, fit: "contain", light: true, drift: .05, target: { x: .5, y: .5, r: .03 },
-      keys: [[0, 0], [1.4, .3], [3.3, 1.35], [3.9, 2.4], [5.3, 4.2], [5.7, 4.45], [8.7, 5.2], [9.3, 5.8], [10.7, 7.3], [11, 7.42], [12.7, 7.92]],
-      msgs: [[1.55, 3.2, "m-l m-big", "l", "<h2>Apprenez l’IA,<br>pas à pas.</h2>"],                      // sur le ruban violet foncé, en bas à gauche
-             [5.75, 8.05, "m-l m-bl", "l", "<h2>14 modules<br>où l’on apprend en faisant.</h2>"],   // en bas à gauche, sous la petite image des dunes
-             [11.05, 12.6, "m-big m-br", "r", "<h2>Des formations<br>100&nbsp;% interactives.</h2>"]] },                                                      // en bas à droite, sur les dunes plus sombres de la dernière image
+      keys: [[0, 0], [1.4, .3], [5.25, 1.35], [5.85, 2.4], [7.25, 4.2], [7.65, 4.45], [10.65, 5.2], [11.25, 5.8], [12.65, 7.3], [12.95, 7.42], [14.65, 7.92]],   // la vidéo ralentit sous chaque message
+      msgs: [[1.55, 5.15, "m-l m-big", "l", "<h2>Apprenez l’IA,<br>pas à pas.</h2>"],                      // sur le ruban violet foncé, en bas à gauche ; il reste longtemps (≈ 3,6 écrans)
+             [7.7, 10.0, "m-l m-bl", "l", "<h2>14 modules<br>où l’on apprend en faisant.</h2>"],   // en bas à gauche, sous la petite image des dunes
+             [13.0, 14.55, "m-big m-br", "r", "<h2>Des formations<br>100&nbsp;% interactives.</h2>"]] },                                                      // en bas à droite, sur les dunes plus sombres de la dernière image
     bureau: { dir: "bureau", n: 169, len: 10, end: .985, fit: "cover", target: { x: .4865, y: .485, r: .029 } }               // la sphère, sur l'écran du bureau
   };
   var VID = VIDEOS[(location.search.match(/[?&]video=(\w+)/) || [])[1]] || VIDEOS.intro;
@@ -162,7 +162,7 @@
      ===================================================================== */
   (function () {
     var cv = $("[data-hero-orb]"); if (!cv) return;
-    var ctx = cv.getContext("2d"), dpr = Math.min(2, window.devicePixelRatio || 1), W = 0, H = 0, pts = [], N = 1400, GA = Math.PI * (3 - Math.sqrt(5));
+    var ctx = cv.getContext("2d"), dpr = Math.min(2, window.devicePixelRatio || 1), W = 0, H = 0, pts = [], N = 2400, GA = Math.PI * (3 - Math.sqrt(5));
     for (var i = 0; i < N; i++) {
       var y = 1 - (i / (N - 1)) * 2, r = Math.sqrt(1 - y * y), th = GA * i;
       pts.push({ x: Math.cos(th) * r, y: y, z: Math.sin(th) * r, v: .6 + Math.random() * 1.8, j: Math.random() });
@@ -178,7 +178,8 @@
       if (out >= 1) return;                                    // le hero est parti : on ne dessine plus
       if (!still) rot += dt * .16;
       mx += (tx - mx) * .04; my += (ty - my) * .04;
-      var burst = out * out, small = W < 800, R = small ? W * .25 : Math.min(W, H) * .24, cx = W / 2, cy = small ? H * .25 : H * .5;   // sur mobile, la sphère en haut, le texte en bas
+      // une très grande sphère, qui entoure tout le texte : ses points s'effacent là où sont l'icône, le titre et le texte
+      var burst = out * out, small = W < 800, R = small ? W * .25 : Math.max(Math.min(W, H) * .64, W * .4), cx = W / 2, cy = small ? H * .25 : H * .5, Rv = R * .74;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
       var g = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 1.25);   // un halo très doux
       g.addColorStop(0, "rgba(190,200,255," + (.10 * (1 - out)).toFixed(3) + ")"); g.addColorStop(1, "rgba(190,200,255,0)");
@@ -189,9 +190,10 @@
         var e = 1 + burst * p.v * 2.4, persp = 1 / (1.9 - z0 * .55);
         var px = cx + x0 * e * R * persp * 1.4, py = cy + y0 * e * R * persp * 1.4;
         var al = (.1 + .8 * (z0 + 1) / 2) * (1 - out * .85) * (.85 + .15 * Math.sin(now / 600 + p.j * 6.28));
+        if (!small) { var kq = Math.hypot((px - cx) / (Rv * .98), (py - cy) / (Rv * .8)), f = Math.min(1, Math.max(0, (kq - .64) / .38)); al *= .08 + .92 * f * f * (3 - 2 * f); }   // le texte reste lisible
         if (al < .02) continue;
         ctx.fillStyle = "rgba(235,238,255," + al.toFixed(3) + ")";
-        ctx.beginPath(); ctx.arc(px, py, .5 + (z0 + 1) * .55, 0, 6.2832); ctx.fill();
+        ctx.beginPath(); ctx.arc(px, py, .6 + (z0 + 1) * .7, 0, 6.2832); ctx.fill();
       }
     })(performance.now());
   })();
@@ -841,15 +843,15 @@
      La fin (vidéo claire) : l'interface de la démonstration, figée dans son état final (le document produit),
      grande, qui monte doucement et se fond dans des nuages blancs ; copiée une fois, quand on approche de la fin
      ===================================================================== */
-  /* le coach, au-dessus du dernier titre : il apparaît en particules et regarde le bouton « Tester un module » */
+  /* le coach, au-dessus du dernier titre : déjà là, il regarde droit devant, avec de temps en temps un petit coup d'œil à gauche ou à droite */
   var finCoach = $("[data-fin-coach]");
   if (finCoach) onCoach(function () {
-    var m = mascot(finCoach, 132, "idle"), btn = $(".final > .btn");
-    m.coach.lookAt(function () { return btn; });
-    if (!("IntersectionObserver" in window)) return;
-    m.coach.host.classList.add("is-gone");
-    var ob = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { ob.disconnect(); m.coach.appear(); } }, { threshold: .9 });
-    ob.observe(finCoach);
+    var m = mascot(finCoach, 132, "idle"), host = m.coach.host;
+    function center() { var r = host.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }
+    m.coach.lookAt(center);                                     // son propre centre : le regard droit devant
+    (function glance() {
+      setTimeout(function () { var c = center(); m.coach.glance({ x: c.x + (Math.random() < .5 ? -1 : 1) * 420, y: c.y }, 650); glance(); }, 3200 + Math.random() * 3000);
+    })();
   });
 
   (function finStage() {
