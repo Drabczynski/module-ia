@@ -280,8 +280,19 @@
      ===================================================================== */
   var hero = $("[data-hero]"), title = $("[data-title]"), hint = $("[data-hint]"), nav = $("[data-nav]");
   requestAnimationFrame(function () { requestAnimationFrame(function () { document.body.classList.add("is-ready"); }); });
-  var orbEl = $("[data-orb]"), ORB = 240;
-  var orb = window.SiriOrb ? window.SiriOrb(orbEl, { size: ORB, state: "idle" }) : null;
+  var orbEl = $("[data-orb]"), ORB = 240, orb = null;           // la mascotte, créée quand coach.js est chargé (plus bas)
+
+  /* ---------- la mascotte : le coach des modules (coach/coach.js), une bille de verre aux yeux expressifs ---------- */
+  function onCoach(fn) { if (window.Coach) fn(); else addEventListener("coach-ready", fn, { once: true }); }
+  function mascot(slot, size, mood) {
+    if (!slot) return null;
+    var host = document.createElement("div"); slot.appendChild(host);
+    var coach = new window.Coach(host, { size: size, label: "Assistant IA" }), cur = "";
+    function setState(m) { m = m === "speaking" || m === "listening" || m === "thinking" ? m : "idle"; if (m !== cur) { cur = m; coach.setMood(m); } }
+    setState(mood);
+    return { coach: coach, setState: setState };
+  }
+  onCoach(function () { orb = mascot(orbEl, ORB, "idle"); });
 
   var appear = new Spring(0, 150, 13);
 
@@ -458,8 +469,12 @@
 
   /* ---------- éléments du module ---------- */
   var slotWin = $("[data-slot-win]"), slotMini = $("[data-slot-mini]");
-  var orbIn = window.SiriOrb ? window.SiriOrb(slotWin, { size: 150, state: "speaking" }) : null;
-  var orbMini = window.SiriOrb ? window.SiriOrb(slotMini, { size: 44, state: "speaking" }) : null;
+  var orbIn = null, orbMini = null;
+  onCoach(function () {
+    orbIn = mascot(slotWin, 150, "speaking");
+    orbMini = mascot(slotMini, 44, "speaking");
+    if (orbIn) orbIn.coach.lookAt(function () { return inp; });     // quand l'apprenant écrit, elle regarde le champ
+  });
   var views = {}; $$("[data-view]").forEach(function (v) { views[v.dataset.view] = v; });
   var comp = $("[data-comp]"), inp = $("[data-in]"), send = $("[data-send]"), u1 = $("[data-u1]"), ai = $("[data-ai]"), chat = $("[data-chat]"), msim = $(".m-sim");
   var marks = $$("[data-m]"), found = $$("[data-f]"), tasks = $$("[data-t]"), slots = $$("[data-s]"), bks = $$("[data-b]");
@@ -833,10 +848,11 @@
         el.removeAttribute("id");
         Array.prototype.slice.call(el.attributes).forEach(function (at) { if (at.name.indexOf("data-") === 0) el.removeAttribute(at.name); });
       });
-      $$("canvas", copy).forEach(function (c) { c.remove(); });          // les orbes ne se copient pas : on recrée la petite
+      $$(".coach", copy).forEach(function (c) { c.remove(); });          // les mascottes ne se copient pas : on recrée la petite
+      $$("canvas", copy).forEach(function (c) { c.remove(); });
       shot.appendChild(copy);
       var mini = copy.querySelector(".w-mini");
-      if (mini && window.SiriOrb) window.SiriOrb(mini, { size: 44, state: "idle" });
+      if (mini) onCoach(function () { mascot(mini, 44, "idle"); });
       fit();
     }
     if ("IntersectionObserver" in window) {

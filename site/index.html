@@ -7,7 +7,8 @@
   <meta name="description" content="Une formation à l’IA générative où l’on pratique : 14 modules d’une heure, une IA simulée, des cas réels. Aligné sur le référentiel RS6776, prêt pour votre LMS (SCORM).">
   <link rel="preload" href="../assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="../assets/fonts/inter-tight.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="site.css?v=20261015d">
+  <link rel="stylesheet" href="coach/coach.css">
+  <link rel="stylesheet" href="site.css?v=20261015e">
 </head>
 <body>
 
@@ -274,9 +275,14 @@
   <section class="sec faq" data-reveal data-tint="4">
     <p class="sec-k">Questions</p>
     <h2>Vos questions, nos réponses.</h2>
+    <details><summary>Faut-il savoir se servir de l’IA pour commencer&nbsp;?</summary><p>Non. Le parcours part de zéro. Une voix guide chaque étape, avec des sous-titres, et l’apprenant avance à son rythme. Il suffit de savoir cliquer et écrire quelques mots.</p></details>
     <details><summary>Faut-il un compte sur un outil d’IA&nbsp;?</summary><p>Non. Les modules utilisent une IA simulée&nbsp;: l’apprenant pratique dans une interface réaliste, sans créer de compte et sans envoyer de données.</p></details>
+    <details><summary>Les données de nos équipes sont-elles exposées&nbsp;?</summary><p>Non. Rien de ce que l’apprenant écrit n’est envoyé à un service d’IA. Les exemples des modules utilisent uniquement des dossiers fictifs.</p></details>
     <details><summary>Combien de temps dure le parcours&nbsp;?</summary><p>Chacun avance à son rythme&nbsp;: les 14 modules durent une heure chacun et se suivent dans l’ordre ou à la carte.</p></details>
+    <details><summary>Sur quel appareil suit-on les modules&nbsp;?</summary><p>Sur un ordinateur, dans un navigateur récent. Il n’y a rien à installer.</p></details>
     <details><summary>Est-ce compatible avec notre LMS&nbsp;?</summary><p>Oui, chaque module s’exporte au format SCORM. Le score et la réussite remontent dans votre plateforme.</p></details>
+    <details><summary>Peut-on essayer avant de s’engager&nbsp;?</summary><p>Oui. Un module complet est accessible en démonstration&nbsp;: le bouton «&nbsp;Tester un module&nbsp;» l’ouvre directement.</p></details>
+    <details><summary>Les contenus sont-ils mis à jour&nbsp;?</summary><p>Oui. Les mises à jour des modules sont incluses pendant toute la durée de la licence.</p></details>
   </section>
 
   <section class="final" id="contact" data-reveal data-tint="6">
@@ -293,7 +299,8 @@
 
 <footer class="foot"><span>© Atelier IA</span><span>Interfaces et réponses simulées à des fins de formation. Photo de paysage&nbsp;: Liang Zhao, Unsplash.</span></footer>
 
-<script src="../premiers-pas/orb.js"></script>
-<script src="site.js?v=20261015d"></script>
+<script src="site.js?v=20261015e"></script>
+<!-- la mascotte (le coach des modules) : prête après site.js, qui l'attend (événement coach-ready) -->
+<script type="module">import { Coach } from "./coach/coach.js"; window.Coach = Coach; dispatchEvent(new Event("coach-ready"));</script>
 </body>
 </html>

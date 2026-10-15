@@ -199,8 +199,10 @@ tourne et éclate pour laisser place à l’orbe qui parle, puis le module dans 
 dont une caméra cadre la zone utile, avec cinq gestes de l’apprenant (écrire, repérer,
 construire, varier : glisser, QCM, roue, génération d’image et d’un document Word) et, à gauche, des étapes qui présentent chaque type
 d’interaction. Des étiquettes expliquent les clics de la démonstration. Mouvements à ressorts. Suivent les modules,
-les formules et la FAQ. Réutilise `premiers-pas/orb.js` et les
-polices de `assets/fonts`. Photo de paysage : Liang Zhao sur Unsplash (licence Unsplash), chargée
+les formules et la FAQ. La mascotte (l’orbe qui parle, dans le récit et dans l’interface) est le coach des modules :
+une bille de verre aux yeux expressifs, copiée telle quelle du kit d’intégration dans `site/coach/` (`coach.js`, `orb.js`,
+`orb-face.js`, `orb-particles.js`, `coach.css`), chargée en module ES puis signalée à `site.js` par l’événement `coach-ready`.
+Réutilise les polices de `assets/fonts`. Photo de paysage : Liang Zhao sur Unsplash (licence Unsplash), chargée
 depuis images.unsplash.com. Nom « Atelier IA », formules « Sur devis » et adresse de contact
 à remplacer.
 

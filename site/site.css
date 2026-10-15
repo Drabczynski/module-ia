@@ -852,7 +852,7 @@ html.v-intro .sec-k::before { content: ""; width: 7px; height: 7px; border-radiu
 /* l'icône de la formation, au-dessus du parcours */
 .sec-ic { display: none; }
 html.v-intro .sec-ic { display: block; width: 76px; height: 76px; margin: 0 auto 22px; filter: drop-shadow(0 16px 26px rgba(80,40,190,.32)) drop-shadow(0 0 22px rgba(150,120,255,.3)); }
-/* en-têtes centrés, avec une lueur et une trame de points derrière */
+/* en-têtes centrés, avec une trame de points derrière (sans lueur violette) */
 html.v-intro #formules, html.v-intro .faq { text-align: center; }
 html.v-intro #formules .sec-lead, html.v-intro .faq .sec-lead { margin-left: auto; margin-right: auto; }
 html.v-intro .faq { max-width: 860px; }
@@ -860,7 +860,7 @@ html.v-intro .faq h2 { margin-bottom: 44px; }
 html.v-intro .parc-side, html.v-intro #formules, html.v-intro .faq, html.v-intro .final { isolation: isolate; }
 html.v-intro .parc-side::before, html.v-intro #formules::before, html.v-intro .faq::before, html.v-intro .final::before {
   content: ""; position: absolute; z-index: -1; left: 50%; top: -40px; width: min(980px, 100vw); height: 520px; transform: translateX(-50%); pointer-events: none;
-  background: radial-gradient(closest-side, rgba(150,115,255,.20), rgba(150,115,255,0) 70%), radial-gradient(rgba(109,63,214,.16) 1px, transparent 1.3px) 0 0 / 22px 22px;
+  background: radial-gradient(rgba(109,63,214,.16) 1px, transparent 1.3px) 0 0 / 22px 22px;
   -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 40%, #000 30%, transparent 75%); mask-image: radial-gradient(ellipse 50% 50% at 50% 40%, #000 30%, transparent 75%); }
 html.v-intro .parc-side { position: relative; top: 0; }   /* « top » restait de l’ancienne version collante */
 html.v-intro .parc-side::before { top: -80px; }
@@ -894,7 +894,7 @@ html.v-intro .faq summary { align-items: center; padding: 22px 24px; font: 600 1
 html.v-intro .faq summary::-webkit-details-marker { display: none; }
 html.v-intro .faq summary::after { content: "+"; flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #f1ecff; color: #6d3fd6; font: 500 20px/1 var(--text); transition: transform .3s var(--spring), background .2s; }
 html.v-intro .faq details[open] summary::after { content: "+"; transform: rotate(45deg); background: #6d3fd6; color: #fff; }
-html.v-intro .faq p { margin: -6px 0 0; padding: 0 24px 22px; }
+html.v-intro .faq details p { margin: -6px 0 0; padding: 0 24px 22px; }   /* les réponses seulement, pas la pastille */
 /* les cartes du parcours : bordure fine, ombre violette, elles se soulèvent au survol */
 html.v-intro .pc { background: rgba(255,255,255,.9); box-shadow: 0 0 0 1px #e8e2f6, 0 30px 60px -44px rgba(70,40,170,.45); transition: opacity .8s var(--spring), transform 1s var(--spring), box-shadow .3s, translate .4s var(--spring); }
 html.v-intro .pc:hover { translate: 0 -4px; box-shadow: 0 0 0 1px #d8cdf7, 0 40px 70px -40px rgba(70,40,170,.5); }
@@ -904,3 +904,6 @@ html.v-intro .pm { border-left-color: #ece7f8; }
 html.v-intro .pm:hover { border-left-color: #7c3aed; }
 /* le pied de page */
 html.v-intro .foot { border-top-color: #e6e0f6; }
+
+/* ---------- la mascotte (coach/coach.js) dans ses emplacements ---------- */
+.orb-host > .coach, .w-orbslot > .coach, .w-mini > .coach { display: block; }
