@@ -8,7 +8,7 @@
   <link rel="preload" href="../assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="../assets/fonts/inter-tight.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="coach/coach.css">
-  <link rel="stylesheet" href="site.css?v=20261015f">
+  <link rel="stylesheet" href="site.css?v=20261015g">
 </head>
 <body>
 
@@ -65,7 +65,7 @@
           <li><svg><use href="#i-check"/></svg>Prêt pour votre LMS (SCORM)</li>
           <li><svg><use href="#i-check"/></svg>Aucune donnée exposée</li>
         </ul>
-        <p class="scroll-cue rise" style="--d:1.2s" data-hint><span class="sc-star" aria-hidden="true">✳</span><span>Faites défiler pour découvrir</span><span class="sc-btn" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M8 3v10M3.5 8.5 8 13l4.5-4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></p>
+        <p class="scroll-cue" data-hint><span class="sc-star" aria-hidden="true">✳</span><span>Faites défiler pour découvrir</span><span class="sc-btn" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M8 3v10M3.5 8.5 8 13l4.5-4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></p>
       </div>
 
       <div class="msgs" aria-live="off">
@@ -300,7 +300,7 @@
 
 <footer class="foot"><span>© Atelier IA</span><span>Interfaces et réponses simulées à des fins de formation. Photo de paysage&nbsp;: Liang Zhao, Unsplash.</span></footer>
 
-<script src="site.js?v=20261015f"></script>
+<script src="site.js?v=20261015g"></script>
 <!-- la mascotte (le coach des modules) : prête après site.js, qui l'attend (événement coach-ready) -->
 <script type="module">import { Coach } from "./coach/coach.js"; window.Coach = Coach; dispatchEvent(new Event("coach-ready"));</script>
 </body>
