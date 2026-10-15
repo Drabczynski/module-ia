@@ -205,6 +205,21 @@ une bille de verre aux yeux expressifs, copiée telle quelle du kit d’intégra
 Réutilise les polices de `assets/fonts`. Photo de paysage : Liang Zhao sur Unsplash (licence Unsplash), chargée
 depuis images.unsplash.com. Produit : « Initiation IA », avec la mascotte pour logo (`assets/img/logo.png`).
 
+## Fiches « À retenir » (`fiches/`)
+
+Une fiche PDF par module, remise à la fin du module : les notions, les points importants, un exemple,
+les pièges, une liste à cocher et le module suivant. A4, deux pages, à la charte d'Initiation IA
+(fond du premier écran du site en en-tête, violet, Inter et Inter Tight, la mascotte dessinée en vectoriel
+d'après les couleurs de `site/coach/orb.js`, le logo `assets/img/logo.png`). Les titres en dégradé sont
+colorés lettre par lettre (`fiches/fiche.js`) : le PDF garde du vrai texte, sélectionnable et lu par les
+lecteurs d'écran.
+
+- Source : `fiches/module-1.html` (contenu) et `fiches/fiche.css` (gabarit commun). Pour un autre module,
+  copier `module-1.html` en `module-N.html` et remplacer le texte.
+- Rendu : `node fiches/generer.mjs` (ou `node fiches/generer.mjs module-1`) ; Playwright doit être
+  disponible, `CHROMIUM=/chemin/vers/chrome` pour utiliser un navigateur déjà installé. Les PDF sont
+  écrits dans `assets/fiches/` (nom tiré du titre : `initiation-ia-module-1-premiere-rencontre.pdf`).
+
 ## Découvrir Claude (`decouvrir/`)
 
 Module autonome de découverte : une journée fictive chez Lumen, six missions et un bilan.
