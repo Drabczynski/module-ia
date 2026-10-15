@@ -818,7 +818,7 @@ html.v-intro .sec-lead { text-wrap: balance; }                         /* des li
 /* ---------- les titres : un dégradé et un reflet de lumière qui passe, façon Framer ---------- */
 html.v-intro .sec h2:not(.pv-h1), html.v-intro .final > h2 {
   color: transparent; -webkit-text-fill-color: transparent;
-  background-image: linear-gradient(105deg, rgba(236,228,255,0) 40%, rgba(236,228,255,.95) 50%, rgba(236,228,255,0) 60%), linear-gradient(180deg, #574a9e 10%, #9580ea 115%);
+  background-image: linear-gradient(105deg, rgba(236,228,255,0) 40%, rgba(236,228,255,.95) 50%, rgba(236,228,255,0) 60%), linear-gradient(180deg, #4d4193 10%, #8a73e0 115%);
   background-size: 260% 100%, 100% 100%; background-repeat: no-repeat; background-position: 100% 0, 0 0;
   -webkit-background-clip: text; background-clip: text;
   animation: title-shine 7s cubic-bezier(.45, 0, .25, 1) 1s infinite; }
@@ -851,7 +851,7 @@ html.v-intro .sec-k { display: inline-flex; align-items: center; gap: 9px; margi
 html.v-intro .sec-k::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: linear-gradient(135deg, #b69cff, #6d3fd6); box-shadow: 0 0 0 3px rgba(124,58,237,.14), 0 0 10px rgba(124,58,237,.6); }
 /* l'icône de la formation, au-dessus du parcours */
 .sec-ic { display: none; }
-html.v-intro .sec-ic { display: block; width: 76px; height: 76px; margin: 0 auto 22px; filter: drop-shadow(0 16px 26px rgba(80,40,190,.32)) drop-shadow(0 0 22px rgba(150,120,255,.3)); }
+html.v-intro .sec-ic { display: block; width: 76px; height: 76px; margin: 0 auto 22px; }
 /* en-têtes centrés, avec une trame de points derrière (sans lueur violette) */
 html.v-intro #formules, html.v-intro .faq { text-align: center; }
 html.v-intro #formules .sec-lead, html.v-intro .faq .sec-lead { margin-left: auto; margin-right: auto; }
@@ -919,3 +919,12 @@ html.v-intro .parc-side .sec-lead { max-width: none; white-space: nowrap; }
 html.v-intro .story { position: relative; }
 html.v-intro .story::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; z-index: 30; height: 42vh; pointer-events: none;
   background: linear-gradient(180deg, rgba(245,242,252,0), rgba(245,242,252,.55) 45%, var(--page)); }
+
+/* la marque : Initiation IA, avec la mascotte pour logo */
+.brand-logo { width: 28px; height: 28px; border-radius: 8px; }
+.foot-brand { display: inline-flex; align-items: center; gap: 9px; }
+.foot-brand img { border-radius: 6px; }
+/* « Apprenez l’IA » : un dégradé du turquoise clair au blanc, d’un mot à l’autre */
+.hero.on-film.hc .hw.tq { color: transparent; -webkit-text-fill-color: transparent; -webkit-background-clip: text; background-clip: text; text-shadow: none; }
+.hero.on-film.hc .hw.tq1 { background-image: linear-gradient(90deg, #6fe6dc, #bff4ef); }
+.hero.on-film.hc .hw.tq2 { background-image: linear-gradient(90deg, #c6f5f1, #fff); }

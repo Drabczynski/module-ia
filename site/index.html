@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Atelier IA · Apprendre l’IA en la pratiquant</title>
+  <title>Initiation IA · Apprendre l’IA en la pratiquant</title>
+  <link rel="icon" type="image/png" href="../assets/img/logo.png">
   <meta name="description" content="Une formation à l’IA générative où l’on pratique : 14 modules d’une heure, une IA simulée, des cas réels. Aligné sur le référentiel RS6776, prêt pour votre LMS (SCORM).">
   <link rel="preload" href="../assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="../assets/fonts/inter-tight.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="coach/coach.css">
-  <link rel="stylesheet" href="site.css?v=20261015g">
+  <link rel="stylesheet" href="site.css?v=20261015l">
 </head>
 <body>
 
@@ -38,10 +39,12 @@
 </svg>
 
 <header class="nav" data-nav>
-  <a class="brand" href="#top"><span class="brand-dot"></span>Atelier IA</a>
+  <a class="brand" href="#top"><img class="brand-logo" src="../assets/img/logo.png" width="28" height="28" alt="">Initiation IA</a>
   <nav class="nav-links">
+    <a href="#fonctionnalites" data-goto="open">Fonctionnalités</a>
     <a href="#modules">Les modules</a>
     <a href="#formules">Tarif</a>
+    <a href="#faq">FAQ</a>
     <a class="btn btn-sm" href="../premiers-pas/">Tester un module</a>
   </nav>
 </header>
@@ -49,7 +52,7 @@
 <div class="tint" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 <main id="top">
   <!-- ===================== Le récit au défilement ===================== -->
-  <section class="story" data-story aria-label="Démonstration de l’interactivité">
+  <section class="story" id="fonctionnalites" data-story aria-label="Démonstration de l’interactivité">
     <div class="stage" data-stage>
       <canvas class="galaxy" data-galaxy aria-hidden="true"></canvas>
 
@@ -59,7 +62,7 @@
         <canvas class="hero-orb" data-hero-orb aria-hidden="true"></canvas>
         <img class="hero-ic rise" style="--d:.05s" src="../assets/img/logo.png" width="88" height="88" alt="">
         <p class="hero-pill rise" style="--d:.2s"><span class="hp-new">Nouveau</span><span>Le parcours IA en 14&nbsp;modules</span></p>
-        <h1 data-title><span class="hw" style="--i:0">Apprenez</span> <span class="hw" style="--i:1">l’IA</span><br><span class="hw" style="--i:2">de</span> <span class="hw" style="--i:3">manière</span> <span class="hw" style="--i:4">interactive</span></h1>
+        <h1 data-title><span class="hw tq tq1" style="--i:0">Apprenez</span> <span class="hw tq tq2" style="--i:1">l’IA</span><br><span class="hw" style="--i:2">de</span> <span class="hw" style="--i:3">manière</span> <span class="hw" style="--i:4">interactive</span></h1>
         <p class="hero-sub rise" style="--d:.75s">La formation e-learning <b>100&nbsp;% interactive</b> à l’IA générative.<br>Vos collaborateurs écrivent, vérifient et produisent avec une IA simulée.</p>
         <ul class="hero-trust rise" style="--d:1.05s">
           <li><svg><use href="#i-check"/></svg>14 modules d’une heure</li>
@@ -273,7 +276,7 @@
   </section>
 
   <!-- ===================== FAQ ===================== -->
-  <section class="sec faq" data-reveal data-tint="4">
+  <section class="sec faq" id="faq" data-reveal data-tint="4">
     <p class="sec-k">Questions</p>
     <h2>Vos questions, nos réponses.</h2>
     <details><summary>Faut-il savoir se servir de l’IA pour commencer&nbsp;?</summary><p>Non. Le parcours part de zéro. Une voix guide chaque étape, avec des sous-titres, et l’apprenant avance à son rythme. Il suffit de savoir cliquer et écrire quelques mots.</p></details>
@@ -288,9 +291,9 @@
 
   <section class="final" id="contact" data-reveal data-tint="6">
     <div class="fin-coach" data-fin-coach></div>
-    <h2>Voyez la différence en quinze&nbsp;minutes.</h2>
-    <p>On vous montre un module en direct, puis on parle de votre public et de votre LMS.</p>
-    <a class="btn" href="../premiers-pas/">Tester un module<svg><use href="#i-arrow"/></svg></a> <a class="btn btn-line" href="mailto:contact@exemple.fr?subject=Demande%20de%20d%C3%A9mo">Nous contacter</a>
+    <h2>Le premier module est offert.</h2>
+    <p>Essayez-le tout de suite, sans inscription et sans engagement.</p>
+    <a class="btn" href="../premiers-pas/">Tester un module<svg><use href="#i-arrow"/></svg></a>
     <!-- la fin : l'interface de la démonstration, dans son état final, qui se fond dans les nuages (site.js, finStage) -->
     <div class="fin-stage" data-fin aria-hidden="true">
       <div class="fin-shot" data-fin-shot></div>
@@ -299,9 +302,9 @@
   </section>
 </main>
 
-<footer class="foot"><span>© Atelier IA</span><span>Interfaces et réponses simulées à des fins de formation. Photo de paysage&nbsp;: Liang Zhao, Unsplash.</span></footer>
+<footer class="foot"><span class="foot-brand"><img src="../assets/img/logo.png" width="22" height="22" alt="">© Initiation IA</span></footer>
 
-<script src="site.js?v=20261015j"></script>
+<script src="site.js?v=20261015k"></script>
 <!-- la mascotte (le coach des modules) : prête après site.js, qui l'attend (événement coach-ready) -->
 <script type="module">import { Coach } from "./coach/coach.js"; window.Coach = Coach; dispatchEvent(new Event("coach-ready"));</script>
 </body>

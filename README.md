@@ -203,8 +203,7 @@ les formules et la FAQ. La mascotte (l’orbe qui parle, dans le récit et dans 
 une bille de verre aux yeux expressifs, copiée telle quelle du kit d’intégration dans `site/coach/` (`coach.js`, `orb.js`,
 `orb-face.js`, `orb-particles.js`, `coach.css`), chargée en module ES puis signalée à `site.js` par l’événement `coach-ready`.
 Réutilise les polices de `assets/fonts`. Photo de paysage : Liang Zhao sur Unsplash (licence Unsplash), chargée
-depuis images.unsplash.com. Nom « Atelier IA », formules « Sur devis » et adresse de contact
-à remplacer.
+depuis images.unsplash.com. Produit : « Initiation IA », avec la mascotte pour logo (`assets/img/logo.png`).
 
 ## Découvrir Claude (`decouvrir/`)
 

@@ -825,6 +825,17 @@
   resize(); scrollS.v = target(); U = scrollS.v;
   requestAnimationFrame(loop);
 
+  /* le menu « Fonctionnalités » : droit à la présentation de l'interface (le récit se joue au défilement, on y saute sans tout rejouer) */
+  $$("[data-goto]").forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      var id = a.getAttribute("data-goto"); if (START[id] == null) return;
+      e.preventDefault();
+      var root = document.documentElement, y = story.getBoundingClientRect().top + scrollY + (START[id] + LEN[id] * .95) * innerHeight;
+      root.classList.add("no-smooth"); scrollTo(0, y); root.classList.remove("no-smooth");
+      scrollS.v = target(); U = scrollS.v;
+    });
+  });
+
   /* =====================================================================
      Ce qu'on apprend : la bande défile à l'horizontale
      ===================================================================== */
@@ -900,7 +911,7 @@
     ["Le cadre légal", [["RGPD et IA Act : l’essentiel", "Les règles utiles au poste de travail.", 1], ["Biais et risques", "Analyser un cas, proposer des corrections."], ["Tenir sa veille réglementaire", "Sources officielles, textes à jour.", 1]], "photo-1573164574511-73c773193279", "Une réunion d’équipe dans une salle de conseil", "Christina M", "wocintechchat"],
     ["Intégrer l’IA à son poste", [["Cartographier son poste", "Repérer les tâches que l’IA peut optimiser."], ["Choisir ses outils", "Comparer les outils, estimer un budget.", 1], ["Son plan d’intégration", "Rédiger la stratégie, sans oublier le handicap."]], "photo-1503551723145-6c040742065b-v2", "Un mur couvert de notes adhésives colorées", "Patrick Perkins", "patrickperkins"]
   ];
-  var mods = $("[data-mods]"), n = 0, READY = { 1: 1, 2: 1 }, UTM = "?utm_source=atelier_ia&utm_medium=referral";
+  var mods = $("[data-mods]"), n = 0, READY = { 1: 1, 2: 1 }, UTM = "?utm_source=initiation_ia&utm_medium=referral";
   if (mods) PARCOURS.forEach(function (part, pi) {
     var el = document.createElement("section"); el.className = "pc";
     el.innerHTML = '<figure class="pc-ph"><img loading="lazy" decoding="async" width="800" height="450"><figcaption>Photo&nbsp;: <a target="_blank" rel="noopener"></a>, <a target="_blank" rel="noopener">Unsplash</a></figcaption></figure>' +
